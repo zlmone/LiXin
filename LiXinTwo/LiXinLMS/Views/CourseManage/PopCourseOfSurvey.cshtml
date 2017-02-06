@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "主观题树形跳出的课程";
+    Layout = null;
+}
+<table class="tab-List">
+    <thead>
+        <tr>
+            <th>
+                课程名称
+            </th>
+            <th>
+                开放级别
+            </th>
+            <th class="span8">
+                选/必修
+            </th>
+            <th>
+                课程类型
+            </th>
+        </tr>
+    </thead>
+    <tbody id="tbCourseList">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+<center class="mt10">
+<a onclick="closeDialog('art_CourseOfSurvey')" class="btn btn-cancel">取消</a>
+</center>
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+             <td><div class="tl ovh span30">{{:Name}}</div></td>
+             <td>{{:OpenLeavel}}</td>
+             <td>{{:IsMust}}</td>
+             <td>{{:Type}}</td>       
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        fnGetCourseList();
+    });
+
+    function fnGetCourseList()
+    {
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 5,
+            pageIndex: 1,
+            templateID: "courseListTemplate"
+        });
+    }
+
+    function GetPopParameters()
+    {
+        var url = "/CourseManage/GetCompetencyCourseList?t=" + new Date();
+        url += "&sortIds=" + @ViewBag.sysIds;
+            url += "&gradeIds=" + @ViewBag.gradeIds;
+        return url;
+
+    }
+</script>

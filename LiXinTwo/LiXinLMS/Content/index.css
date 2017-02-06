@@ -1,0 +1,78 @@
+@charset "utf-8";
+/* CSS Document */
+.error .do .login{behavior:url(/content/PIE.htc);}
+
+
+#head{margin:0 auto;position:relative;width:100%;min-width:1000px;height:70px;background:#c8000b;border-bottom:1px solid #930008;}
+#head .logo{position:absolute;top:15px;left:20px;width:105px;height:40px;background:url(../images/logo.png) 0 0 no-repeat;overflow:hidden;}
+#head .info{text-align:right;}
+#head .info p{margin-right:140px;display:inline-block;color:#fff;font:14px "微软雅黑";line-height:70px;}
+#head .info a{position:absolute;top:0;display:inline-block;width:50px;height:70px;background:url(../images/index-icon.png) no-repeat;overflow:hidden;}
+#head .info a:hover{background-color:#aa000a;}
+#head .info a.mail{right:120px;background-position:0 18px;}
+#head .info a.mail:hover{background-position:-50px 18px;text-decoration:none;}
+#head .info a.mail span{display:none;}
+#head .info a.help{right:70px;background-position:-100px 18px;}
+#head .info a.help:hover{background-position:-150px 18px;}
+#head .info a.out{right:20px;background-position:-200px 18px;}
+#head .info a.out:hover{background-position:-250px 18px;}
+#head .info a.mail.hav{padding-top:50px;height:30px;background-color:#a0000a;background-position:-50px 18px;}
+#head .info a.mail.hav span{display:block;text-align:center;color:#fff;font:18px Verdana;}
+
+#main:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+#main{position:relative;margin:0 auto;padding:40px 0;width:1000px;zoom:1;}
+#main .word{position:absolute;top:40px;left:0;width:185px;height:300px;background:url(../images/lay-word.png) no-repeat;overflow:hidden;}
+#main .menu{margin-right:30px;padding-top:10px;width:710px;float:right;}
+#main .menu h2{position:relative;height:60px;background:url(../images/logo-tit.png) no-repeat 0 0;}
+#main .menu h2 span{position:absolute;bottom:7px;right:3px;font:12px Verdana;font-weight:bold;display:none;}
+#main .menu .mlist:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+#main .menu .mlist{position:relative;margin-top:20px;padding:30px 0 0 30px;zoom:1;}
+#main .menu .mlist div{position:absolute;padding-bottom:20px;width:100%;height:100%;background:#000;opacity:0.3;filter: progid:DXImageTransform.Microsoft.Alpha(opacity=30);overflow:hidden;z-index:-1;}
+#main .menu .mlist .bg-a{top:20px;left:0;}
+#main .menu .mlist .bg-b{top:0;left:30px;opacity:0.4;filter: progid:DXImageTransform.Microsoft.Alpha(opacity=40);}
+#main .menu .mlist p{padding:21px 0;width:50%;float:left;cursor:pointer;}
+#main .menu .mlist p .num{display:block;float:left;margin-right:5px;width:47px;height:47px;background:#323232;text-align:center;color:#fff;font-weight:bold;font:30px/47px Verdana;}
+#main .menu .mlist p:hover .num{background:#c7000b;}
+#main .menu .mlist p a{font:22px "幼圆";color:#fff;line-height:30px;}
+#main .menu .mlist p a span{display:block;font:12px Verdana;color:#fff;line-height:20px;}
+#main .menu .mlist p a:hover{text-decoration:none;}
+
+#foot{margin:0 auto;position:absolute;bottom:0;width:100%;min-width:1000px;height:40px;background:#002f7b;border-top:6px solid #0f3f8c;font-family:"微软雅黑";} 
+#foot h4{position:relative;display:inline-block;float:left;margin:-10px 20px 0;padding:0 20px;height:50px;background:#1852af;color:#fff;font-size:18px;line-height:50px;font-weight: normal;}
+#foot h4 i{position:absolute;top:0;right:-5px;display:block;width:5px;height:5px;background:url(../images/index-icon.png) -300px 0;overflow:hidden;}
+#foot p{display:inline-block;color:#fff;float:left;line-height:40px;}
+#foot p a{color:#fff;}
+#foot a.more{display:inline-block;padding:0 10px;height:40px;background:#00286a;line-height:39px;color:#fff;} 
+#foot a.more i{display:inline-block;margin:0 0 -2px 5px;width:14px;height:14px;background:url(../images/index-icon.png) -300px -10px;overflow:hidden;}
+#foot a.more:hover{color:#fff;text-decoration:none;}
+#foot a.more:hover i{background-position:-320px -10px;}
+
+#lay-bg{margin:0 auto;position:absolute;top:0;left:0;width:100%;min-width:1000px;height:100%;min-height:310px;overflow:hidden;z-index:-9;}
+#lay-bg img{position:absolute;top:0;left:0;z-index:-1;width:100%;height:100%;overflow:hidden;}
+
+
+/* 版本日志弹出层 -- */
+#lookupdaterecord{position:fixed;top:0;left:0;width:100%;height:100%;z-index:990;}
+#lookupdaterecord .look-bg{z-index:998;width:100%;height:100%;background:#000;opacity:0.5;filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50);}
+#lookupdaterecord #look-con{position:absolute;top:100px;z-index:999;width:820px;background:#f5f5f5;box-shadow:3px 3px 3px #000;}
+#lookupdaterecord #look-con #title{height:50px;background:#ddd;border-bottom:1px solid #cbcbcb;text-align:center;font:18px/50px "微软雅黑";}
+#lookupdaterecord #look-con #title a{margin:9px 10px 0 0;width:32px;height:32px;background:#c7000b;color:#fff;font-weight:bolder;font:14px/32px verdana;display:block;float:right; cursor:pointer; text-decoration:none;}
+#lookupdaterecord #look-con #content{height:350px;overflow:auto;}
+#lookupdaterecord #look-con #content ul{padding:10px 25px 20px;}
+#lookupdaterecord #look-con #content ul div,#record #content ul div{padding:5px 0;font:14px/20px "微软雅黑";}
+#lookupdaterecord #look-con #content ul div.recordTitle,#record #content ul div.recordTitle{margin-bottom:5px;border-bottom:1px solid #ddd;color:#cd1f28;line-height:30px;}
+
+/* 版本日志弹出页面 UpdateRecord.cshtml -- */
+#bg{background:#f5f5f5;}
+#record{width:100%;height:100%;background:url(../images/UpdateRecord-bg.png) 0 0 repeat-x;}
+#record #title{padding:50px 0 10px;height:32px;background:url(../images/UpdateRecord-tit.png) center 50px no-repeat;border-bottom:5px solid #e6e6e6;text-align:center;color:#fff;font:18px/32px "微软雅黑";}
+#record #content{margin:10px auto;width:1000px;}
+/* 报错页面 RightError.cshtml -- */
+.error{padding-top:200px;margin:0 auto;width:600px;position:relative;}
+.error i{width:90px;height:80px;background:url(../images/right-error.png);display:block;position:absolute;top:200px;left:0;}
+.error h2{padding-left:120px;font:24px/80px "微软雅黑";color:#999;min-height:80px;}
+.error h2 a{margin:0 10px;color:#333;}
+.error .do{margin-top:30px;text-align:right;}
+.error .do a{font:16px "微软雅黑";padding:9px 15px;color:#333;}
+.error .do .login{position:relative;padding-left:45px;background:url(../images/right-error-login.png) 0 -40px repeat-x;border-radius:8px;color:#fff;}
+.error .do .login i{width:27px;height:40px;background:url(../images/right-error-login.png) no-repeat; display:block;position:absolute;top:0;left:10px;}

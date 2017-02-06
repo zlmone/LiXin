@@ -1,0 +1,203 @@
+﻿@{
+    ViewBag.Title = "Calendar";
+    Layout =null;
+}
+
+<link href="../../Content/calendar.css" rel="stylesheet" type="text/css" />
+<div class="main-c">
+    
+    <div class="calendarTask">
+        <table>
+            <thead>
+                <tr class="calendarheadone">
+                    <td colspan="7">
+                        <a class="fr" id="preMonth" onclick=" goAnotherMonth(1); ">>></a>
+                        <a class="fl" id="nextMonth" onclick=" goAnotherMonth(-1); "><<</a>
+                        <div class="ma tac">
+                            <select id="currentYear" class="sel" onchange=" goAnotherMonth(0); ">
+                                @{
+                                    for (int i = 2010; i <= DateTime.Now.Year + 50; i++)
+                                    {
+                                        <option value="@i" @(DateTime.Now.Year == i ? "selected=selected" : "")>@i</option>
+                                    }
+                                }
+                            </select>
+                            <span class="line_h20 c3c">年</span>
+                            <select id="currentMonth" class="sel" onchange=" goAnotherMonth(0); ">
+                                @{
+                                    for (int i = 1; i <= 12; i++)
+                                    {
+                                        <option value="@i" @(DateTime.Now.Month == i ? "selected=selected" : "")>@i</option>
+                                    }
+                                }
+                            </select>
+                            <span class="line_h20 c3c">月</span>
+                        </div>
+                        <div class="clear"></div>
+                    </td>
+                </tr>
+                <tr class="calendarheadtwo">
+                    <td class="headworkweekbg">周一</td>
+                    <td class="headworkweekbg">周二</td>
+                    <td class="headworkweekbg">周三</td>
+                    <td class="headworkweekbg">周四</td>
+                    <td class="headworkweekbg">周五</td>
+                    <td class="headrestweekbg">周六</td>
+                    <td class="headrestweekbg">周日</td>
+                </tr>
+            </thead>
+            <tbody id="calendarTask"></tbody>
+        </table>
+    </div>
+    <object id="WebBrowser" classid="ClSID:8856F961-340A-11D0-A96B-00C04Fd705A2" width="0"
+            height="0">
+    </object>
+    <div id="showDetail" style="display: none;">
+        <div id="detailList" class="h50 roll_y">
+        </div>
+    </div>
+    <div id="courseday" style="float:left;margin-left:20px; width:500px;"></div>
+</div>
+
+<!--日历单元格模板-->
+<script id="calendarTaskTemplte" type="text/x-jsrender">
+    {{for #data}}
+        {{if (#index%7==0)}}
+            <tr>
+        {{/if}}
+
+        {{if Bg==0}}
+        <td class="passdaybg" isday="0" order="{{:(#index%7+1)}}">
+        <div><i></i><span class="am" title="">am</span><span class="pm" title="">pm</span><p>{{:Day}}</p></div>
+        </td>
+        {{/if}}
+         {{if (Bg==1 || Bg==3)&&TaskTotal==0}}
+        <td id="bg1td_{{:Day}}" year="{{:Year}}" month="{{:Month}}" day="{{:Day}}" class="{{:Bg==1?"mondaybg":"mondaybg bg-on"}}" isday="0" order="{{:(#index%7+1)}}">
+        <div><i></i><span class="am" title="">am</span><span class="pm" title="">pm</span><p>{{:Day}}</p></div>
+        </td>
+        {{/if}}
+        {{if (Bg==1 || Bg==3)&&TaskTotal>0}}
+        <td id="bg1td_{{:Day}}" year="{{:Year}}" month="{{:Month}}" day="{{:Day}}" class="{{:Bg==1?"mondaybg":"mondaybg bg-on"}} {{:(MoringStr=="" && AfterStr=="")?"":"pointer"}}" isday="{{:TaskTotal>0?1:0}}" order="{{:(#index%7+1)}}" onclick="{{:(MoringStr=="" && AfterStr=="")?"":"browseCourse(this);"}}">
+        <div><i title="今天"></i><span class="am {{:MoringStr==""?"":"bl"}}" title="{{:MoringStr==""?"":MoringStr}}">am</span><span class="pm {{:AfterStr==""?"":"bl"}}" title="{{:AfterStr==""?"":AfterStr}}">pm</span><p>{{:Day}}</p></div>
+        </td>
+        {{/if}}
+        {{if (#index+1)%7==0}}
+            </tr>
+        {{/if}}
+    {{/for}}
+</script>
+@*        {{if Bg==2}}
+        <td class="taskdaybg pointer" title="点击查看详情" isday="1" year="{{:Year}}" month="{{:Month}}" day="{{:Day}}" order="{{:(#index%7+1)}}">
+        <div><span>{{:Month}}月</span><p>{{:Day}}</p></div>
+        </td>
+        {{/if}}*@
+<!--单日任务呈现模板-->
+<script id="singleTaskTemplte" type="text/x-jsrender">
+   {{for #data}}
+       <h3 class="tit-h3">
+           <div class="all80 ovh">{{:CourseName}}</div>
+       </h3>
+       <table class="tab-Form tab-now mb10">
+          <tr><td class="Tit span6">开放级别：</td><td><strong>{{:OpenLevel}}</strong></td><td rowspan="3" class="tr"></td></tr>
+          <tr><td class="Tit">授课教师：</td><td><strong> {{:TeacherName}}</strong></td></tr>
+          <tr><td class="Tit">授课地点：</td><td><strong>{{:CourseAddress}}</strong></td></tr>
+       </table>
+   {{/for}}
+</script>
+<script id="CourseDayTemplte" type="text/x-jsrender">
+    @*<div>
+         <span>课程信息</span>
+         <span>当天日期  @DateTime.Now.ToString("yyyy/MM/dd")</span>
+      </div>*@
+   {{for #data}}
+       <h3 class="tit-h3">
+           <div class="all80 ovh">{{:CourseName}}</div>
+       </h3>
+        <table class="tab-Form tab-now mb10">
+          <tr><td class="Tit span6">开放班级：</td><td><strong>{{:ClassName}}</strong></td><td rowspan="3" class="tr"></td></tr>
+          <tr><td class="Tit">开放教室：</td><td><strong> {{:roomname}}</strong></td></tr>
+          <tr><td class="Tit">开放地址：</td><td><strong>{{:classroomAddress}}</strong></td></tr>
+       </table>
+   {{/for}}
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        initCalendarTask(@(DateTime.Now.Year), @(DateTime.Now.Month), 0);
+
+        var day=new Date();
+        var start=day.getFullYear()+"-"+(day.getMonth()+1)+"-"+day.getDate();
+        var end=day.getFullYear()+"-"+(day.getMonth()+1)+"-"+(day.getDate()+1);
+       
+        FCourseByDay(start,end);
+    });
+
+    //加载数据
+    
+    function initCalendarTask(year, month, addMonth) {
+        $("#calendarTask").html('<tr><td colspan="7"><div class="tac"><img src="../../Images/loading.gif" /></div></td></tr>');
+
+        $.getJSON("/NewTeacherCourse/GetCalendarTask?year=" + year + "&month=" + month + "&addMonth=" + addMonth, function(data) {
+            $("#currentYear").val(data.year);
+            $("#currentMonth").val(data.month);
+            InitTask(data);
+        });
+    }
+
+    function browseCourse(obj) {
+        var start=$(obj).attr("year") + '-' + $(obj).attr("month") + '-' + $(obj).attr("day");
+        var end=$(obj).attr("year") + '-' + $(obj).attr("month") + '-' + (parseInt($(obj).attr("day"))+1);
+        //alert(start+"|"+end);
+        FCourseByDay(start,end);
+    }
+
+    function InitTask(data) {
+
+        $("#calendarTask").JsRenderData({
+            dataSource: data,
+            isPage: false,
+            templateID: "calendarTaskTemplte",
+            funCallback:function()
+            {
+            }
+        });
+    }
+
+    function FCourseByDay(start,end)
+    {
+        $.getJSON("/NewTeacherCourse/GetCourseByDay?starttime=" + start + "&endtime=" + end, function(data) {
+            $("#courseday").html($("#CourseDayTemplte").render(data.dataList));
+        });
+    }
+
+    //查看上月（下月）的信息
+
+    function goAnotherMonth(addMonth) {
+        if (($("#currentYear").val() == $("#currentYear option:first").text() && (parseInt($("#currentMonth").val()) + parseInt(addMonth)) < 1) || ($("#currentYear").val() == $("#currentYear option:last").text() && (parseInt($("#currentMonth").val()) + parseInt(addMonth)) > 12))
+            return;
+        initCalendarTask($.trim($("#currentYear").val()), $.trim($("#currentMonth").val()), addMonth);
+    }
+
+    //显示某天的详情
+    function fnshowDetail(year, month, day) {
+        initDetialCourse(year,month,day);
+    }
+    function initDetialCourse(year,month,day)
+    {
+        $("#detailList").JsRenderData({
+            sourceUrl: "/NewTeacherCourse/GetCourseDayTask?year="+year+"&month="+month+"&day="+day,
+            isPage: false,
+            templateID: "singleTaskTemplte",
+            funCallback:function(data)
+            {
+                if (data.recordCount>0) {
+                    $("#showDetail").show();
+                }
+                else {
+                    $("#showDetail").hide();
+                }
+            }
+        });
+    }
+</script>

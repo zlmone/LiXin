@@ -1,0 +1,225 @@
+﻿@using LiXinModels.CourseManage
+@using LiXinControllers
+@using LiXinLanguage;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var course = ViewBag.courselist as Co_Course;
+
+    var courseResource = ViewBag.courseResource as List<Co_CourseResource>;
+    var CourseVideoResourse = ViewBag.CourseVideoResourse as List<Co_CourseResource>;
+    var Resourceurl = BaseController.UFCOResource as string;
+
+    var flag = Request.QueryString["flag"] ?? "0";
+    ViewBag.Title = "课程详情";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new
+    {
+        linkName = "课程详情"
+    }))
+        @Html.Action("VideoCourse", "MyCourse", new { courseid = @ViewBag.id, flag = 1 })
+        <div class="course-de">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span13">课程类别：</td>
+                    <td>@course.SortStr</td>
+                </tr>
+                <tr>
+                    <td class="Tit">必修/选修：</td>
+                    <td>@(course.IsMust == 0 ? "必修" : "选修")</td>
+                </tr>
+                <tr>
+                    <td class="Tit">是否可折算CPA学时：</td>
+                    <td>@(course.IsCPA == 0 ? "否" : "是")</td>
+                </tr>
+                <tr>
+                    <td class="Tit">讲师：</td>
+                    <td>@(course.TeacherStr)</td>
+                </tr>
+                <tr>
+                    <td class="Tit">是否有在线测试：</td>
+                    <td>@(course.IsTest==0?"否":"是")</td>
+                </tr>
+                @{
+                    if (course.IsTest==1){
+                    <tr>
+                        <td class="Tit">允许考试次数：</td>
+                        <td>@(course.TestTimes)</td>
+                    </tr>
+                    }
+                }
+            </table>
+            <div class="oth">
+                @*<h4>课程大纲：</h4>
+                <div class="co-memo mb10" style="width:650px; overflow:auto;">
+                    @if (course.Memo != null)
+                    {
+                        @course.Memo
+                    }
+                    else
+                    {
+                        <p>暂无内容</p>
+                    }
+                </div>*@
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th>视频名称</th>
+                            <th>是否参与课后评估</th>
+                            <th>学习次数</th>
+                            <th>视频观看进度</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tt in courseResource)
+                        {
+                            <tr>
+                                @if (@tt.ResourceType == 4)
+                                { 
+                                    <td>
+                                        <div class="span18 ovh tl" title="@tt.RealName">@tt.RealName</div>
+                                    </td>
+                                }
+                                @if (@tt.ResourceType == 3)
+                                {
+                                    <td>@tt.ResourceName</td>
+                                }
+                                <td>@(tt.IsPing == 0 ? "否" : "是")</td>
+                                <td>@tt.LearnTimes</td>
+                                @if (@tt.ResourceType == 4)
+                                {
+                                    <td>@(tt.Progress)%</td>
+                                }
+                                else
+                                {
+                                    <td>@(Convert.ToInt32(tt.Progress))%</td>
+                                }
+                                <td>
+                                    @if (@tt.ResourceType == 4)
+                                    {
+                                        <a onclick=" FAddLearnVideoInfor(@course.Id,@tt.CourseResourceId, '@tt.ResourceName',4,@tt.VideoManageIsDelete) " class="icon iplay" title="学习"></a>
+                                    }
+                                    else
+                                    {
+                                        <a onclick="FAddLearnVideoInfor(@tt.CourseId,@tt.CourseResourceId,'',3,@tt.VideoManageIsDelete)" class="icon iplay" title="学习"></a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <h4>课程附件：</h4>
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th>附件名称</th>
+                            <th>附件类型</th>
+                            <th>附件大小</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (CourseVideoResourse.Find(p => p.ResourceType == 1) != null)
+                        {
+
+                            foreach (var coCourseResource in CourseVideoResourse)
+                            {
+                                if (coCourseResource.ResourceType == 1)
+                                { 
+                            <tr>
+                                <td>
+                                    <div class="tl">@coCourseResource.ResourceName</div>
+                                </td>
+                                <td>@coCourseResource.ExtendName</td>
+                                <td>@coCourseResource.ResourceSize K</td>
+                                <td><a href="@Url.Content(Resourceurl + coCourseResource.RealName)" target="_Blank" class="icon idown" title="我要下载"></a></td>
+                            </tr>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="tc">暂无资源</td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+       @* <input type="button" id="dd" value="按钮" />*@
+        <div class="mt10 tc">
+            @{
+                if (flag == "1")
+                {
+                <a href="/Home/MyTrainIndex" class="btn btn-cancel">返回</a>
+                }
+                else
+                {
+                <a href="/MyCourse/VideoCourseList?p=1" class="btn btn-cancel">返回</a>
+                }
+            }
+        </div>
+    </div>
+
+</body>
+<script type="text/javascript">
+    $(document).ready(function () {
+//        $("#dd").click(function () {
+//            $.post("/MyCourse/FUpdateProgress?LearnId=63&allallduration=100&tt=50&ResourseId=150")
+//        })
+    });
+    function FAddLearnVideoInfor(courseid, coursecourseid, url, ResourceType, isdelete)
+    {
+        if (isdelete == 0)
+        {
+            $.post("/MyCourse/LearnVideoInforAdd?courseid=" + courseid + "&coursecourseid=" + coursecourseid + "&url=" + url + "&ResourceType=" + ResourceType, function (data)
+            {
+                // location.href = "/" + data.learnurl;
+                if (data.result == 0)
+                {
+                    //art.dialog({ title: '温馨提示', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+                    art.dialog.tips(data.content, 3);
+                } else
+                {
+                    if (ResourceType == 4)
+                    {
+                        open(data.learnurl);
+                    } else
+                    {
+                        open(data.URL);
+                    }
+                }
+            });
+        } else
+        {
+            art.dialog.tips("视频已删除，无法观看", 3);
+        }
+    }
+
+    function PlayWare(id, type)
+    {
+        $.getJSON("/MyCourse/PlayCourseware?tp=0&id=" + id, function (data)
+        {
+            if (type == 0)
+            {
+                open(data.URL);
+            } else
+            {
+                open("/MyCourse/NormalCoursePlay?tp=0&id=" + id + "&url=" + data.URL);
+            }
+        });
+    }
+</script>
+</html>

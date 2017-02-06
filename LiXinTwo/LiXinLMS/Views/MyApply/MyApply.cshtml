@@ -1,0 +1,62 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "我的申请";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var flag = Request.QueryString["flag"] ?? "0";
+    var nextflag = Request.QueryString["nextflag"] ?? "0";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的申请"
+}))
+    <div class="fl span19">
+        <div class="menu-list">
+            <ul id="tags">
+                <li><a id="tag0" class="On" href="#" onclick="selectContent(0);">我的请假申请<i></i></a>
+                </li>
+                <li><a id="tag1" href="#" onclick="selectContent(1);">我的补预订申请<i></i></a> </li>
+                <li><a id="tag2" href="#" onclick="selectContent(2);">我的逾时申请<i></i></a> </li>
+                <li><a id="tag3" href="#" onclick="selectContent(3);">我的违纪情况说明<i></i></a> </li>
+                <li><a id="tag4" href="#" onclick="selectContent(4);">我的其他形式及免修申请<i></i></a> </li>
+            </ul>
+        </div>
+    </div>
+    <div id="divContent" class="fr span80">
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if(@flag=='3') {
+            selectContent(3);
+        }
+       else if(@flag=='2') {
+            selectContent(2);
+       }
+       else if(@flag=='4')
+       {
+           selectContent(4);
+       }
+       else {
+           $("#divContent").load("/MyApply/MyLeaveApply");
+       }
+    });
+
+    function selectContent(flag) {
+        $("#tags a").removeClass("On");
+        $("#tag" + flag).addClass("On");
+
+        if (flag == 0) {
+            $("#divContent").load("/MyApply/MyLeaveApply");
+        } else if (flag == 1) {
+            $("#divContent").load("/MyApply/MyComplementResApply");
+        } else if (flag == 2) {
+            $("#divContent").load("/MyApply/MyTimeOutApply");
+        }
+        else if (flag == 3) {
+            $("#divContent").load("/MyApproval/MyPrincipleList");
+        }
+        else if (flag == 4)
+            $("#divContent").load("/MyApply/Free_Main?nextflag=@nextflag");
+    }
+</script>

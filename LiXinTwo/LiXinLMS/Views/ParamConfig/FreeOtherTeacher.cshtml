@@ -1,0 +1,114 @@
+﻿@model LiXinModels.SystemManage.Free_OtherApplyConfig
+@{
+    ViewBag.Title = "授课人";
+    Layout = null;
+}
+<!--授课人-->
+<form id="form_teacher">
+    <div id="div_teacher">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit">申请内容：</td>
+                <td><span >担当培训授课人、研讨会主持人或演讲人及承担我所内部培训的授课人</span></td>
+            </tr>
+            <tr>
+                <td class="Tit">学时折算方法：</td>
+                <td>实际授课、主持或演讲实际的<input id="ConvertBaseTo" name="ConvertBaseTo" type="text" class="span10 searchclass" value="@(Model.ConvertBaseTo)"/>倍折算学时</td>
+            </tr>
+            <tr>
+                <td class="Tit">可折内部培训学时年度的最高限制：</td>
+                <td>
+                    <input id="TrainGradeScore" name="TrainGradeScore" type="text" class="span20 searchclass"value="@(Model.TrainGradeScore)"  /></td>
+            </tr>
+            <tr>
+                <td class="Tit">可折CPA学时年度的最高限制：</td>
+                <td>
+                    <input id="ConvertMax" name="ConvertMax" type="text" class="span20 searchclass" value="@(Model.ConvertMax)" info="输入0.5的倍数" /></td>
+            </tr>
+            <tr>
+                <td class="Tit">上传文件提示：</td>
+                <td>
+                    <textarea id="txtUploadTip" name="UploadTip" cols="20" rows="2" maxlength="50" class="span20">@(Model.UploadTip)</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">情况说明模板：</td>
+                <td>
+                    <textarea id="txtMemo" name="Memo" cols="20" rows="2" class="span20" maxlength="200">@(Model.Memo)</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">情况说明输入提示：</td>
+                <td>
+                    <textarea id="txtMemoTip" name="MemoTip" cols="20" rows="2" class="span20" maxlength="200">@(Model.MemoTip)</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="submit" value="保存" class="btn" id="saveOtherTeacher">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <input id="ApplyContent" type="hidden" name="ApplyContent" value="担当培训授课人、研讨会主持人或演讲人及承担我所内部培训的授课人" />
+    <input id="ID" name="ID" type="hidden"  value="@(Model.ID)"/>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        if (@ViewBag.IsEdit==0)
+        {
+            $("#ConvertBaseTo").attr("disabled",true);
+            $("#TrainGradeScore").attr("disabled",true);
+            $("#ConvertMax").attr("disabled",true);
+            $("#Memo").attr("disabled",true);
+            $("#saveOtherTeacher").attr("disabled",true);
+        }
+
+        jQuery.validator.addMethod("checkNumber", function (value, element)
+        {
+            var reg=/^\d+[\.]?\d{0,2}$/;
+            return this.optional(element) || (reg.test(value)&&parseFloat(value)>0&&parseFloat(value)<=999);
+        }, $.validator.format("输入保留2位小数，规则：输入保留2位小数，且在0-999范围内（不包括0）"));
+
+        $("#form_teacher").validate(
+            {
+                errorPlacement: function (error, element)
+                {
+                    error.insertAfter(element);
+                },
+                debug: true,
+                submitHandler: saveTeacher,
+                event: "blur",
+                rules: {
+                    ConvertBaseTo: { checkNumber: true },
+                    TrainGradeScore: { checkNumber: true  },
+                    ConvertMax: { checkNumber: true  },
+                    Memo: { maxlength: 200 },
+                    UploadTip:{maxlength: 50 }
+                },
+                messages: {
+                    Memo: { maxlength: "情况说明字符最大为200个字符" },
+                    UploadTip:{maxlength: "上传文件提示不能超过50个字符！" }
+                }
+            });
+    });
+
+    function saveTeacher()
+    {
+
+        $.post("/ParamConfig/AddOther?type=0&year=@ViewBag.year", $("#form_teacher").formSerialize(), function (data)
+        {
+            if (data.result == 1)
+            {
+                art.dialog({ title: '提示', content: '配置成功', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+            }
+            else
+            {
+                art.dialog({ title: '提示', content: '配置失败', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+            }
+        });
+    }
+</script>
+
+

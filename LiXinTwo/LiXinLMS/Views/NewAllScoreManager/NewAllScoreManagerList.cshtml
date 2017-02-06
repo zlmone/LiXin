@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "综合评分管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "综合评分管理" }))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：
+                </td>
+                <td class="span17">
+                    @*请输入搜索内容*@
+                    <input type="text" id="CourseName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+
+                <td class="Tit span6">开课时间：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" id="txt_StartTime" value="" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  " />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="time-choose">
+                        <input type="text" id="txt_EndTime" value="" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })" />
+                        <i></i>
+                    </div>
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="sel_RoomId" name="RoomId" class="sel span18" onchange="fOnload()">
+            <option value="0" num="0">请选择开课教室</option>
+            @if (ViewBag.ClassRoomList != null && (((List<LiXinModels.New_ClassRoom>)ViewBag.ClassRoomList).Count > 0))
+            {
+                foreach (var item in (List<LiXinModels.New_ClassRoom>)ViewBag.ClassRoomList)
+                {
+                <option num="@item.RoomNumber"  value="@(item.Id)">@item.RoomName</option>   
+                }
+            }
+        </select>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th>课程名称
+                </th>
+                <th class="span14">开课时间
+                </th>
+                @*<th class="span18">开放班级
+                </th>*@
+                <th class="span12">总人数
+                </th>
+                <th class="span15">开课教室
+                </th>
+                <th class="span12">授课类型
+                </th>
+                <th class="span10">操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr class="{{:IsAppoint>0?"top":""}}">
+            <td>
+            {{:#index+1}}
+            </td>
+            <td>
+                <div class="ovh span20 tl" title="{{:CourseName}}">{{:CourseName}}</div>
+            </td>
+            <td style="text-align:left;">
+               {{:StartTimeStr}}--{{:EndTimeStr}}
+            </td>
+            @*<td>
+                <div class="ovh span18 tl" title="{{:classnames}}">{{:classnames}}</div>   
+            </td>*@
+            <td>
+                {{:UserCount}}
+            </td>
+            <td> 
+                <div class="ovh span15 tl" title="{{:roomnames}}">{{:roomnames}}</div> 
+            </td>
+            <td>
+               {{if IsGroupTeach==0}}
+                无
+                {{/if}}
+                {{if IsGroupTeach==1}}
+                集中授课
+                {{/if}}
+                {{if IsGroupTeach==2}}
+                分组带教
+                {{/if}}
+                {{if IsGroupTeach==3}}
+                集中授课，分组带教
+                {{/if}}
+             </td>
+            <td>
+               <a class="icon ieva-re" onclick="Input({{:Id}},{{:IsGroupTeach}})" title="分数录入">分数录入</a>
+            </td>            
+        </tr> 
+        {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        $("#txt_StartTime").val("@(ViewBag.nowTime)");
+
+        fOnload();
+
+        $("#btn_Select").click(function ()
+        {
+            fOnload();
+        });
+    })
+    function fOnload()
+    {
+        var v = "CourseName=" + escape(getSearchWord('CourseName')) + "&ClassRoom=" + $("#sel_RoomId").val() + "&starttime=" + $("#txt_StartTime").val() + "&endtime=" + $("#txt_EndTime").val();
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/NewAllScoreManager/GetNewAllScoreManagerList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    function Input(id, IsGroupTeach)
+    {
+        window.location.href = "/NewAllScoreManager/NewAllScore?courseid=" + id + "&IsGroupTeach=" + IsGroupTeach;
+    }
+
+</script>

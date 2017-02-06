@@ -1,0 +1,195 @@
+﻿@{
+    ViewBag.Title = "预览";
+    Layout = null;
+    var type = Request.QueryString["type"] ?? "0";
+}
+<script src="../../Scripts/FlexPaper_1.5.1_flash/js/flexpaper_flash.js" type="text/javascript"></script>
+<style>
+    .thumbnail { overflow: hidden; width: 530px; height: 340px; }
+</style>
+<table class="tab-Form">
+    @if (type == "0")
+    {
+        <tr>
+            <td colspan="2">
+                <input class="btn btn-co fl" type="button" value="我要下载" onclick="pop_DownLoadFile();" />
+                @if (ViewBag.flag)
+                {
+                    <div id="timeMsg" style="color: red" class="fl ml5">查看时间：10秒</div>
+                }
+            </td>
+        </tr>
+    }
+    <tr>
+        @if (ViewBag.flag)
+        {
+            if (ViewBag.type == 1)
+            {
+            <td>
+                <a id="viewerPlaceHolder" style="width: 640px; height: 480px; display: block"></a>
+            </td>
+            }
+            else
+            {
+            <td>
+                <div id="content">
+                    <div class="thumbnail">
+                        <img alt="" src="@(ViewBag.Url.Trim('~'))" id="pop_img" />
+                    </div>
+                </div>
+            </td>
+            }
+        }
+
+        else
+        {
+            <td>资源不存在或正在转换</td>
+        }
+    </tr>
+</table>
+<script>
+    var path = "@(System.Configuration.ConfigurationManager.AppSettings["FreeUplpadUrl"])"
+  
+    $(document).ready(function ()
+    {
+
+        if ("@type" == "0")
+        {
+            
+            if ($("#hidLookFile").val() == "1")
+            {
+                $("#timeMsg").hide();
+            }
+            else
+            {
+                if ("@ViewBag.flag" == "True")
+                {
+                     setInterval("CountDown()", 1000);
+                }
+            }
+        }
+
+        var img = new Image();
+        img.onload = function ()
+        {
+            Free_showImage();
+        };
+
+        img.src = $("#pop_img").attr("src");
+
+        var fp = new FlexPaperViewer(
+                    '../../Scripts/FlexPaper_1.5.1_flash/FlexPaperViewer',
+                   'viewerPlaceHolder', {
+                       config: {
+                           SwfFile: decodeURI('@(ViewBag.Url.Trim('~'))'),
+                           Scale: 0.6,
+                           ZoomTransition: 'easeOut',
+                           ZoomTime: 0.5,
+                           ZoomInterval: 0.2,
+                           FitPageOnLoad: true,
+                           FitWidthOnLoad: true,
+                           FullScreenAsMaxWindow: false,
+                           ProgressiveLoading: false,
+                           MinZoomSize: 0.2,
+                           MaxZoomSize: 5,
+                           SearchMatchAll: false,
+                           InitViewMode: 'TowPage',
+                           ViewModeToolsVisible: true,
+                           ZoomToolsVisible: true,
+                           NavToolsVisible: true,
+                           CursorToolsVisible: true,
+                           SearchToolsVisible: true,
+                           localeChain: 'zh_CN'
+                       }
+                   });
+    });
+
+               //获取flexpaper元素
+               var docViewer;
+
+               function getDocViewer()
+               {
+                   if (docViewer)
+                       return docViewer;
+                   else
+                       docViewer = window.FlexPaperViewer_Instance.getApi();
+                   return docViewer;
+               }
+
+               function Free_showImage()
+               {
+                   //debugger;
+                   var x = 530; //填入目标图片宽度
+                   var y = 340; //填入目标图片高度
+                   var w = $("#pop_img").width(), h = $("#pop_img").height();//获取图片宽度、高度
+                   if (w > x)
+                   { //图片宽度大于目标宽度时
+                       var w_original = w, h_original = h;
+                       h = h * (x / w); //根据目标宽度按比例算出高度
+                       w = x; //宽度等于预定宽度
+                       if (h > y)
+                       { //如果按比例缩小后的高度小于预定高度时
+                           w = w_original * (y / h_original); //按目标高度重新计算宽度
+                           h = y; //高度等于预定高度
+                       }
+                   }
+                   else
+                   {
+                       h = h * (x / w);
+                       if (h > y)
+                       {
+                           w = w_original * (y / h_original); //按目标高度重新计算宽度
+                           h = y; //高度等于预定高度
+                       }
+                   }
+
+                   w = w == 0 ? 520 : w;
+                   h = h == 0 ? 340 : h;
+
+                   if (isNaN(w));
+                   {
+                       w = 520;
+                   }
+
+                   $("#pop_img").attr({ width: w, height: h });
+
+               }
+
+
+               function pop_DownLoadFile()
+               {
+                   var ResourceName = "@ViewBag.ResourceName";
+                   var realName = "@ViewBag.realName";
+                   $.getJSON("/home/IsExistFile?path=" + path + "/" + realName, function (data)
+                   {
+                       if (data.result == 1)
+                       {
+                           window.location.href = "/home/LoadPrincipleFile?type=1&path=" + path + "/" + realName + "&name=" + escape(ResourceName);
+                       }
+                       else
+                       {
+                           art.dialog.tips('文件不存在', 3);
+                       }
+                   });
+               }
+
+               var maxtime = 10;
+
+               function CountDown()
+               {
+
+                   if (maxtime >= 0)
+                   {
+                       msg = " 查看时间： " + maxtime + " 秒";
+                       $("#timeMsg").html(msg);
+                       --maxtime;
+                   }
+                   else
+                   {
+                       CanLookFile();
+                       $("#timeMsg").html("申请的证明资料已经查看，可以审批");
+                   }
+               }
+
+</script>
+

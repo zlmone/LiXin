@@ -1,0 +1,164 @@
+﻿@{
+    ViewBag.Title = "编辑公告";
+}
+<script src="../../Scripts/ueditor/editor_all.js" type="text/javascript"></script>
+<script src="../../Scripts/ueditor/editor_config.js" type="text/javascript"></script>
+<link href="../../Scripts/ueditor/themes/default/ueditor.css" rel="stylesheet" type="text/css" />
+<form id="formEditNote">
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "编辑公告" }))
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span10">
+                标题：
+            </td>
+            <td>
+                <input type="text" name="NoteTitle" id="txtNoteTitle" class="span60" maxlength="30" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                类别：
+            </td>
+            <td>
+                <select id="sel_SortID" name="SortID">
+                    <option value="0">请选择公告类别</option>
+                    @if (ViewBag.NoteSortList != null)
+                    {
+                        if (((List<LiXinModels.SystemManage.Sys_NoteSort>)ViewBag.NoteSortList).Count() > 0)
+                        {
+                            foreach (var item in ((List<LiXinModels.SystemManage.Sys_NoteSort>)ViewBag.NoteSortList))
+                            {
+                                <option value="@item.Id">@item.SortName</option>         
+                            }
+                        }
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">是否首页显示：
+            </td>
+            <td>
+                <div class="sel">
+                    <input type="radio" name="AdFlag" value="0" /><label>否</label>
+                    <input type="radio" name="AdFlag" value="1" /><label>是</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                正文：
+            </td>
+            <td>
+                <textarea name="NoteContent" id="txtNoteContent" class="span60"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+            </td>
+            <td>
+                <input type="submit" id="btnSave" value="发表" class="btn" />
+                <a id="btnBack" onclick="back()" class="btn btn-cancel">返回</a>
+            </td>
+        </tr>
+    </table>
+    <input id="NoteId" name="NoteId" type="hidden" value="@ViewBag.noteID" />
+</div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#formEditNote").validate(
+            {
+                event: "blur",
+                submitHandler: fnSaveNote,
+                rules: {
+                    SortID: { required: true, min: 1 },
+                    NoteTitle: {
+                        required: true,
+                        maxlength: 30,
+                        remote: {
+                            type: "get",
+                            dataType: "json",
+                            url: "/DeptSystemManage/checkNoteTitle?departId=@ViewBag.departId" + "&t=" + new Date(),
+                            data: {
+                                NoteTitle: function () { return $.trim($("#txtNoteTitle").val()); },
+                                noteID: function () { return "@ViewBag.noteID"; }
+                            }
+                        }
+                    }
+                },
+                messages: {
+                    SortID: { required: "请选择公告类别！", min: "请选择公告类别！" },
+                    NoteTitle: {
+                        required: "标题不能为空！",
+                        maxlength: "标题不能多于30个字符！",
+                        remote: "标题已存在！"
+                    }
+                }
+            });
+        //     $("#txtNoteTitle").preInput();
+        GetNote();
+
+    });
+
+    //渲染编辑器
+    var editor = new baidu.editor.ui.Editor({
+        toolbars: [['FontSize', 'FontFamily', 'ForeColor', 'Bold', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+					'JustifyCenter', 'InsertOrderedList', 'InsertUnorderedList',
+					'InsertImage', 'WordImage', 'Source', 'Help']],
+        maximumWords: 2000,
+        wordCount: false,
+        autoHeightEnabled: true,
+        elementPathEnabled: false,
+        minFrameHeight: 321
+    });
+
+    editor.render("txtNoteContent");
+
+    function GetNote() {
+        if ("@ViewBag.noteID" > "0") {
+            $.getJSON('/DeptSystemManage/GetSingeNote?noteID=@ViewBag.noteID'+ "&t=" + new Date().valueOf(), function(data) {
+
+                $('#sel_SortID').attr('value', data.SortID);
+                $("#txtNoteTitle").val(data.title);
+                $("input[name=AdFlag][value='" + data.AdFlag + "']").attr("checked", true);
+                editor.setContent(data.content);
+            });
+        } else {
+            $("input[name=AdFlag]:first").attr("checked", true);
+        }
+    }
+
+    function fnSaveNote() {
+        editor.sync();
+        var values = editor.getContent();
+        values = values.toString().replace( /&nbsp;/g , "").replace( /\//g , "").replace( /\s+/g , "").replace( /<br>/g , "").replace( /<br>/g , "").replace( /<P>/g , "").replace( /<p>/g , "").replace( /<div>/g , "").replace( /<\/div>/g , "");
+
+        if ($.trim(values) == "") {
+            art.dialog({
+                content: '内容不能为空！',
+                time: 3
+            });
+            return false;
+        } else {
+            $.post("/DeptSystemManage/submitEditNote",
+                {
+                    departId:"@ViewBag.departId",
+                    title: $("#txtNoteTitle").val(),
+                    content: editor.getContent(),
+                    noteID: "@ViewBag.noteID",
+                    SortID: $("#sel_SortID").val(),
+                    AdFlag: $("input[name='AdFlag']:checked").attr("value")
+                },
+                function(data) {
+                    back();
+                });
+        }
+    }
+
+
+    function back() {
+        window.location.href = '/DeptSystemManage/NoteManage';
+    }
+</script>

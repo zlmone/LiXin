@@ -1,0 +1,88 @@
+﻿@using LiXinModels.CourseLearn
+@using LiXinModels.CourseManage
+@{
+    //ViewBag.Title = "课程详情";
+    Layout = null;
+    var course = ViewBag.Course as Co_Course;
+}
+
+@(Html.Action("SiteMapLink", "Common", new { linkName = "MyBroadcastCourseDetail" }))
+<input type="hidden" id="txt_CourseId" value="@course.Id"/>
+<input type="hidden" id="txt_SurveyPaperId" value="@course.SurveyPaperId"/>
+<div class="course-top">
+    <div class="pic">
+        <img src="../../Images/course-pic.jpg" />
+    </div>
+    <div class="info">
+        <h3 class="ovh" title="@course.CourseName">@course.CourseName</h3>
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span9">
+                    授课讲师：
+                </td>
+                <td>@course.TeacherName
+                </td>
+                <td class="Tit span6">
+                    开课时间：
+                </td>
+                <td colspan="3">@course.TeacherCourseTime
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    课程开放级别：
+                </td>
+                <td>@course.OpenLevel
+                </td>
+                <td class="Tit">
+                    开课地点：
+                </td>
+                <td>
+                    <div class="ovh span30" title="@course.RoomName">@course.RoomName</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    课程学时：
+                </td>
+                <td>@course.CourseLength
+                </td>
+                <td class="Tit">
+                    课程状态：
+                </td>
+                <td>@course.StatusShow
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="tab-bk mt10">
+    <ul id="ul_menu">
+        <li class="On" onclick="showTags(0)">
+        课程详情        
+        </li>
+        <li onclick="showTags(3)"> 
+            课后评估
+        </li>
+        <li onclick="showTags(4)">
+        在线测试           
+        </li>
+    </ul>
+</div>
+<script type="text/javascript">
+    
+     function showTags(flag){
+            switch (flag) {
+            case 0: 
+                location.href = "/DepTrainMyBroadcastCourse/BroadcastCourseMain?id="+ @(course.Id);
+                break;
+            case 3: 
+                 window.location.href = "/DepTrainMyBroadcastCourse/BroadcastAfterCourse?id=" + @(course.Id) + "&backurl=/DepTrainMyBroadcastCourse/MyBroadcastList";
+                break;
+            case 4:
+                location.href = "/DepTrainMyBroadcastCourse/BroadcastOnlineTest?id="+ @(course.Id);
+                break;          
+            default:
+            }
+        }
+</script>

@@ -1,0 +1,380 @@
+﻿@{
+    ViewBag.Title = "SingleTogetherCourseUsersDetail";
+    Layout = null;
+}
+<input type="hidden" id="txt_deptid_list" value="@ViewBag.deptIds " />
+<div class="main-c">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span8">姓名：</td>
+                <td>
+                    <input type="text" id="txt_realName" value="请输入搜索内容" info="" class="Box span16 searchclass" /></td>
+
+                <td class="Tit span6">时间：
+                </td>
+                <td class="span32" colspan="4">
+                    <div class="time-choose" style="float: left">
+                        <input type="text" id="txt_StartTime" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  " />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="time-choose">
+                        <input type="text" id="txt_EndTime" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })" />
+                        <i></i>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span8">部门/分所：
+                </td>
+                <td class="span8">
+                    <input type="button" id="btn_selectdeptid" value="选择部门/分所" class="btn  btn-co" />
+                </td>
+                <td class="Tit span6">是否提交课前建议：</td>
+                <td>
+                    <div class="sel">
+                        <input type="hidden" id="hidIsCourseAdvice" value="-1" />
+                        <input type="checkbox" name="chbIsCourseAdvice" value="1" id="chbIsCourseAdvice1" /><label>是</label>
+                        <input type="checkbox" name="chbIsCourseAdvice" value="0" id="chbIsCourseAdvice0" /><label>否</label>
+                    </div>
+                </td>
+                <td class="Tit span8">是否参与测试：</td>
+                <td>
+                    <div class="sel">
+                        <input type="hidden" id="hidIsDoExam" value="-1" />
+                        <input type="checkbox" name="chbIsDoExam" value="1" id="chbIsDoExam1" /><label>是</label>
+                        <input type="checkbox" name="chbIsDoExam" value="0" id="chbIsDoExam0" /><label>否</label>
+                    </div>
+                </td>
+
+                <td class="so-do" colspan="2">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input id="btn_execl" type="button" class="btn btn-co" value="导出EXCEL" onclick="ExportDetail()" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">是否CPA：</td>
+                <td>
+                    <div class="sel span8">
+                        <input type="hidden" id="hidIsCPA" value="-1" />
+                        <input type="checkbox" name="chbIsCPA" value="1" id="chbIsCPA1" /><label>是</label>
+                        <input type="checkbox" name="chbIsCPA" value="0" id="chbIsCPA0" /><label>否</label>
+                    </div>
+                </td>
+                <td class="Tit span8">是否参与课后评估：</td>
+                <td>
+                    <div class="sel">
+                        <input type="hidden" id="hidIsSurveyReplyAnswer" value="-1" />
+                        <input type="checkbox" name="chbIsSurveyReplyAnswer" value="1" id="chbIsSurveyReplyAnswer1" /><label>是</label>
+                        <input type="checkbox" name="chbIsSurveyReplyAnswer" value="0" id="chbIsSurveyReplyAnswer0" /><label>否</label>
+                    </div>
+                </td>
+                <td class="Tit span8">是否免修：</td>
+                <td>
+                    <input type="checkbox" name="isFree" value="1" /><label>是</label>
+                    <input type="checkbox" name="isFree" value="0" /><label>否</label>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span8">培训级别：</td>
+                <td class="span8" colspan="3">
+                    <div class="sel">
+                        @{
+                            foreach (var item in ViewBag.allTrainGrade)
+                            {
+                            <input name="cbxTrainGrade" value="@item" type="checkbox" /><label>@item</label>
+                            }      
+                        }
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selLeaveType">
+            <option value="-1">请假类型</option>
+            <option value="1">请假</option>
+            <option value="0">退订</option>
+            <option value="2">N/A</option>
+        </select>
+        <select id="selOrderType">
+            <option value="-1">报名类型</option>
+            <option value="0">预订</option>
+            <option value="1">指定</option>
+            <option value="2">补预订</option>
+            <option value="3">视频转播</option>
+        </select>
+        <select id="selAttType">
+            <option value="-1">考勤类型</option>
+            <option value="1">正常</option>
+            <option value="2">缺勤</option>
+            <option value="3">迟到</option>
+            <option value="4">早退</option>
+            <option value="5">迟到且早退</option>
+        </select>
+        <div class="course-tysel">
+            <span style="float: right; color: orangered;">温馨提示：名字红色的为有免修的人员</span>
+        </div>
+    </div>
+    <table class="tab-List mt10" id="tbCoursePass">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span8" class="">部门/分所
+                </th>
+                <th class="span8">姓名
+                </th>
+                <th class="span7" jsrendersortfield="TrainGrade" sort="desc">培训级别
+                </th>
+                <th class="span7" jsrendersortfield="IsCPA" sort="desc">是否CPA
+                </th>
+                <th class="span8">报名类型
+                </th>
+                <th class="span8">请假类型
+                </th>
+                <th class="span8">考勤类型
+                </th>
+                <th class="span8" jsrendersortfield="GetScoredouble" sort="desc">获得学时
+                </th>
+                <th class="span12">是否提交<br />
+                    课前建议
+                </th>
+                <th class="span12">是否参与<br />
+                    课后评估
+                </th>
+                <th class="span12">是否<br />
+                    参与测试
+                </th>
+                <th class="span8" jsrendersortfield="GetExamScore" sort="desc">测试分数
+                </th>
+                <th></th>
+            </tr>
+            <tr>
+                <th>合计</th>
+                <th>--</th>
+                <th>--</th>
+                <th>--</th>
+                <th>--</th>
+                <th>--</th>
+                <th>--</th>
+                <th>--</th>
+                <th id="td_AllGetScore"></th>
+                <th>--</th>
+                <th>--</th>
+                <th>--</th>
+                <th id="td_ALLGetExamScore"></th>
+                <th>
+                    <a class="buttonshow btnshow" id="showHideA" onclick="ShowHideDetail(this);" />
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="courseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+
+    <div class="mt10 tc">
+        <input type="button" id="d_btnback" class="btn btn-cancel" value="返回">
+    </div>
+
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+         <td>{{:#index+1}}</td>
+         <td style="text-align:left">{{>DeptPath}}</td>
+         <td>
+              {{if IsFree==0}}
+                 {{>Realname}}
+              {{else}}
+                 <div style="color:red;font-weight: bold;">{{>Realname}}</div>
+              {{/if}}
+         </td>
+         <td>{{:TrainGrade}}</td>
+         <td>{{:IsCPAStr}}</td>
+         <td>{{:OrderTypeStr}}</td>
+         <td>{{:LeaveTypeStr}}</td>
+         <td>{{:AttStatusStr}}</td>
+         <td>{{:GetScoreStr}}</td>
+         <td>{{:IsCourseAdviceStr}}</td>
+         <td>{{:IsSurveyReplyAnswerStr}}</td>
+         <td>{{:IsDoExamStr}}</td>
+         <td>{{:GetExamScoreStr}}</td>
+         <td></td>
+     </tr>
+  {{/for}}
+</script>
+
+<script type="text/javascript">
+    //公用方法
+    function InitCheckCommon(chbname, hidname)
+    {
+        var chbname0 = ($(chbname + "0").attr("checked") == true || $(chbname + "0").attr("checked") == "checked") ? true : false;
+        var chbname1 = ($(chbname + "1").attr("checked") == true || $(chbname + "1").attr("checked") == "checked") ? true : false;
+        if (chbname0 && chbname1)
+        {
+            $(hidname).val(-2);
+        } else if (chbname0)
+        {
+            $(hidname).val(0);
+        } else if (chbname1)
+        {
+            $(hidname).val(1);
+        } else
+        {
+            $(hidname).val(-1);
+        }
+    }
+    //查询时给隐藏域赋值
+    function InitHiddenValue()
+    {
+        //是否参与测试
+        InitCheckCommon("#chbIsDoExam", "#hidIsDoExam");
+        //是否CPA
+        InitCheckCommon("#chbIsCPA", "#hidIsCPA");
+       
+        //是否参与课后评估
+        InitCheckCommon("#chbIsSurveyReplyAnswer", "#hidIsSurveyReplyAnswer");
+        //是否提交课前建议
+        InitCheckCommon("#chbIsCourseAdvice", "#hidIsCourseAdvice");
+        //是否参与讲义编写
+        InitCheckCommon("#chbIsResourceWrite", "#hidIsResourceWrite");
+
+    }
+
+
+    $(document).ready(function ()
+    {
+        initSearch();
+        InitData();
+        $("#btn_Select").click(function ()
+        {
+            var starttime = $("#txt_StartTime").val();
+            var endtime = $("#txt_EndTime").val();
+            if ((starttime != "" && endtime == "") || (starttime == "" && endtime != ""))
+            {
+                art.dialog.tips("请将时间段填写完成！", 3);
+                return;
+            }
+            InitData();
+        });
+        $("#selLeaveType").change(function ()
+        {
+            InitData();
+        });
+        $("#selOrderType").change(function ()
+        {
+            InitData();
+        });
+        $("#selAttType").change(function ()
+        {
+            InitData();
+        });
+        $("#btn_selectdeptid").click(function ()
+        {
+            var naru = "1";//纳入考核
+            art.dialog.load("/Report_zAttendce/SelectDept?deptid=0&ReportType=0&naru=" + naru, { title: '选择部门/分所', id: "win_deptmanage" }, false);
+        });
+
+        $("#d_btnback").click(function ()
+        {
+            if ("@ViewBag.index" >= "0")
+            {
+             
+                ShowData(@ViewBag.index,1);
+            }
+            else
+            {
+                window.location.href = "CourseList?index=1&type=1";
+            }
+        });
+    });
+
+    function InitData()
+    {
+        $("#courseList").show();
+        var param = { deptList: $("#txt_deptid_list").val() };
+        $("#courseList").JsRenderData({
+            sourceUrl: '/Report_Together/GetSingleTogetherCourseUsersList?' + getUrlParam(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "DeptId,GetScoredouble",
+            jsRenderASC: "asc",
+            templateID: "courseListTemplate",
+            ajaxtype: "post",
+            ajaxParam: param,
+            funCallback: function (data)
+            {
+                $("#td_AllGetScore").html(data.allGetScore);
+                $("#td_ALLGetExamScore").html(data.aLLGetExamScore);
+            }
+        });
+    }
+
+
+    function getUrlParam()
+    {
+        InitHiddenValue();
+        var trainGrade = "";
+        $("input[name=cbxTrainGrade]").each(function ()
+        {
+            if ($(this).attr("checked"))
+            {
+                trainGrade += $(this).val();
+            }
+        });
+        var isFree="-1";
+        if($("input[name='isFree']:checked").length == 1)
+        {
+            isFree=$("input[name='isFree']:checked").val();
+        }
+
+        return "realName=" + escape(getSearchWord("txt_realName"))
+                + "&isDoEaxm=" + $("#hidIsDoExam").val()
+                + "&isCPA=" + $("#hidIsCPA").val()
+                + "&leaveType=" + $("#selLeaveType").val()
+                + "&orderType=" + $("#selOrderType").val()
+                + "&isSurveyReplyAnswer=" + $("#hidIsSurveyReplyAnswer").val()
+                + "&isCourseAdvice=" + $("#hidIsCourseAdvice").val()
+                + "&attStatus=" + $("#selAttType").val()
+                + "&isResourceWrite=" + $("#hidIsResourceWrite").val()
+                + "&tranGrade=" + trainGrade
+                + "&courseId=@ViewBag.courseId"
+                + "&StartTime=" + $("#txt_StartTime").val()
+                + "&EndTime=" + $("#txt_EndTime").val()
+                +"&isFree="+isFree;
+            }
+
+            function ShowHideDetail(obj)
+            {
+                if ($(obj).hasClass('buttonshow'))
+                {
+                    $("#courseList").hide();
+                    $(obj).removeClass('buttonshow').addClass('buttonhide');
+                }
+                else
+                {
+                    $("#courseList").show();
+                    $(obj).removeClass('buttonhide').addClass('buttonshow');
+                }
+            }
+
+            function ExportDetail()
+            {
+                window.location.href = '/Report_Together/ExportSingleTogetherCourseUsersList?' + getUrlParam();
+            }
+
+            function searchByDept()
+            {
+                art.dialog.list['win_deptmanage'].close();
+                InitData();
+            }
+</script>
+
+
+

@@ -1,0 +1,380 @@
+﻿@{
+    ViewBag.Title = "总所自学涉及师资情况";
+    Layout = null;
+}
+
+<div class="main-c">
+    <input type="hidden" id="txt_deptid_list" />
+    <input type="hidden" id="hidSelUserIds" />
+    <input type="hidden" id="cpa_PayGrade" />
+    @*@(Html.Action("SiteMapLink", "Common", new { linkName = "我的已预订课程" }))*@
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span12">姓名：</td>
+                <td class="span16">
+                    <input type="text" class="Box span16 searchclass" id="txt_realname" />
+                </td>
+                <td class="Tit span10">部门/分所：
+                </td>
+                <td class="span17">
+                    <input type="button" class="btn  btn-co" value="选择部门/分所" id="btn_selectdeptid" />
+                </td>
+                <td class="Tit span8">所内/外：</td>
+                <td class="span12">
+                    <input type="checkbox" name="suonei" value="1" />所内
+                    <input type="checkbox" name="suonei" value="2" />所外
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span12">选择年度：</td>
+                <td>
+                    @Html.Action("ReportYear", "Common", new { id = "sel_Year" })
+                </td>
+                <td class="Tit span12">薪酬级别：</td>
+                <td>
+                    <input type="button" value="选择薪酬级别 " class="btn  btn-co" id="btn_PayGrade" /></td>
+                <td class="Tit span12">是否CPA：</td>
+                <td>
+                    <input type="checkbox" name="che_cpa" value="0" />是
+                    <input type="checkbox" name="che_cpa" value="1" />否
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input id="btn_execl" type="button" class="btn btn-co" value="导出EXCEL" onclick="ExportUser()" />
+                    @*<input type="button" class="btn btn-co" value="同步" onclick="fabu(InitAllData)" />*@
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span12">培训级别：</td>
+                <td colspan="3">
+                    @{
+                        foreach (var item in @ViewBag.trainGrade)
+                        {
+                        <input type="checkbox" value="@item" name="OpenLevel" /><label class="mr10">@item</label>
+                            
+                        }      
+                    }
+                </td>
+                <td class="Tit span8">是否免修：</td>
+                <td>
+                    <input type="checkbox" name="isFree" value="1" />是
+                    <input type="checkbox" name="isFree" value="0" />否 
+                </td>
+            </tr>
+        </table>
+    </div>
+     <div class="so-seq">
+        <div class="course-tysel">
+            <span style="float: right; color: orangered;">温馨提示：名字红色的为有免修的人员</span>
+        </div>
+    </div>
+    <table class="tab-List mt10" id="tbCoursePass">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span16">姓名
+                </th>
+                <th class="span8" style="text-align: left">部门/分所/公司/机构
+                </th>
+                <th class="span7" style="text-align: left">薪酬级别/职务
+                </th>
+                <th class="span6" jsrendersortfield="TrainGrade" sort="desc">培训级别
+                </th>
+                <th class="span8" jsrendersortfield="IsCPA" sort="desc">是否CPA
+                </th>
+                <th class="span7" jsrendersortfield="courseTeacherCount" sort="desc">授课次数
+                </th>
+                <th class="span8" jsrendersortfield="All_CourseLength" sort="desc">授课累计学时
+                </th>
+                <th class="span8" jsrendersortfield="AvgAnswerTimeMinDouble" sort="desc">全年课程评估<br />
+                    讲师评分均值
+                </th>
+                <th class="span5">详情
+                </th>
+            </tr>
+        </thead>
+        <tbody id="courseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <br />
+</div>
+
+<script id="courseListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+         <td>{{:#index+1}}</td>
+         <td>
+            {{if IsFree==0}}
+                {{:RealName}}
+            {{else}}
+                <div style="color:red;font-weight: bold;">{{:RealName}}</div>
+            {{/if}}
+         </td>
+         <td>{{:Dep_DeptName}}</td>
+         <td style="text-align: left">{{:PayGrade}}</td>
+         <td>{{:TrainGrade}}</td>
+         <td>{{:IsCPA}}</td>
+         <td>{{:courseTeacherCount}}</td> 
+         <td>
+             {{:All_CourseLength}}
+         </td>
+         <td>
+             {{:Dep_Survey_ReplyAnswer}}
+         </td>
+         <td><a onclick="ViewSurveyDetails({{:TeacherId}})" class="icon iview" title="查看详情"></a></td>
+        
+     </tr>
+  {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        showTeacher();
+
+        $("#btn_Select").click(function ()
+        {
+            InitData();
+        });
+
+        $("#sel_Year").change(function ()
+        {
+            InitData();
+        });
+
+        $("#btn_PayGrade").click(function ()
+        {
+            //art.dialog.load("/Report_DepCourse/SelectPayGrade", { title: '选择部门/分所', id: "win_deptmanage" }, false);
+            art.dialog.load("/Common/ReportPayGrade?type=2", {
+                title: '选择薪酬级别',
+                id: "pop_CPAPayGrade",
+                width: 600,
+                height: 200
+            }, false);
+        });
+
+        $("#btn_selectdeptid").click(function ()
+        {
+            art.dialog.load("/Report_zAttendce/SelectDept?deptid=0&ReportType=0&naru=1", { title: '选择部门/分所', id: "win_deptmanage" }, false);
+        });
+    });
+    function showTeacher()
+    {
+        if ("@ViewBag.cp" == "1")
+        {
+            $("#txt_realname").val("@ViewBag.realname");
+            $("#txt_deptid_list").val("@ViewBag.deptid");
+            $("#cpa_PayGrade").val("@ViewBag.PayGrade");
+            var openLevel = "@ViewBag.OpenLevel";
+            if (openLevel != "")
+            {
+                $("input[name='OpenLevel']").each(function (index, value)
+                {
+                    if ($.inArray($(this).val(), openLevel.split(',')) >= 0)
+                    {
+                        $(this).attr("checked", true);
+                    }
+                });
+            }
+            if ("@ViewBag.cpa" == "2")
+            {
+                $("input[name='che_cpa']").attr("checked", true);
+            }
+            else
+            {
+                $("input[name='che_cpa'][value='@ViewBag.cpa']").attr("checked", true);
+            }
+            if ("@ViewBag.IsTeacher" == "3")
+            {
+                $("input[name='suonei']").attr("checked", true);
+            }
+            else
+            {
+                $("input[name='suonei'][value='@ViewBag.IsTeacher']").attr("checked", true);
+            }
+            $("#sel_Year [value='@ViewBag.year']").attr("selected", true);
+
+        }
+        InitData(@ViewBag.pageIndex);
+    }
+
+    function InitData(page)
+    {
+        page = page == undefined ? 1 : page;
+        var param = { PayGrade: $("#cpa_PayGrade").val(), deptid: $("#txt_deptid_list").val() };
+        $("#courseList").JsRenderData({
+            sourceUrl: geturl(),
+            isPage: true,
+            ajaxtype: "post",
+            ajaxParam: param,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "Dep_Survey_ReplyAnswer ",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate",
+            funCallback: function (data){}
+        });
+        closewait();
+    }
+    function geturl()
+    {
+
+        var openLevel = "";
+        $("input[name='OpenLevel']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                openLevel = openLevel == "" ? "'" + $(this).val() + "'" : openLevel + ",'" + $(this).val() + "'";
+            }
+        });
+
+        var iscpa = "";
+        if ($("input[name='che_cpa']:checked").length == 2)
+        {
+            iscpa = "2";
+        }
+        else
+        {
+            $("input[name='che_cpa']:checked").each(function ()
+            {
+                iscpa = $(this).val();
+            });
+        }
+
+        var suonei = "";
+
+        if ($("input[name='suonei']:checked").length == 2)
+        {
+            suonei = "3";
+        }
+        else
+        {
+            $("input[name='suonei']:checked").each(function ()
+            {
+                suonei = $(this).val();
+            });
+        }
+
+        var isFree = "-1";
+        if ($("input[name='isFree']:checked").length == 1)
+        {
+            isFree = $("input[name='isFree']:checked").val();
+        }
+
+        var t = "?realname=" + escape($("#txt_realname").val()) + "&year=" + $("#sel_Year").val() +
+            "&OpenLevel=" + openLevel + "&cpa=" + iscpa + "&IsTeacher=" + suonei + "&isFree=" + isFree;
+
+        return '/Report_DepCourse/GetReport_Teachers' + t;
+    }
+
+
+
+    function ExportUser()
+    {
+        var openLevel = "";
+        $("input[name='OpenLevel']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                openLevel = openLevel == "" ? $(this).val() : openLevel + "," + $(this).val();
+            }
+        });
+
+        var iscpa = "";
+        if ($("input[name='che_cpa']:checked").length == 2)
+        {
+            iscpa = "";
+        }
+        else
+        {
+            $("input[name='che_cpa']:checked").each(function ()
+            {
+                iscpa = $(this).val();
+            });
+        }
+
+        var suonei = "";
+
+        if ($("input[name='suonei']:checked").length == 2)
+        {
+            suonei = "";
+        }
+        else
+        {
+            $("input[name='suonei']:checked").each(function ()
+            {
+                suonei = $(this).val();
+            });
+        }
+
+        var isFree = "-1";
+        if ($("input[name='isFree']:checked").length == 1)
+        {
+            isFree = $("input[name='isFree']:checked").val();
+        }
+
+        var t = "?realname=" + $("#txt_realname").val() + "&year=" + $("#sel_Year").val() + "&deptid=" + $("#txt_deptid_list").val() +
+            "&OpenLevel=" + openLevel + "&cpa=" + iscpa + "&PayGrade=" + $("#cpa_PayGrade").val() + "&IsTeacher=" + suonei + "&isFree=" + isFree;
+
+        art.dialog({
+            content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+            ok: function ()
+            {
+                var v = '/Report_DepCourse/GetReport_TeachersForReport' + t;
+                window.location.href = v;
+            },
+            cancel: true
+        });
+    }
+
+    function searchByDept()
+    {
+        var ids = $("#selAllDeptIDs").val();
+        var selids = "";
+        $("input[name=check_deptid]:checked").each(function ()
+        {
+            selids = selids == "" ? $(this).attr("id") : selids + "," + $(this).attr("id");
+        });
+        $("#txt_deptid_list").val(ids == "" ? selids : ids + "," + selids);
+        art.dialog.list['win_deptmanage'].close();
+        InitData();
+    }
+
+
+    function GetPayGradeList()
+    {
+        //var ids = $("#selAllpaygrade").val();
+        //var selids = "";
+        //$("input[name=check_deptid]:checked").each(function () {
+        //    selids = selids == "" ? $(this).attr("id") : selids + "," + $(this).attr("id");
+        //});
+        //$("#cpa_PayGrade").val(ids == "" ? selids : ids + "," + selids);
+        //art.dialog.list["pop_CPAPayGrade"].close();
+        //InitData();
+
+        var pays = "";
+        $("#pop_cpaPayGradeList input[type='checkbox']:checked").each(function ()
+        {
+            pays = pays == "" ? "'" + $(this).val() + "'" : pays + ",'" + $(this).val() + "'";
+        });
+        if (pays == "")
+        {
+            art.dialog.tips("请选择薪酬级别！", 3);
+            return;
+        }
+        $("#cpa_PayGrade").val(pays);
+        InitData();
+        art.dialog.list["pop_CPAPayGrade"].close();
+    }
+
+    ///师资详情
+    function ViewSurveyDetails(teacher)
+    {
+        window.location.href = "CourseSurveyTeacher?teacher=" + teacher + "&year=" + $("#sel_Year").val();
+    }
+
+
+</script>

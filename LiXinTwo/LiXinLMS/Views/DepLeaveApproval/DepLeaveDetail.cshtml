@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "请假详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var appFlag = Request.QueryString["appFlag"] ?? "0";
+    var fromFlag = Request.QueryString["fromFlag"] ?? "0";
+}
+@(Html.Action("SiteMapLink", "Common", new { linkName = "DepLeaveDetail" }))
+<div class="main-c">
+    <div>
+        <h3 class="tit-h3">人员信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span8">姓名：</td><td><strong>@Model.RealName</strong></td>
+                <td class="Tit span8">性别：</td><td><strong>@(Model.Sex==0?"男":"女")</strong></td>
+                <td class="Tit span8">培训级别：</td><td><strong>@Model.TrainGrade</strong></td>
+                <td class="Tit span8">薪酬级别：</td><td><strong>@Model.PayGrade</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit span8">请假时间：</td>
+                <td colspan="3"><strong>@(Model.LeaveTimeShow)</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit span8">请假理由：</td>
+                <td colspan="3">@(Html.Raw(Model.Reason))</td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <h3 class="tit-h3 mt20">课程信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span8">课程编号：</td><td><strong>@Model.CourseCode</strong></td>
+                <td class="Tit span8">课程名称：</td><td><strong>@Model.CourseName</strong></td>
+                <td class="Tit span8">学时：</td><td><strong>@Model.CourseLength</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit">授课讲师：</td><td><strong>@Model.Teacher</strong></td>
+                <td class="Tit">开课时间：</td><td colspan="3"><strong>@Model.StartTimeShow - @Model.EndTimeShow</strong></td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <h3 class="tit-h3 mt20">审批信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span10">审批状态：</td><td><strong>@(Model.LeaveStatus)</strong></td>
+                <td class="Tit span10">审批时间：</td><td><strong>@(Model.AppFlag>0?Model.AppTimeShow:"——")</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit span10">审批人：</td><td colspan="3"><strong>@(Model.AppFlag>0?Model.AppRealName:"——")</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit span10">审批理由：</td><td colspan="3"><strong>@(Model.AppFlag > 0 ? Model.AppReason : "——")</strong></td>
+            </tr>
+        </table>
+    </div>
+    <center class="mt10">
+        @{
+            if (Model.AppFlag == 0 && Model.LimitFlag == 0)
+            {
+                <input type="button" class="btn btn-co" onclick="approvalLeave(@Model.Id,'@(Model.Email)','@(Model.Phone)','@(Model.RealName)','@(Model.CourseName)');" value="审批" />
+            }
+        }
+        <a id="btnBack" class="btn btn-cancel" onclick="backurl();">返回</a>
+    </center>
+</div>
+<script type="text/javascript">
+    //返回
+    function backurl() {
+        if ('@fromFlag' == '1') {
+            window.location.href = "/Home/DepManageIndex";
+        } else {
+            window.location.href = '/MyApproval/MyApprovalIndex?flag=1_-1';
+        }
+    }
+
+        //提交审批
+    function Approval(id, email, phone, name, cname) {
+        var str = $("#txtApprovalMemo").val();
+        var flag = 1;
+        if ($("#rd1").attr("checked")) {
+            flag = 2;
+        }
+        if (flag == 2 && $.trim(str) == '') {
+            art.dialog.tips('请填写理由', 3);
+            return;
+        }
+        var messtype = 0;
+        if ($("#email").attr("checked") && $("#message").attr("checked")) {
+            messtype = 3;
+        }
+        if ($("#email").attr("checked") && !$("#message").attr("checked")) {
+            messtype = 1;
+        }
+        if (!$("#email").attr("checked") && $("#message").attr("checked")) {
+            messtype = 2;
+        }
+        $.post("/DepLeaveApproval/UpdateLeaveInfor?t=" + new Date(), { id: id, reason: str, appFlag: flag, mtype: messtype, email: email, phone: phone, name: name, cname: cname }, function (da) {
+            if (da.result == 1) {
+                closeDialog("art_Approval");
+                art.dialog.tips(da.message, 3);
+                window.location.href = window.location.href;
+            } else {
+                art.dialog.tips(da.content, 3);
+            }
+        });
+    }
+
+    //呈现审批理由
+    function approvalLeave(id, email, phone,name,cname) {
+        var div =
+            '<table class="tab-Form" id="div_Approval">'
+                + '<tr><td class="span6 Tit">审批状态：</td><td><div class="sel"><input id="rd0" type="radio" name="rdApproval" checked="checked" /><label>审批通过</label><input id="rd1" type="radio" name="rdApproval" /><label>审批拒绝</label></div><td></tr>'
+                    + '<tr><td class="Tit"></td><td><textarea id="txtApprovalMemo" cols="20" rows="2" class="span30"></textarea></td></tr>'
+                        + '<tr><td class="Tit">通知方式：</td><td><input type="checkbox" id="email"/>邮件<input class="ml10" type="checkbox" id="email"/>短信</td></tr>'
+                            + '<tr><td class="Tit"></td><td><input type="button" class="btn btn-co" onclick="Approval(\'' + id + '\',\'' + email + '\',\'' + phone + '\',\'' + name + '\',\'' + cname + '\');" value="提交" /></td></tr>'
+                                + '</table>';
+        art.dialog({
+            content: div,
+            title: '逾时审批申请',
+            id: 'art_Approval',
+            height: 260,
+            width: 500,
+            init: function () {
+                $("#txtApprovalMemo").textareaCount({ maxCharacterSize: 200 });
+            }
+        });
+    }
+</script>

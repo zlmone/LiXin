@@ -1,0 +1,257 @@
+﻿@model LixinModels.ReResourceManage.Re_Resource
+@{
+    ViewBag.Title = "编辑知识";
+}
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+
+   @(Html.Action("SiteMapLink", "Common", new { linkName = "编辑知识" }))
+
+
+<div class="clear">
+</div>
+<form id="formUpdateResource">
+    
+<div>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span20">
+                资源名称：
+            </td>
+            <td>
+                <input type="hidden" id="hidResourceId" name="ResourceID" value="@Model.ResourceID"/>
+                <input type="hidden" id="hidSuffix" name="Suffix" value="@Model.Suffix"/>
+                <input  type="text" id="ResourceName" class="inpbor" name="ResourceName" value="@Model.ResourceName" maxlength="30" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                知识类别：
+            </td>
+            <td >
+                <input id="Rtype" class="inpbor" type="text"  value="@ViewBag.TypeName" disabled="disabled" readonly="readonly"/>
+                <input type="button" class="btn" value="选择知识类别" onclick="ShowType();" />
+                <input type="hidden" id="typeid" name="ResourceTypeID" value="@Model.ResourceTypeID" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <input type="hidden" id="txtOpenDepartObject" name="OpenDepartObject" value="@Model.OpenDepartObject" />
+                    <input type="hidden" id="txtOpenGroupObject" name="OpenGroupObject" value="@Model.OpenGroupObject" />
+                    <input type="hidden" id="txtTempOpenDepartObject" name="OpenDepartObject" value="@Model.OpenDepartObject" />
+                    <input type="hidden" id="txtTempOpenGroupObject" name="OpenGroupObject" value="@Model.OpenGroupObject" />
+                <input type="hidden" name="OpenFlag" id="txtOpenFlag"  value="@Model.OpenFlag" />开放人群：
+            </td>
+                <td>
+                    <div class="sel">
+                        <input type="checkbox" name="chbOpenFlag" id="chbOpenFlag1" onclick="fnChooseOpen(this,1)"
+                            value="1" /><label>群组</label>
+                        <input type="checkbox" name="chbOpenFlag" id="chbOpenFlag2" onclick="fnChooseOpen(this,2)"
+                            value="2" /><label>组织结构</label>
+                    </div>
+                    <div id="div_showgroup">
+                        @if (ViewBag.Groups != null && ((IEnumerable<LiXinModels.SystemManage.Sys_Group>)ViewBag.Groups).Count() > 0)
+                        {
+                            <div class="seled-list">
+                                <h4 id="sp_choosegroup">已选群组：</h4>
+                                <ul>
+                                    @foreach (var item in (IEnumerable<LiXinModels.SystemManage.Sys_Group>)ViewBag.Groups)
+                                    {
+                                        <li id="div_GroupItem_@(item.GroupId)"><span title="@item.GroupName">@item.GroupName</span>
+                                        <input  type="button" class="btn btn-cancel" name="btn" title="移除" value="X" onclick="fnRemoveGroupItem('div_GroupItem_@(item.GroupId)    ',@item.GroupId)" />  
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="mt10" id="div_btn_goon_addgroup">
+                                    <input type="button" class="btn btn-co" id="btnGoOnAddGroups" onclick="fnGoOnAddGroups()"
+                                        value="继续添加群组" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div id="div_showDept">
+                        @if (ViewBag.Departs != null && ((IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.Departs).Count() > 0)
+                        {
+                            <div class="seled-list">
+                                <h4 id="sp_chooseDept">已选组织结构：</h4>
+                                <ul>
+                                    @foreach (var item in (IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.Departs)
+                                    {
+                                        <li id="div_DeptItem_@(item.DepartmentId)"><span title="@item.DeptName">@item.DeptName</span>
+                                            <input class="btn btn-cancel"  type="button" name="btn" title="移除" value="x" 
+                                                onclick="fnRemoveDeptItem('div_DeptItem_@(item.DepartmentId)    ',@item.DepartmentId)" />
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="mt10">
+                                    <input type="button" id="btnGoOnAddDept" onclick="fnGoOnAddDept()" value="继续添加组织结构"
+                                        class="btn btn-co" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </td>
+            </tr>
+        <tr>
+                <td class="Tit">上传封面：
+                </td>
+                <td>
+                    <div>
+                        <img id="picture" src="@Model.ThumbnailURLStr" style="display: none" height="150px" width="220px" />
+                    </div>
+                    <div id="uploadImage">
+                        <div id="ImageQueue" style="max-height: 250px; overflow: visible">
+                        </div>
+                        <input type="file" name="uploadifyImage" id="uploadifyImage" />
+                    </div>
+                    <input type="hidden" id="ResourceImage" name="ThumbnailURL" value="@Model.ThumbnailURL"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">资源描述：
+                </td>
+                <td>
+                    <textarea cols="53" rows="6" id="content" name="ResourceDesc">@Model.ResourceDesc</textarea>
+                </td>
+            </tr>
+        <tr>
+            <td class="Tit">
+            </td>
+            <td>
+                <input type="button" class="btn" id="OK" value="确定" onclick="submitForm();" />
+                    <a id="btnBack" onclick="Back()" class="btn btn-cancel">返回</a>
+            </td>
+        </tr>
+    </table>
+   
+</div>
+</form>
+
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        switch ("@Model.OpenFlag") {
+            case "1":
+                $("#chbOpenFlag1").attr("checked",true);
+                if ($("#sp_choosegroup").length==0) {
+                        $("#chbOpenFlag1").attr("checked",false);
+                        $("#txtOpenGroupObject").val("");
+                    }
+                break;
+            case "2":
+                $("#chbOpenFlag2").attr("checked",true);
+                if ($("#sp_chooseDept").length==0) {
+                        $("#chbOpenFlag2").attr("checked",false);
+                        $("#txtOpenDepartObject").val("");
+                    }
+                break;
+            case "3":
+                $("#chbOpenFlag1").attr("checked",true);
+                $("#chbOpenFlag2").attr("checked",true);
+                if ($("#sp_choosegroup").length==0) {
+                    $("#chbOpenFlag1").attr("checked",false);
+                    $("#txtOpenGroupObject").val("");
+                }
+                if ($("#sp_chooseDept").length==0) {
+                    $("#chbOpenFlag2").attr("checked",false);
+                    $("#txtOpenDepartObject").val("");
+                }
+                break;
+            default:
+                break;
+       }
+        
+        
+        if ("@Model.ThumbnailURLStr" != "") {
+            $("#picture").fadeIn("slow");
+            $("#picture").attr("src", "@Model.ThumbnailURLStr");
+        }
+        
+        
+        $("#uploadifyImage").uploadify(
+            {
+                'formData': { 'folder': "@System.Configuration.ConfigurationManager.AppSettings["ReResourceImg"]" },
+                'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+                'uploader': '/Common/UploadFileAction?detailFlag=0',
+                'cancelText': '取消',
+                'buttonText': '选择图片',
+                'buttonClass': 'browser',
+                'queueID': 'ImageQueue',
+                "queueSizeLimit": 1, //设置选择文件的个数
+                'fileDesc': '图片',
+                'fileTypeExts': '*.jpg;*.png;*.gif;*.jpeg;*.bmp',
+                'sizeLimit': '1048576000', //1G  
+                'auto': true, //设置为true当选择文件后就直接上传了，为false需要点击上传按钮才上传
+                'multi': false, //设置为true时可以上传多个文件
+                'onUploadSuccess': function(file, data, response) {
+                    $("#ResourceImage").val(data);
+                    $("#picture").attr("src", "@System.Configuration.ConfigurationManager.AppSettings["ReResourceImg"].TrimStart('~')" + data);
+                    $("#picture").fadeIn("slow");
+                }
+            });
+        $("#formUpdateResource").validate(
+            {
+                submitHandler: Save,
+                event: "blur",
+                rules: {
+                },
+                messages: {
+                }
+            }
+        );
+    });
+
+    
+    //确定按钮
+    function Save() {
+        var name = $.trim($("#ResourceName").val());
+        if (name == "") {
+            art.dialog.tips("资源名称不能为空！",3);
+            return;
+        }
+
+        if ($.trim($("#Rtype").val()) == "无") {
+            art.dialog.tips("资源分类不能为空！",3);
+            return;
+        }
+        var Rdec = $.trim($("#content").val());
+        if (Rdec.length > 200) {
+            art.dialog.tips("资源描述长度不能超过200！",3);
+            return;
+        }
+        //开放人群判断
+        if ($("#chbOpenFlag1").is(":checked")&&$("#chbOpenFlag2").is(":checked")) {
+            $("#txtOpenFlag").val("3");
+        }
+        else   if ((!$("#chbOpenFlag1").is(":checked"))&&(!$("#chbOpenFlag2").is(":checked"))) {
+            $("#txtOpenFlag").val("0");
+            $("#txtOpenGroupObject").val(""); $("#txtOpenDepartObject").val("");
+        }
+        else {
+            var t=$("input[name='chbOpenFlag']:checked").val();
+            if (t== "1") {
+                $("#txtOpenDepartObject").val("");
+            }
+            if (t == "2") {
+                $("#txtOpenGroupObject").val("");
+            }
+            $("#txtOpenFlag").val(t);
+        }
+        $.post("/ReResourceManage/UpdateResourceInfo", $("#formUpdateResource").formSerialize() , function (data) {
+            if (data.result == 1) {
+                art.dialog.tips("修改成功！", 3);
+                window.location.href = '/ReResourceManage/ReResourceManage';
+            }
+            else {
+                art.dialog.tips(data.content, 3);
+            }
+        });
+    }
+    //提交表单
+    function submitForm() {
+        $("#formUpdateResource").submit();
+    }
+   
+
+</script>
+
+<script src="@Url.Content("~/Scripts/re_resourcemanage/resourcecommon.js")" type="text/javascript"> </script>

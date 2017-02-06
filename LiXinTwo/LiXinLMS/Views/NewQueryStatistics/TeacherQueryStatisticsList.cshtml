@@ -1,0 +1,119 @@
+﻿@{
+    ViewBag.Title = "讲师评价";
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "讲师评价" }))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">讲师姓名：
+                </td>
+                <td class="span17">
+                    <input type="text" id="realName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">讲师性质：
+                </td>
+                <td class="span17">
+                    <select id="selIsTeacher" onchange="InitData();">
+                        <option value="-1">请选择讲师性质</option>
+                        <option value="1">内部</option>
+                        <option value="2">外聘</option>
+                    </select>
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input type="button" value="导出" id="btn_daochu" class="btn" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span5">姓名
+                </th>
+                <th class="span7">性别
+                </th>
+                <th class="span12">课程总数
+                </th>
+                <th class="span8">已结束课程
+                </th>
+                <th class="span7">讲师性质
+                </th>
+                <th class="span10">综合平均分
+                </th>
+                <th class="span7">操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+            {{:#index+1}}
+            </td>
+            <td style="text-align:left;">
+              <div class="tl ovh span20" title="{{:Realname}}">{{:Realname}}</div>  
+            </td>
+            <td>
+                {{:SexStr}}
+            </td>
+            <td>
+                {{:courseCount}}
+            </td>            
+            <td>
+               {{:endCourseCount}}
+             </td>
+            <td>
+               {{:teacherType}}
+            </td>      
+            <td>
+                {{:SumScore}}
+            </td> 
+            <td>
+               <a class="icon iview" title="查看详情" onclick="view({{:userID}})"></a>
+            </td>        
+        </tr> 
+        {{/for}}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化搜索条件
+        initSearch();
+
+        //加载列表
+        InitData();
+    })
+
+    function InitData()
+    {
+        var v = "realName=" + escape(getSearchWord('realName')) + "&isTeacher=" + $("#selIsTeacher").val();
+
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/NewQueryStatistics/GetTeacherStatisticsList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate"
+        });
+
+    }
+
+
+    function view(id)
+    {
+        window.location.href = "TeacherQueryStatistics?teacherID=" + id;
+    }
+</script>

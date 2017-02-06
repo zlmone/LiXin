@@ -1,0 +1,250 @@
+﻿@using LiXinControllers
+@using LiXinModels.CourseManage
+@using LiXinModels.Survey
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var acdlist = ViewBag.acdlist as List<AfterCourceDetail>;
+    var teacheracdlist = ViewBag.teacheracdlist as List<AfterCourceDetail>;
+    var course = ViewBag.course as LiXinModels.DepCourseManage.Dep_Course;
+    ViewBag.Title = "课程评估汇总";
+    var order = 0;
+    double avg = (Convert.ToDouble(ViewBag.courseAvg) + Convert.ToDouble(ViewBag.teacherAvg)) / 2;
+    var type = Request.QueryString["type"] ?? "0";
+    var year = Request.QueryString["year"]??DateTime.Now.Year.ToString();
+    var teacher = Request.QueryString["teacher"] ?? "0";
+    
+}
+
+<div class="main-c">
+    @if (ViewBag.show == 0)
+    {
+         @(Html.Action("SiteMapLink", "Common", new { linkName = "DepCourseEvlutionTotal" }))
+    }
+    else
+    {
+         @(Html.Action("SiteMapLink", "Common", new { linkName = "EvlutionTotal" }))
+    }
+   
+    <input type="hidden" id="txt_id" value="@course.Id" />
+    <h3 class="tit-h3">
+        对<strong class="c_col">《@course.CourseName》</strong>的评价汇总 <span class="fr">课程评估总平均分：
+            @avg.ToString("f2")</span><span class="fr">讲师平均分：@ViewBag.teacherAvg</span><span class="fr">课程平均分：@ViewBag.courseAvg</span></h3> 
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">
+                    序号
+                </th>
+                <th class="span36">
+                    评价内容
+                </th>
+                <th class="span8">
+                    平均分
+                </th>
+                <th>
+                    评语
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (@acdlist != null)
+            {
+                foreach (AfterCourceDetail c in acdlist)
+                {
+                    if (c.sq.QuestionType == 3)
+                    {
+                        order++;
+                <tr>
+                    <td>@order
+                    </td>@*c.sq.QuestionOrder*@
+                    <td>
+                        <div class="ovh tl span35" title="@c.sq.QuestionContent">@c.sq.QuestionContent</div>
+                    </td>
+                    <td>@c.num.ToString("f2")
+                    </td>
+                    <td>
+                        <ol class="tl">
+                            @foreach (Survey_ReplyAnswer t in c.srlist)
+                            {
+                                if (t.QuestionReply!="")
+                                {
+                                <li class="ovh span50" title="@("([" + t.DeptName + "]" + t.Realname + ")" + t.QuestionReply)">
+                                    ([@t.DeptName]
+                                    @t.Realname)@t.QuestionReply
+                                </li>
+                                }
+                            }
+                        </ol>
+                    </td>
+                </tr>
+                    }
+                }
+            }
+            @if (@acdlist != null)
+            {
+                foreach (AfterCourceDetail c in acdlist.OrderBy(p => p.sq.QuestionOrder))
+                {
+                    if (c.sq.QuestionType == 2)
+                    {
+                        order++;
+                <tr>
+                    <td>@order
+                    </td>@*c.sq.QuestionOrder*@
+                    <td>
+                        <div class="ovh tl span35" title="@c.sq.QuestionContent">@c.sq.QuestionContent</div>
+                    </td>
+                    <td>
+                        --
+                    </td>
+                    <td>
+                        <ol class="tl">
+                            @foreach (Survey_ReplyAnswer t in c.srlist)
+                            {
+                                <li class="ovh tl span50" title="@("([" + t.DeptName + "]" + t.Realname + ")" + t.SubjectiveAnswer)">
+                                    ([@t.DeptName]
+                                    @t.Realname) @t.SubjectiveAnswer
+                                </li>
+                            }
+                        </ol>
+                    </td>
+                </tr>
+                    }
+                }
+
+            }
+            @{
+                if (order == 0)
+                {
+                <tr>
+                    <td colspan="4">
+                        暂无评价
+                    </td>
+                </tr>
+                }
+            }
+        </tbody>
+    </table>
+    <h3 class="tit-h3 mt20">
+        对 <strong class="c_col">@course.TeacherName</strong> 讲师的评估</h3>
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">
+                    序号
+                </th>
+                <th class="span36">
+                    评价内容
+                </th>
+                <th class="span8">
+                    平均分
+                </th>
+                <th>
+                    评语
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (@teacheracdlist != null)
+            {
+                order = 0;
+                foreach (AfterCourceDetail c in teacheracdlist)
+                {
+                    if (c.sq.QuestionType == 3)
+                    {
+                        order++;
+                <tr>
+                    <td>@order
+                    </td>@*c.sq.QuestionOrder*@
+                    <td>
+                        <div class="ovh tl span35" title="@c.sq.QuestionContent">@c.sq.QuestionContent</div>
+                    </td>
+                    <td>@c.num.ToString("f2")
+                    </td>
+                    <td>
+                        <ol class="tl">
+                            @foreach (Survey_ReplyAnswer t in c.srlist)
+                            {
+                                if (t.QuestionReply!="")
+                                {
+                                <li class="ovh span50" title="@("([" + t.DeptName + "]" + t.Realname + ")" + t.QuestionReply)">
+                                    ([@t.DeptName]
+                                    @t.Realname) @t.QuestionReply
+                                </li>
+                                }
+                            }
+                        </ol>
+                    </td>
+                </tr>
+                    }
+                }
+            }
+            @if (@teacheracdlist != null)
+            {
+                foreach (AfterCourceDetail c in teacheracdlist.OrderBy(p => p.sq.QuestionOrder))
+                {
+                    if (c.sq.QuestionType == 2)
+                    {
+                        order++;
+                <tr>
+                    <td>@order
+                    </td>@*c.sq.QuestionOrder*@
+                    <td>
+                        <div class="ovh tl span35" title="@c.sq.QuestionContent">@c.sq.QuestionContent</div>
+                    </td>
+                    <td>
+                        --
+                    </td>
+                    <td>
+                        <ol class="tl">
+                            @foreach (Survey_ReplyAnswer t in c.srlist)
+                            {
+                                <li class="ovh tl span50" title="@("([" + t.DeptName + "]" + t.Realname + ")" + t.SubjectiveAnswer)">
+                                    ([@t.DeptName]
+                                    @t.Realname) @t.SubjectiveAnswer
+                                </li>
+                            }
+                        </ol>
+                    </td>
+                </tr>
+                    }
+                }
+
+            }
+            @{
+                if (order == 0)
+                {
+                <tr>
+                    <td colspan="4">
+                        暂无评价
+                    </td>
+                </tr>
+                }
+            }
+        </tbody>
+    </table>
+    <center class="mt10">
+        <input type="button" id="tt" class="btn btn-cancel" value="导出" />
+        <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+    </center>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //返回
+        $("#btnback").bind("click", function ()
+        {
+            if ("@type" == "0")
+            {
+                window.location.href = "/DepCourseAdvice/CourseIndex?p=1&t=" + new Date();
+            }
+            else
+            {
+                window.location.href = "/Report_DepCourse/CourseSurveyTeacher?teacher=@teacher&year=@year";
+            }
+        });
+
+        $("#tt").click(function () {
+            window.location.href = "/DepCourseAdvice/traceExecl?id=" + $("#txt_id").val();
+
+        })
+    });
+</script>

@@ -1,0 +1,92 @@
+﻿@{
+    ViewBag.Title = "授权审批人";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "授权审批人"
+}))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">部门负责人：</td>
+                <td>
+                    <input id="createName" type="text" class="span16  searchclass" value="请输入搜索内容" info="请输入搜索内容" />
+                </td>
+                <td class="Tit span6">被授权人姓名：</td>
+                <td>
+                    <input id="Realname" type="text" class="span16  searchclass" value="请输入搜索内容" info="请输入搜索内容" />
+                </td>
+                <td class="so-do">
+                    <input type="button" value="搜索" class="btn" onclick="Getdata();" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th class="span8">部门负责人
+                    </th>
+                    <th class="span8">被授权人姓名
+                    </th>
+                    <th class="span8">被授权人性别
+                    </th>
+                    <th class="span18">被授权人培训级别
+                    </th>
+                    <th class="span8">被授权人所在部门
+                    </th>
+                    <th class="span8">被授权人审批范围
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="ApproveList" class="tc">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="ApproveListTemplate" type="text/x-jsrender">
+   {{for #data}}
+      <tr>
+        <td>{{:#index+1}}</td>
+        <td>{{:createName}}</td>
+        <td>{{:Realname}}</td>
+        <td>{{:SexStr}}</td>
+        <td>{{:TrainGrade}}</td>
+        <td>{{:DeptName}}</td>
+        <td>{{:ManageDeptName}}</td>
+    </tr>
+   {{/for}}
+</script>
+
+
+<script type="text/javascript">
+    var manageDepat = null;
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        Getdata();
+
+    });
+
+    function Getdata()
+    {
+        var v = "createName=" + escape($.trim(getSearchWord("createName"))) + "&Realname=" + escape($.trim(getSearchWord("Realname")));
+        $("#ApproveList").JsRenderData({
+            sourceUrl: "/DepFreeApprove/GetDeptApproveUserList?"+v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "ApproveListTemplate"
+        });
+    }
+
+    
+</script>
+

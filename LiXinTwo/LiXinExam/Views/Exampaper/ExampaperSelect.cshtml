@@ -1,0 +1,190 @@
+﻿@using LiXinLanguage
+@* 
+     在你要弹出此页面的地方，放个隐藏域，SelExamID   然后加入方法，形如：
+     获取选择到的ExamID
+	 方法名不要改
+	function ExamIDList(str)
+	{
+		$("#SelExamID").val(str);
+		closePopWindow();
+	}   
+	*@
+@{
+   Layout = null;
+   // Layout = "~/Views/Shared/_Layout.cshtml";
+    string deptid = Request.QueryString["deptid"];
+    string selectType = Request.QueryString["selectType"] ?? "checkbox"; //标志单选还是多选
+   
+}
+<link rel="Stylesheet" href="@Url.Content("~/CSS/jquery.treeview.css")" type="text/css" />
+<style type="text/css">
+    .hide { display: none; }
+</style>
+<input type="hidden" id="selExampaperSort" value="0" />
+<input type="hidden" id="txt_deptid" value="@deptid" />
+<input type="hidden" id="selectType" value="@selectType" />
+<div class="clb">
+    <div class="treeview-box fl span20">
+        <div id="sortList" class="tree-list"></div>
+    </div>
+    <div class="fr span63 ml10">
+        <div id="Exampaper">
+            <table id="table_ExamList" class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span3">
+                            @if (selectType == "checkbox")
+                            {
+                                <input id="examSelectall" type="@(selectType)" />
+                            }
+
+                        </th>
+                        <th class="span12">
+                            @Exampaper.ExampaperTitle
+                        </th>
+                        <th class="span12">
+                            @Exampaper.ExampaperSortName (试卷类型)
+                        </th>
+                        <th>
+                            @Exampaper.ExampaperDescription
+                        </th>
+                        <th class="span6">试卷总分
+                        </th>
+                        <th class="span4">
+                            @Exampaper.Operation
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="ExampaperList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<center class="mt10">
+    <input id="btnAddExam" class="btn" type="button" onclick=" GetExamIDList(); " value="确定" />
+</center>
+<script id="ExamKeyTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td><input id="{{:id}}" name="ExamList" type="@(selectType)" value="{{:id}}" /></td>
+        <td><div class="tl ovh span10" id="paper_{{:id}}"  pop_totalsocre="{{:ExampaperScore}}" title="{{:ExampaperTitle}}"><strong>{{:ExampaperTitle}}</strong></div></td>
+        <td>
+            <p class="tl" title="{{:ExamSortTitle}}">{{:ExamSortTitle}}</p>
+            <p class="tl Info">{{:ExamType}}</p>
+        </td>
+        <td><div class="tl" title="{{:QuestionTypeList}}">{{:QuestionTypeList}}</div></td>
+        <td>{{:ExampaperScore}}</td>
+        <td><a title="预览" onclick="Detail({{:id}},{{:ExamSortID}});" class="icon iview"></a></td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    function initExampaperSort() {
+        $.getJSON("/Exampaper/GetAllExampaperSort?deptId=" + $("#txt_deptid").val() + "&t=" + new Date(), function (data) {
+            $("#sortList").html(data);
+            //树的显示
+            $("#navigation ul").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#navigation>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+            //选择后定位
+            threeBackground('0');
+        });
+    }
+
+//显示所有试卷
+
+    function InitializeTargetList(url)
+    {
+        $("#ExampaperList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'ExamKeyTemplate',
+            funCallback: function() {
+                SetCheckBox("examSelectall", "Exampaper");
+                HiddenSelectExam($("#selectType").val());
+            }
+        });        
+    }
+
+    function getUrlParms() {
+        
+        return '/Exampaper/GetAllExampaperList?deptId=' + $("#txt_deptid").val() + '&type=0&eSortID=' + $("#selExampaperSort").val() + '&eExamType=3&eTitle=&t=' + new Date();
+    }
+
+    //问题分类树点击事件
+
+    function selectSort(id) {
+        $("#selExampaperSort").val(id);
+        $("#tbPaperTitle").val("");
+        InitializeTargetList(getUrlParms());
+    }
+
+    $(document).ready(function() {
+        //初始化试卷库
+       initExampaperSort();
+        //初始化列表
+       InitializeTargetList(getUrlParms());
+    });
+
+    function HiddenSelectExam(obj) {
+        if ($("#AllExamID") != undefined && $("#AllExamID") != null && $("#AllExamID") != "") {
+            $("#Exampaper td input[type='" + obj + "']").each(function() {
+                if ((',' + $("#AllExamID").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+        }
+    }
+
+    function GetExamIDList() {
+       
+        var flag = false;
+        var check = document.getElementsByName("ExamList");
+        var checkList = "";
+        for (var i = 0; i < check.length; i++) {
+            if (check[i].checked) {
+                checkList = checkList + check[i].value + ",";
+                flag = true;
+            }
+        }
+        if (!flag) {
+            art.dialog.tips("请选择试卷", 3);
+            return;
+        } else {
+            checkList = checkList.substring(0, checkList.length - 1);
+            ExamIDList(checkList);
+        }
+    }
+
+//查看试卷
+
+    function Detail(id, sid) {
+//        var openurl = "/Exampaper/ExampaperDetail?type=1&id=" + id + "&sortID=" + sid + "&t=" + new Date();
+//        $.get(openurl, function (data) {
+//            art.dialog({
+//                title: "@Exampaper.ExampaerDetail",
+//                id: "examSee",
+//                lock: true,
+//                fixed: true,
+//                time: false,
+//                content: data,
+//                close: function () {
+//                    $('#popIframe').hide();
+//                }
+//            });
+//            //$(".aui_content").html(data);
+//        });
+
+        art.dialog.load("/Exampaper/ExampaperDetail?type=1&id=" + id + "&sortID=" + sid + "&t=" + new Date(), { title: "@Exampaper.ExampaerDetail", id: "examSee",padding:1}, false);
+    }
+</script>

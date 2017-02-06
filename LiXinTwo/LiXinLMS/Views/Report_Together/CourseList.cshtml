@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "集中授课课程汇总统计";
+    var index = Request.QueryString["index"] ?? "0";
+    var type = Request.QueryString["type"] ?? "0";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "集中授课课程汇总统计"
+}))
+</div>
+<div class="tab-bk">
+    <ul id="pop_tag">
+        <li class="On" id="pop_tag0">各部门/分所全年课程参与、贡献度情况表</li>
+        <li id="pop_tag1">所有课程的综合统计</li>
+    </ul>
+</div>
+<div id="togetherList">
+</div>
+<input id="txt_deptid_list" type="hidden" />
+<input id="hidType" type="hidden" />
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        ShowData(@index);
+        $("#pop_tag li").click(function ()
+        {
+            var index = $(this).index();
+            flag = index;
+
+            ShowData(index);
+
+        });
+    });
+    //显示那个tab页下的数据
+    function ShowData(index)
+    {
+        $("#hidType").val(index);
+        $("#pop_tag li").removeClass("On");
+        $("#pop_tag" + index).addClass("On");
+        switch (index)
+        {
+            case 0:
+                $("#togetherList").load("CourseJoin");
+                break;
+            case 1:
+                //$("#togetherList").load();
+                //zhezaowait();
+                $("#togetherList").load("CourseAll?type=@type");
+                break;
+        }
+    }
+</script>

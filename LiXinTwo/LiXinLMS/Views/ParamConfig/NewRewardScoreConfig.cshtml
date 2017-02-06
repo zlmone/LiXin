@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "NewRewardScoreConfig";
+    Layout = null;
+    var tt = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+<form id="formNewConfig">
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "综合评定课后评估配置"
+}))
+        <div>
+            <span>计算方式：</span>
+            <input type="radio" name="useType" value="0" checked="checked" />范围计算
+        <input type="radio" name="useType" value="1" />累加计算
+        </div>
+        <div id="content">
+        </div>
+</form>
+
+<script type="text/javascript">
+    
+   // $("#content").load("NewRewardScore");
+    $(document).ready(function ()
+    {
+      $("input[name='useType'][value=@tt.userType]").attr("checked", true);
+        if ("@tt.userType" == "1")
+        {
+           
+            $("#content").load("NewRewardScoreSingle");
+        }
+        else
+        {
+            $("#content").load("NewRewardScore");
+        }
+        $("input[name='useType']").bind("click", function ()
+        {
+            if ($(this).val() == 1)
+            {
+                $("#content").load("NewRewardScoreSingle");
+            }
+            else
+            {
+                $("#content").load("NewRewardScore");
+            }
+        });
+    });
+</script>

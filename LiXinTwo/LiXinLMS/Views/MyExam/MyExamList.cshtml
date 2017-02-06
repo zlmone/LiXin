@@ -1,0 +1,40 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+    <body>
+        <div>
+            <div>
+                <ul id="ul_id">
+                    <li>全部考试</li>
+                    <li>未通过考试</li>
+                    <li>已通过考试</li>
+                </ul>
+            </div>
+            <div id="div_load">
+                
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript">
+        $("#div_load").load("/MyExam/AllExamList");
+        $(document).ready(function () {
+            $("#ul_id li").click(function () {
+                var index = $(this).index();
+                switch (index) {
+                    case 0: $("#div_load").load("/MyExam/AllExamList"); break;
+                    case 1: $("#div_load").load("/MyExam/PassExamList"); break;
+                    case 2: $("#div_load").load("/MyExam/NotPassExamList"); break;
+                    default:
+                }
+            });
+
+        })
+    </script>
+</html>

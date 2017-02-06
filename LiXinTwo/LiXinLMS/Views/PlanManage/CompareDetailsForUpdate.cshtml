@@ -1,0 +1,155 @@
+﻿@{
+    ViewBag.Title = "月度计划差异对比";
+}
+<div class="main-c">
+    <h2 class="tit-h2">
+        <i></i>
+        <span class="tit-con">月度计划差异对比</span>
+    </h2>
+<div class="tab-bk">
+    <ul id="ul_menu">
+        <li id="tag0" class="On">开放级别更改</li>
+        <li id="tag1">授课讲师更改</li>
+        <li id="tag2">其他</li>
+    </ul>
+</div>
+<table class="tab-List mt10">
+    <thead>
+        <tr>
+            <th>
+                课程名称
+            </th>
+            <th class="span14">
+                预计开课时间
+            </th>
+              <th class="span12">开放级别
+                </th>
+                <th class="span8">培训形式
+                </th>
+            <th>
+                授课讲师
+            </th>
+            <th>
+                讲师薪酬
+            </th>
+            <th>
+                必修/选修
+            </th>
+            <th>
+                框架内/外
+            </th>
+        </tr>
+    </thead>
+    <tbody id="updateList">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+<input type="button" class="btn  btn-cancel"  value="返回" onclick="black()" />
+</div>
+<script id="levelupdateTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+           <td><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            {{if DeleteOrNew=="1"}}
+                <td >{{:OpenTime}}</td>
+            {{else}}
+               <td >{{:PreCourseTimeStr}}</td>
+            {{/if}}
+            <td > {{:OpenLevel}}<span style="color:Red">({{:OpenLevelUpdate}})</span></td>
+            <td >{{:WayStr}} </td>
+            <td >{{:Realname}}</td>
+            <td >{{:PayGrade}}</td>
+            <td >{{:IsMustStr}} </td>
+            <td >{{:IsSystemStr}} </td>
+       </tr>
+   {{/for}}
+</script>
+<script id="teacherupdateTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+            <td><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            {{if DeleteOrNew=="1"}}
+                <td >{{:OpenTime}}</td>
+            {{else}}
+               <td >{{:PreCourseTimeStr}}</td>
+            {{/if}}
+            <td >{{:OpenLevel}}</td>
+            <td >{{:WayStr}} </td>
+            <td >{{:Realname}}<span style="color:Red">({{:teacherUpdate}})</span></td>
+            <td >{{:PayGrade}}</td>
+            <td >{{:IsMustStr}} </td>
+            <td >{{:IsSystemStr}} </td>
+       </tr>
+   {{/for}}
+</script>
+<script id="notupdateTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+           <td><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>{{:PreCourseTimeStr}}</td>
+            <td>{{:OpenLevel}}</td>
+            <td>{{:WayStr}} </td>
+            <td>{{:Realname}}</td>
+            <td>{{:PayGrade}}</td>
+            <td>{{:IsMustStr}} </td>
+            <td>{{:IsSystemStr}} </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        Getdata(1);
+        $("#ul_menu li").click(function ()
+        {
+            $("#tag0").removeClass("On");
+            $("#tag1").removeClass("On");
+            $("#tag2").removeClass("On");
+            var index = $(this).index();
+
+            $("#tag" + index).addClass("On");
+
+            Getdata(index + 1);
+
+        });
+    });
+
+    //月度课程
+    // 1开发级别更改  2授课讲师更改  3其他
+    function Getdata(type)
+    {
+        var temp = "levelupdateTemplate";
+        switch (type)
+        {
+            case 1:
+                temp = "levelupdateTemplate";
+                break;
+            case 2:
+                temp = "teacherupdateTemplate";
+                break;
+            case 3:
+                temp = "notupdateTemplate";
+                break;
+        }
+
+        $("#updateList").JsRenderData({
+            sourceUrl: getmonthUrl(type),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: temp
+        });
+    }
+
+    function getmonthUrl(type)
+    {
+        return "/PlanManage/GetCompareDetailUpdate?year=@ViewBag.year&month=@ViewBag.month&type=" + type;
+    }
+
+    function black()
+    {
+        window.location.href = "MonthPlanCompare?year=@ViewBag.year&month=@ViewBag.month&id=@ViewBag.id";
+    }
+
+</script>

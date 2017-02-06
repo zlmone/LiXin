@@ -1,0 +1,143 @@
+﻿@{
+    ViewBag.Title = "JoinAndPassExam";
+    Layout = null;
+}
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/report/highcharts.js")"> </script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/report/line.js")"> </script>
+<table class="dataView">
+    <tr class="Tit">
+        <td><strong>最高参与率: <span id="MaxJoinRate"></span>%</strong></td>
+        <td><strong>最低参与率: <span id="MinJoinRate"></span>%</strong></td>
+        <td><strong>最高通过率：<span id="MaxPassRate"></span>%</strong></td>
+        <td><strong>最低通过率：<span id="MinPassRate"></span>%</strong></td>
+    </tr>
+    <tr class="Name">
+        <td><p id="MaxJoinName"></p></td>
+        <td><p id="MinJoinName"></p></td>
+        <td><p id="MaxPassName"></p></td>
+        <td><p id="MinPassName"></p></td>
+    </tr>
+    <tr class="Num">
+        <td><p id="MaxJoinNum"></p></td>
+        <td><p id="MinJoinNum"></p></td>
+        <td><p id="MaxPassNum"></p></td>
+        <td><p id="MinPassNum"></p></td>
+    </tr>
+</table>
+
+<center id="JoinAndPassExamChart" class="trendgraph" style="height:300px;width:100%; margin:10px 0px;"></center>
+<div id="JoinAndPassExamlist" class="mTop_1 btop_so_ce">
+    <table class="blue_table all">
+        <thead>
+            <tr>
+                <th class="tl">考试名称</th>
+                <th class="tc Raster_6"><p>考试时长</p><p>(分钟)</p></th>
+                <th class="tr Raster_6">总分</th>
+                <th class="tr Raster_12"><p>参与率</p><p>(参与/安排人数)</p></th>
+                <th class="tr Raster_12"><p>通过率</p><p>(通过/参与人数)</th>
+            </tr>
+        </thead>
+        <tbody id="JoinAndPassExamList">
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+
+
+<script id="JoinAndPassExamTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td title="{{:ExaminationTitle}}" class="c33"><strong>{{:ExaminationTitle}}</strong></td>
+        <td title="{{:ExamLength}}" class="tc">{{:ExamLength}}</td>
+        {{if PercentFlag == 1}}
+        <td title="{{:ExamPaperTotalScore}}" class="tr">{{:ExamPaperTotalScore}}</td>
+        {{/if}}
+        {{if PercentFlag == 0}}
+        <td title="100" class="tr">100</td>
+        {{/if}}
+        <td title="{{:JoinRate}}%" class="tr">
+            <p><strong class="c_green">{{:JoinRate}}% </strong></p>
+            <p>( {{:JoinPerson}}/{{:TotalPerson}} )</p>
+        </td>
+        <td title="{{:PassRate}}%" class="tr">
+            <p><strong class="c_green">{{:PassRate}}% </strong></p>
+            <p>( {{:PassPerson}}/{{:JoinPerson}} )</p>
+        </td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        InitTable();
+    });
+
+    function InitTable() {
+        $("#JoinAndPassExamList").JsRenderData({
+            sourceUrl: '/ExamReport/GetJoinAndPassExam?ExamName=' + escape($("#examName").val())
+                + '&StartTime=' + $("#startDate").val()
+                + '&EndTime=' + $("#endDate").val()
+                + '&t=' + new Date(),
+            isPage: true,
+            pageSize: 20,
+            pageIndex: 1,
+            templateID: 'JoinAndPassExamTemplate',
+            funCallback: function (data) {
+                if (data.MaxJoin == null) {
+                    $("#MaxJoinRate").text("");
+                    $("#MaxJoinName").text("");
+                    $("#MaxJoinNum").text("");
+                }
+                else {
+                    $("#MaxJoinRate").text(data.MaxJoin.JoinRate);
+                    $("#MaxJoinName").text(data.MaxJoin.ExaminationTitle);
+                    $("#MaxJoinNum").text(data.MaxJoin.JoinPerson + "/" + data.MaxJoin.TotalPerson);
+                }
+
+                if (data.MinJoin == null) {
+                    $("#MinJoinRate").text("");
+                    $("#MinJoinName").text("");
+                    $("#MinJoinNum").text("");
+                }
+                else {
+                    $("#MinJoinRate").text(data.MinJoin.JoinRate);
+                    $("#MinJoinName").text(data.MinJoin.ExaminationTitle);
+                    $("#MinJoinNum").text(data.MinJoin.JoinPerson + "/" + data.MinJoin.TotalPerson);
+                }
+
+                if (data.MaxPass == null) {
+                    $("#MaxPassRate").text("");
+                    $("#MaxPassName").text("");
+                    $("#MaxPassNum").text("");
+                }
+                else {
+                    $("#MaxPassRate").text(data.MaxPass.PassRate);
+                    $("#MaxPassName").text(data.MaxPass.ExaminationTitle);
+                    $("#MaxPassNum").text(data.MaxPass.PassPerson + "/" + data.MaxPass.JoinPerson);
+                }
+
+                if (data.MinPass == null) {
+                    $("#MinPassRate").text("");
+                    $("#MinPassName").text("");
+                    $("#MinPassNum").text("");
+                }
+                else {
+                    $("#MinPassRate").text(data.MinPass.PassRate);
+                    $("#MinPassName").text(data.MinPass.ExaminationTitle);
+                    $("#MinPassNum").text(data.MinPass.PassPerson + "/" + data.MinPass.JoinPerson);
+                }
+
+                var chart_value = DrawImageLine(data.res);
+                var chart = new Highcharts.Chart(chart_value);
+            }
+        });
+    }
+
+    function ExportReportChart() {
+        window.location.href = '/ExamReport/ExportJoinAndPassExamChart?ExamName=' + escape($("#examName").val())
+            + '&StartTime=' + $("#startDate").val()
+            + '&EndTime=' + $("#endDate").val()
+            + '&t=' + new Date();
+    }
+
+</script>

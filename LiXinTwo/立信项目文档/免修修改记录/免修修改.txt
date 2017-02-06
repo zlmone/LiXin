@@ -1,0 +1,14 @@
+ 1、添加文件夹：
+                UploadFiles/FreeUpload
+                UploadFiles/FreeUploadConvert 
+
+ 2、文件转换重新替换 位于180
+ 3、  web.config：
+       
+     <!--免修上传资料路径-->
+     <add key="FreeUplpadUrl" value="~/UploadFiles/FreeUpload"/>
+
+     <!--免修上传资料转换路径-->
+     <add key="FreeUplpadConvertUrl" value="~/UploadFiles/FreeUploadConvert"/>
+ 4、替换文件 Configs/unity.config
+                    Formwork.xml

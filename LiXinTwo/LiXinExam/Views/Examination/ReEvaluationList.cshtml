@@ -1,0 +1,151 @@
+﻿@using System.Web.Mvc.Html
+@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.EvaluationManage;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="contentInfor" class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new {linkName = "EvaluationManage"}))
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">考试名称：</td>
+                <td class="span21"><input type="text" class="span20" name="examinationTitle" value="请输入搜索内容" info="" id="txt_examTitle" /></td>
+                <td class="Tit span8">考试开始时间：</td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" name="examBeginTime" value="" id="txt_examBeginTime" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_examEndTime\')}' }) " />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="time-choose">
+                        <input type="text" name="examEndTime" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_examBeginTime\')}' }) " value="" id="txt_examEndTime" />
+                        <i></i>
+                    </div>
+                    @*<span class="Icon_16 iTime Inp_iTime" onclick="WdatePicker({ el:'txt_examBeginTime',dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'txt_examEndTime\')}' })"></span>*@
+                    @*<span class="Icon_16 iTime Inp_iTime" onclick="WdatePicker({ el:'txt_examEndTime',dateFmt: 'yyyy-MM-dd HH:mm:ss', minDate: '#F{$dp.$D(\'txt_examBeginTime\')}' }) "></span>*@
+                </td>
+                <td class="so-do"><input type="button" class="btn" value="搜索" onclick=" searchExamList() " /></td>
+            </tr>
+        </table>
+        @*    <a class="search_hold">收起搜索</a>
+    <ul class="clb">
+        <li class="fr ShowType"><a id="view_list" class="listOn mRight_1" onclick="changeView('list');"><span></span>列表</a> <a id="view_pic" class="pic" onclick="changeView('pic');"><span></span>大图</a> </li>
+    </ul>*@
+    </div>
+    <div id="Content">
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th>
+                        考试名称
+                    </th>
+                    <th class="span15">
+                        起止时间
+                    </th>
+                    <th class="span9">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="examList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+        @*<a href="#" class="Remark_hold" title="查看备注">备注</a>
+        <div class="dis" id="MemoTip">
+            <div class="tiptitle">
+                温馨提示</div>
+            <div class="tipcontent">
+                温馨提示</div>
+        </div>*@
+    </div>
+</div>
+<script id="examListTemplate" type="text/x-jsRender">
+ {{for #data}}
+    <tr>
+        <td>
+            <p title="{{:ExaminationTitle}}"><strong>{{:ExaminationTitle.length>20?(ExaminationTitle.substring(0,20)+"…"):ExaminationTitle}}</strong></p>
+            <p class="Info">时长: {{:ExamLength}}<span>|</span>总分: {{:examTotalScore}}<span>|</span>及格线: {{:PassScore}}</p>
+        </td>
+        <td>{{:ExamBeginTime}} -<br/>{{:ExamEndTime}}</td>
+        <td>
+            <a {{:ReEvaluationHtml}} title="复评" class="icon ieva-re"></a>
+            <a {{:PublishResultHtml}} title="发布成绩" class="icon ipub"></a>
+        </td>
+    </tr>
+    {{/for}}
+</script>
+@*<script id="examBlockTemplate" type="text/x-jsRender">
+ {{for #data}}
+      <dl style="height: 140px;">
+            <dd>
+                <img src="" />
+            </dd>
+            <dt>
+                <h5><label title="{{:ExaminationTitle}}">{{:ExaminationTitle.length>8?(ExaminationTitle.substring(0,8)+"…"):ExaminationTitle}}</label></h5>
+            </dt>
+        <dt><span class="c_green">开始：{{:ExamBeginTime}}</span></dt>
+        <dt><span class="c_green">截止：{{:ExamEndTime}}</span></dt> 
+        <dt>时长：{{:ExamLength}}</dt>
+        <dt>总分：{{:examTotalScore}}</dt>
+        <dt>及格线：{{:PassScore}}</dt>
+        <dt class="Doing dis">
+            <a class="Icon_20 Icon_Del"  title="发布成绩" {{:PublishResultHtml}}></a>
+            <a class="Icon_20 Icon_Edit" title="复评" {{:ReEvaluationHtml}}/>
+        </dt>
+    </dl>
+    {{/for}}
+</script>*@
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        InitExamList();
+    });
+
+    function changeView(str) {
+        ChangeList({ str: str, fun: function() { InitExamList(); } });
+    }
+
+    function searchExamList() {
+        InitExamList();
+    }
+
+    function getUrlParms() {
+        return "/Examination/GetReEvaluationList?examBeginTimeStart=" + $("#txt_examBeginTime").val() + "&examBeginTimeEnd=" + $("#txt_examEndTime").val() + "&examinationTitle=" + escape($.trim(getSearchWord($("#txt_examTitle").val())));
+    }
+
+    function InitExamList() {
+        var templateId = '';
+        //        if ($(".listOn").length > 0) {
+        //            $("#examList").addClass("Wordlist").removeClass("Piclist");
+        //            templateId = 'examListTemplate';
+        //        } else {
+        //            $("#examList").addClass("Piclist").removeClass("Wordlist");
+        //            templateId = 'examBlockTemplate';
+        //        }
+        $("#examList").JsRenderData({
+            sourceUrl: getUrlParms(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'examListTemplate'
+            //            templateID: templateId
+        });
+    }
+
+
+    function ReEvaluationExam(id) {
+        window.location.href = '/Examination/ReEvaluation/' + id;
+    }
+
+    function PublishResultExam(id) {
+        $.post("/Examination/PublishExamResult/" + id, function (data) {
+            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+            art.dialog.tips(data.content, 3);
+            searchExamList();
+        });
+    }
+</script>

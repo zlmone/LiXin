@@ -1,0 +1,459 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4D61F157-5A40-4C2F-BFD8-8DFEEC18C9BA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LiXinExam</RootNamespace>
+    <AssemblyName>LiXinExam</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LiXinCommon">
+      <HintPath>..\LiXinCommon\bin\Debug\LiXinCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="RazorGenerator.Mvc">
+      <HintPath>..\Lib\RazorGenerator.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.WebPages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WebActivator">
+      <HintPath>..\Lib\WebActivator.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\RazorGeneratorMvcStart.cs" />
+    <Compile Include="Controllers\ExaminationController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controllers\ExampaperController.cs" />
+    <Compile Include="Controllers\ExamReportController.cs" />
+    <Compile Include="Controllers\ExamTestController.cs" />
+    <Compile Include="Controllers\KnowledgeKeyController.cs" />
+    <Compile Include="Controllers\QuestionController.cs" />
+    <Compile Include="Controllers\QuestionEditController.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Views\Examination\AuthorizedExam.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AuthorizedExam.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Examination\AuthorizedExamManage.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AuthorizedExamManage.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Examination\ReEvaluation.generated.cs">
+      <DependentUpon>ReEvaluation.cshtml</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\Examination\ExaminationDetail.generated.cs">
+      <DependentUpon>ExaminationDetail.cshtml</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\Examination\EditExamination.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EditExamination.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Examination\ExaminationList.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExaminationList.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Examination\ReEvaluationList.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReEvaluationList.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ExampaperDetail1.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExampaperDetail.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ExampaperRandom.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExampaperRandom.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ExampaperRule.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExampaperRule.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ExampaperSelect.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExampaperSelect.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ExampaperSort.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExampaperSort.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ImportQuestions.generated.cs">
+      <DependentUpon>ImportQuestions.cshtml</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\ExamReport\GradeRank.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GradeRank.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExamReport\JoinAndPassExam.generated.cs">
+      <DependentUpon>JoinAndPassExam.cshtml</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\ExamReport\QuestionCorrectReport.generated.cs">
+      <DependentUpon>QuestionCorrectReport.cshtml</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\ExamReport\QuestionSortCorrectReport.generated.cs">
+      <DependentUpon>QuestionSortCorrectReport.cshtml</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\ExamReport\ExaminationRecordsDistributionReport.generated.cs">
+      <DependentUpon>ExaminationRecordsDistributionReport.cshtml</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\ExamReport\ReportIndex.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReportIndex.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExamTest\ExamTestDetail.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExamTestDetail.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExamTest\ExamTestOnline.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExamTestOnline.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExamTest\MyExaminationList.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MyExaminationList.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ExampaperEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExampaperEdit.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ExampaperList.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExampaperList.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExamTest\DepExamTestDetail.generated.cs">
+      <DependentUpon>DepExamTestDetail.cshtml</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\KnowledgeKey\EditKnowledgeKey.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EditKnowledgeKey.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\KnowledgeKey\KnowledgeKeyList.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>KnowledgeKeyList.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\BrowseQuestion.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>BrowseQuestion.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\ImportQuestions.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ImportQuestions.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ExampaperSortEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExampaperSortEdit.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Exampaper\ExamQuestionList.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExamQuestionList.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\QuestionEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QuestionEdit.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\QuestionFillblankEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QuestionFillblankEdit.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\QuestionJudgeEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QuestionJudgeEdit.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\QuestionList1.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QuestionList.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\QuestionMultimediaEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QuestionMultimediaEdit.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\QuestionMultipleEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QuestionMultipleEdit.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\QuestionSingleEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QuestionSingleEdit.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\QuestionSubjectEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QuestionSubjectEdit.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Question\SortEdit.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SortEdit.cshtml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Views\Examination\AuthorizedExam.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>AuthorizedExam.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Examination\ReEvaluation.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ReEvaluation.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Examination\ReEvaluationList.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ReEvaluationList.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Examination\ExaminationDetail.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExaminationDetail.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Examination\EditExamination.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>EditExamination.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Examination\ExaminationList.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExaminationList.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Exampaper\ExampaperDetail.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExampaperDetail1.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Exampaper\ExampaperEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExampaperEdit.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Exampaper\ExampaperRandom.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExampaperRandom.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Exampaper\ExampaperList.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExampaperList.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Exampaper\ExampaperRule.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExampaperRule.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Exampaper\ExampaperSort.cshtml">
+      <LastGenOutput>ExampaperSort.generated.cs</LastGenOutput>
+      <Generator>RazorGenerator</Generator>
+    </None>
+    <None Include="Views\Exampaper\ExampaperSortEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExampaperSortEdit.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Exampaper\ExamQuestionList.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExamQuestionList.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Examination\AuthorizedExamManage.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>AuthorizedExamManage.generated.cs</LastGenOutput>
+    </None>
+    <Content Include="Views\ExamReport\GradeRank.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>GradeRank.generated.cs</LastGenOutput>
+    </Content>
+    <None Include="Views\Exampaper\ExampaperSelect.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExampaperSelect.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Exampaper\ImportQuestions.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ImportQuestions.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\ExamReport\ReportIndex.cshtml">
+      <LastGenOutput>ReportIndex.generated.cs</LastGenOutput>
+      <Generator>RazorGenerator</Generator>
+    </None>
+    <None Include="Views\ExamReport\JoinAndPassExam.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>JoinAndPassExam.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\ExamReport\QuestionCorrectReport.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>QuestionCorrectReport.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\ExamReport\QuestionSortCorrectReport.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>QuestionSortCorrectReport.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\ExamReport\ExaminationRecordsDistributionReport.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExaminationRecordsDistributionReport.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\ExamTest\ExamTestDetail.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExamTestDetail.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\ExamTest\ExamTestOnline.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ExamTestOnline.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\ExamTest\MyExaminationList.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>MyExaminationList.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\ExamTest\DepExamTestDetail.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>DepExamTestDetail.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\KnowledgeKey\EditKnowledgeKey.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>EditKnowledgeKey.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\KnowledgeKey\KnowledgeKeyList.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>KnowledgeKeyList.generated.cs</LastGenOutput>
+    </None>
+    <Content Include="Views\Question\BrowseQuestion.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>BrowseQuestion.generated.cs</LastGenOutput>
+    </Content>
+    <None Include="Views\Question\ImportQuestions.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ImportQuestions.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Question\QuestionEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>QuestionEdit.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Question\QuestionFillblankEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>QuestionFillblankEdit.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Question\QuestionJudgeEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>QuestionJudgeEdit.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Question\QuestionList.cshtml">
+      <LastGenOutput>QuestionList1.generated.cs</LastGenOutput>
+      <Generator>RazorGenerator</Generator>
+    </None>
+    <None Include="Views\Question\QuestionMultimediaEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>QuestionMultimediaEdit.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Question\QuestionMultipleEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>QuestionMultipleEdit.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Question\QuestionSingleEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>QuestionSingleEdit.generated.cs</LastGenOutput>
+    </None>
+    <None Include="Views\Question\QuestionSubjectEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>QuestionSubjectEdit.generated.cs</LastGenOutput>
+    </None>
+    <Content Include="Views\Question\SortEdit.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>SortEdit.generated.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Controllers\LiXinControllers.csproj">
+      <Project>{3BCCE27F-322B-4947-9F08-89CBF98FBA8B}</Project>
+      <Name>LiXinControllers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinBLL\LiXinBLL.csproj">
+      <Project>{FE9334C9-5A94-4429-8294-842234AAE7BE}</Project>
+      <Name>LiXinBLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinInterface\LiXinInterface.csproj">
+      <Project>{17E752C8-5549-4A84-B378-71BFEC4DCD3F}</Project>
+      <Name>LiXinInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinLanguage\LiXinLanguage.csproj">
+      <Project>{BDC752A7-873B-4D28-AE35-FD24CF8C3813}</Project>
+      <Name>LiXinLanguage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LixinModels\LiXinModels.csproj">
+      <Project>{9F7DCE1F-6769-4BED-8876-B3D118306F57}</Project>
+      <Name>LiXinModels</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,297 @@
+﻿@{
+    ViewBag.Title = "年度计划跟踪";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var StrYear = ViewData["StrYear"] as List<int>;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DepYearPlanTrack" }))
+    <div class="clb">
+        <input type="hidden" id="seldept" value="0" />
+        <input type="hidden" id="seltrack" value="0" />
+        <div class="tab-bk mt10">
+            <ul id="Dtags">
+                <li id="Dtag0" class="On">部门</li>
+                <li id="Dtag1">分所</li>
+            </ul>
+        </div>
+        <div>
+            <div class="tab-bk mt10">
+                <ul id="tags">
+                    <li id="tag0" class="On">已上报</li>
+                    <li id="tag1">未上报</li>
+                </ul>
+            </div>
+            <div id="OKList">
+                <div id="Search" class="so-set">
+                    <table class="tab-Form">
+                        <tr>
+                            <td class="Tit span6">创建时间：</td>
+                            <td>
+                                <div class="data-choose">
+                                    <input type="text" name="beginTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'endTime\')}' }) " id="beginTime" />
+                                    <i></i>
+                                </div>
+                                至
+                        <div class="data-choose">
+                            <input type="text" name="endTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'beginTime\')}' }) " id="endTime" />
+                            <i></i>
+                        </div>
+                            </td>
+                            <td class="Tit span4">部门：</td>
+                            <td>
+                                <input type="text" class="span30 searchclass" id="Depname" value="请输入搜索内容" info="" /></td>
+                            <td class="so-do">
+                                <input type="button" value="搜索" class="btn" id="ibtnSearch" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="so-seq">
+                    <select id="selyear" onchange="selChange();">
+                        @{ 
+                            for (int i = 0; i < StrYear.Count; i++)
+                            {
+                            <option  value="@(StrYear[i])" @(StrYear[i]==DateTime.Now.Year?"selected='selected'":"")  >@(StrYear[i])</option>
+                            }
+                        }
+                    </select>
+                    <select id="openType" onchange="selChange();">
+                        <option value="0">上报类型</option>
+                        <option value="1">单体上报</option>
+                        <option value="2">联合上报</option>
+                    </select>
+                </div>
+                <table class="tab-List mt10">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>年度</th>
+                            <th jsrendersortfield="tempTa.courseCount" sort="desc">包含课程</th>
+                            <th jsrendersortfield="tempTa.courseLength" sort="desc">课程学时</th>
+                            <th>创建人</th>
+                            <th>主办部门</th>
+                            <th jsrendersortfield="tempTa.LastUpdateTime" sort="desc">创建时间</th>
+                            <th>上报方式</th>
+                            <th>联合部门/成功联合</th>
+                            <th class="tc Raster_15">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="yearList">
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+            <div id="NOList" style="display: none;">
+                <div id="DSearch" class="so-set">
+                    <table class="tab-Form">
+                        <tr>
+                            <td class="Tit span4">部门：</td>
+                            <td>
+                                <input type="text" class="span30 searchclass" id="DepDname" value="请输入搜索内容" info="" /></td>
+                            <td class="so-do">
+                                <input type="button" value="搜索" class="btn" id="ibtnDSearch" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="so-seq">
+                    <select id="selDyear" onchange="selDChange();">
+                        @{ 
+                            for (int i = 0; i < StrYear.Count; i++)
+                            {
+                            <option value="@(StrYear[i])">@(StrYear[i])</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <table class="tab-List mt10">
+                    <thead>
+                        <tr>
+                            <th class="span4">序号</th>
+                            <th>部门名称</th>
+                        </tr>
+                    </thead>
+                    <tbody id="yearDList">
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="yearListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>{{:Year}}</td>
+            <td>{{:courseCount}}</td>
+            <td>{{:courseLength}}</td>
+            <td>{{:Realname}}</td>
+            <td>{{:DeptName}}</td>
+            <td>{{:CreateTimeStr}}</td>
+            <td>{{:IsOpen==1?"联合上报":"单体上报"}}</td>
+            {{if IsOpen==1}}
+            <td>{{:linkCount}}/{{:linkYesCount}}</td>
+            {{else}}
+            <td>——</td>
+            {{/if}}
+            <td class="tc">
+                <a title="查看详情" onclick="LookYear({{:Id}},{{:DeptId}});" class="icon iview"></a>
+            </td>
+        </tr>  
+    {{/for}}
+</script>
+<script id="NoListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="tl">{{:DeptPath==""?DeptName:DeptPath}}</div></td>
+        </tr>  
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        Init();
+        initSearch();
+       
+        InitYearTrackList(getParamUrl(),@ViewBag.page);
+        //上报查询
+        $("#ibtnSearch").bind("click", function () {
+            InitYearTrackList(getParamUrl(),1);
+        });
+        //未上报查询
+        $("#ibtnDSearch").bind("click", function () {
+            InitNoTrackList(getParamNoUrl(),1);
+        });
+
+        onload(@ViewBag.backtype)
+
+        $("#Dtags li").bind("click", function () {
+            var index = $(this).index();
+            $("#Dtags li").removeClass("On");
+            $("#Dtags #Dtag" + index).addClass("On");
+            switch (index) {
+                case 0:
+                    $("#seldept").val("0");
+                    if ($("#seltrack").val() == 0) {
+                        InitYearTrackList(getParamUrl());
+                    } else {
+                        InitNoTrackList(getParamNoUrl());
+                    }
+                    break;
+                case 1:
+                    $("#seldept").val("1");
+                    if ($("#seltrack").val() == 0) {
+                        InitYearTrackList(getParamUrl());
+                    } else {
+                        InitNoTrackList(getParamNoUrl());
+                    }
+                    break;
+            }
+        });
+
+        $("#tags li").bind("click", function () {
+            var index = $(this).index();
+            $("#tags li").removeClass("On");
+            $("#tags #tag" + index).addClass("On");
+            $("#OKList,#NOList").hide();
+            switch (index) {
+                case 0:
+                    $("#seltrack").val("0");
+                    $("#OKList").show();
+                    $("#NOList").hide();
+                    InitYearTrackList(getParamUrl());
+                    break;
+                case 1:
+                    $("#seltrack").val("1");
+                    $("#OKList").hide();
+                    $("#NOList").show();
+                    InitNoTrackList(getParamNoUrl());
+                    break;
+            }
+        });
+    });
+
+    function onload()
+    {
+        $("#seldept").val(@(ViewBag.backtype));
+        $("#Dtags li:eq(" +@ViewBag.backtype +")").addClass("On").siblings("li").removeClass("On");
+        
+        InitYearTrackList(getParamUrl(),@ViewBag.page);
+    }
+
+    //显示年度计划列表
+    function InitYearTrackList(url,page) {
+        var templateId = 'yearListTemplate';
+        $("#yearList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "tempTa.LastUpdateTime",
+            jsRenderASC: " ASC",
+            templateID: templateId,
+            funCallback: function () {
+            }
+        });
+    }
+
+    //显示部门列表
+    function InitNoTrackList(url) {
+        var templateId = 'NoListTemplate';
+        $("#yearDList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function () {
+            }
+        });
+    }
+
+    function getParamUrl() {
+        return "/DeptPlanManage/GetYearTrackList?id=" + ($("#selyear option").length>0?$("#selyear").val():'0') + "&did=" + $("#seldept").val() + "&startTime=" + $("#beginTime").val() + "&endTime=" + $("#endTime").val() + "&isopen=" + $("#openType").val() + "&deptName=" + escape(getSearchWord("Depname")) + "&t=" + new Date();
+    }
+
+    function getParamNoUrl() {
+        return "/DeptPlanManage/GetYearNoTrackList?id=" + ($("#selDyear option").length>0?$("#selDyear").val():'0') + "&did=" + $("#seldept").val() + "&deptName=" + escape(getSearchWord("DepDname")) + "&t=" + new Date();
+    }
+
+    function selChange() {
+        InitYearTrackList(getParamUrl());
+    }
+    function selDChange() {
+        InitNoTrackList(getParamNoUrl());
+    }
+    //预览
+    function LookYear(id,did) {
+        window.location.href = "/DeptPlanManage/ManageYearPlanDetail?lai=3&backtype=" + $("#seldept").val() + "&id=" + id + "&did=" + did + "&t=" + new Date();
+    }
+
+    //初始化查询条件
+    function Init()
+    {
+        if("@ViewBag.startTime"!="")
+        {
+            $("#beginTime").val("@ViewBag.startTime");
+        }
+        if("@ViewBag.endTime"!="")
+        {
+            $("#endTime").val("@ViewBag.endTime");
+        }
+        if("@ViewBag.deptName"!="")
+        {
+            $("#deptName").val("@ViewBag.deptName");
+        }
+        if("@ViewBag.year"!="")
+        {
+            //$("#deptName").val("@ViewBag.deptName");
+            $("#selyear option[value='@ViewBag.year']").attr("selected",true);
+        }
+        if("@ViewBag.isopen"!="")
+        {
+            $("#openType option[value='@ViewBag.isopen']").attr("selected",true);
+        }
+    }
+</script>

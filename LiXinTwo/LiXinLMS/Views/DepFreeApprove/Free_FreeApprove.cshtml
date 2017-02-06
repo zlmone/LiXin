@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "Free_FreeApprove";
+    Layout = null;
+}
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span4">姓名：</td>
+            <td>
+                <input type="text" id="txtRealName" class="span15 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="Tit span4">申请内容：</td>
+            <td>
+                <input type="text" id="txtApplyContent" class="span15 searchclass" value="请输入搜索内容" info="" /></td>
+
+            <td class="Tit span4">申请时间：</td>
+            <td>
+                <div class="time-choose">
+                    <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'End_ApplyTime\',{m:-1})}' }) "
+                        id="Start_ApplyTime" value="" />
+                    <i></i>
+                </div>
+                至
+                <div class="time-choose">
+                    <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'Start_ApplyTime\',{m:1})}' }) "
+                        id="End_ApplyTime" value="" />
+                    <i></i>
+                </div>
+            </td>
+            <td class="so-do" rowspan="2">
+                <input class="btn" type="button" value="搜索" onclick="GetData();" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <select id="TrainGrade" class="approve">
+        <option value="">选择培训级别</option>
+        @foreach (var item in ViewBag.TrainGrade)
+        {
+            <option value="@item">@item</option>
+        }
+    </select>
+    <select id="Year" class="approve">
+        <option value="-1">选择申请年度</option>
+        @foreach (var item in ViewBag.yearList)
+        {
+            <option value="@item">@item</option>
+        }
+    </select>
+    <select id="isCommit" class="approve">
+        <option value="-1">证明资料是否已经上传</option>
+        <option value="1">是</option>
+        <option value="0">否</option>
+    </select>
+    <select id="ApproveStatusDep" class="approve">
+        <option value="-1">部门负责人审批结果</option>
+        <option value="0">待审批</option>
+        <option value="1">审批通过</option>
+        <option value="2">审批退回</option>
+        <option value="3">待部门负责人退回</option>
+    </select>
+    <select id="ApproveStatus" class="approve">
+        <option value="-1">审批状态</option>
+        <option value="0">待审批</option>
+        <option value="1">审批通过</option>
+        <option value="2">审批退回</option>
+    </select>
+</div>
+<table class="tab-List">
+    <thead>
+        <tr>
+            <th class="span4">序号</th>
+            <th class="span6">姓名</th>
+            <th class="span8">部门/分所</th>
+            <th class="span3" style="text-align: left">培训级别</th>
+            <th class="span12">申请内容</th>
+            <th class="span6" style="text-align: left" jsrendersortfield="tScore" sort="desc">申请所内学时</th>
+            <th class="span6" style="text-align: left" jsrendersortfield="CPAScore" sort="desc">申请CPA学时</th>
+            <th class="span8" jsrendersortfield="ApplyTime" sort="desc">申请时间</th>
+            <th class="span6">证明资料</th>
+            <th class="span7" style="text-align: left">部门负责人审批结果</th>
+            <th class="span6" style="text-align: left">审批状态</th>
+            <th class="span6">操作</th>
+        </tr>
+    </thead>
+    <tbody id="OtherApproveList">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+<script id="OtherApproveListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>{{:Realname}}</td>
+            <td style="text-align: left;">{{:DeptName}}</td>
+            <td>{{:TrainGrade}}</td>
+            <td  style="text-align: left;"><div title="{{:FreeName}}">{{:FreeName}}</div></td>
+            {{if ConvertType==1}}
+                 <td>N/A</td> 
+            {{else}}
+                 <td>{{:tScore}}</td>
+            {{/if}}
+            {{if ConvertType==0||CPA=="否"}}
+                  <td>N/A</td> 
+            {{else}}
+                  <td>{{:CPAScore}}</td>
+             {{/if}}
+            <td>{{:ApplyTimeStr}}</td>
+            <td>{{:isCommit>0?"是":"否"}}</td>
+            <td style="text-align: left;">
+               {{if ApproveStatus==2}}
+                    {{if DepApproveStatus==2}}
+                          <div title="{{:DepReason}}">{{:ApproveStatusStr}}</div>
+                     {{else}}
+                           <div title="{{:DepTrainReason}}">{{:ApproveStatusStr}}</div>
+                     {{/if}}
+               {{else}}
+                     {{:ApproveStatusStr}}
+               {{/if}}
+             </td>
+            <td style="text-align: left;">
+               {{if DepApproveStatus==2}}
+                     <div title="{{:DepReason}}">{{:DepApproveStatusStr}}</div>
+               {{else}}
+                     {{:DepApproveStatusStr}}
+               {{/if}}
+            </td>
+            <td>
+             
+                 <a  class="icon iview" title="查看详情" onclick="ViewApprove({{:ID}},{{:ApplyUserID}},{{:ApproveStatus}},{{:DepApproveStatus}},{{:ApplyType}})"></a>
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<script>
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        GetData();
+
+        $(".approve").change(function () { GetData(); });
+    });
+
+    function GetData()
+    {
+        $("#OtherApproveList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "ApplyTime",
+            jsRenderASC: "desc",
+            templateID: "OtherApproveListTemplate"
+        });
+    }
+
+    function GetPopParameters()
+    {
+        var v = "realName=" + escape(getSearchWord("txtRealName")) + "&ApplyContent=" + encodeURI(getSearchWord("txtApplyContent"))
+            + "&Start_ApplyTime=" + escape(getSearchWord("Start_ApplyTime")) + "&End_ApplyTime=" + escape(getSearchWord("End_ApplyTime"))
+            + "&TrainGrade=" + $("#TrainGrade").val() + "&Year=" + $("#Year").val() + "&isCommit=" + $("#isCommit").val()
+            + "&ApproveStatusDep=" + $("#ApproveStatusDep").val() + "&ApproveStatus=" + $("#ApproveStatus").val()
+        return "/DepFreeApprove/GetFreeApproveList?" + v;
+    }
+
+    function ViewApprove(ID, ApplyUserID, ApproveStatus, DepApproveStatus, ApplyType)
+    {
+        window.location.href = "/DepFreeApprove/Free_FreeApproveDetails?ID=" + ID + "&ApplyUserID=" + ApplyUserID
+            + "&ApproveStatus=" + ApproveStatus + "&DepApproveStatus=" + DepApproveStatus;
+    }
+</script>

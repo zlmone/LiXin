@@ -1,0 +1,273 @@
+﻿@using LiXinModels.NewCourseManage
+@{
+    Layout = null;
+    var course = (New_Course)ViewBag.Course;//主课程
+    var roomList = (List<New_CourseRoomRule>)ViewBag.RoomList;
+}
+<script src="../../Scripts/extend.js" type="text/javascript"></script>
+<input type="hidden" value="0" id="selectroomruleid"/>
+<input id="AllUserID" value="" type="hidden"/>
+<input id="leftCount" value="" type="hidden"/>
+<table class="tab-Form mt10">
+    <tr>
+        <td class="span30 p2">
+            @{
+                if (roomList.Count(p => p.Type == 0) > 0)
+                {
+                    <h2 class="tit-h2">
+                        <span class="tit-con">集中授课信息</span>
+                    </h2>
+                    <ul class="coursetype">
+                        @{
+                            foreach (var roomrule in roomList.Where(p => p.Type == 0))
+                            {
+                                var strarr = roomrule.SeatDetail.Split(new string[]{":"},StringSplitOptions.RemoveEmptyEntries);
+                                var idstr = "";
+                                var leftCount = 0;
+                                for (var i = 0; i < strarr.Length; i++)
+                                {
+                                    var userID = Convert.ToInt32(strarr[i].Split(',')[2]);
+                                    if (userID > 0)
+                                    {
+                                        idstr += idstr == "" ? (userID.ToString()) : ("," + userID);
+                                    }
+                                    if(userID==0)
+                                    {
+                                        leftCount++;
+                                    }
+                                }
+
+                                <li data-id="@(roomrule.Id)" data-user="@(idstr)" data-left="@(leftCount)">
+                                    <b>@(roomrule.RoomName)(共计<span class="roomtotalcount">@(roomrule.PersonCount)</span>人,<span class="roomleftcount">@(leftCount)</span>个空位)</b>
+                                    <div class="ovh span29" title="讲师：@(roomrule.teachername)&nbsp;时间：@(roomrule.StartTime.ToString("MM-dd HH:mm"))至@(roomrule.EndTime.ToString("MM-dd HH:mm"))">
+                                        讲师：@(roomrule.teachername)&nbsp;时间：@(roomrule.StartTime.ToString("MM-dd HH:mm"))至@(roomrule.EndTime.ToString("MM-dd HH:mm"))
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+                }
+                if (roomList.Count(p => p.Type == 1) > 0)
+                {
+                    <h2 class="tit-h2">
+                        <span class="tit-con">分组带教信息</span>
+                    </h2>
+                    <ul class="coursetype">
+                        @{
+                            foreach (var roomrule in roomList.Where(p => p.Type == 1))
+                            {
+                                var strarr = roomrule.SeatDetail.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                                var idstr = "";
+                                var leftCount = 0;
+                                for (var i = 0; i < strarr.Length; i++)
+                                {
+                                    var userID = Convert.ToInt32(strarr[i].Split(',')[3]);
+                                    if (userID > 0)
+                                    {
+                                        idstr += idstr == "" ? (userID.ToString()) : ("," + userID);
+                                    }
+                                    if (userID == 0)
+                                    {
+                                        leftCount++;
+                                    }
+                                }
+                                <li data-id="@(roomrule.Id)" data-user="@(idstr)" data-left="@(leftCount)">
+                                    <b>@(roomrule.RoomName)(共计<span class="roomtotalcount">@(roomrule.PersonCount)</span>人,<span class="roomleftcount">@(leftCount)</span>个空位)</b>
+                                    <div class="ovh span29" title="讲师：@(roomrule.teachername)&nbsp;时间：@(roomrule.StartTime.ToString("MM-dd HH:mm"))至@(roomrule.EndTime.ToString("MM-dd HH:mm"))">讲师：@(roomrule.teachername)&nbsp;时间：@(roomrule.StartTime.ToString("MM-dd HH:mm"))至@(roomrule.EndTime.ToString("MM-dd HH:mm"))</div>
+                                </li>
+                            }
+                        }
+                    </ul>
+                }
+            }
+        </td>
+        <td style="padding:5px;">
+            <div style="@(roomList.Count>0?"":"display:none;")">
+            <div class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span6">姓名：</td>
+                        <td class="span20"><input type="text" id="txtUserName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+                        <td class="Tit span6">状态：</td>
+                        <td>
+                            <select id="selLeaveStatus" class="span10">
+                                <option value="-1">全部</option>
+                                <option value="0">正常</option>
+                                <option value="1">请假</option>
+                            </select>
+                        </td>
+                        <td class="so-do">
+                            <input class="btn" type="button" value="搜索" id="btnSearch" onclick="InitRoomRuleUser();" />
+                            <input id="btnAddRoomUser" value="添加人员" @((course.PublicFlag == 0 || course.EndTime<DateTime.Now) ? "disabled=disabled" : "") type="button" class="btn btn-co"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <input id="roomhaveuser" value="" type="hidden"/>
+            <table class="tab-List mt5">
+                <thead>
+                    <tr>
+                        <th class="span4">序号</th>
+                        <th class="span10">姓名</th>
+                        <th class="span8">性别</th>
+                        @*<th class="span15">入职时间</th>*@
+                        <th>毕业院校</th>
+                        <th class="span8">状态</th>
+                        <th class="span6">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tbCourseUserList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+            </div>
+        </td>
+    </tr>
+</table>
+<!-- 人员列表模板 -->
+<script id="courseUserTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>{{:RealName}}</td>
+            <td>{{:Sex==0?"男":"女"}}</td>
+            <td><div class="ovh tl span25" title="{{:School}}">{{:School}}</div></td>
+            <td>{{:IsLeave==0?"正常":"请假"}}</td>
+            <td>
+                {{if IsLeave==0 && @(course.PublicFlag) == 1}}
+                <a onclick="fnLeave({{:Id}},{{:UserID}});" class="icon iatt-lea" title="请假"></a>
+                {{else}}
+                <a class="idis icon iatt-lea" title="请假"></a>
+                {{/if}}
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<!-- 人员请假模板 -->
+<script id="leaveInforTemplate" type="text/x-jsrender">
+   <table style="width:400px;" class="tab-Form">
+        <tr>
+            <td class="Tit span8">请假审批人：</td>
+            <td><input type="text" id="txtAppName" maxlength="20" class="span20"/></td>
+        </tr>
+        <tr>
+            <td class="Tit span8">请假理由：</td>
+            <td><textarea id="txtReason" class="span30"></textarea></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input id="btnSubmitLeave" data-id="" data-user="" type="button" value="提交" class="btn btn-co" onclick="btnSubmitLeave();"/>
+            </td>
+        </tr>
+   </table>
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        var obj = $(".coursetype li:first");
+        obj.addClass("on");
+        GetRoomRuleInfor(obj);
+        InitRoomRuleUser();
+        //li点击事件
+        $(".coursetype li").bind("click", function () {
+            $(".coursetype li.on").removeClass("on");
+            $(this).addClass("on");
+            GetRoomRuleInfor(this);
+            InitRoomRuleUser();
+        });
+        //添加人员事件
+        $("#btnAddRoomUser").bind("click", function () {
+            if (parseInt($("#leftCount").val()) > 0) {
+                art.dialog.load("/UserCommon/SelectUser?IsNew=2", { title: "添加新进人员", id: "pop_AddUserList", width: 800 });
+            } else {
+                art.dialog.tips("所选教室下已经没有空位，不可以添加人员！", 3);
+            }
+        });
+        //状态下拉事件
+        $("#selLeaveStatus").bind('change',function() {
+            InitRoomRuleUser();
+        });
+    });
+
+    //点击单个教室赋值
+    function GetRoomRuleInfor(obj) {
+        $("#selectroomruleid").val($(obj).attr("data-id")); //教室ID
+        $("#AllUserID").val($(obj).attr("data-user")); //已有人员
+        $("#leftCount").val($(obj).attr("data-left")); //还剩的座位
+    }
+
+    //加载人员
+    function InitRoomRuleUser() {
+        var id = $('#selectroomruleid').val();
+        if (id != "" && id != "0") {
+            $("#tbCourseUserList").JsRenderData({
+                sourceUrl: '/NewCourseManage/GetRoomRuleUser?id=' + $('#selectroomruleid').val() + "&name=" + escape(getSearchWord("txtUserName")) + "&status=" + $("#selLeaveStatus").val()+"&pflag=@(course.PublicFlag)",
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: "courseUserTemplate",
+                funCallback: function (data) {
+                    $(".coursetype li.on:first").attr("data-user", data.haveduser); //已有人员
+                    $("#AllUserID").val(data.haveduser); //已有人员
+                    $(".coursetype li.on:first .roomtotalcount").html(data.realCount);
+                    $(".coursetype li.on:first .roomleftcount").html($(".coursetype li.on:first").attr("data-left"));
+                }
+            });
+        }
+    }
+
+    //确定添加人员
+    function GetUserIDList() {
+        var userIds = GetChecked('pop_userList');
+        if (userIds == "") {
+            art.dialog.tips("请选择要添加的人员", 3);
+            return;
+        }
+        if(userIds.split(',').length>parseInt($("#leftCount").val())) {
+            art.dialog.tips("教室剩余座位不足，请减少所选人员", 3);
+            return;
+        }
+        $.post('/NewCourseManage/AddNewPerson?id=' + $("#selectroomruleid").val(), { user: userIds }, function (data) {
+            if (data.result == 1) {
+                var obj = $(".coursetype li.on:first");
+                var newleft = parseInt($(obj).attr("data-left")) - userIds.split(',').length;
+                $(obj).attr("data-left", newleft); //还剩的座位
+                $("#leftCount").val(newleft); //还剩的座位
+                art.dialog.list["pop_AddUserList"].close();
+                InitRoomRuleUser();
+            }else {
+                art.dialog.tips(data.message, 3);
+            }
+        });
+    }
+
+    //请假
+    function fnLeave(id,userID) {
+        art.dialog({ title: "请假信息", content: $("#leaveInforTemplate").render(), id: "pop_leaveinfor" });
+        $("#txtReason").textareaCount({ maxCharacterSize: 200 });
+        $("#btnSubmitLeave").attr("data-id", id).attr("data-user", userID);
+    }
+
+    //提交请假信息
+    function btnSubmitLeave() {
+        if($.trim($("#txtAppName").val())!="" && $.trim($("#txtReason").val())!="") {
+            $.post('/NewCourseManage/SaveLeaveInfor?id=' + $("#btnSubmitLeave").attr("data-id") + '&userID=' + $("#btnSubmitLeave").attr("data-user"), { name: $("#txtAppName").val(), reason: $("#txtReason").val() }, function (data) {
+                if (data.result == 1) {
+                    art.dialog.list["pop_leaveinfor"].close();
+                    art.dialog.tips("提交成功！", 3);
+                    var obj = $(".coursetype li.on:first");
+                    var newleft = parseInt($(obj).attr("data-left")) +1;
+                    $(obj).attr("data-left", newleft); //还剩的座位
+                    $("#leftCount").val(newleft); //还剩的座位
+                    InitRoomRuleUser();
+                }
+                else {
+                    art.dialog.tips("提交失败！", 3);
+                }
+            });
+        }else {
+            art.dialog.tips("请将信息填写完整！", 3);
+        }
+    }
+</script>

@@ -1,0 +1,220 @@
+﻿@using LiXinModels.User
+@{
+    ViewBag.Title = "培训管理首页";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userRights = ViewBag.UserRights as List<Sys_Right>;
+}
+<div class="main-l" style="width: 770px; background: none;">
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">待办事宜</span>
+    </h2>
+    <div class="clb">
+        <div class="span38 fl">
+            <h5 class="tit-h5">
+                <span>待审批</span>
+            </h5>
+            <table class="tab-List mt10">
+                <thead>
+                    <tr>
+                        <th>申请人
+                        </th>
+                        <th class="span12">申请时间
+                        </th>
+                        <th class="span15">申请部门
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="TimeOutApprovalList">
+                    @{
+                        if (ViewBag.timeoutApprovalList.Count > 0)
+                        {
+                            foreach (var item in ViewBag.timeoutApprovalList)
+                            {
+                        <tr>
+                            <td>
+                                <div class="span6 ovh tl" title="@item.RealName">@item.RealName</div>
+                            </td>
+                            <td>
+                                <div class="f11">@item.LeaveTime.ToString("yyyy-MM-dd HH:mm")</div>
+                            </td>
+                            <td>
+                                <div class="span14 ovh tl" title="@item.DeptName">@item.DeptName</div>
+                            </td>
+                        </tr>
+                            }
+                        }
+                        else
+                        {
+                        <tr>
+                            <td colspan="4">暂无数据
+                            </td>
+                        </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="span38 fr">
+            <h5 class="tit-h5">
+                <span>待考勤</span>
+            </h5>
+            <table class="tab-List mt10">
+                <thead>
+                    <tr>
+                        <th>课程名称
+                        </th>
+                        <th class="span6">讲师
+                        </th>
+                        <th class="span15">开课时间
+                        </th>
+                        <th class="span6">操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="WaitCourseList">
+                    @{
+                        if (ViewBag.waitCourseList.Count > 0)
+                        {
+                            foreach (var item in ViewBag.waitCourseList)
+                            {
+                        <tr>
+                            <td>
+                                <div class="span10 ovh tl" title="@item.Name">@item.Name</div>
+                            </td>
+                            <td>
+                                <div class="span5 ovh tl" title="@item.Teacher">@item.Teacher</div>
+                            </td>
+                            <td>
+                                <div class="f11">@item.StartDate.ToString("yyyy-MM-dd HH:mm")</div>
+                            </td>
+                            <td>
+                                <a class="icon iview" title="查看详情" onclick="DepAttend(@(item.ID),@(item.DeptId),@(item.Type),@(item.Way));"></a>
+                            </td>
+                        </tr>
+                            }
+                        }
+                        else
+                        {
+                        <tr>
+                            <td colspan="4">暂无数据
+                            </td>
+                        </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h2 class="tit-h2 mt20">
+        <i></i><span class="tit-con">操作向导</span>
+    </h2>
+    <div class="opera">
+        <div class="list l-xq">
+            <div class="list-p">
+            </div>
+            <h5>需求</h5>
+            <p>
+                <a href="@(userRights.Find(p => p.Path == "DeptSurvey/DeptSurveyManage") != null ? "/DeptSurvey/DeptSurveyManage" : "javascript:Notest();")">发布</a> <a href="@(userRights.Find(p => p.Path == "DeptSurvey/SurveyReport") != null ? "/DeptSurvey/SurveyReport" : "javascript:Notest();")">查看</a>
+            </p>
+        </div>
+        <div class="list l-jh">
+            <div class="list-p">
+            </div>
+            <h5>计划</h5>
+            <p>
+                <a href="@(userRights.Find(p => p.Path == "DeptPlanManage/YearPlan") != null ? "/DeptPlanManage/YearPlan" : "javascript:Notest();")">年度</a> <a href="@(userRights.Find(p => p.Path == "DeptPlanManage/MonthPlan") != null ? "/DeptPlanManage/MonthPlan" : "javascript:Notest();")">月度</a>
+            </p>
+        </div>
+        <div class="list l-kc">
+            <div class="list-p">
+            </div>
+            <h5>课程</h5>
+            <p>
+                <a href="@(userRights.Find(p => p.Path == "DepCourseManage/DepManageList") != null ? "/DepCourseManage/DepManageList" : "javascript:Notest();")">自学</a>
+                <a href="@(userRights.Find(p => p.Path == "DepCourseManage/DepManageList") != null ? "/DepCourseManage/DepManageList?tp=1" : "javascript:Notest();")">开放全所</a>
+                @if (ViewBag.isMan == 0)
+                {
+                    <a href="@(userRights.Find(p => p.Path == "DeptCourseManage/DeptCourseManage") != null ? "/DeptCourseManage/DeptCourseManage" : "javascript:Notest();")">转播</a>
+                }
+            </p>
+        </div>
+        <div class="list l-cx">
+            <div class="list-p">
+            </div>
+            <h5>查询</h5>
+            <p>
+                <a href="@(userRights.Find(p => p.Path == "DepCourseCourseLearn/CourseSubscribe") != null ? "/DepCourseCourseLearn/CourseSubscribe" : "javascript:Notest();")">预订</a>
+                <a href="@(userRights.Find(p => p.Path == "DepSelfCourseAppointSearch/DepSelfCourseAppointSearch") != null ? "/DepSelfCourseAppointSearch/DepSelfCourseAppointSearch" : "javascript:Notest();")">指定</a>
+            </p>
+        </div>
+        <div class="list l-gz">
+            <div class="list-p">
+            </div>
+            <h5>跟踪</h5>
+            <p>
+                <a href="@(userRights.Find(p => p.Path == "DepAttendce/DepAttendceList") != null ? "/DepAttendce/DepAttendceList" : "javascript:Notest();")">自学考勤</a> <a href="@(userRights.Find(p => p.Path == "DepTranAttendce/DepTranAttendceList") != null ? "/DepTranAttendce/DepTranAttendceList" : "javascript:Notest();")">转播考勤</a>
+            </p>
+        </div>
+        <div class="list l-tj">
+            <div class="list-p">
+            </div>
+            <h5>统计</h5>
+            <p>
+                <a href="#" onclick="art.dialog.tips('暂未上线！', 3);">发布</a> <a href="#" onclick="art.dialog.tips('暂未上线！', 3);">查看</a>
+            </p>
+        </div>
+    </div>
+</div>
+<div class="cbook-re fr">
+    <h4>课程预订结果</h4>
+    @{
+        foreach (var item in ViewBag.courseOrderList)
+        {
+            var per = 100;
+            if (item.SuccessEntered < item.NumberLimited)
+            {
+                per = item.SuccessEntered * 100 / item.NumberLimited;
+            }
+        <div class="list">
+            @if (item.Flag == 2)
+            {
+                <i class="l-ji">自</i>
+            }
+            else
+            {
+                <i class="l-xi">视</i>
+            }
+            <h5 class="ovh" title="@item.CourseName">@item.CourseName</h5>
+            <div class="progress-stats">
+                <div class="progress">
+                    <div class="bar" style="width: @per%;">
+                    </div>
+                </div>
+                <span>@per%</span>
+            </div>
+        </div>
+        }
+    }
+</div>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function ()
+    {
+
+    });
+    function Notest()
+    {
+        art.dialog.tips('无权限', 3);
+    }
+
+    //考勤管理
+    function DepAttend(courseID, deptID, flag, way)
+    {
+        if (flag == 1)
+        {
+            window.location.href = "/DepTranAttendce/DepTranAttendce?id=" + courseID + "&did=" + deptID + "&fromflag=1";
+        } else
+        {
+            window.location.href = "/DepAttendce/DepAttendce?id=" + courseID + "&did=" + deptID + "&fromflag=1&way=" + way;
+        }
+    }
+</script>

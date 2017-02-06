@@ -1,0 +1,368 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Personalprolfile_Address" xml:space="preserve">
+    <value>地址</value>
+    <comment>地址</comment>
+  </data>
+  <data name="Personalprolfile_BaseInfo" xml:space="preserve">
+    <value>基本信息</value>
+    <comment>基本信息</comment>
+  </data>
+  <data name="Personalprolfile_Birthday" xml:space="preserve">
+    <value>出生日期</value>
+    <comment>出生日期</comment>
+  </data>
+  <data name="Personalprolfile_DeptName" xml:space="preserve">
+    <value>部门</value>
+    <comment>部门</comment>
+  </data>
+  <data name="Personalprolfile_Email" xml:space="preserve">
+    <value>邮箱</value>
+    <comment>邮箱</comment>
+  </data>
+  <data name="Personalprolfile_EmailError" xml:space="preserve">
+    <value>邮箱格式错误</value>
+    <comment>邮箱格式错误</comment>
+  </data>
+  <data name="Personalprolfile_FileNull" xml:space="preserve">
+    <value>找不到文件</value>
+    <comment>找不到文件</comment>
+  </data>
+  <data name="Personalprolfile_Height" xml:space="preserve">
+    <value>身高</value>
+    <comment>身高</comment>
+  </data>
+  <data name="Personalprolfile_HeightError" xml:space="preserve">
+    <value>身高格式错误</value>
+    <comment>身高格式错误</comment>
+  </data>
+  <data name="Personalprolfile_IDCardDateError" xml:space="preserve">
+    <value>您输入的身份证号日期不正确</value>
+    <comment>您输入的身份证号日期不正确</comment>
+  </data>
+  <data name="Personalprolfile_IDCarDigitIsError" xml:space="preserve">
+    <value>您输入的身份证号位数不正确</value>
+    <comment>您输入的身份证号位数不正确</comment>
+  </data>
+  <data name="Personalprolfile_IdCardNotNum" xml:space="preserve">
+    <value>您输入的身份证号不是数字信息</value>
+    <comment>您输入的身份证号不是数字信息</comment>
+  </data>
+  <data name="Personalprolfile_IDCardNum" xml:space="preserve">
+    <value>身份证号码</value>
+    <comment>身份证号码</comment>
+  </data>
+  <data name="Personalprolfile_IDCardYearError" xml:space="preserve">
+    <value>您输入的身份证号年份不正确</value>
+    <comment>您输入的身份证号年份不正确</comment>
+  </data>
+  <data name="Personalprolfile_InserImageError" xml:space="preserve">
+    <value>头像保存失败</value>
+    <comment>头像保存失败</comment>
+  </data>
+  <data name="Personalprolfile_InserImageSuccess" xml:space="preserve">
+    <value>头像保存成功</value>
+    <comment>头像保存成功</comment>
+  </data>
+  <data name="Personalprolfile_MarryInfo" xml:space="preserve">
+    <value>婚姻状况</value>
+    <comment>婚姻状况</comment>
+  </data>
+  <data name="Personalprolfile_Men" xml:space="preserve">
+    <value>男</value>
+    <comment>男</comment>
+  </data>
+  <data name="Personalprolfile_MobielNumError" xml:space="preserve">
+    <value>请输入正确的手机号码</value>
+    <comment>请输入正确的手机号码</comment>
+  </data>
+  <data name="Personalprolfile_MobilNum" xml:space="preserve">
+    <value>联系方式</value>
+    <comment>联系方式</comment>
+  </data>
+  <data name="Personalprolfile_Month" xml:space="preserve">
+    <value>月</value>
+    <comment>月</comment>
+  </data>
+  <data name="Personalprolfile_Name" xml:space="preserve">
+    <value>姓名</value>
+    <comment>姓名</comment>
+  </data>
+  <data name="Personalprolfile_NewPassword" xml:space="preserve">
+    <value>新密码</value>
+    <comment>新密码</comment>
+  </data>
+  <data name="Personalprolfile_NewpasswordError" xml:space="preserve">
+    <value>新密码不符合密码条件</value>
+    <comment>新密码不符合密码条件</comment>
+  </data>
+  <data name="Personalprolfile_PasswordNotFull" xml:space="preserve">
+    <value>请把密码输入完整</value>
+    <comment>请把密码输入完整</comment>
+  </data>
+  <data name="Personalprolfile_PerPassword" xml:space="preserve">
+    <value>原始密码</value>
+    <comment>原始密码</comment>
+  </data>
+  <data name="Personalprolfile_PersonalInfo" xml:space="preserve">
+    <value>个人情况</value>
+    <comment>个人情况</comment>
+  </data>
+  <data name="Personalprolfile_PersonalInfo_Update" xml:space="preserve">
+    <value>个人资料修改</value>
+    <comment>个人资料修改</comment>
+  </data>
+  <data name="Personalprolfile_PersonalIntro" xml:space="preserve">
+    <value>个人简介</value>
+    <comment>个人简介</comment>
+  </data>
+  <data name="Personalprolfile_PerviewImage" xml:space="preserve">
+    <value>头像预览</value>
+    <comment>头像预览</comment>
+  </data>
+  <data name="Personalprolfile_PostName" xml:space="preserve">
+    <value>岗位</value>
+    <comment>工位</comment>
+  </data>
+  <data name="Personalprolfile_PrePwError" xml:space="preserve">
+    <value>原始密码不正确</value>
+    <comment>原始密码不正确</comment>
+  </data>
+  <data name="Personalprolfile_QQ" xml:space="preserve">
+    <value>QQ号</value>
+    <comment>QQ号</comment>
+  </data>
+  <data name="Personalprolfile_QQError" xml:space="preserve">
+    <value>QQ格式错误</value>
+    <comment>QQ格式错误</comment>
+  </data>
+  <data name="Personalprolfile_SaveImage" xml:space="preserve">
+    <value>保存头像</value>
+    <comment>保存头像</comment>
+  </data>
+  <data name="Personalprolfile_SelectImageType" xml:space="preserve">
+    <value>请选择图片文件，谢谢!</value>
+    <comment>请选择图片文件，谢谢!</comment>
+  </data>
+  <data name="Personalprolfile_Sex" xml:space="preserve">
+    <value>性别</value>
+    <comment>性别</comment>
+  </data>
+  <data name="Personalprolfile_SubmitWarn" xml:space="preserve">
+    <value>请填入数据再提交</value>
+    <comment>请填入数据再提交</comment>
+  </data>
+  <data name="Personalprolfile_SureNewPassword" xml:space="preserve">
+    <value>确认新密码</value>
+    <comment>确认新密码</comment>
+  </data>
+  <data name="Personalprolfile_SurrePw_NewPw_NotSame" xml:space="preserve">
+    <value>确认密码与新密码不相符</value>
+    <comment>确认密码与新密码不相符</comment>
+  </data>
+  <data name="Personalprolfile_UpdateError" xml:space="preserve">
+    <value>个人信息更新失败</value>
+    <comment>个人信息更新失败</comment>
+  </data>
+  <data name="Personalprolfile_UpdatePassword" xml:space="preserve">
+    <value>修改密码</value>
+    <comment>修改密码</comment>
+  </data>
+  <data name="Personalprolfile_UpdatePwError" xml:space="preserve">
+    <value>密码更改失败</value>
+    <comment>密码更改失败</comment>
+  </data>
+  <data name="Personalprolfile_UpdatePwSuccess" xml:space="preserve">
+    <value>密码更改成功</value>
+    <comment>密码更改成功</comment>
+  </data>
+  <data name="Personalprolfile_UpdateSuccess" xml:space="preserve">
+    <value>个人信息更新成功</value>
+    <comment>个人信息更新成功</comment>
+  </data>
+  <data name="Personalprolfile_UploadPhoto" xml:space="preserve">
+    <value>上传照片</value>
+    <comment>上传照片</comment>
+  </data>
+  <data name="Personalprolfile_UserName" xml:space="preserve">
+    <value>工号</value>
+    <comment>工号</comment>
+  </data>
+  <data name="Personalprolfile_Woman" xml:space="preserve">
+    <value>女</value>
+    <comment>女</comment>
+  </data>
+  <data name="Personalprolfile_Year" xml:space="preserve">
+    <value>年</value>
+    <comment>年</comment>
+  </data>
+  <data name="Personalprolfile_BigSmallWrite" xml:space="preserve">
+    <value>6-20个字符，区分大小写</value>
+    <comment>6-20个字符，区分大小写</comment>
+  </data>
+  <data name="Personalprolfile_PreViewLateUplaod" xml:space="preserve">
+    <value>请浏览图片，再上传</value>
+    <comment>请浏览图片，再上传</comment>
+  </data>
+  <data name="Personalprolfile_YearMonthAll" xml:space="preserve">
+    <value>年月必须输入完整</value>
+    <comment>年月必须输入完整</comment>
+  </data>
+  <data name="Personalprolfile_MyProfile" xml:space="preserve">
+    <value>我的资料</value>
+    <comment>我的资料</comment>
+  </data>
+  <data name="Personalprolfile_Area" xml:space="preserve">
+    <value>区域</value>
+    <comment>区域</comment>
+  </data>
+  <data name="Personalprolfile_NeedNewPwd" xml:space="preserve">
+    <value>请输入新密码</value>
+    <comment>请输入新密码</comment>
+  </data>
+  <data name="Personalprolfile_NeedOldPwd" xml:space="preserve">
+    <value>请输入原密码</value>
+    <comment>请输入原密码</comment>
+  </data>
+  <data name="Personalprolfile_NeedSurePwd" xml:space="preserve">
+    <value>请输入确认密码</value>
+    <comment>请输入确认密码</comment>
+  </data>
+  <data name="Personalprolfile_NewPwd_Faliure" xml:space="preserve">
+    <value>请输入 {0} 到 {1} 位的新密码</value>
+    <comment>请输入 {0} 到 {1} 位的新密码</comment>
+  </data>
+  <data name="Personalprolfile_NotEqualPwd" xml:space="preserve">
+    <value>新密码与确认密码不一致</value>
+    <comment>新密码与确认密码不一致</comment>
+  </data>
+  <data name="Personalprolfile_OldPwd_Faliure" xml:space="preserve">
+    <value>请输入 {0} 到 {1} 位的原密码</value>
+    <comment>请输入 {0} 到 {1} 位的原密码</comment>
+  </data>
+  <data name="Personalprolfile_HeadBigImage" xml:space="preserve">
+    <value>保存失败，图片大小不能大于5M。</value>
+    <comment>保存失败，图片大小不能大于5M。</comment>
+  </data>
+  <data name="Personalprolfile_HeadImg_Error" xml:space="preserve">
+    <value>头像只能是jpg、gif、png格式的文件</value>
+    <comment>头像只能是jgp、gif、png格式的文件</comment>
+  </data>
+</root>

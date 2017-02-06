@@ -1,0 +1,117 @@
+﻿@*
+  viewType   0:  年度   月度   1： 年月下旬  默认为1
+  dataType   0： 年---今年往后推一共5年   1：取年度计划中的年 默认为0
+  onclick    年度下拉框,以及月度下拉框中的事件  默认为"" 
+
+ 集中授课开设 调用 年月 部分视图页面
+*@
+@{
+    ViewBag.Title = "YearMonthSelectForCourse";
+    Layout = null;
+
+}
+@{
+    if (ViewBag.viewType == 0)
+    {
+    <label>
+        年度：</label>
+    }   
+}
+<select id="sel_pop_year" name="sel_pop_year" onchange="GetMonth()" >
+    @{ 
+        if (ViewBag.viewType == 0)
+        {
+        <option value="-1">请选择年度</option>
+        }
+        else
+        {
+        <option value="-1">年</option>
+        }
+
+        if (ViewBag.dataType == 1)
+        {
+            foreach (var year in ViewBag.year)
+            {
+        <option value="@year">@year</option>
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 5; i++)
+            {
+        <option value="@(ViewBag.year + i)">@(ViewBag.year + i)</option>
+            }
+        }
+       
+    }
+</select>
+@{
+    if (ViewBag.viewType == 0)
+    {
+    <label>月度：</label>
+    }   
+}
+<select id="sel_pop_month" onchange="fnLoadMonthCourse(this)" name="sel_pop_month" >
+    @{
+        if (ViewBag.viewType == 0)
+        {
+        <option value="-1">请选择月份</option>
+        }
+        else
+        {
+        <option value="-1">月</option>
+        }
+    }
+</select>
+@{
+    if (ViewBag.viewType == 1)
+    {
+    <select id="Day" name="Day">
+        <option value="1">上旬</option>
+        <option value="2">中旬</option>
+        <option value="3">下旬</option>
+    </select>
+    }   
+}
+<script id="monthListTemplate" type="text/x-jsrender">
+   {{for monthList}}
+       <option value="{{:#data}} ">{{:#data}}</option>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+
+    });
+
+    function GetMonth()
+    {
+    var selstr="";
+         if (@ViewBag.viewType == 0)
+        {
+            selstr="请选择月份";
+        }
+        else
+        {
+             selstr="月";
+        }
+        var year = $("#sel_pop_year").val();
+      
+        if (year != -1)
+        {
+
+            $.getJSON("/PlanManage/GetMonthByYear?year=" + year+"&IsPublishMonth=1", function (data)
+            {
+                $("#sel_pop_month").html("");
+                $("#sel_pop_month").append("<option value='-1' >"+selstr+"</option>"+$("#monthListTemplate").render(data));
+            });
+        }
+        else
+        {
+            $("#sel_pop_month").html("");
+            $("#sel_pop_month").append("<option value='-1' >"+selstr+"</option>");
+        } 
+    }
+
+</script>

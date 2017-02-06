@@ -1,0 +1,266 @@
+﻿@{
+    ViewBag.Title = "月度大纲";
+    var deptID = ViewBag.DeptID;
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "月度大纲" }))
+    <input type="hidden" id="seldept" value="@(ViewBag.DeptID)" />
+    <div class="fl span20">
+        <div class="menu-list">
+            <h3>分所<i class="il"></i><i class="ir"></i></h3>
+        </div>
+        <div class="treeview-box">
+            <div id="deptList" class="tree-list"></div>
+        </div>
+    </div>
+    <div class="fr span79">
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td>
+                        <div class="ml10">
+                            @Html.Action("YearMonthSelect", new
+                                 {
+                                     viewType = 0,
+                                     dataType = 1
+                                 })
+                        </div>
+                    </td>
+                    <td class="so-do">
+                        @*<input type="button" class="btn" value="立即搜索" onclick="Getdata()" />*@
+                        <input type="button" class="btn btn-co" value="新增月度计划" onclick="Add()" id="AddMonthplan" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th>序号
+                        </th>
+                        <th jsrendersortfield="Year" sort="asc">年度
+                        </th>
+                        <th jsrendersortfield="month" sort="asc">月份
+                        </th>
+                        <th jsrendersortfield="courseCount" sort="asc">包含课程数
+                        </th>
+                        <th>计划状态
+                        </th>
+                        <th>创建人
+                        </th>
+                        <th>主办部门
+                        </th>
+                        <th class="span16">操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="monthPlanList" class="tc">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<script id="monthPlanTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+          <td>{{:#index+1}}</td>
+          <td>{{:Year}}</td>
+          <td>{{:Month}}</td>
+          <td>{{:courseCount}}</td>
+          <td>{{:PublishFlagStr}}</td>
+          <td>{{:RealName}}</td>
+          <td>{{:DeptName}}</td>
+          <td>
+            {{if PublishFlag==0 && isMy==1}}
+                <a onclick="Publish({{:Id}})" class="icon ipub" title="发布"></a>
+               
+                <a onclick="Delete({{:Id}})" class="icon idel" title="删除"></a>
+            {{else}}
+                <a class="icon ipub idis" title="发布"></a>
+                
+                <a class="icon idel idis" title="删除"></a>
+            {{/if}}
+            {{if isMy==1}}
+                 <a onclick="Edit({{:Id}},{{:Year}},'{{:Month}}')" class="icon iedit" title="编辑"></a>
+            {{else}}
+                   <a class="icon iedit idis" title="编辑"></a>
+            {{/if}}
+               <a onclick="view({{:Id}})"  class="icon iview" title="查看详情"></a>
+    <a onclick="Compare({{:Id}},{{:Year}},'{{:Month}}',{{:DeptId}})" class="icon icon-dif" title="差异对比"></a>
+          </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+
+
+    $(document).ready(function ()
+    {
+        initdept();
+        Getdata();
+    });
+
+    //初始化分所
+    function initdept()
+    {
+        $.getJSON("/DeptPlanManage/GetDeptSort?t=" + new Date(), function (data)
+        {
+            $("#deptList").html(data);
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#navigation>li>ul>li>div").each(function ()
+            {
+                $(this).click();
+            });
+        });
+    }
+    //分所点击事件
+    function selectSort(id, obj)
+    {
+        $("#seldept").val(id);
+        postNodeClickSelect(obj);
+        Getdata();
+    }
+    function postNodeClickSelect(obj)
+    {
+        $("#deptList").find("a").each(function ()
+        {
+            $(this).removeClass("On");
+        });
+        $(obj).addClass("On");
+    }
+
+    function Getdata()
+    {
+
+
+        $("#monthPlanList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "month",
+            jsRenderASC: " ASC",
+            templateID: "monthPlanTemplate"
+        });
+    }
+
+    function getParamUrl()
+    {
+        var deptID=$("#seldept").val();
+        if(@ViewBag.TrainMaster==0)
+        {
+            deptID=@ViewBag.DeptID;
+        }
+        return "/DeptPlanManage/GetMonthplan?myDeptID="+deptID+"&year=" + $("#year").val() + "&month=" + $("#month").val()
+            + "&publish=" + $("#selpublish").val() + "&DeptID=" + $("#seldept").val() + "&t=" + Date();
+    }
+
+    //发布
+    function Publish(id)
+    {
+        art.dialog({
+            content: "您确认发布吗？",
+            ok: function ()
+            {
+                $.post("/DeptPlanManage/Publish?id=" + id, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        //                        art.dialog({
+                        //                            content: data.content,
+                        //                            time: 3
+                        //                        });
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //删除
+    function Delete(id)
+    {
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function ()
+            {
+                $.post("/DeptPlanManage/Delete?id=" + id, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        //                        art.dialog({
+                        //                            content: data.content,
+                        //                            time: 3
+                        //                        });
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+
+    function Add()
+    {
+        var deptID=$("#seldept").val();
+        if(@ViewBag.TrainMaster==0)
+        {
+            deptID=@ViewBag.DeptID;
+        }
+        window.location.href = "/DeptPlanManage/addMonthPlan?id=0&deptID="+deptID;
+    }
+
+
+    function Edit(id, year, month)
+    {
+        var deptID=$("#seldept").val();
+        if(@ViewBag.TrainMaster==0)
+        {
+            deptID=@ViewBag.DeptID;
+        }
+        window.location.href = "/DeptPlanManage/addMonthPlan?id=" + id + "&year=" + year + "&month=" + month+"&deptID="+deptID;
+    }
+
+    function view(id)
+    {
+        var deptID=$("#seldept").val();
+        if(@ViewBag.TrainMaster==0)
+        {
+            deptID=@ViewBag.DeptID;
+        }
+        window.location.href = "/DeptPlanManage/MonthPlanDetail?id=" + id +"&deptID="+deptID;
+    }
+    function Compare(id, year, month,DeptId)
+    {
+        @*var deptID=$("#seldept").val();
+        if(@ViewBag.TrainMaster==0)
+        {
+            deptID=@ViewBag.DeptID;
+        }*@
+        window.location.href = "/DeptPlanManage/MonthPlanCompare?id=" + id + "&year=" + year + "&month=" + month+"&deptID="+DeptId;
+    }
+      
+    //    function send()
+    //    {
+    //        $.getJSON("/PlanManage/");
+    //    }
+</script>

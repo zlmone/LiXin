@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "Free_Main";
+    Layout = null;
+    var nextflag = Request.QueryString["nextflag"] ?? "0";
+}
+
+<div class="main-c">
+    @*@(Html.Action("SiteMapLink", "Common", new { linkName = "我的审批记录" }))*@
+    <div class="tab-bk mt10">
+        <ul id="tagorder">
+            <li class="On" id="order0">其他形式</li>
+            <li id="order1">免修</li>
+            <li id="order2">其他有组织形式</li>
+        </ul>
+    </div>
+    <div id="otherfrom">
+    </div>
+    @*    <div id="exemption" style="display: none">
+    </div>
+    <div id="otherorganization" style="display:none"></div>*@
+
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+        showfromTable(@nextflag);
+
+        $("#tagorder li").click(function ()
+        {
+            showfromTable($(this).index())
+        });
+
+
+        @*$("#order@(subflag1)").click();*@
+    });
+
+    function showfromTable(index)
+    {
+        $("#tagorder li").removeClass("On");
+        $("#order" + index).addClass("On");
+
+        switch (parseInt(index))
+        {
+            case 0:
+                $.get("/MyApply/Free_OtherFrom", function (data)
+                {
+                    $("#otherfrom").html(data);
+                });
+                break;
+            case 1:
+                $.get("/MyApply/Free_Exemption", function (data)
+                {
+                    $("#otherfrom").html(data);
+                });
+                break;
+            case 2:
+                $.get("/MyApply/Free_OtherOrganization", function (data)
+                {
+                    $("#otherfrom").html(data);
+                });
+                break;
+
+        }
+    }
+</script>

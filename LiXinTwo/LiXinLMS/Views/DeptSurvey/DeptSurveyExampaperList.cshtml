@@ -1,0 +1,323 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "问卷管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var sortID = Request.QueryString["sortID"] ?? "0";
+    var DepartList = ViewBag.DepartList as List<LiXinModels.User.Sys_Department>;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "问卷管理"
+}))
+    <div>
+        <div class="treeview-box fl span20">
+            <p>
+                <input type="button" class="btn btn-co" id="addSort" value="新增" onclick="addSort();" />
+                <input type="button" class="btn btn-co" id="modifySort" value="修改" onclick="modifySort();" />
+                <input type="button" class="btn btn-cancel" id="deleteSort" value="删除" onclick="deleteSort();" />
+
+            </p>
+            所管部门：
+            <select id="selDept" onchange="selDept()" class="sel">
+                @{
+                    foreach (var item in DepartList)
+                    {
+                    <option value="@item.DepartmentId">@item.DeptName</option>
+                    }   
+                }
+            </select>
+            <div id="sortList" class="tree-list mt5"></div>
+        </div>
+        <div class="fr span79">
+            <!--搜索-->
+            <div class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span6">问卷名称：
+                        </td>
+                        <td>
+                            <input id="txtPaperName" type="text" class="span16  searchclass" value="请输入搜索内容"
+                                info="" />
+                        </td>
+                        <td class="so-do">
+                            <input id="btnSearch" class="btn" type="button" value="搜索" name="搜索" onclick="InitPaperList();" />
+                            <input type="button" class="btn btn-co" value="新增问卷" id="btnAddPaper" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="so-seq">
+                <select id="selPaperType" onchange="InitPaperList();">
+                    <option value="-1">所有问卷类型</option>
+                    <option value="1">普通问卷</option>
+                    <option value="0">课程评估问卷</option>
+                    <option value="2">讲师评估问卷</option>
+                </select>
+                <div class="list-do">
+                    <input type="button" class="btn btn-cancel" value="批量删除" id="btnDeletePaper" />
+                </div>
+            </div>
+            <!-- 列表 -->
+            <div class="mt10">
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" value="0" id="selectall" />
+                            </th>
+                            <th>序号
+                            </th>
+                            <th>问卷名称
+                            </th>
+                            <th>问卷类型
+                            </th>
+                            <th class="span15">所属分类
+                            </th>
+                            <th class="span12" jsrendersortfield="LastUpdateTime" sort="desc">最后更新时间
+                            </th>
+                            <th>操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="paperList">
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <input id="selPaperSort" type="hidden" value="@sortID" />
+</div>
+<script id="paperListTemplate" type="text/x-jsrender">
+    {{for #data}}
+      <tr>
+        <td>
+            <input id="{{:ExampaperID}}" type="checkbox"/>
+        </td>
+       <td>
+         {{:#index+1}}
+       </td>
+        <td>
+            <div class="span28 ovh tl" title="{{:ExamTitle}}">{{:ExamTitle}}</div>
+        </td>
+		<td class="tc">{{:ExamTypeShow}}</td>
+        <td>
+           <div class="span15 ovh tl" title=" {{:SortName}}"> {{:SortName}}</div>
+        </td>
+        <td><div class="f11">{{:LastUpdateTimeShow}}</div></td>
+        <td>
+		        <a onclick="EditPaper({{:ExampaperID}},{{:SortID}});" class="icon iedit" title="编辑"></a>  
+ 		        <a onclick="ViewPaper({{:ExampaperID}},{{:ExamType}});" class="icon iview" title="查看详情"></a>
+        </td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        initPaperSort();
+        InitPaperList();
+
+        //新增问卷
+        $("#btnAddPaper").bind("click", function ()
+        {
+            if (parseInt($("#selPaperSort").val()) > 0)
+                window.location.href = "/DeptSurvey/DeptSurveyExampaperEdit?id=0&sortID=" + $("#selPaperSort").val() + "&DeptID=" + $("#selDept").val();
+            else
+                art.dialog.tips('请选择分类', 3);
+
+        });
+
+        //删除所选的问卷
+        $("#btnDeletePaper").bind("click", function ()
+        {
+            var delStr = GetChecked("paperList");
+            if (delStr != "")
+            {
+                art.dialog({
+                    title: "@CommonLanguage.Common_Tip",
+                    content: '@CommonLanguage.Common_Confirm_Delete',
+                    width: 200,
+                    okValue: '@CommonLanguage.Common_Sure',
+                    cancelValue: '@CommonLanguage.Common_Cancel',
+                    height: 50,
+                    fixed: true,
+                    lock: true,
+                    ok: function ()
+                    {
+                        $.getJSON("/DeptSurvey/DeleteSelectPapers?ids=" + delStr, function (data)
+                        {
+                            if (data.result == 1)
+                            {
+                                // art.dialog.tips(data.content, 3);
+                                //重新加载问卷列表
+                                InitPaperList();
+                            } else
+                                art.dialog.tips(data.content, 3);
+                        });
+                    },
+                    cancel: function ()
+                    {
+                    }
+                });
+            } else
+            {
+                art.dialog.tips("请选择要删除的问卷", 3);
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '请选择要删除的问卷', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+            }
+        });
+    });
+
+    //修改问卷
+    function EditPaper(id, sortID)
+    {
+        $("#selPaperSort").val(sortID);
+        window.location.href = "/DeptSurvey/DeptSurveyExampaperEdit?id=" + id + "&sortID=" + $("#selPaperSort").val() + "&DeptID=" + $("#selDept").val();
+    }
+
+    //预览问卷，列表内的操作
+    function ViewPaper(id, ExamType)
+    {
+        window.location.href = "/DeptSurvey/DeptBrowsePaper?id=" + id + "&sortID=" + $("#selQuestionSort").val();
+    }
+
+    //初始化分类
+    function initPaperSort()
+    {
+        $.getJSON("GetAllPaperSortTree?DeptID=" + $("#selDept").val(), function (data)
+        {
+            $("#sortList").html(data);
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#navigation>li>ul>li>div").each(function ()
+            {
+                $(this).click();
+            });
+        });
+    }
+
+    //新增分类
+    function addSort()
+    {
+        if ($("#selPaperSort").val() != "")
+        {
+            art.dialog.load("/DeptSurvey/DeptSortEdit?id=0&fatherID=" + $("#selPaperSort").val() + "&t=" + new Date(), { title: "添加分类", id: "qSortEdit", width: 500 });
+        } else
+        {
+            art.dialog.tips("请选择父级分类", 3);
+            // art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请选择父级分类", width: 200, height: 50, fixed: true, lock: true, time: 3 });
+        }
+    }
+
+    //修改分类
+    function modifySort()
+    {
+        if ($("#selPaperSort").val() != "" && $("#selPaperSort").val() != "0")
+        {
+            art.dialog.load("/DeptSurvey/DeptSortEdit?id=" + $("#selPaperSort").val() + "&t=" + new Date(), { title: "修改分类", id: "qSortEdit", width: 500 });
+        } else
+        {
+            art.dialog.tips("请选择分类", 3);
+            // art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请选择分类", width: 200, height: 50, fixed: true, lock: true, time: 3 });
+        }
+    }
+
+    //删除分类
+    function deleteSort()
+    {
+        if ($("#selPaperSort").val() != "" && $("#selPaperSort").val() != "0")
+        {
+            art.dialog({
+                title: "@CommonLanguage.Common_Tip",
+                content: "@CommonLanguage.Common_Confirm_Delete",
+                width: 300,
+                okValue: '@CommonLanguage.Common_Sure',
+                cancelValue: '@CommonLanguage.Common_Cancel',
+                height: 50,
+                fixed: true,
+                lock: true,
+                ok: function ()
+                {
+                    $.getJSON("/DeptSurvey/DeletePaperSortByID?id=" + $("#selPaperSort").val(), function (data)
+                    {
+                        if (data.result == 1)
+                        {
+                            //art.dialog.tips(data.content, 3);
+                            $("#selPaperSort").val("0");
+                            initPaperSort();
+                        } else
+                        {
+                            art.dialog.tips(data.content, 3);
+
+                        }
+                    });
+                },
+                cancel: function ()
+                {
+                }
+            });
+        } else
+            art.dialog.tips("请选择分类 ", 3);
+        // art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请选择分类", width: 200, height: 50, fixed: true, lock: true, time: 3 });
+    }
+
+    //问卷分类树点击事件
+    function selectSort(id, obj)
+    {
+        $("#selPaperSort").val(id);
+        postNodeClickSelect(obj);
+        //初始化问题
+        InitPaperList();
+    }
+
+    function postNodeClickSelect(obj)
+    {
+        $("#sortList").find("a").each(function ()
+        {
+            $(this).removeClass("On");
+        });
+
+        $(obj).addClass("On");
+    }
+
+    //生成url参数字符串
+    function getUrlParms()
+    {
+        return '/DeptSurvey/GetAllPaper?sortID=' + $("#selPaperSort").val() + '&name=' + escape($.trim(getSearchWord("txtPaperName"))) + "&type=" + $("#selPaperType").val() + "&DeptID=" + $("#selDept").val() + '&t=' + new Date();
+    }
+
+    //初始化问题
+    function InitPaperList()
+    {
+        $("#paperList").JsRenderData({
+            sourceUrl: getUrlParms(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'paperListTemplate',
+            jsRenderSortField: "LastUpdateTime",
+            jsRenderASC: "desc",
+            funCallback: function (data)
+            {
+                $("#selectall").removeAttr("checked");
+            }
+        });
+        SetCheckBox('selectall', 'paperList');
+    }
+
+    function selDept()
+    {
+        $("#selPaperSort").val(0);
+        initPaperSort();
+        InitPaperList();
+    }
+</script>

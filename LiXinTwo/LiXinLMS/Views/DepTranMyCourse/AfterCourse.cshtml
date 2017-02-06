@@ -1,0 +1,1064 @@
+﻿@using LiXinModels.Survey
+@{
+    ViewBag.Title = "AfterCourse";
+    Layout = null;
+    var examPaper = ViewBag.examPaper as Survey_Exampaper;
+    var TeacherexamPaper = ViewBag.TeacherexamPaper as Survey_Exampaper;
+    var shijuan = ViewBag.SurveyPaperId as string;
+}
+
+<input type="hidden" id="txt_CourseId" value="@ViewBag.Id"/>
+<input type="hidden" id="txt_SurveyPaperId" value="@ViewBag.SurveyPaperId"/>
+<input type="hidden" id="txt_num" />
+<div class="tab-red">
+    <ul id="ul_main">
+        @if (examPaper != null && TeacherexamPaper != null)
+        {
+            <li class="On">课程评估<i></i></li>
+            <li>讲师评估<i></i></li>
+        }
+        @if (examPaper != null && TeacherexamPaper == null)
+        {
+            <li class="On">课程评估<i></i></li>
+        }
+        @if (examPaper == null && TeacherexamPaper != null)
+        {
+            <li class="On">讲师评估<i></i></li>
+        }
+    </ul>
+</div>
+    @if (examPaper != null && TeacherexamPaper != null)
+    {
+        <div class="alert alert-info" style="margin-top:-11px;">
+            <button class="close" data-dismiss="alert">×</button>
+            <i></i>
+            <strong>提醒</strong>
+            请不要忘记填写“讲师评估”。
+        </div>
+    }
+<div id="div_list">
+    <div>
+        @if (examPaper != null)
+        { 
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span7">
+                        问卷标题：
+                    </td>
+                    <td>
+                        <strong>@examPaper.ExamTitle</strong>
+                    </td>
+                    <td class="Tit span6">
+                        问卷类型：
+                    </td>
+                    <td>
+                        <strong>@examPaper.ExamTypeShow</strong>
+                    </td>
+                    <td class="Tit span6">
+                        问卷分类：
+                    </td>
+                    <td>
+                        <strong>@examPaper.CategoryName</strong>
+                    </td>
+                </tr>
+            </table>
+            <div class="sur-do">
+                @{
+            foreach (var Question in @examPaper.Questions)
+            {
+                    <div id="QuestionID@(Question.QuestionID)" class="afterlist list">
+                        <input type="hidden" class="questionid" name="@(Question.QuestionType)" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                        <div class="tit">
+                            <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                        </div>
+                        @{
+                if (Question.QuestionType == 2)
+                {
+                            <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                }
+                        }
+                        @{  switch (Question.QuestionType)
+                            {
+                                //单选题
+                                case 0:
+                                    {
+                                        int count = 0;
+
+                                        foreach (var s in Question.Answers)
+                                        {
+                            <p>
+                                <input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                            </p>
+                                            count++;
+                                        }
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                            </div>
+                                    break;
+                                //多选题
+                                case 1:
+                                    {
+                                        int count = 0;
+
+                                        foreach (var s in Question.Answers)
+                                        {
+                            <p>
+                                <input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                            </p>
+                                            count++;
+                                        }
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                            </div>
+                                    break;
+                                //主观题
+                                case 2:
+                            <p>
+                                <textarea style="width: 338px; height: 104px;"  onkeyup="TextearaMaxlength(this)" onchange="TextearaMaxlength(this)" maxlength="500">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                            </p> 
+                                                                                                                                                                 break;
+                                case 3:
+                            <input type="hidden" class="xp" />
+                            <div id='divScore_@(Question.QuestionOrder)' class="ml35 "  >
+                            </div>
+                            <div class="why mt5">
+                                <span>理由：</span><input name="xingPReplay" type="text"  maxlength="200"/>
+                            </div>
+                                          break;
+                            }
+                        }
+                    </div>
+            }   
+                }
+            </div>
+            @*<center class="mt10" id="submitCourseBtnDiv">
+                <input type="button" value="保存" id="btn_Save" class="btn" />
+                <input type="button" value="提交" id="btn_Add" class="btn" />
+                <a href="@Url.Content(@ViewBag.backurl)" class="btn btn-cancel">返回</a>
+            </center>*@
+        }
+     </div>
+     <div style="display: none;">
+        @if (TeacherexamPaper != null)
+        { 
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span7">
+                        问卷标题：
+                    </td>
+                    <td>
+                        <strong>@TeacherexamPaper.ExamTitle</strong>
+                    </td>
+                    <td class="Tit span6">
+                        问卷类型：
+                    </td>
+                    <td>
+                        <strong>@TeacherexamPaper.ExamTypeShow</strong>
+                    </td>
+                    <td class="Tit span6">
+                        问卷分类：
+                    </td>
+                    <td>
+                        <strong>@TeacherexamPaper.CategoryName</strong>
+                    </td>
+                </tr>
+            </table>
+            <div class="sur-do">
+                @{
+            foreach (var Question in @TeacherexamPaper.Questions)
+            {
+                    <div id="QuestionID@(Question.QuestionID)" class="Teacherlist list">
+                        <input type="hidden" class="questionid" name="@(Question.QuestionType)" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                        <div class="tit">
+                            <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                        </div>
+                        @{
+                if (Question.QuestionType == 2)
+                {
+                            <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                }
+                        }
+                        @{  switch (Question.QuestionType)
+                            {
+                                //单选题
+                                case 0:
+                                    {
+                                        int count = 0;
+
+                                        foreach (var s in Question.Answers)
+                                        {
+                            <p>
+                                <input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                            </p>
+                                            count++;
+                                        }
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                            </div>
+                                    break;
+                                //多选题
+                                case 1:
+                                    {
+                                        int count = 0;
+
+                                        foreach (var s in Question.Answers)
+                                        {
+                            <p>
+                                <input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                            </p>
+                                            count++;
+                                        }
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                            </div>
+                                    break;
+                                //主观题
+                                case 2:
+                            <p>
+                                <textarea style="width: 338px; height: 104px;" Required="on"   onkeyup="TextearaMaxlength(this)" onchange="TextearaMaxlength(this)" maxlength="500">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                            </p> 
+                                                                                                                                                                 break;
+                                case 3:
+                            <input type="hidden" class="xp" />
+                            <div id='divScore_@(Question.QuestionOrder)' class="ml35 " >
+                            </div>
+                            <div class="why mt5">
+                                <span>理由：</span><input name="xingPReplay" Required="on" type="text" maxlength="200" />
+                            </div>
+                                          break;
+                            }
+                        }
+                    </div>
+            }   
+                }
+            </div>
+            @*<center class="mt10" id="submitTeacherBtnDiv">
+                <input type="button" value="保存" id="btn_TeacherSave" class="btn" />
+                <input type="button" value="提交" id="btn_TeacherAdd" class="btn" />
+                <a href="@Url.Content(@ViewBag.backurl)" class="btn btn-cancel">返回</a>
+            </center>*@          
+        }
+    </div>
+
+    @if (examPaper == null && TeacherexamPaper == null)
+    {
+        <center class="mt10">
+            @if (ViewBag.backFrom == 1)
+            {
+                @Html.ActionLink("返回", "MyEverythingCourse", "DepTrainMyBroadcastCourse", new {tp = "2"}, new {@class = "btn btn-cancel"});
+            }
+            else
+            {
+                @Html.ActionLink("返回", "MyEverythingCourse", "DepTrainMyBroadcastCourse", new { tp = "1" }, new { @class = "btn btn-cancel" });
+            }
+           @* <a href="@Url.Content("/DepTranMyCourse/CourseList")" class="btn btn-cancel">返回</a>*@
+        </center>
+    }
+    else
+    {
+         <center class="mt10" id="submitTeacherBtnDiv">
+                <input type="button" value="保存" id="btn_AllSave" class="btn" />
+             <input type="button" value="提交" id="btn_AllAdd" class="btn" />
+              
+        @if (ViewBag.backFrom == 1)
+        {
+            @Html.ActionLink("返回", "MyEverythingCourse", "DepTrainMyBroadcastCourse", new {tp=2}, new {@class = "btn btn-cancel"});
+        }
+        else
+        {
+            @Html.ActionLink("返回", "MyEverythingCourse", "DepTrainMyBroadcastCourse", new { tp=1 }, new { @class = "btn btn-cancel" });
+        }
+    </center>
+             @*@if (ViewBag.backFrom == 1)
+             {
+                 @Html.ActionLink("返回", "MyBroadcastList", "DepTrainMyBroadcastCourse", new {p = "1"}, new {@class = "btn btn-cancel"});
+             }
+             else
+             {
+                 @Html.ActionLink("返回", "MyCourseList", "DepTranMyCourse", new { p = "1" }, new { @class = "btn btn-cancel" });
+             }*@
+                @*<a href="@Url.Content("/DepTranMyCourse/MyCourseList")" class="btn btn-cancel">返回</a>*@
+              
+    }
+</div>
+<script type="text/javascript">
+    $(".alert button").click(function () { $(".alert").hide(); });
+
+    $(document).ready(function () {
+
+        if ($("#txt_SurveyPaperId").val().split(';')[0] == "" && $("#txt_SurveyPaperId").val().split(';')[1] != "") {
+            $("#div_list").children("div:eq(1)").css("display", "");
+            $("#txt_num").val(1);
+        }
+        else {
+            $("#txt_num").val(0);
+        }
+
+        //showStars(1);
+        fOnload();
+        //alert($("#txt_SurveyPaperId").val().split(';')[1]);
+        $(".studyplay_starBg li").css({ "cursor": "pointer" });
+        //,改成♣  ;改成♥
+        $("#btn_Save").click(function () {
+            var t = "";
+            var ExampaperID = "";
+
+            var afterlist = false;
+            var starlist = false;
+            //,input[name='xingPReplay']
+            $(".afterlist").find("textarea").each(function () {
+                if ($.trim($(this).val()) == "") {
+                    art.dialog.tips("请填写课程评估", 3);
+                    $(this).focus();
+                    afterlist = true;
+                }
+            });
+
+            $(".afterlist").find(".xp").each(function () {
+                if ($(this).val() == "" || $(this).val() == 0) {
+                    art.dialog.tips("请选择评分", 3);
+                    starlist = true;
+                }
+            })
+            if (afterlist)
+                return;
+            if (starlist)
+                return;
+
+            $(".afterlist").each(function (d, i) {
+                ExampaperID = $(this).children(".questionid").attr("ExampaperID"); //赋值试卷ID
+                t += $(this).children(".questionid").val() + "♣" + $(this).children(".questionid").attr("ExampaperID") + "♣";
+
+                if ($(this).children(".questionid").attr("name") == 2) {
+                    t += $(this).children("p").children("textarea").val() + "♣♥";
+                }
+                if ($(this).children(".questionid").attr("name") == 3) {
+                    if ($(this).children(".xp").val() == 0) {
+                        t += "0♣";
+                    } else {
+                        t += $(this).children(".xp").val() + "♣";
+                    }
+                    t += $(this).children("div:eq(2)").children("input[name='xingPReplay']").val() + "♥";
+                }
+            });
+            t = t.substring(0, t.lastIndexOf('♥'));
+            $.post("/DepTranMyCourse/FInsertSurvey_ReplyAnswer?type=0&courseId=" + $("#txt_CourseId").val() + "&ExampaperID=" + ExampaperID,
+                { tt: t },
+                function (data) {
+                    if (data.result == 0) {
+                        art.dialog.tips(data.content, 3);
+                    } else {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+        });
+
+        $("#btn_Add").click(function () {
+            var t = "";
+            var ExampaperID = "";
+
+            var afterlist = false;
+            var starlist = false;
+            //,input[name='xingPReplay']
+            $(".afterlist").find("textarea").each(function () {
+                if ($.trim($(this).val()) == "") {
+                    art.dialog.tips("请填写课程评估", 3);
+                    $(this).focus();
+                    afterlist = true;
+                }
+            });
+
+            $(".afterlist").find(".xp").each(function () {
+                if ($(this).val() == "" || $(this).val() == 0) {
+                    art.dialog.tips("请选择评分", 3);
+                    starlist = true;
+                }
+
+            })
+            if (afterlist)
+                return;
+            if (starlist)
+                return;
+
+            $(".afterlist").each(function (d, i) {
+                ExampaperID = $(this).children(".questionid").attr("ExampaperID"); //赋值试卷ID
+                t += $(this).children(".questionid").val() + "♣" + $(this).children(".questionid").attr("ExampaperID") + "♣";
+
+                if ($(this).children(".questionid").attr("name") == 2) {
+                    t += $(this).children("p").children("textarea").val() + "♣♥";
+                }
+                if ($(this).children(".questionid").attr("name") == 3) {
+                    if ($(this).children(".xp").val() == 0) {
+                        t += "0♣";
+                    } else {
+                        t += $(this).children(".xp").val() + "♣";
+                        // $(this).
+                    }
+                    t += $(this).children("div:eq(2)").children("input[name='xingPReplay']").val() + "♥";
+                }
+            });
+            t = t.substring(0, t.lastIndexOf('♥'));
+            //alert(t);
+            $.post("/DepTranMyCourse/FInsertSurvey_ReplyAnswer?type=1&courseId=" + $("#txt_CourseId").val() + "&ExampaperID=" + ExampaperID,
+                {
+                    tt: t
+                }, function (data) {
+                    if (data.result == 0) {
+                        art.dialog.tips(data.content, 3);
+                        $("#btn_Add").attr("disabled", "true");
+                        $("#btn_Save").attr("disabled", "true");
+                        $(".afterlist").children("p").children("textarea").attr("disabled", "true");
+                        $(".afterlist").find("input[name='xingPReplay']").attr("disabled", "true");
+
+                        $(".afterlist").each(function (d, i) {
+
+                            if ($(this).children(".questionid").attr("name") == 3) {
+                                // $(this).children(".xp").val() + "♣";                                
+                                $(this).children(".ml35").attr("title", $(this).children(".xp").val());
+
+                            }
+                        });
+                        //$(".afterlist").children(".ml35").attr("title", $(".afterlist").children(".xp").val());
+                        showStars(0, 0); //0不能选
+                        if (data.turndiv == 1) {
+                            $("#ul_main").children("li:eq(1)").addClass("On").siblings("li").removeClass("On");
+                            $("#div_list").children("div:eq(1)").css("display", "").siblings("div").css("display", "none");
+                        }
+                    } else {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+        });
+        //-----------------------------华丽的分割线----------------------------------------------------------------------------------/
+        $("#btn_TeacherSave").click(function () {
+            var t = "";
+            var ExampaperID = "";
+
+            var afterlist = false;
+            var starlist = false;
+            //,input[name='xingPReplay']
+            $(".Teacherlist").find("textarea").each(function () {
+                if ($.trim($(this).val()) == "") {
+                    art.dialog.tips("请填写课程评估", 3);
+                    $(this).focus();
+                    afterlist = true;
+                }
+            });
+
+            $(".Teacherlist").find(".xp").each(function () {
+                if ($(this).val() == "" || $(this).val() == 0) {
+                    art.dialog.tips("请选择评分", 3);
+                    starlist = true;
+                }
+            })
+            if (afterlist)
+                return;
+            if (starlist)
+                return;
+
+            $(".Teacherlist").each(function (d, i) {
+                ExampaperID = $(this).children(".questionid").attr("ExampaperID"); //赋值试卷ID
+                t += $(this).children(".questionid").val() + "♣" + $(this).children(".questionid").attr("ExampaperID") + "♣";
+
+                if ($(this).children(".questionid").attr("name") == 2) {
+                    t += $(this).children("p").children("textarea").val() + "♣♥";
+                }
+                if ($(this).children(".questionid").attr("name") == 3) {
+                    if ($(this).children(".xp").val() == 0) {
+                        t += "0♣";
+                    } else {
+                        t += $(this).children(".xp").val() + "♣";
+                    }
+                    t += $(this).children("div:eq(2)").children("input[name='xingPReplay']").val() + "♥";
+                }
+
+            });
+            t = t.substring(0, t.lastIndexOf('♥'));
+            $.post("/DepTranMyCourse/FInsertSurvey_ReplyAnswer?type=0&courseId=" + $("#txt_CourseId").val() + "&ExampaperID=" + ExampaperID, {
+                tt: t
+            }, function (data) {
+
+                if (data.result == 0) {
+                    art.dialog.tips(data.content, 3);
+
+                } else {
+                    art.dialog.tips(data.content, 3);
+                }
+            });
+        });
+
+        $("#btn_TeacherAdd").click(function () {
+            var t = "";
+            var ExampaperID = "";
+
+            var afterlist = false;
+            var starlist = false;
+            //,input[name='xingPReplay']
+            $(".Teacherlist").find("textarea").each(function () {
+                if ($.trim($(this).val()) == "") {
+                    art.dialog.tips("请填写课程评估", 3);
+                    $(this).focus();
+                    afterlist = true;
+                }
+            });
+
+            $(".Teacherlist").find(".xp").each(function () {
+                if ($(this).val() == "" || $(this).val() == 0) {
+                    art.dialog.tips("请选择评分", 3);
+                    starlist = true;
+                }
+            })
+            if (afterlist)
+                return;
+            if (starlist)
+                return;
+
+            $(".Teacherlist").each(function (d, i) {
+                ExampaperID = $(this).children(".questionid").attr("ExampaperID"); //赋值试卷ID
+                t += $(this).children(".questionid").val() + "♣" + $(this).children(".questionid").attr("ExampaperID") + "♣";
+
+                if ($(this).children(".questionid").attr("name") == 2) {
+                    t += $(this).children("p").children("textarea").val() + "♣♥";
+                }
+                if ($(this).children(".questionid").attr("name") == 3) {
+                    if ($(this).children(".xp").val() == 0) {
+                        t += "0♣";
+                    } else {
+                        t += $(this).children(".xp").val() + "♣";
+                    }
+                    t += $(this).children("div:eq(2)").children("input[name='xingPReplay']").val() + "♥";
+                }
+            });
+            t = t.substring(0, t.lastIndexOf('♥'));
+            //alert(t);
+            $.post("/DepTranMyCourse/FInsertSurvey_ReplyAnswer?type=1&courseId=" + $("#txt_CourseId").val() + "&ExampaperID=" + ExampaperID, {
+                tt: t
+            }, function (data) {
+                if (data.result == 0) {
+                    art.dialog.tips(data.content, 3);
+                    $("#btn_TeacherAdd").attr("disabled", "true");
+                    $("#btn_TeacherSave").attr("disabled", "true");
+                    $(".Teacherlist").children("p").children("textarea").attr("disabled", "true");
+                    $(".Teacherlist").find("input[name='xingPReplay']").attr("disabled", "true");
+                    //$(".Teacherlist").children(".ml35").attr("title", $(".Teacherlist").children(".xp").val());
+
+                    $(".Teacherlist").each(function (d, i) {
+                        if ($(this).children(".questionid").attr("name") == 3) {
+                            // $(this).children(".xp").val() + "♣";
+                            $(this).children(".ml35").attr("title", $(this).children(".xp").val());
+                        }
+                    });
+                    showStars(1, 0);
+                    if (data.turndiv == 1) {
+                        $("#ul_main").children("li:eq(0)").addClass("On").siblings("li").removeClass("On");
+                        $("#div_list").children("div:eq(0)").css("display", "").siblings("div").css("display", "none");
+                    }
+                } else {
+                    art.dialog.tips(data.content, 3);
+                }
+            });
+        });
+
+        $("#ul_main li").click(function () {
+            //alert($("#ul_main li").size());
+            if ($("#ul_main li").size() > 1) {
+                var index = $(this).index();
+               
+
+                var doom = "";
+                sp = "";
+
+                if (index == 0) {
+                    doom = ".Teacherlist";
+                    sp = "请填写讲师评估";
+                }
+                else {
+                    doom = ".afterlist";
+                    sp = "请填写课程评估";
+                }
+
+                var t = "";
+                var ExampaperID = "";
+
+                var afterlist = false;
+                var starlist = false;
+                //,input[name='xingPReplay']
+                $(doom).find("textarea").each(function () {
+                    if ($.trim($(this).val()) == "") {
+                        art.dialog.tips(sp, 3);
+                        $(this).focus();
+                        afterlist = true;
+                    }
+                });
+
+                $(doom).find(".xp").each(function () {
+                    if ($(this).val() == "" || $(this).val() == 0) {
+                        art.dialog.tips("请选择评分", 3);
+                        starlist = true;
+                    }
+                })
+                if (afterlist)
+                    return;
+                if (starlist)
+                    return;
+
+                $("#div_list").children("div:eq(" + index + ")").css("display", "").siblings("div").css("display", "none");
+                $("#ul_main li").removeClass("On");
+                $(this).addClass("On");
+                $("#txt_num").val(index);
+
+                singlec = false;
+                singled = false;
+
+            }
+        });
+    });
+    function fOnload() {
+        //$("#div_list").children(".studyplay_starBg").css();
+        
+        var CourseId = $("#txt_CourseId").val();
+        var SurveyPaperId = $("#txt_SurveyPaperId").val();
+        //alert(SurveyPaperId);
+        $.post("/MyCourse/FBindSurvey_ReplyAnswer?CourseId=" + CourseId + "&SurveyPaperId=" + SurveyPaperId, function (data) {
+            if (data.leavestatus == 1) {
+                if (data.result == 1) {
+                    //$(".studyplay_starBg").attr("Enabled", false);
+                    if (data.content != "") {
+                        var arr = data.content.split('♥');
+                        //11♣-0-0-0-0-0-0-0-♣♥12♣3♣0-0-0-0-0♥13♣-0-0-000000000000000000000000-0000000000000----------------♣
+                        for (var i = 0; i < arr.length; i++) {
+
+                            $(".afterlist:eq(" + i + ")").children(".xp").val(arr[i].split('♣')[1]);
+                            $(".afterlist:eq(" + i + ")").children(".ml35").attr("title", arr[i].split('♣')[1]);
+                            if (arr[i].split('♣')[2] == "") {
+                                $(".afterlist:eq(" + i + ")").children("p").children("textarea").val(arr[i].split('♣')[1]); //.attr("disabled", "disabled");
+                            } else {
+                                $(".afterlist:eq(" + i + ")").children("div:eq(2)").children("input[name='xingPReplay']").val(arr[i].split('♣')[2]); //.attr("disabled", "disabled");
+
+                            }
+                        }
+                        if (data.status == 1) {
+                            
+                            
+                            $("#btn_AllAdd").attr("disabled", "true");
+                            $("#btn_AllSave").attr("disabled", "true");
+                            
+
+                            $(".afterlist").children("p").children("textarea").attr("disabled", "true");                            
+                            $(".afterlist").find("input[name='xingPReplay']").attr("disabled", "true");
+                            showStars(0, 0); //0不能选
+
+                        }
+                        else {
+                            showStars(0, 1);
+                        }
+                    }
+                    else {
+                        showStars(0, 1);
+                    }
+
+                    if (data.teachercontent != "") {
+                        var arr = data.teachercontent.split('♥');
+                        for (var i = 0; i < arr.length; i++) {
+                            $("div .Teacherlist:eq(" + i + ")").children(".xp").val(arr[i].split('♣')[1]);
+                            $("div .Teacherlist:eq(" + i + ")").children(".ml35").attr("title", arr[i].split('♣')[1]);
+                            if (arr[i].split('♣')[2] == "") {
+                                $("div .Teacherlist:eq(" + i + ")").children("p").children("textarea").val(arr[i].split('♣')[1]); //.attr("disabled", "disabled");
+                            } else {
+                                $("div .Teacherlist:eq(" + i + ")").children("div:eq(2)").children("input[name='xingPReplay']").val(arr[i].split('♣')[2]); //.attr("disabled", "disabled");
+                            }
+                        }
+                        if (data.teacherstatus == 1) {
+                            $("#btn_AllAdd").attr("disabled", "true");
+                            $("#btn_AllSave").attr("disabled", "true");
+                            $(".Teacherlist").children("p").children("textarea").attr("disabled", "true");
+                            $(".Teacherlist").find("input[name='xingPReplay']").attr("disabled", "true");
+                            showStars(1, 0);
+                        }
+                        else {
+                            showStars(1, 1);
+                        }
+                    }
+                    else {
+                        showStars(1, 1);
+                    }
+                }
+
+            } else {
+//                $("#btn_TeacherAdd").attr("disabled", "true");
+//                $("#btn_TeacherSave").attr("disabled", "true");
+//                $("#btn_Add").attr("disabled", "true");
+                //                $("#btn_Save").attr("disabled", "true");
+                $("#btn_AllAdd").attr("disabled", "true");
+                $("#btn_AllSave").attr("disabled", "true");
+            }
+        });
+    }
+    //加载星评题
+    function showStars(i,t) {
+        //if ($("div[id^='divScore_']").length > 0) {
+        //    $("div[id^='divScore_']").each(function () {
+        //alert($("#div_list>div:eq(" + i + ")").children(".sur-do").html());
+        if ($("#div_list>div:eq(" + i + ")").find("div[id^='divScore_']").length > 0) {
+            $("#div_list>div:eq(" + i + ")").find("div[id^='divScore_']").each(function () {
+                var star = $(this).attr("title");
+                
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: t }, function (value) {
+                    $(obj).parent().find(".xp").val(value);
+                });
+            });
+        }
+    }
+
+
+    function Ffouce(i,a) {
+        var afterlist = false;
+        $(i).find("textarea,input[name='xingPReplay']").each(function () {
+            if ($(this).val() == "") {
+                art.dialog.tips(a, 3);
+                $(this).focus();
+                afterlist = true;
+            }
+        });
+        if (afterlist)
+            return;
+    }
+    /*------------------------------合并成一个保存,提交按钮------------------------------------------------------*/
+    //保存
+    $("#btn_AllSave").click(function () {
+        var doom = "";
+        var sp = "";
+
+        if ($("#txt_SurveyPaperId").val().split(';')[0] == "" && $("#txt_SurveyPaperId").val().split(';')[1] != "") {
+            doom = ".Teacherlist";
+            sp = "请填写讲师评估";
+        }
+        else {
+            doom = ".afterlist";
+            sp = "请填写课程评估";
+        }
+
+        var t = "";
+        var ExampaperID = "";
+
+        var afterlist = false;
+        var starlist = false;
+        //,input[name='xingPReplay']
+        $(doom).find("textarea").each(function () {
+            if ($.trim($(this).val()) == "") {
+                art.dialog.tips(sp, 3);
+                $(this).focus();
+                afterlist = true;
+            }
+        });
+
+        $(doom).find(".xp").each(function () {
+            if ($(this).val() == "" || $(this).val() == 0) {
+                art.dialog.tips("请选择评分", 3);
+                starlist = true;
+            }
+        })
+        if (afterlist)
+            return;
+        if (starlist)
+            return;
+
+        $(doom).each(function (d, i) {
+            ExampaperID = $(this).children(".questionid").attr("ExampaperID"); //赋值试卷ID
+            t += $(this).children(".questionid").val() + "♣" + $(this).children(".questionid").attr("ExampaperID") + "♣";
+
+            if ($(this).children(".questionid").attr("name") == 2) {
+                t += $(this).children("p").children("textarea").val() + "♣♥";
+            }
+            if ($(this).children(".questionid").attr("name") == 3) {
+                if ($(this).children(".xp").val() == 0) {
+                    t += "0♣";
+                } else {
+                    t += $(this).children(".xp").val() + "♣";
+                }
+                t += $(this).children("div:eq(2)").children("input[name='xingPReplay']").val() + "♥";
+            }
+        });
+        t = t.substring(0, t.lastIndexOf('♥'));
+        //alert(t);
+        $.post("/DepTranMyCourse/FInsertSurvey_ReplyAnswer?type=0&courseId=" + $("#txt_CourseId").val() + "&ExampaperID=" + ExampaperID + "&num=1",
+                { tt: t },
+                function (data) {
+                    if (data.result == 0) {
+                        art.dialog.tips(data.content, 3);
+                    } else {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+    })
+
+            var singlea = true;
+            var singleb = true;
+            var singlec = true;
+            var singled = true;
+
+    //提交
+            $("#btn_AllAdd").click(function () {
+
+                var doom = "";
+                var sp = "";
+
+
+                var singleafterlist = false;
+                var singlestarlist = false;
+                var singleteacherafterlist = false;
+                var singleteacherstarlist = false;
+
+                if ($("#ul_main").children("li").size() == 1) {
+                    if ($("#txt_SurveyPaperId").val().split(';')[0] == "" && $("#txt_SurveyPaperId").val().split(';')[1] != "") {
+                        doom = ".Teacherlist";
+                        sp = "请填写讲师评估";
+                    }
+                    else {
+                        doom = ".afterlist";
+                        sp = "请填写课程评估";
+                    }
+
+                    var t = "";
+                    var ExampaperID = "";
+
+                    var afterlist = false;
+                    var starlist = false;
+                    //,input[name='xingPReplay']
+                    $(doom).find("textarea").each(function () {
+                        if ($.trim($(this).val()) == "") {
+                            art.dialog.tips("请填写课程评估", 3);
+                            //$(this).focus();
+                            afterlist = true;
+                        }
+                    });
+
+                    $(doom).find(".xp").each(function () {
+                        if ($(this).val() == "" || $(this).val() == 0) {
+                            art.dialog.tips("请选择评分", 3);
+                            
+                            //alert($(".afterlist").children(".why mt5").html());//.children("input[name='xingPReplay']").focus();
+                            starlist = true;
+                        }
+                    })
+                    if (afterlist)
+                        return;
+                    if (starlist)
+                        return;
+
+                    $(doom).each(function (d, i) {
+                        ExampaperID = $(this).children(".questionid").attr("ExampaperID"); //赋值试卷ID
+                        t += $(this).children(".questionid").val() + "♣" + $(this).children(".questionid").attr("ExampaperID") + "♣";
+
+                        if ($(this).children(".questionid").attr("name") == 2) {
+                            t += $(this).children("p").children("textarea").val() + "♣♥";
+                        }
+                        if ($(this).children(".questionid").attr("name") == 3) {
+                            if ($(this).children(".xp").val() == 0) {
+                                t += "0♣";
+                            } else {
+                                t += $(this).children(".xp").val() + "♣";
+                            }
+                            t += $(this).children("div:eq(2)").children("input[name='xingPReplay']").val() + "♥";
+                        }
+                    });
+                    t = t.substring(0, t.lastIndexOf('♥'));
+                    //alert(t);
+                    $.post("/DepTranMyCourse/FInsertSurvey_ReplyAnswer?type=1&courseId=" + $("#txt_CourseId").val() + "&ExampaperID=" + ExampaperID + "&num=1&back=" + @(ViewBag.backFrom), {
+                        tt: t
+                    }, function (data) {
+                        if (data.result == 0) {
+                            art.dialog.tips(data.content, 3);
+                            $("#btn_AllAdd").attr("disabled", "true");
+                            $("#btn_AllSave").attr("disabled", "true");
+                            $(".list").children("p").children("textarea").attr("disabled", "true");
+                            $(".list").find("input[name='xingPReplay']").attr("disabled", "true");
+                            //$(".Teacherlist").children(".ml35").attr("title", $(".Teacherlist").children(".xp").val());
+
+                            $(".list").each(function (d, i) {
+                                if ($(this).children(".questionid").attr("name") == 3) {
+                                    // $(this).children(".xp").val() + "♣";
+                                    $(this).children(".ml35").attr("title", $(this).children(".xp").val());
+                                }
+                            });
+                            showStars(1, 0);
+                            if (data.turndiv == 1) {
+                                $("#ul_main").children("li:eq(0)").addClass("On").siblings("li").removeClass("On");
+                                $("#div_list").children("div:eq(0)").css("display", "").siblings("div").css("display", "none");
+                            }
+                        } else {
+                            art.dialog.tips(data.content, 3);
+                        }
+                    });
+
+
+                }
+                else {
+                    if ($("#txt_num").val() == "0") {
+                        $(".afterlist").find("textarea").each(function () {
+                            if (singleafterlist) {
+                                return;
+                            }
+                            if ($.trim($(this).val()) == "") {
+                                art.dialog.tips("请填写课程评估", 3);
+                                $(this).focus();
+                                singleafterlist = true;
+                            }
+                            else {
+                                singleafterlist = false;
+                            }
+                        });
+
+                        $(".afterlist").find(".xp").each(function () {
+                            if (singlestarlist) {
+                                return;
+                            }
+                            if ($(this).val() == "" || $(this).val() == 0) {
+                                art.dialog.tips("请选择评分", 3);
+                                singlestarlist = true;
+                            }
+                            else {
+                                singlestarlist = false;
+                            }
+                        })
+                        //alert(singleafterlist + "|" + singlestarlist)
+                        if (singleafterlist)
+                            return;
+                        if (singlestarlist)
+                            return;
+
+                        //alert(singleteacherafterlist + "|" + singleteacherstarlist)
+                        if (singlea && singleb) {
+                            art.dialog.tips("还有讲师评估没有提交", 3);
+                            $("#ul_main").children("li:eq(1)").addClass("On").siblings("li").removeClass("On");
+                            $("#div_list").children("div:eq(1)").css("display", "").siblings("div").css("display", "none");
+
+                            if ($("#txt_num").val() == "0")
+                                $("#txt_num").val(1);
+                            else {
+                                $("#txt_num").val(0);
+                            }
+
+                        }
+                        singlec = false;
+                        singled = false;
+                    }
+                    else {
+                        $(".Teacherlist").find("textarea").each(function () {
+                            if (singleteacherafterlist) return;
+                            if ($.trim($(this).val()) == "") {
+                                art.dialog.tips("请填写讲师评估", 3);
+                                $(this).focus();
+                                singleteacherafterlist = true;
+                            }
+                            else {
+                                singleteacherafterlist = false;
+                            }
+                        });
+
+                        $(".Teacherlist").find(".xp").each(function () {
+                            if (singleteacherstarlist) {
+                                return;
+                            }
+                            if ($(this).val() == "" || $(this).val() == 0) {
+                                art.dialog.tips("请选择评分", 3);
+                                singleteacherstarlist = true;
+                            }
+                            else {
+                                singleteacherstarlist = false;
+                            }
+                        })
+                        if (singleteacherafterlist)
+                            return;
+                        if (singleteacherstarlist)
+                            return;
+
+
+
+                        if (singlec && singled) {
+                            art.dialog.tips("还有课程评估没有提交", 3);
+                            $("#ul_main").children("li:eq(0)").addClass("On").siblings("li").removeClass("On");
+                            $("#div_list").children("div:eq(0)").css("display", "").siblings("div").css("display", "none");
+
+                            if ($("#txt_num").val() == "0")
+                                $("#txt_num").val(1);
+                            else {
+                                $("#txt_num").val(0);
+                            }
+                        }
+
+                        singlea = false;
+                        singleb = false;
+                    }
+                                       
+                    if (singlea || singleb || singlec || singled) {
+                        return false;
+                    }
+                    else {
+                        var a = "";
+                        var t = "";
+                        $(".sur-do").each(function () {
+                            $(this).children(".list").each(function (d, i) {
+                                ExampaperID = $(this).children(".questionid").attr("ExampaperID"); //赋值试卷ID
+                                t += $(this).children(".questionid").val() + "♣" + $(this).children(".questionid").attr("ExampaperID") + "♣";
+
+                                if ($(this).children(".questionid").attr("name") == 2) {
+                                    t += $(this).children("p").children("textarea").val() + "♣♥";
+                                }
+                                if ($(this).children(".questionid").attr("name") == 3) {
+                                    if ($(this).children(".xp").val() == 0) {
+                                        t += "0♣";
+                                    } else {
+                                        t += $(this).children(".xp").val() + "♣";
+                                    }
+                                    t += $(this).children("div:eq(2)").children("input[name='xingPReplay']").val() + "♥";
+                                }
+                            });
+                            t = t.substring(0, t.lastIndexOf('♥'));
+                            t += "✚";
+                            // alert(t)
+                        })
+
+                        a += t.substring(0, t.lastIndexOf('✚'));
+                        
+                        $.post("/DepTranMyCourse/FInsertSurvey_ReplyAnswer?type=1&courseId=" + $("#txt_CourseId").val() + "&ExampaperID=" + ExampaperID + "&num=2&back=" + @(ViewBag.backFrom), {
+                            tt: a
+                        }, function (data) {
+                            if (data.result == 0) {
+                                art.dialog.tips(data.content, 3);
+                                $("#btn_AllAdd").attr("disabled", "true");
+                                $("#btn_AllSave").attr("disabled", "true");
+                                $(".list").children("p").children("textarea").attr("disabled", "true");
+                                $(".list").find("input[name='xingPReplay']").attr("disabled", "true");
+
+                                $(".list").each(function (d, i) {
+                                    if ($(this).children(".questionid").attr("name") == 3) {
+                                        // $(this).children(".xp").val() + "♣";
+                                        $(this).children(".ml35").attr("title", $(this).children(".xp").val());
+                                    }
+                                });
+
+                                showStars(1, 0);
+                                if (data.turndiv == 1) {
+                                    $("#ul_main").children("li:eq(0)").addClass("On").siblings("li").removeClass("On");
+                                    $("#div_list").children("div:eq(0)").css("display", "").siblings("div").css("display", "none");
+                                }
+                            } else {
+                                art.dialog.tips(data.content, 3);
+                            }
+                        });
+
+
+                    }
+
+
+                }
+
+            })
+
+</script>

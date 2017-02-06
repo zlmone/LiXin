@@ -1,0 +1,297 @@
+﻿@using LiXinControllers
+@using LiXinModels.DepCourseManage
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "我的授课课程详情";
+    var course = ViewBag.Course as Dep_Course;
+    var CourseResourselist = ViewBag.CourseResourse as List<Dep_CourseResource>;
+    var Resourceurl = BaseController.UFCOResource as string;
+    
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "DepTeacherCourseDetail" }))
+
+        @Html.Action("TeacherCourse", "DepTeacherCourse", new { id = @ViewBag.id, showFlag = 0 })
+        <div class="course-de">
+            <input type="hidden" id="txt_CourseId" value="@ViewBag.Id"/><!--存放课程id-->
+            <table class="tab-Form" style="border: none;">
+                <tr>
+                    <td class="Tit span13">课程类别：
+                    </td>
+                    <td>@course.SortStr
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">必修/选修：
+                    </td>
+                    <td>@(course.IsMust == 0 ? "必修" : "选修")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">预订/指定：
+                    </td>
+                    <td>
+                        @if (course.IsOrder == 0)
+                        {
+                            <span>无</span>
+                        }
+                        else if (course.IsOrder == 1)
+                        {
+                            <span>预订</span>
+                        }
+                        else if (course.IsOrder == 2)
+                        {
+                            <span>指定</span>
+                        }
+                        else
+                        {
+                            <span>两者都有</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">最大允许人数：
+                    </td>
+                    <td>@course.NumberLimited
+                    </td>
+                </tr>
+               
+                <tr>
+                    <td class="Tit">是否允许直接退订：
+                    </td>
+                    <td>@(course.IsLeave == 0 ? "否" : "是")
+                    </td>
+                </tr>
+            </table>
+            <div class="oth">
+                <h4>课程大纲：</h4>
+                <div class="co-memo  do_warp" style="overflow: auto">
+                    @if (course.Memo != null)
+                    {
+                        @Html.Raw(@course.Memo)
+                    }
+                    else
+                    {
+                        <p>
+                            暂无内容
+                        </p>
+                    }
+                </div>
+                <h4>课程资源：</h4>
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th>资源名称
+                            </th>
+                            <th>资源类型
+                            </th>
+                            <th>资源大小
+                            </th>
+                            <th>操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="ziyuan">
+                        @if (CourseResourselist.Find(p => p.ResourceType == 0) != null)
+                        {
+                            foreach (var coCourseResource in CourseResourselist)
+                            {
+                                if (coCourseResource.ResourceType == 0)
+                                {
+                            <tr>
+                                <td>
+                                    <div class="tl">@coCourseResource.ResourceName</div>
+                                </td>
+                                <td>@(coCourseResource.ExtendName)
+                                </td>
+                                <td>@coCourseResource.ResourceSize K
+                                </td>
+                                <td>
+                                    @if (coCourseResource.Flag != 0)
+                                    {
+                                        <a onclick=" fDelete(@coCourseResource.Id, this) " class="icon idel" title="删除"></a>
+                                    }
+                                    else
+                                    {
+                                        <span class="icon idel idis" title="删除"></span>
+                                    }
+                                </td>
+                            </tr>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4">暂无数据
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <h4>课程附件：</h4>
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th>附件名称
+                            </th>
+                            <th>附件类型
+                            </th>
+                            <th>附件大小
+                            </th>
+                            <th>操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (CourseResourselist.Find(p => p.ResourceType == 1) != null)
+                        {
+                            foreach (var coCourseResource in CourseResourselist)
+                            {
+                                if (coCourseResource.ResourceType == 1)
+                                {
+                            <tr>
+                                <td>
+                                    <div class="tl">@coCourseResource.ResourceName</div>
+                                </td>
+                                <td>@(coCourseResource.ExtendName)
+                                </td>
+                                <td>@coCourseResource.ResourceSize K
+                                </td>
+                                <td>
+                                    @if (coCourseResource.Flag != 0)
+                                    {
+                                        <a onclick=" fDelete(@coCourseResource.Id, this) " class="icon idel" title="删除"></a>
+                                    }
+                                    else
+                                    {
+                                        <span class="icon idel idis" title="删除"></span>
+                                    }
+                                </td>
+                            </tr>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4">暂无数据
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @*课程资源:课程资源 ppt 12k <a>我要下载</a>*@
+                <div class="mt10">
+                    <a onclick="fdialog(@ViewBag.Id)" class="btn btn-co">我要上传</a>
+                </div>
+                <h4>学员报名明细：</h4>
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th class="span6">姓名
+                            </th>
+                            <th class="span6">性别
+                            </th>
+                            <th>部门
+                            </th>
+                            <th class="span10">培训级别
+                            </th>
+                            <th class="span10">报名性质
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="Courstlist">
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <center class="mt10">
+             <a  href="/DepTeacherCourse/TeacherCourseList" class = "btn btn-cancel">返回</a>
+        </center>
+    </div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //注册页面加载事件,解决flash的bug
+        addEvent(window, init, "load", "我的授课课程详情");
+        fOnload();
+    });
+    function fOnload()
+    {
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/DepTeacherCourse/GetTeacherCourseUserList?courseid=' + $("#txt_CourseId").val(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    function fdialog(id)
+    {
+        art.dialog.load("/DepTeacherCourse/UploadResource?id=" + id,
+        {
+            title: '上传课程资源',
+            id: 'art_ChangeRole',
+            height: 50,
+            width: 150,
+            close: function ()
+            {
+                $("#uploadAttachResource").uploadify("destroy");
+            }
+        }, false);
+    }
+
+    function fDelete(id, e)
+    {
+        $.post("/DepTeacherCourse/FDeleteCourseResource?id=" + id, function (data)
+        {
+            if (data.result == 1)
+            {
+                $(e).parents("tr").remove();
+                art.dialog.tips('删除成功', 3);
+                if ($("#ziyuan").children("tr").size() == 0)
+                {
+                    $("#ziyuan").append("<tr><td colspan='4'>暂无数据</td></tr>");
+                }
+
+            }
+        });
+
+    }
+
+
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+                {{:Realname}}
+            </td>
+            <td>
+                {{:SexStr}}
+            </td>  
+            <td>
+                {{:DeptName}}
+            </td>            
+            <td>
+                {{:TrainGrade}}
+            </td>            
+            <td>         
+               {{:DepAppointStr}}     
+            </td>                     
+            
+        </tr>
+        {{/for}}
+</script>
+</html>

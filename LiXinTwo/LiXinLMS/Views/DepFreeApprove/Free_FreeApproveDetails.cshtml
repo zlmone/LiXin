@@ -1,0 +1,261 @@
+﻿@model LiXinModels.MyApproval.ShowFreeDetails
+@{
+    ViewBag.Title = "免修审批详情";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "FreeApproveDetails"
+}))
+
+     <div id="Approvehead">  
+    </div>
+   
+    @if (ViewBag.ApproveStatus == 1 && ViewBag.DepApproveStatus == 0)
+    {
+        <input class="btn" type="button" id="SaveApprove" value="审批" />
+        <span id="Approve_tip" style="color: red"></span>
+    }
+
+
+    <div>
+        <h3 class="tit-h3-app">
+            <input class="btn btn-co" type="button" value="导出所内学时Word" onclick="FreeToWord(0)" />
+             @if (Model.CPA == "是")
+             { 
+                  <input class="btn btn-co" type="button" value="导出CPA学时的Word" onclick="FreeToWord(1)" />
+             }
+            免修项目：@(Model.FreeName)</h3>
+        <table class="tab-Form lh30 pl20">
+            <tbody>
+                  <tr style="display: none">
+                    <td class="Tit">审批理由：</td>
+                    <td>
+                        <p class="span28" id="rejectReason"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit span7">姓名：</td>
+                    <td>@(Model.Realname)</td>
+                </tr>
+                <tr>
+                    <td class="Tit">培训级别：</td>
+                    <td>@(Model.TrainGrade)</td>
+                </tr>
+                <tr>
+                    <td class="Tit">所在部门：</td>
+                    <td>@(Model.DeptName)</td>
+                </tr>
+                @{
+                    if (Model.CPA == "是")
+                    {  
+                    <tr>
+                        <td class="Tit">CPA编号：</td>
+                        <td>@(Model.CPANo)</td>
+                    </tr>
+                    }
+                }
+                <tr>
+                    <td class="Tit">申请年度：</td>
+                    <td>@(Model.Year)</td>
+                </tr>
+                <tr>
+                    <td class="Tit span12">申请免修类型：</td>
+                    <td>@(Model.FreeApproveTypeStr)</td>
+                </tr>
+                @if (Model.ApplyType == 0 || Model.ApplyType == 2)
+                {
+                    <tr>
+                        <td class="Tit span12">申请所内免修学时：</td>
+                        <td>@(Model.tScore)</td>
+                    </tr>
+                }
+                @if (Model.CPA == "是" && (Model.ApplyType == 1 || Model.ApplyType == 2))
+                {
+                    <tr>
+                        <td class="Tit">申请CPA免修学时：</td>
+                        <td>@(Model.CPAScore)</td>
+                    </tr>
+                }
+                <tr>
+                    <td class="Tit">免修情况说明：</td>
+                    <td><p class="ovh span28" title="@(Model.Memo)">@(Model.Memo)</p></td>
+                </tr>
+                <tr>
+                    <td class="Tit">证明资料：</td>
+                    <td>
+                            @foreach (var item in Model.ApplyFileList)
+                            {
+                                 <p class="span50" style="border-bottom:1px solid #ccc">
+                                   @item.ResourceName
+                                     <a class="icon iview fr" title="查看" onclick="ViewFile('@item.ResourceName','@item.ConvertName','@item.RealName')"></a>
+                                   </p>
+                            }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">申请时间：</td>
+                    <td>
+                        @(Model.ApplyTimeStr)
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <center class="mt10">
+        <input type="button" class="btn  btn-cancel" value="返回" onclick="back()">
+    </center>
+      <input id="ID" type="hidden" value="0" />
+    <input id="lookFile" type="hidden" value="0" />
+    <input id="DepReason" type="hidden" value="@ViewBag.DepReason" />
+    <input id="hidLookFile" type="hidden" />
+</div>
+<script type="text/ecmascript">
+    $(document).ready(function ()
+    {
+        if ("@ViewBag.ApproveStatus" == "1" && "@ViewBag.DepApproveStatus" == "0")
+        {
+            GetnewID();
+        }
+        else
+        {
+            $("#hidLookFile").val(1);//此处是为了隐藏倒计时按钮
+        }
+        load();
+    });
+
+    function load()
+    {
+        $.get("/MyApproval/Free_ApproveHead?ID=@ViewBag.ID&Realname=" + escape('@Model.Realname') + "&ApplyTimeStr=@(Model.ApplyTimeStr)&type=2",
+                function (data)
+                {
+                    $("#Approvehead").html(data);
+                    //var title = $("#DepReason").attr("title");
+                    //$("#rejectReason").html(title);
+                    //if (title != "" && title != undefined)
+                    //{
+                    //    $("#rejectReason").parent().parent().show();
+                    //}
+                });
+     }
+
+   
+    function GetnewID()
+    {
+        $.getJSON("/DepFreeApprove/GetNewApprove?ApproveID=@ViewBag.ID&ApproveType=2", function (data)
+        {
+            $("#ID").val(data.ID);
+            if (data.ID == 0)
+            {
+                $("#Approve_tip").html("请先查看申请的证明资料，方可激活审批按钮");
+                $("#SaveApprove").attr("disabled", true).removeAttr("onclick");
+            }
+            else
+            {
+                $("#hidLookFile").val(1);
+                $("#Approve_tip").html("申请的证明资料已经查看，可以审批");
+                $("#SaveApprove").removeAttr("disabled");
+                BindAdd();
+            }
+        });
+    }
+    function back()
+    {
+       window.location.href = "FreeApprove?flag=1"
+       // window.location.href = "/MyApply/Free_BatchOtherFrom?flag=2&nextflag=1"
+    }
+
+    function BindAdd()
+    {
+        $("#SaveApprove").bind("click",function(){
+            AddApprovePop();
+        });
+    }
+
+
+    function AddApprovePop()
+    {
+        art.dialog.load('/MyApproval/Free_ApprovePop', { title: '审批', id: 'atr_ApprovePop', height: 320, width: 550 });
+    }
+
+
+    function closeApprovePop()
+    {
+        closeDialog("atr_ApprovePop");
+    }
+
+    function saveApprove()
+    {
+        var ID = $("#ID").val();
+        if($("input[name='DepTrainApprove']:checked").length==0)
+        {
+            alert("请选择一种审批状态！")
+            return false;
+        }
+        if ($.trim($("#DepTrainReason").val()) == "" && $("input[name='DepTrainApprove']:checked").val() == "2")
+        {
+            //alert("请选择一种审批状态！")
+            art.dialog.tips('审批退回，请输入理由！', 3);
+            return false;
+        }
+        $.post("/DepFreeApprove/SaveDepApprove",
+          {
+              ApproveID: "@Model.ID", ID: ID, ApproveType: 2 ,MaxBatch:'@ViewBag.MaxBatch', DepApprove: $("input[name='DepTrainApprove']:checked").val()
+                , DepReason: $("#DepTrainReason").val(),type:1
+            },
+            function (data)
+            {
+                if(data.result==1)
+                {
+                    back();
+                }
+                else
+                {
+                    alert("审批失败");
+                }
+            });
+    }
+
+    function FreeToWord(CPA)
+    {
+        window.location.href = "/MyApproval/FreeToWord?ID=@Model.ID&type=@Model.ApplyType&CPA=" + CPA;
+    }
+
+    function ViewFile(ResourceName, name, RealName)
+    {
+        art.dialog.load("/MyApproval/Free_FilesView?ResourceName=" + escape(ResourceName) + "&name=" + name + "&RealName=" + RealName, {
+            title: '文件查看', id: 'atr_ViewFile', height: 320, width: 550
+            , close: function ()
+            {
+                // clearInterval(timer1);
+                window.location.href = window.location.href;
+            }
+        });
+    }
+
+    function CanLookFile()
+    {
+        var ID = $("#ID").val();
+        // 大于0，被查看或者下载过 直接下载即可
+        if (ID == "0" && "@ViewBag.ApproveStatus" == "1")// 大于0，被查看或者下载过 直接下载即可
+        {
+            $.getJSON("/DepFreeApprove/SaveDepApprove", { ApproveID: "@Model.ID", ID: ID, ApproveType: 2, MaxBatch: '@ViewBag.MaxBatch' }, function (data)
+            {
+                if (data.ID > 0)
+                {
+                    $("#ID").val(data.ID);
+
+                    $("#Approve_tip").html("申请的证明资料已经查看，可以审批");
+                    $("#SaveApprove").removeAttr("disabled");
+                    BindAdd();
+                    load();
+                }
+                else
+                {
+                    alert("查看证明文件失败请通知管理员！");
+                }
+            });
+        }
+    }
+</script>

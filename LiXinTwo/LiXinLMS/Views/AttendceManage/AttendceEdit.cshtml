@@ -1,0 +1,69 @@
+﻿@{
+    Layout = null;
+    string cid = Request.QueryString["id"] == null ? "0" : Request.QueryString["id"];
+    string uid = Request.QueryString["uid"] == null ? "0" : Request.QueryString["uid"];
+}
+<form id="formEditAtt">
+<div>
+    <table class="tab-Form" style="width:450px;">
+        <tr>
+            <td class="Tit span10">姓名：</td>
+            <td><strong id="usname"></strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">部门：</td>
+            <td><strong id="dename"></strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">上课考勤时间：</td>
+            <td>
+                <div class="time-choose ">
+                    <input type="text" name="beginTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'endTime\')}' }) " id="beginTime" />
+                    <i></i>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">下课考勤时间：</td>
+            <td>
+                <div class="time-choose">
+                    <input  type="text" name="endTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'beginTime\')}' }) " id="endTime" />
+                    <i></i>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <center class="mt10"><input type="button" value="保存" class="btn btn-co" onclick="$(this).submit();" /></center>
+</div>
+<input id="courseid" name="courseid" type="hidden" />
+<input id="userid" name="userid" type="hidden" />
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (@(cid) > 0) {
+            $("#usname").html($("#user@(uid)").text());
+            $("#dename").html($("#dep@(uid)").text());
+            $("#courseid").val('@(cid)');
+            $("#userid").val('@(uid)');
+        }
+
+        $("#formEditAtt").validate(
+            {
+                event: "blur",
+                submitHandler: function () {
+                    if($("#beginTime").val()!="" || $("#endTime").val()!=""){
+                    $.post("/AttendceManage/SubmitAttend?t="+new Date(),$("#formEditAtt").formSerialize(),function(data){
+                      if (data.result == 1) {
+                            art.dialog.list['AttendEdit'].close();
+                            InitList(getyearUrl());
+                        } else {
+                            art.dialog.tips(data.content,3);
+                        }
+                    });
+                    }else{
+                        art.dialog.tips("选择考勤时间",3);
+                    }
+                }
+            });
+    });
+</script>

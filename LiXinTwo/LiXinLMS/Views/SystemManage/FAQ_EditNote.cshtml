@@ -1,0 +1,272 @@
+﻿@{
+    ViewBag.Title = "编辑政策";
+}
+
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+<script src="../../Scripts/ueditor/editor_all.js" type="text/javascript"></script>
+<script src="../../Scripts/ueditor/editor_config.js" type="text/javascript"></script>
+<link href="../../Scripts/ueditor/themes/default/ueditor.css" rel="stylesheet" type="text/css" />
+<link href="../../Content/trainManage.css" rel="stylesheet" />
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "编辑政策"
+}))
+    <form id="formEditNote">
+        <input type="hidden" name="Id" id="txtId" value="@ViewBag.noteID"  />
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span10">问题：
+                </td>
+                <td>
+                    <input type="text" name="NoteTitle" id="txtNoteTitle" class="span65" maxlength="30" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">类别：
+                </td>
+                <td>
+                    <select id="sel_SortID" name="SortID">
+                        <option value="0">请选择政策类别</option>
+                        @if (ViewBag.NoteSortList != null)
+                        {
+                            if (((List<LiXinModels.SystemManage.Sys_NoteSort>)ViewBag.NoteSortList).Count() > 0)
+                            {
+                                foreach (var item in ((List<LiXinModels.SystemManage.Sys_NoteSort>)ViewBag.NoteSortList))
+                                {
+                            <option value="@item.Id">@item.SortName</option>         
+                                }
+                            }
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">答案：
+                </td>
+                <td>
+                    <textarea name="NoteContent" id="txtNoteContent" class="span65"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">附件：
+                </td>
+                <td>
+                    <input type="file" name="courseAttachResource" value="" id="uploadAttachResource" />
+                    <input type="hidden" name="hidResourceIds" value="" id="hidResourceIds" />
+                    @if (ViewBag.NoteResource != null && ((IEnumerable<LiXinModels.SystemManage.Sys_NoteResource>)ViewBag.NoteResource).Count() > 0)
+                    {
+                        <div class="seled-list">
+                            <ul>
+                                @foreach (var item in (IEnumerable<LiXinModels.SystemManage.Sys_NoteResource>)ViewBag.NoteResource)
+                                {
+                                    <li id="div_courseAttach_@(item.Id)"><span title="@item.FileName">
+                                        @item.FileName
+                                    </span>
+                                        <input  type="button" name="btn" value="X" title="移除" class="btn btn-cancel" onclick="fnRemoveCourseResource('div_courseAttach_@(item.Id)    ',@item.Id)" />
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+
+                </td>
+            </tr>
+        </table>
+        @*    <div class="ask_xian">
+        </div>*@
+        <center class="mt10">
+        <input type="submit" id="btnSave" value="发表" class="btn btn-co" />
+        <a id="btnBack" class="btn btn-cancel" onclick="back()">返回</a>
+        <input id="NoteId" name="NoteId" type="hidden" value="@ViewBag.noteID" />
+    </center>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("#formEditNote").validate(
+            {
+                event: "blur",
+                submitHandler: fnSaveNote,
+                rules: {
+                    SortID: { required: true, min: 1 },
+                    NoteTitle: {
+                        required: true,
+                        maxlength: 500,
+                        remote: {
+                            type: "get",
+                            dataType: "json",
+                            url: "/SystemManage/checkNoteTitle?type=1&t=" + new Date(),
+                            data: {
+                                NoteTitle: function () { return $.trim($("#txtNoteTitle").val()); },
+                                noteID: function () { return "@ViewBag.noteID"; }
+                            }
+                        }
+                    }
+                },
+                messages: {
+                    SortID: { required: "请选择政策类别！", min: "请选择政策类别！" },
+                    NoteTitle: {
+                        required: "问题不能为空！",
+                        maxlength: "问题不能多于500个字符！",
+                        remote: "问题已存在！"
+                    }
+                    //                    ,
+                    //                    NoteContent: { requried:"请输入回答内容！",max:"回答内容不能大于2000字！"
+                    //                    }
+                }
+            });
+        GetNote();
+
+
+        //上传资源
+        $('#uploadAttachResource').uploadify({
+            'formData': { 'folder': "@(System.Configuration.ConfigurationManager.AppSettings["UFCONoteResource"])" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',//此处因需要增加了detailFlag字段 其他地方使用请自行移除
+            'auto': false,
+            'multi': true,
+            'onCancel': function (file) {
+            },
+            'onSelect': function (file) {
+                $("#tempAttachQueueId").val(file.id);
+            },
+            'onUploadStart': function (file) {
+            },
+            'onUploadError':function(file, errorCode, errorMsg, errorString)
+            {
+                if (errorCode!=-280) {
+                    art.dialog.tips('上传过程中发送异常，请重新选择文件！',3);
+                    $('input[type="submit"]').removeAttr('disabled');
+                }
+            },
+            'onUploadSuccess': function (file, data, response) {
+                var a = data.split('|');
+                if (a.length>0) {
+
+                    var ResourceName = a[0];
+                    var RealName = a[1]; 
+                    var ResourceSize = a[2];
+                                     
+                    //var CourseId = $("#txtId").val();
+                    $.post("/SystemManage/AddNoteResource?NoteId="+$("#txtId").val()+"&FileName="+escape(ResourceName)+"&RealName="+RealName+
+                     "&ResourceSize="+ResourceSize+"&type=0",function(data){
+                     });    
+                }
+
+                //             ,'fileTypeExts': ' *.doc; *.ppt; *.xls;*.docx; *.pptx; *.xlsx; *.pdf; *.txt; *.rmvb; *.avi; *.wmv'
+            },
+            'onQueueComplete':function(){
+                art.dialog.tips("保存成功！",3);
+                window.location.href='/SystemManage/FAQ_NoteManage';
+
+            } });
+
+    });
+
+    //渲染编辑器
+    var editor = new baidu.editor.ui.Editor({
+        toolbars: [['FontSize', 'FontFamily', 'ForeColor', 'Bold', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+					'JustifyCenter', 'InsertOrderedList', 'InsertUnorderedList',
+					'InsertImage', 'WordImage', 'Source', 'Help']],
+        maximumWords: 2000,
+        wordCount: false,
+        autoHeightEnabled: true,
+        elementPathEnabled: false,
+        minFrameHeight: 321
+    });
+
+    editor.render("txtNoteContent");
+
+    function GetNote()
+    {
+           
+
+        if ("@ViewBag.noteID" > "0")
+        {
+            $.getJSON('/SystemManage/GetSingeNote?noteID=@ViewBag.noteID' + "&t=" + new Date().valueOf(), function (data)
+            {
+
+                $('#sel_SortID').attr('value', data.SortID);
+                $("#txtNoteTitle").val(data.title);
+                //$("#txtNoteContent").val(data.content);
+                editor.setContent(data.content);
+            });
+        }
+    }
+
+    function fnSaveNote()
+    {
+        editor.sync();
+        var values = editor.getContent();
+        values = values.toString().replace(/&nbsp;/g, "").replace(/\//g, "").replace(/\s+/g, "").replace(/<br>/g, "").replace(/<br>/g, "").replace(/<P>/g, "").replace(/<p>/g, "").replace(/<div>/g, "").replace(/<\/div>/g, "");
+
+        if ($.trim(values) == "")
+        {
+            //            art.dialog({
+            //                content: '请输入答案内容！',
+            //                time: 3
+            //            });
+            art.dialog.tips('请输入答案内容', 3);
+            return false;
+        }
+        else
+        {            
+
+            $.post("/SystemManage/submitEditNote?type=1",
+                {
+                    title: $("#txtNoteTitle").val(),
+                    content: editor.getContent(),
+                    noteID: "@ViewBag.noteID",
+                    SortID: $("#sel_SortID").val(),
+                    deleteID:$("#hidResourceIds").val()
+                },
+                function (data)
+                {
+                    //alert(data.Id);
+                    $("#txtId").val(data.Id);
+
+                    var uploadAttachResourceLength= $("#uploadAttachResource-queue").find(".uploadify-queue-item").length;
+
+                    if (uploadAttachResourceLength>0) {
+                        $('#uploadAttachResource').uploadify('upload', '*');
+                    }
+                    else {
+                        window.location.href='/SystemManage/FAQ_NoteManage';
+                   
+                    }
+                    //back();
+                });
+            }
+
+        }
+
+
+        function back()
+        {
+            window.location.href = '/SystemManage/FAQ_NoteManage';
+        }
+
+
+        //hidResourceIds 已经删除的资源Ids
+        function fnRemoveCourseResource(id,relid)
+        {
+            $("#"+id).remove();
+            var ids= $("#hidResourceIds").val();
+            if (ids=="") {
+                ids=relid;
+            }
+            else if (ids!="") {
+                ids+=","+relid
+            }
+            $("#hidResourceIds").val(ids);
+        }
+
+
+</script>

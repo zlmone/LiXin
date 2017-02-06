@@ -1,0 +1,374 @@
+﻿@{
+    ViewBag.Title = "DepCourseManageList";
+    Layout = null;
+}
+
+<div id="div_Search" class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">课程名称：</td>
+            <td class="span33"><input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="Tit span8">选/必修：</td>
+            <td>
+                <div class="sel">
+                    <input type="checkbox" name="popIsMust" id="chbIsMust0" value="1" /><label>选修</label>
+                    <input type="checkbox" name="popIsMust" id="chbIsMust1" value="0" /><label>必修</label>
+                </div>
+            </td>
+            <td class="Tit">框架内/外：</td>
+            <td>
+                <div class="sel">
+                    <input type="checkbox" name="popIsSystem" value="1" /><label>内</label>
+                    <input type="checkbox" name="popIsSystem" value="0" /><label>外</label>
+                </div>
+            </td>
+            <td class="so-do" rowspan="2">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnSearch(); " />
+                <a href="/DepCourseManage/EditDepCourseTogether?way=1" class="btn btn-co">课程开设</a>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">开课时间：</td>
+            <td>
+                <div class="time-choose">
+                    <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                        name="StartTime" id="txt_StartTime" value="" />
+                    <i></i>
+                </div>
+                至
+                <div class="time-choose">
+                    <input  type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                        id="txt_EndTime" value="" />
+                    <i></i>
+                </div>
+            </td>
+            <td class="Tit">选择部门：</td>
+            <td>
+                <div class="sel">
+                    <select id="sel_pop_dept" name="sel_pop_dept" onchange="fnSearch()" >
+                                @{ 
+                                    <option value="0">选择部门</option>
+                                    foreach (var dept in ViewBag.DeptidList as List<LiXinModels.User.Sys_Department>)
+                                    {
+
+                                        <option value="@dept.DepartmentId">@dept.DeptName</option>
+                                    }
+                                }
+                             </select>  
+                </div>
+            </td>
+            <td class="Tit">计划内/外：</td>
+            <td>
+                <div class="sel">
+                    <input type="checkbox" name="popIsYear" value="1" /><label>内</label>
+                    <input type="checkbox" name="popIsYear" value="0" /><label>外</label>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+     @*<select id="sel_deptid">
+         @if (ViewBag.DeptList != null && ((IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.DeptList).Count() > 0)
+         {
+             foreach (var item in (IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.DeptList)
+             {
+                 <option value="@item.Id">@item.DeptName</option>             
+             }
+         }
+
+     </select> *@
+     @if(!ViewBag.DepOrBranch)
+      {
+     <select onchange="fnSearch()" id="sle_Sort">
+        <option value="-1">请选择课程类别</option>
+        <option value="1">内部培训</option>
+        <option value="2">社会招聘</option>
+        <option value="3">新进员工</option>
+        <option value="4">实习生</option>
+    </select>
+          <div class="course-tysel">
+        <span class="c-it">内部培训<i></i></span>
+        <span class="c-sr">社会招聘<i></i></span>
+        <span class="c-ne">新进员工<i></i></span>
+        <span class="c-tr">实习生<i></i></span>
+    </div>
+      }
+    @*<div onchange="fnSearch()" id="sle_Sort" class="course-tysel c-it">
+        <a href="#"><span>内部培训</span><i></i></a>
+        <ul>
+            <li class="c-no">所有课程类型</li>
+            <li class="c-sr">社会招聘</li>
+            <li class="c-ne">新进员工</li>
+            <li class="c-tr">实习生</li>
+        </ul>
+    </div>*@
+  
+    
+</div>
+<div id="Content" class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th class="span4">学时</th>
+                <th class="span6" jsrendersortfield="IsMust" sort="desc">选/必修</th>
+                <th class="span12" jsrendersortfield="StartTime" sort="desc">开课时间</th>
+                <th class="span12">开设课次/总课次</th>
+                <th class="span6">讲师</th>
+                <th class="span8">授课地点</th>                
+                <th class="span7">框架内/外</th>
+                <th class="span7">计划内/外</th>
+                <th class="span16">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbCourseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+             <td>
+             <div class="course-type" title="课程类型：{{:SortStr==""?"无":SortStr}}">
+                 <i class="c-it {{:SortStr.indexOf('内部培训')>=0?"":"c-no"}}">内部培训</i>
+                 <i class="c-sr {{:SortStr.indexOf('社会招聘')>=0?"":"c-no"}}" title="">社会招聘</i>
+                 <i class="c-ne {{:SortStr.indexOf('新进员工')>=0?"":"c-no"}}">新进员工</i>
+                 <i class="c-tr {{:SortStr.indexOf('实习生')>=0?"":"c-no"}}">实习生</i>
+             </div>
+             <div class="ovh tl span8" title="{{:CourseName}}">{{:CourseName}}</div>
+             </td>
+             <td>{{:CourseLength}}</td>
+             <td>{{:IsMust}}</td>
+             <td><div class="f11 tl">{{:StartTime}} - {{:EndTime}}</div></td>
+             <td>{{:CourseTimesOrder}}/{{:CourseTimes}}</td>
+             <td><div class="ovh tl span6" title="{{:TeacherName}}">{{:TeacherName}}</div></td>
+             <td><div class="ovh tl span8" title="{{:RoomName}}">{{:RoomName}}</div></td>             
+             <td>{{:IsSystem}}</td>
+             <td>{{:IsYearPlan}}</td>
+                <td>
+                    {{if CourseState!=3||Publishflag==0}} 
+                        <a onclick="fnModifyCourse({{:Way}},{{:Id}},{{:TotalCourseTimes}},{{:Publishflag}})" class="icon iedit" title="编辑"></a>
+                    {{/if}}
+                    {{if CourseState==3&&Publishflag==1}} 
+                        <span class="icon iedit idis" title="编辑"></span>
+                    {{/if}}             
+                      <a onclick="fnCourseDetial({{:Id}})" class="icon iview" title="查看详情"></a>
+                     {{if Publishflag==0 }}
+                        <a onclick="fnDeleteCourse({{:Id}})" class="icon idel" title="删除"></a>
+                        <a onclick="fnPublishCourse({{:Id}},{{:Way}})" class="icon ipub" title="发布"></a>
+                     {{/if}}
+                     {{if Publishflag==1}}
+                        {{if CourseState==1}}
+                             <a onclick="fMessageUsers({{:Id}})" class="icon idel" title="删除"></a>
+                        {{else}}
+                            <span class="icon idel idis" title="删除"></span>
+                        {{/if}}
+                        <span class="icon ipub idis" title="发布"></span>
+                     {{/if}} 
+                     {{if TotalCourseTimes<CourseTimes}}
+                     <a onclick="fnCopyCourse({{:Id}},{{:TotalCourseTimes}},{{:Way}})" class="icon icopy" title="课程拷贝"></a>
+                     {{else}}
+                     <a class="icon icopy idis" title="课程拷贝"></a>
+                     {{/if}}
+                     {{if AttFlag==0}}
+                     <a class="icon iass-per" title="指定课程负责人" onclick="assignMaster({{:Id}},'{{:AttUserId}}')" style="cursor:pointer;"></a>
+                     {{else}}
+                     <a class="icon iass-per idis" title="指定课程负责人"></a>
+                     {{/if}}
+                </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        $("#txtCourseName").val('@(ViewBag.Attname)');
+        if ("@(ViewBag.Attmust)" != "") {
+            if ('@(ViewBag.Attmust)'.indexOf(",") > -1) {
+                var strmust = '@(ViewBag.Attmust)'.split(",");
+                $.each(strmust, function (index, callback) { $('input[name="popIsMust"][value="' + strmust[index] + '"]').attr('checked', true); });
+            } else {
+                $('input[name="popIsMust"][value="@(ViewBag.Attmust)"]').attr('checked', true);
+            }
+        }
+
+        if ("@(ViewBag.AttisSys)" != "") {
+            if ('@(ViewBag.AttisSys)'.indexOf(",") > -1) {
+                var strsys = '@(ViewBag.AttisSys)'.split(",");
+                $.each(strsys, function (index, callback) { $('input[name="popIsSystem"][value="' + strsys[index] + '"]').attr('checked', true); });
+            } else {
+                $('input[name="popIsSystem"][value="@(ViewBag.AttisSys)"]').attr('checked', true);
+            }
+        }
+
+        if ("@(ViewBag.AttisYear)" != "") {
+            if ('@(ViewBag.AttisYear)'.indexOf(",") > -1) {
+                var stryear = '@(ViewBag.AttisYear)'.split(",");
+                $.each(stryear, function (index, callback) { $('input[name="popIsYear"][value="' + stryear[index] + '"]').attr('checked', true); });
+            } else {
+                $('input[name="popIsYear"][value="@(ViewBag.AttisYear)"]').attr('checked', true);
+            }
+        }
+
+        if ("@(ViewBag.AttstartTime)" != "") {
+            $("#txt_StartTime").val('@(ViewBag.AttstartTime)');
+        }
+        if ("@(ViewBag.AttendTime)" != "") {
+            $("#txt_EndTime").val('@(ViewBag.AttendTime)');
+        }
+        $("#sle_Sort").val('@(ViewBag.AttSort)');
+        fnGetCourseList();
+    });
+
+    function fnGetCourseList(page) {
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "LastUpdateTime",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate",
+            funCallback: function () {
+                SetCheckBox('pop_selectall', 'tbCourseList');
+            }
+        });
+    }
+
+    function GetPopParameters() {
+        var isSys = "";
+        $("input[name='popIsSystem']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                isSys = isSys == "" ? $(this).val() : isSys + "," + $(this).val();
+            }
+        });
+
+        var isYear = "";
+        $("input[name='popIsYear']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                isYear = isYear == "" ? $(this).val() : isYear + "," + $(this).val();
+            }
+        });
+
+        var isMust = "";
+        $("input[name='popIsMust']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                isMust = isMust == "" ? $(this).val() : isMust + "," + $(this).val();
+            }
+        });
+        var isCPA = "";
+        var url = "/DepCourseManage/GetCourseTogetherList?t=" + new Date();
+        url += "&DeptId=" + $("#sel_pop_dept").val() + "&way=1&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&Sort=" + $("#sle_Sort").val() + "&isSys=" + isSys + "&isYear=" + isYear + "&IsMust=" + isMust + "&IsCPA=" + isCPA + "&IsOpenOthers=0";
+        if ($("#pop_txtchooseId").val() != 0) {
+            url += "&systemId="+ $("#pop_txtchooseId").val();
+        }
+        
+        return url;
+
+    }
+    function fnSearch() {
+        fnGetCourseList(1);
+    }
+
+    function fnModifyCourse(way, Id, TotalCourseTimes, Publishflag) {
+        //        if (way==1) {
+        window.location.href = '/DepCourseManage/EditDepCourseTogether?Id=' + Id + "&TotalCourseTimes=" + TotalCourseTimes + "&Publishflag=" + Publishflag + "&way=" + way;
+        //        }
+    }
+    function fnDeleteCourse(Id) {
+        art.dialog({
+            lock: false,
+            content: "确定要删除该课程吗？",
+            ok: function () {
+                $.post("/DepCourseManage/SubmitModifySingleCourse?flag=0&cl=t&courseId=" + Id, function (data) {
+                    art.dialog.tips(data.content, 3, function () {
+                        //                        alert(1);
+                        if (data.result == 1) {
+                            fnGetCourseList(data.indexpage);
+                        }
+                    });
+
+
+                });
+            },
+            cancel: function () {
+                return;
+            }
+        });
+    }
+
+    function fnCourseDetial(Id) {
+        window.location.href = '/DepCourseManage/CourseTogetherDetial?Id=' + Id + '&tp=1';
+    }
+    function fnPublishCourse(Id, Way) {
+        zhezaowait();
+        $.post("/DepCourseManage/SubmitModifySingleCourse?flag=1&cl=t&courseId=" + Id + "&way=" + Way, function (data) {
+            closewait();            
+            if (data.result == 1) {
+                art.dialog.tips(data.content, 3);
+                fnGetCourseList(data.indexpage);
+            }
+
+        });
+    }
+
+    //课程ID 以及已经开设的课程次数
+    function fnCopyCourse(Id, TotalCourseTimes,way) {
+        window.location.href = "/DepCourseManage/EditDepCourseTogether?Id=" + Id + "&TotalCourseTimes=" + TotalCourseTimes + "&isCopy=1&way=" + way;
+    }
+
+
+    function fMessageUsers(id) {
+        // art.dialog.load("/CourseManage/CourseCPASendMessage?type=1&courseid=" + id + "&t=" + new Date(), { title: "消息编辑", id: "CourseCPASendMessage", width: 800 });
+        art.dialog({
+            lock: false,
+            content: "确定要删除该课程吗？",
+            ok: function () {
+               
+                $.post("/DepCourseManage/SubmitModifySingleCourse?flag=0&cl=t&courseId=" + id, function (data) {
+                    fnGetCourseList(1);
+                    //art.dialog.tips(data.content, 3, function () {
+                    art.dialog({
+                        lock: false,
+                        content: data.content + "是否通知学员？",
+                        ok: function () {
+                            art.dialog.load("/CourseManage/CourseCpaSendMessage?type=4&courseid=" + id + "&t=" + new Date(), { title: "消息编辑", id: "CourseCPASendMessage", width: 800 });
+                        },
+                        cancel: function () {
+
+                            return;
+                        }
+                    });
+                });
+            },
+            cancel: function () {
+                return;
+            }
+        });
+    }
+
+    function Send(id) {
+        var ids = $("#commonSelectedIdStr").val();//GetChecked('userList');
+        // alert(ids);
+        if (ids == "") {
+            art.dialog.tips("请选择用户！", 3);
+            return;
+        }
+        $.post("/DepCourseManage/FunCourseCpaSendMessage", { courseId: id, userIds: ids }, function (data) {
+            if (data == 1) {
+                art.dialog.tips("提醒成功！", 3, function () { fnGetCourseList(1); closeDialog("CourseCPASendMessage"); });
+
+            } else {
+                art.dialog.tips("提醒失败！", 3, function () { fnGetCourseList(1); closeDialog("CourseCPASendMessage"); });
+
+            }
+        });
+    }
+
+    </script>

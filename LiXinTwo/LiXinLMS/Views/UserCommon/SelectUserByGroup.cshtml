@@ -1,0 +1,122 @@
+﻿@{
+    ViewBag.Title = "SelectUserByGroup";
+    Layout = null;
+}
+
+<div id="Search" class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">群组名称：</td>
+            <td class="span30">
+                <input type="text" class="span30" id="tbTitle" /></td>
+            <td class="Tit span5">创建者：</td>
+            <td>
+                <input type="text" class="span10" id="tbuser" /></td>
+            <td class="so-do">
+                <input type="button" class="btn" id="ibtnSearch" name="搜索" value="搜索" /></td>
+        </tr>
+    </table>
+</div>
+<table class="tab-List mt10">
+    <thead>
+        <tr>
+            <th class="span4">
+                <input id="selAll" type="checkbox" />
+            </th>
+            <th>群组名称
+            </th>
+            <th class="span8">组员数量
+            </th>
+            <th class="span8">创建者
+            </th>
+            <th class="span15">创建时间
+            </th>
+            <th class="span15">更新时间
+            </th>
+        </tr>
+    </thead>
+    <tbody id="groupList">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+<center class="mt10">
+    <input type="button" value="确定" onclick="fnOpenChooseGroup()" class="btn btn-co" />
+</center>
+<script id="groupListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td><input id="G{{:GroupId}}" type="checkbox" name="pop_checkgroup" GroupName="{{:GroupName}}" value="{{:GroupId}}" /></td>
+            <td>
+              <div class="span20 ovh tl" title="{{:GroupName}}">  {{:GroupName}}</div>
+           </td>
+            <td>{{:UNumber}}</td>
+            <td>{{:Realname}}</td>
+            <td>{{:CreateTimeStr}}</td>
+            <td>{{:LastUpdateTimeStr}}</td>
+        </tr>  
+    {{/for}}
+</script>
+<script type="text/javascript">
+    //显示群组列表
+    function InitializeTargetList(url) {
+        var templateId = 'groupListTemplate';
+        $("#groupList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function () {
+                SetCheckBox("selAll", "groupList");
+                $("#selAll").removeAttr("checked");
+
+                @* if ("@ViewBag.ChoosedIds" != "") {
+                    var checkboxArray3 = $('input[name=pop_checkgroup]');
+                    var IsOrderList = "@ViewBag.ChoosedIds".split(',');
+                    for (key in IsOrderList) {
+                        $.each(checkboxArray3, function (index, value) {
+                            if (IsOrderList[key] == $(value).val()) {
+                                $(this).attr('checked', true);
+                                $(this).attr('disabled', "disabled");
+                            }
+                        });
+                    }
+
+                   var IsOrderList2 = "@ViewBag.tempGroupIds".split(',');
+                    for (key in IsOrderList2) {
+                        $.each(checkboxArray3, function (index, value) {
+                            if (IsOrderList[key] == $(value).val().split("_")[0]) {
+                                if ("@ViewBag.TokenPublishflag" == 1) { $(this).attr('disabled', "disabled"); $(this).attr('oldchoose', "oldchoose"); }
+                            }
+                        });
+                    }
+
+                }*@
+
+            }
+        });
+
+    }
+
+    function getUrlParms() {
+        return "/SystemManage/GetAllGroupList?title=" + escape($.trim($("#tbTitle").val())) + "&username=" + escape($.trim($("#tbuser").val())) + "&t=" + new Date();
+    }
+
+    $(document).ready(function () {
+        //搜索
+        $(".search_hold").bind("click", searchScorpe);
+        //初始化列表
+        InitializeTargetList(getUrlParms());
+
+        //查询
+        $("#ibtnSearch").bind("click", function () {
+            InitializeTargetList(getUrlParms());
+        });
+    });
+
+
+
+   
+
+</script>

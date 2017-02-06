@@ -1,0 +1,442 @@
+﻿@using System.Configuration
+@using System.Web.Mvc.Html
+@using LiXinLanguage
+@{
+    ViewBag.Title = "账号管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "账号管理" }))
+    <div class="treeview-box fl  span21">
+        <div class="menu-list">
+            <h3>
+                <i class="il"></i><i class="ir"></i>立信组织结构</h3>
+        </div>
+        <div class="pt5 pb5">
+            <input type="text" class="span14 searchclass" id="searchdept" value="请输入立信组织" info="" />
+            <input class="btn btn-co" type="button" value="搜索" onclick="resetDeptTree(); " />
+        </div>
+        <div id="deptTreePage" class="tree-list" style="min-height: 500px; _height: 500px;">
+        </div>
+    </div>
+    <div class="fr span78">
+        <div id="Search" class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span3">
+                        姓名：
+                    </td>
+                    <td>
+                        <input type="text" class="span10 Box searchclass" id="realName" value="请输入姓名" info="" />
+                    </td>
+                    <td class="Tit span6">
+                        部门/分所：
+                    </td>
+                    <td>
+                        <input type="text" class="span20 searchclass" id="deptCode" value="请输入部门/分所" info="" />
+                    </td>
+                    <td rowspan="2" class="so-do">
+                        <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        性别：
+                    </td>
+                    <td>
+                        <div class="sel">
+                            <input id="cbxSex1" type="checkbox" /><label>男</label>
+                            <input id="cbxSex2" type="checkbox" /><label>女</label>
+                        </div>
+                    </td>                 
+                    <td class="Tit">
+                        培训级别：
+                    </td>
+                    <td>
+                        <div class="sel">
+                            @{
+                                foreach (var item in ViewBag.trainGrade)
+                                {
+                                <input name="cbxTrainGrade" value="@item" type="checkbox" /><label>@item</label>
+                                }      
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq" style="height:72px;">
+            <select id="sltStatus" onchange=" InitData(); ">
+                <option value="99">账号状态</option>
+                <option value="0">正常账号</option>
+                <option value="1">冻结账号</option>
+            </select>
+            <select id="sltCPA" onchange=" InitData(); ">
+                <option value="99">是否CPA</option>
+                <option value="1">CPA</option>
+                <option value="0">非CPA</option>
+            </select>
+            <select id="sltUserType" onchange=" InitData(); ">
+                <option value="99">人员类别</option>
+                @foreach (var item in @ViewBag.UserTypeList )
+                {
+                    if (item != "")
+                    { 
+                        <option value="@item">@item</option>
+                    }
+                }
+            </select>           
+            <p class="list-do" style="display:block;float:none;border-top:1px solid #eee;">
+                <input class="btn" type="button" id="btnSync" value="同步培训级别" onclick="Sync();" />
+                <input type="button" class="btn" value="同步用户信息" onclick="SyncUser(); " />
+                <input type="button" class="btn" value="同步原培训系统指纹库信息" onclick=" SyncTrainUserFinger(); " />
+                <input type="button" class="btn" value="同步HR指纹库信息" onclick="SyncUserFinger(); " />
+                <input type="button" class="btn" value="批量分配角色" onclick="ChangeRole(GetChecked('userList')); " />
+            </p>
+        </div>
+        <!-- 列表 -->
+        <div class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span3">
+                            <input type="checkbox" value="0" id="selectall" />
+                        </th>
+                        <th class="span4">
+                            序号
+                        </th>
+                        <th class="span5">
+                            姓名
+                        </th>
+                        <th class="span5" jsrendersortfield="Sex" sort="desc">
+                            性别
+                        </th>
+                        <th class="span20">
+                            部门/分所
+                        </th>
+                        <th class="span8" jsrendersortfield="TrainGrade" sort="desc">
+                            培训级别
+                        </th>
+                        <th class="span14">
+                            薪酬级别
+                        </th>
+                        <th class="span8">
+                            是否CPA
+                        </th>
+                        <th class="span8" jsrendersortfield="Status" sort="desc">
+                            账号状态
+                        </th>
+                        <th class="span8">
+                            操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="userList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<input id="hidChangeUserId" type="hidden" />
+<input id="hidDeptID" type="hidden" value="0" />
+<script id="userListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>
+            <input type="checkbox" id='{{:UserId}}' value='{{:UserId}}' /> 
+        </td>
+        <td>{{:#index+1}}</td>
+        <td>{{:Realname}}</td>
+        <td>{{:SexStr}}</td>
+        <td>
+            <div class="tl ovh span19" title="{{:DeptName}}">{{:DeptName}}</div>
+        </td>
+        <td>{{:TrainGrade}}</td>
+        <td>{{:PayGrade}}</td>
+        <td>{{:CPA}}</td>
+        <td>{{:StatusStr}}</td>
+        <td>
+            {{if Status==2}}
+                <a class="icon ifrost-un idis" title="解冻"></a> 
+            {{else}}
+                <a onclick='UpdateStatusNew({{:UserId}},{{:Status}});' class="{{:Status == 1 ? 'icon ifrost-un':'icon ifrost' }}" title="{{:Status == 1 ? '解冻':'冻结' }}"></a> 
+            {{/if}}
+            <a class="icon irole-as" title="角色分配" onclick="ChangeRole({{:UserId}});"></a>
+            <a class="icon iview" title="详情" onclick="ShowDetail({{:UserId}});"></a>
+        </td>
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+
+        resetDeptTree();
+        //加载列表
+        InitData();
+    });
+
+    //加载部门组织结构树
+    function resetDeptTree() {
+        $.getJSON("/UserCommon/GetDeptTree?flag=1&type=&clickFunction=deptNodeClick(this)&name=" + escape(getSearchWord("searchdept")), function (data) {
+            $("#deptTreePage").html(data);
+            $("#deptTreePage").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#deptTreePage").removeClass("treeview");
+            $("#hidDeptID").val(0);
+            $("#deptTreePage>ul>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+
+    function deptNodeClick(obj) {
+        //获取具体的分类信息
+        var ids = $(obj).attr("id");
+        var id = ids.split("_")[0];
+        var pid = ids.split("_")[1];
+        var Name = $(obj).text();
+        $("#hidDeptID").val(id);
+        deptNodeClickSelect(obj);
+        InitData();
+    }
+
+    function deptNodeClickSelect(obj) {
+        $("#deptTreePage").find("a").each(function () {
+            $(this).removeClass("On");
+        });
+        $(obj).addClass("On");
+    }
+
+    //初始化列表
+    function InitData() {
+        var sex = "99";
+        if (!($("#cbxSex1").attr("checked") && $("#cbxSex2").attr("checked"))) {
+            if ($("#cbxSex1").attr("checked")) {
+                sex = 0;
+            }
+            if ($("#cbxSex2").attr("checked")) {
+                sex = 1;
+            }
+        }
+        var trainGrade = "";
+
+        $("input[name=cbxTrainGrade]").each(function () {
+            if ($(this).attr("checked")) {
+                trainGrade += $(this).val();
+            }
+        });
+
+        var v = "flag=1&jobNum=&email=&realName=" + escape(getSearchWord("realName")) + "&trainGrade="
+            + trainGrade + "&deptName=" + escape(getSearchWord("deptCode")) + "&sex=" + sex + "&deptId=" + $("#hidDeptID").val()
+             + "&status=" + $("#sltStatus").val() + "&cpa=" + $("#sltCPA").val() + "&usertype=" +escape($("#sltUserType").val());
+        $("#userList").JsRenderData({
+            sourceUrl: '/UserManage/GetUserInfoList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "UserId",
+            jsRenderASC: "desc",
+            templateID: "userListTemplate",
+            funCallback: function () {
+                SetCheckBox('selectall', 'userList');
+            }
+        });
+    }
+
+    //同步人员的培训级别
+    function Sync() {
+        art.dialog({
+            content: "同步人员的培训级别可能会需要较长的时间，确定要同步吗？",
+            ok: function () {
+                zhezaowait();
+                $.getJSON("/TrainGradeManage/TainGradeSync", function (data) {
+                    if (data == 1) {
+                        closewait();
+                        art.dialog.tips("同步成功", 3);
+                        InitData();
+                    } else {
+                        closewait();
+                        art.dialog.tips("同步失败", 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //同步人员指纹信息
+    function SyncUserFinger() {
+        art.dialog({
+            content: "同步指纹信息可能会需要较长的时间，确定要同步吗？",
+            ok: function () {
+                zhezaowait();
+                $.getJSON("/UserManage/SyncUserFinger", function (data) {
+                    if (data == 1) {
+                        closewait();
+                        art.dialog.tips("同步成功！", 3);
+                        InitData();
+                    } else {
+                        closewait();
+                        art.dialog.tips("同步失败！", 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //同步原培训系统指纹信息
+    function SyncTrainUserFinger() {
+        art.dialog({
+            content: "同步指纹信息可能会需要较长的时间，确定要同步吗？",
+            ok: function () {
+                zhezaowait();
+                $.getJSON("/UserManage/SyncTrainUserFinger", function (data) {
+                    if (data == 1) {
+                        closewait();
+                        art.dialog.tips("同步成功！", 3);
+                        InitData();
+                    } else {
+                        closewait();
+                        art.dialog.tips("同步失败！", 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    function SyncUser() {
+        art.dialog({
+            content: "同步用户信息可能会需要较长的时间，确定要同步吗？",
+            ok: function () {
+                zhezaowait();
+                $.getJSON("/UserManage/SyncUser", function (data) {
+                    if (data == 1) {
+                        art.dialog.tips("同步成功！", 3);
+                        window.location.href = window.location.href;
+                        closewait();
+                    } else {
+                        art.dialog.tips("同步失败！", 3);
+                        closewait();
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    function Delete(id) {
+        if (id == "") {
+            art.dialog.tips("请选择用户！", 3);
+            return;
+        }
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function () {
+                $.post("/UserManage/DeleteUser", { userIds: id }, function (data) {
+                    if (data == 1) {
+                        art.dialog.tips("成功！", 3);
+                        InitData();
+                    } else {
+                        art.dialog.tips("失败！", 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //冻结
+    function UpdateStatus(id) {
+        art.dialog.load("/UserManage/SetUserStatus/" + id,
+        {
+            title: '账号冻结',
+            id: 'art_UpdateStatus',
+            width: 250,
+            height: 200
+        });
+    }
+
+    //解冻
+    function OpenUser(id) {
+        $.getJSON("/UserManage/OpenUser/" + id, function (data) {
+            if (data == 1) {
+                art.dialog.tips("成功！", 3);
+                InitData();
+            } else {
+                art.dialog.tips("失败！", 3);
+            }
+        });
+    }
+
+    function CloseUser(id) {
+        $.getJSON("/UserManage/CloseUser?userId=" + id, function (data) {
+            if (data.result == 1) {
+                art.dialog.tips("成功！", 3);
+                InitData();
+            } else {
+                art.dialog.tips("失败！", 3);
+            }
+        });
+    }
+
+    function UpdateStatusNew(id, flag) {
+        if (flag == 1) {
+            OpenUser(id);
+        } else {
+            CloseUser(id);
+        }
+    }
+
+    function ChangeRole(id) {
+        if (id == "") {
+            art.dialog.tips("请选择用户！", 3);
+            return;
+        }
+        $("#hidChangeUserId").val(id);
+        var url = "";
+        if (id.toString().indexOf(",") < 0) {
+            url = "/" + id;
+        }
+        art.dialog.load("/UserManage/AssignRole" + url,
+        {
+            title: '选择角色',
+            id: 'art_ChangeRole',
+            height: 300
+        });
+    }
+
+    function Sure() {
+        var hasRoleIds = $("#hasRoleIds").val();
+        var roleId = GetChecked("roleList");
+        if (roleId == "") {
+            art.dialog.tips("请选择角色！", 3);
+            return;
+        } else {
+            //if (hasRoleIds != "") {
+            //    roleId = hasRoleIds.substring(1) + roleId;
+            //}
+            $.post("/UserManage/AddRoleToUser", { userIds: $("#hidChangeUserId").val(), roleIds: roleId }, function (data) {
+                if (data == 1) {
+                    art.dialog.tips("成功！", 3);
+                    InitData();
+                    closeDialog("art_ChangeRole");
+                } else {
+                    art.dialog.tips("失败！", 3);
+                }
+            });
+        }
+    }
+
+    function ShowDetail(id) {
+        window.location.href = "/UserManage/UserDetail/" + id;
+    }
+
+</script>

@@ -1,0 +1,18 @@
+﻿@{
+    ViewBag.Title = "胜任力课程管理";
+}
+
+<div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "胜任力课程管理" }))
+    <div id="div_courseSystem" class="fl" style="width:29%;"></div>
+    <div id="div_CompetencyCourseList" class="fr" style="width:70%;"></div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$.get("/CourseManage/CompetencyCourseList?showAddCCButton=1&showCCManage=1&showGrade=1", function (data) { $("#div_CompetencyCourseList").html(data); });
+        $.get("/CourseManage/CompetencyCourseManager?showAddCCButton=1&showCCManage=1&showGrade=1", function (data) { $("#div_CompetencyCourseList").html(data); });
+        
+        $.get("/CourseManage/CourseSystemTree?showManage=1&checkBoxFlag=1", function (data) { $("#div_courseSystem").html(data); });
+    });
+</script>

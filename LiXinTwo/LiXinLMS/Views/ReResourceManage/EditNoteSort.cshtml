@@ -1,0 +1,91 @@
+﻿@model LixinModels.ReResourceManage.Re_ResourceType
+@{
+    ViewBag.Title = "编辑知识"; 
+    Layout = null;
+}
+<form id="forEditNoteSort">
+    <input type="hidden" name="ResourceTypeID" id="txtId" value="@Model.ResourceTypeID" />
+    <input type="hidden" name="ParentID" id="txtParent" value="@Model.ParentID" />
+
+    <table class="tab-Form">
+        <tr>
+
+            <td class="Tit">父级名称：</td>
+            <td>@ViewBag.ParentName</td>
+        </tr>
+        <tr>
+            <td class="Tit">类别名称：</td>
+            <td>
+                <input type="text"  id="txtSortName" name="TypeName" value="@Model.TypeName" class="span20" maxlength="30" /></td>
+        </tr>
+        <tr>
+                <td class="Tit">类别简介：
+                </td>
+                <td>
+                    <textarea cols="5" id="txt_TypeDec" name="TypeDec" rows="10" class="all80">@Model.TypeDec</textarea>
+                </td>
+            </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td>
+                <input type="submit" name="submit" value="确 定" class="btn" />
+                <input type="button" value="取 消" onclick="fnCancel()" class="btn btn-cancel" />
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#forEditNoteSort").validate(
+            {
+                submitHandler: fnSubmitEditNoteSort,
+                event: "blur",
+                rules: {
+                    TypeName: {
+                        required: true,
+                        maxlength: 30,
+                        remote: {
+                            type: "get",
+                            dataType: "json",
+                            url: "/ReResourceManage/CheckNoteSort?t=" + new Date(),
+                            data: {
+                                sortName: function () { return $.trim($("#txtSortName").val()); },
+                                id: function () { return $("#txtId").val(); },
+                                parentId: function () { return $("#txtParent").val(); }
+                            }
+                        }
+                    },
+                    TypeDec: {
+                        required: false,
+                        maxlength: 50
+                    }
+                },
+                messages: {
+                    TypeName: {
+                        required: "类别名称不能为空！",
+                        maxlength: "类别名称不能多于30个字符！",
+                        remote: "该类别名称已存在！"
+                    },
+                    TypeDec: {
+                        maxlength: "类别简介不能多于50个字符！"
+                    }
+                }
+            }
+        );
+    }
+    );
+
+    function fnSubmitEditNoteSort() {
+        $.post("/ReResourceManage/submitEditNoteSort", $("#forEditNoteSort").formSerialize(), function (data) {
+            art.dialog.tips(data.content, 3);
+            $("#txthidNoteSortId").val(0);
+            art.dialog.list["pop_EditNoteSort"].close();
+            InitNoteList();
+        });
+    }
+
+    function fnCancel() {
+        art.dialog.list["pop_EditNoteSort"].close();
+    }
+
+</script>

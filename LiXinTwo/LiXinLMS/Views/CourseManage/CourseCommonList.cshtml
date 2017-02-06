@@ -1,0 +1,267 @@
+﻿@{
+    ViewBag.Title = "CourseCommonList";
+    if (ViewBag.typeCourse == 0)
+    {
+        Layout = null;
+    }
+
+    //点击确定按钮 把 值 保存在 hidSelectCourseIds 中
+}
+@if (ViewBag.showSearch == 1)
+{
+    <div id="div_Search">
+        课程名称：<input type="text" id="txtCourseName" value="" />
+        选/必修：<input type="checkbox" name="popIsMust" id="chbIsMust0" value="1" />选修
+        <input type="checkbox" name="popIsMust"  id="chbIsMust1" value="0" />必修 课程类别：<select
+         onchange="fnSearch()"   id="sle_Sort">
+            <option value="-1">请选择课程类别</option>
+            <option value="1">内部培训</option>
+            <option value="2">社会招聘</option>
+            <option value="3">新进员工</option>
+            <option value="4">实习生</option>
+        </select>
+        <br />
+        开课时间：
+        <input class="Box Raster_15" type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+            name="StartTime" id="txt_StartTime" value="" />
+        至
+        <input class="Box Raster_15" type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+            id="txt_EndTime" value="" />
+        是否可折算CPA学时：<input type="checkbox" name="popIsCPA" id="chbIsCPA1" value="1" />是
+        <input type="checkbox" name="popIsCPA" id="chbIsCPA0" value="0" />否
+    </div>
+
+    <input type="button" value="查询" onclick="fnSearch()" />
+    if (ViewBag.showAddButton == 1)
+    {
+        <a href="EditCourseTogether">课程开设</a>
+@*    <input type="button" value="课程开设" onclick="fnEditCourse()" />*@
+    }
+
+}
+@if (ViewBag.showCourseButton == 1)
+{
+    <input type="button" value="确认" onclick="fnChooseSelectCourse()" />
+}
+<h2>
+    课程列表</h2>
+<table class="blue_table all">
+    <thead>
+        <tr>
+            @if (ViewBag.showCourseCheckbox == 1)
+            {
+                <th class="tl">
+                    <input type="checkbox" id="pop_selectall" />
+                    全选
+                </th> 
+            }
+            <th class="tl">
+                课程名称
+            </th>
+            <th class="tl">
+                学时
+            </th>
+            <th class="tl">
+                选/必修
+            </th>
+            <th class="tc Raster_4">
+                开课时间
+            </th>
+            <th class="tl">
+                开设课次
+            </th>
+            <th class="tl">
+                课程类别
+            </th>
+            <th class="tl">
+                讲师
+            </th>
+            <th class="tl">
+                授课地点
+            </th>
+            <th class="tc ">
+                是否可折算CPA学时
+            </th>
+            @if (ViewBag.showOperation == 1)
+            {
+                <th class="tc Raster_8">
+                    操作
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody id="tbCourseList">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+<div class="clear">
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+             @if (ViewBag.showCourseCheckbox == 1)
+             {
+             <td><input type="checkbox" name="popchbCourse" value="{{:Id}}" /></td>
+             }
+             <td>{{:CourseName}}</td>
+             <td>{{:CourseLength}}</td>
+             <td>{{:IsMust}}</td>
+             <td>{{:StartTime}}--{{:EndTime}}</td>
+             <td>{{:CourseTimesOrder}}/{{:CourseTimes}}</td>
+             <td>{{:SortStr}}</td>
+             <td>{{:TeacherName}}</td>
+             <td>{{:RoomName}}</td>
+             <td>{{:IsCPA}}</td>
+             @if (ViewBag.showOperation == 1)
+             {
+                <td>
+                   <a onclick="fnModifyCourse({{:Way}},{{:Id}},{{:TotalCourseTimes}})">修改</a>
+                  <a onclick="fnCourseDetial({{:Id}},{{:Way}})">详情</a>
+                 {{if Publishflag==0 }}
+                    <a onclick="fnDeleteCourse({{:Id}})">删除</a>
+                    <a onclick="fnPublishCourse({{:Id}})">发布</a>
+                 {{/if}}
+                 {{if Publishflag==1}}
+                    <label >删除</label>
+                    <label >发布</label>
+                 {{/if}} 
+                 {{if TotalCourseTimes<=CourseTimes}}
+                 <a onclick="fnCopyCourse({{:Id}},{{:TotalCourseTimes}})">课程拷贝</a>
+                 {{/if}}
+                </td>
+             }
+            
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        fnGetCourseList();
+    });
+
+    function fnGetCourseList() {
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 5,
+            pageIndex: 1,
+            templateID: "courseListTemplate",
+            funCallback: function () {
+                  SetCheckBox('pop_selectall', 'tbCourseList');
+                }
+        });
+    }
+
+    function GetPopParameters() {
+        var url = "/CourseManage/GetCourseCommonList?t=" + new Date();
+    if ("@ViewBag.showSearch"==1)
+    {
+        url += "&courseName=" + escape($.trim($("#txtCourseName").val())) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&Sort=" + $("#sle_Sort").val();
+        if (($("#chbIsMust0").is(':checked') && $("#chbIsMust1").is(':checked')) || ($("input[name=popIsMust]:checked").length == 0)) {
+        url += "&IsMust=-1";
+        }
+        else {
+        url += "&IsMust=" + $("input[name=popIsMust]:checked").val();
+        }
+        if (($("#chbIsCPA1").is(':checked') && $("#chbIsCPA0").is(':checked')) || ($("input[name=popIsCPA]:checked").length == 0)) {
+            url += "&IsCPA=-1";
+        }
+        else {
+        url += "&IsCPA=" + $("input[name=popIsCPA]:checked").val();
+        }
+}
+if ($("#pop_txtchooseId").val()!=0) {
+    url += "&systemId=" + $("#pop_txtchooseId").val();
+}
+      return url;
+
+  }
+    function fnSearch() {
+        fnGetCourseList();
+    }
+
+    function fnModifyCourse(way, Id, TotalCourseTimes) {
+//        if (way==1) {
+            window.location.href = '/CourseManage/EditCourseTogether?Id=' + Id + "&TotalCourseTimes=" + TotalCourseTimes;
+//        }
+    }
+    function fnDeleteCourse(Id) {
+        art.dialog({
+            lock: false,
+            content: "确定要删除该课程吗？",
+            ok: function () {
+                $.post("/CourseManage/SubmitModifySingleCourse?flag=0&courseId=" + Id, function (data) {
+                    art.dialog.tips(data.content, 3, function () {
+//                        alert(1);
+                        if (data.result == 1) {
+                            fnGetCourseList();
+                        }
+                    });
+
+
+                });
+            },
+
+            //            ok: function () {
+            //                $.post("/CourseManage/SubmitModifySingleCourse?flag=0&courseId=" + Id, function (data) {
+            //                    art.dialog.tips(data.content, 600);
+            //                   if (data.result == 1) {
+            //                       fnGetCourseList();
+            //                   }
+
+            //                });
+            //            },
+            cancel: function () {
+                return;
+            }
+        });
+    }
+
+    function fnCourseDetial(way, Id) {
+//        if (way == 2) {
+            window.location.href = '/CourseManage/EditCourseTogether/' + Id;
+//        } 
+    }
+    function fnPublishCourse(Id){
+        $.post("/CourseManage/SubmitModifySingleCourse?flag=1&courseId=" + Id, function (data) {
+                    art.dialog({ content: data.content, time: 3 });
+                    if (data.result == 1) {
+                        fnGetCourseList();
+                    }
+
+                });
+            }
+
+            //课程ID 以及已经开设的课程次数
+    function fnCopyCourse(Id, TotalCourseTimes) {
+        window.location.href = "/CourseManage/EditCourseTogether?Id=" + Id + "&TotalCourseTimes=" + TotalCourseTimes;
+    }
+
+
+
+
+
+
+
+
+
+
+
+//    function fnChooseSelectCourse() {
+//        var ids = "";
+//        var names="";
+//                 $("input[name=popchbCourse]:checked").each(function () {
+//             var s = $(this).attr("value");
+//             ids = ids + s + ",";
+//             names = names + $(this).next().text() + ",";
+//         });
+//         if (ids.length > 0) {
+//             ids = ids.substring(0, ids.length - 1);
+//             names = names.substring(0, names.length - 1);
+//         }
+//         $("#hidSelectCourseIds").val(ids);
+//         return { ids: ids, names: names };
+//    }
+
+</script>

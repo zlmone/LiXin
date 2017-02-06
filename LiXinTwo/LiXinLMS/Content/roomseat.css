@@ -1,0 +1,35 @@
+﻿.bg{background: url('../Images/seat/bg.gif');overflow: hidden;width: 935px;margin: auto;height: 560px;}
+.bg-up{background: url('../Images/seat/bg_up.gif');overflow: hidden;width: 935px;margin: auto;height: 560px;}
+.room{margin: auto;width: 930px;height: 510px;margin:25px auto auto;overflow: auto;}
+.guodao{width: 50px;padding-top: 250px;font-size: 14px;color: red;text-align: center;height: 500px;}
+.name{ text-align: center;}
+.gender{ text-align: center;}
+.seatselected{ height: 60px;position: absolute;top: 15px;z-index: 10;cursor: pointer;width: 70px;}
+.dengzi-left{float: left;margin-left: 184px;width: 230px;}
+.dengzi-right{float: right;margin-right: 175px;width: 230px;}
+
+.dengzi0,.dengzi1, .dengzi2, .dengzi3, .dengzi4, .dengzi5{width: 70px;height: 80px;position:absolute;}
+.dengzi0{background: url('../Images/seat/dengzi0.gif');}
+.dengzi1{background: url('../Images/seat/dengzi1.gif');}
+.dengzi2{background: url('../Images/seat/dengzi2.gif');}
+.dengzi3{background: url('../Images/seat/dengzi3.gif');}
+.dengzi4{background: url('../Images/seat/dengzi4.gif');}
+.dengzi5{background: url('../Images/seat/dengzi5.png');}
+
+.yzmain{ position: relative;width: 500px;margin:50px auto auto;height: 460px;overflow: hidden;}
+.yz0,.yz1, .yz2, .yz3, .yz4, .yz5{position: absolute;width: 230px;height: 230px;}
+.yz0{background: url(../Images/seat/yz0.gif) no-repeat center #eee;}
+.yz1{background: url(../Images/seat/yz1.gif) no-repeat center #eee;}
+.yz2{background: url(../Images/seat/yz2.gif) no-repeat center #eee;}
+.yz3{background: url(../Images/seat/yz3.gif) no-repeat center #eee;}
+.yz4{background: url(../Images/seat/yz4.gif) no-repeat center #eee;}
+.yz5{background: url(../Images/seat/yz5.gif) no-repeat center #eee;}
+.yizi0,.yizi1, .yizi2, .yizi3, .yizi4, .yizi5{position: absolute;width: 31px;height: 49px;}
+.yizi0{background: url(../Images/seat/yizi0.gif) no-repeat center 0;}
+.yizi1{background: url(../Images/seat/yizi1.gif) no-repeat center 0;}
+.yizi2{background: url(../Images/seat/yizi2.gif) no-repeat center 0;}
+.yizi3{background: url(../Images/seat/yizi3.gif) no-repeat center 0;}
+.yizi4{background: url(../Images/seat/yizi4.gif) no-repeat center 0;}
+.yizi5{background: url(../Images/seat/yizi5.gif) no-repeat center 0;}
+
+.deskNumber{ position: absolute;height: 20px;width: 20px;line-height: 20px;font-size: 20px;text-align: center;left: 105px;top: 95px;}

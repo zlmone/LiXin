@@ -1,0 +1,49 @@
+﻿@using LiXinModels.PlanManage
+@{
+    Layout = null;
+    string cousreId = Request.QueryString["id"] == null ? "0" : Request.QueryString["id"];
+    string type = Request.QueryString["type"] == null ? "0" : Request.QueryString["type"];
+}
+<div id="course_survey">
+    <table class="tab-Form tab-now" id="div_room_detial"></table>
+    <div class="oth" id="div_survey_detial"></div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        InitgetList(getParamUrl());
+    });
+
+    //显示集中课程信息列表
+    function InitgetList(url) {
+        $.getJSON(url, function (data) {
+            var courList = data.roomSeatList;
+            $("#div_room_detial").html("");
+            if (courList.length > 0) {
+                for (var i = 0; i < courList.length; i++) {
+                    var roomList = courList[i].tempdate;
+                    var strhtml = "";
+                    strhtml += '<tr>'
+                    strhtml += '<td colspan="2"><div class="tl ovh" style="font-weight:bold;">教室：' + courList[i].Roomname + ' 共计：' + courList[i].userCount + '人</div></td></tr>';
+
+                    for (var j = 0; j < roomList.length; j++) {
+                        if (roomList[j].surveyID > 0) {
+                            strhtml += '<tr><td><div class="Tit span10" style="cursor:pointer"><a onclick="looksurvey(' + roomList[j].surveyID + '); ">讲师：' + roomList[j].teachername + '</a></div></td>';
+                            strhtml += '<td>上课时间：' + roomList[j].starttime + '—' + roomList[j].endtime + '</td></tr>';
+                        }
+                    }
+                    $("#div_room_detial").append(strhtml);
+                }
+            }
+        });
+    }
+
+    function getParamUrl() {
+        return "/NewCourseManage/GetCoRoomRuleList?courseID=@cousreId&type=@type&t=" + new Date();
+    }
+
+    //查看学员
+    function looksurvey(id) {
+        $("#div_survey_detial").load("/NewCourseManage/SurveyDetial?surveyId=" + id + "&t=" + (new Date()).getUTCMilliseconds());
+    }
+</script>
+

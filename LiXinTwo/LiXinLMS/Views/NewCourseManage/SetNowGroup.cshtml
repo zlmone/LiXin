@@ -1,0 +1,69 @@
+﻿@{
+    Layout = null;
+    var classlist = Request.QueryString["class"] ?? "";
+}
+<div style="width:700px; height:480px; overflow:auto;">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span8">分组数：</td><td><input maxlength="2"  type="text" id="txtNowGroupCount" value="1" onblur="if (isNaN($(this).val()) || !parseInt($(this).val()) > 0) {$(this).val(1);} setgroup(parseInt($(this).val()));"/></td>
+        </tr>
+        <tr>
+            <td class="Tit" rowspan="2" valign="middle">选择班组：</td>
+            <td id="setgroupList"></td>
+        </tr>
+    </table>
+</div>
+<div class="tc mt5 mb10"><input class="btn btn-co" type="button" onclick="btnCreateNowGroup();" value="立即分组"/></div>
+<!--生成当前班组组合弹出框的模板-->
+<script id="listNowGroupTemplate" type="text/x-jsrender">
+    <p class="mt5 mb5 pl5" style="background-color:#ddd;">{{:number}}组</p>
+    <table class="tab-Form" style="width:100%;">
+        {{for classlist}}
+        <tr>
+            <td class="Tit span6">{{:className}}：</td>
+            <td>
+                {{for tgList}}
+                    <div style="float:left; width:150px;" class="ovh" title="{{:groupName}}"><input type="checkbox" data-person="{{:perCount}}" data-group="{{:sign}}" class="ml10" onchange="changegroupstatus(this);" value="{{:groupID}}"/>({{:perCount}}人){{:groupName}}</div>
+                {{/for}}
+                <div style="clear:both;"></div>
+            </td>
+        </tr>
+        {{/for}}
+    </table>
+</script>
+<script type="text/javascript">
+    var classGroupObject = {};
+    classGroupObject.classList = null;
+    classGroupObject.number = 1;
+
+    $(document).ready(function () {
+        //获取班级及小组信息
+        $.getJSON('/NewCourseManage/GetClassGroupList?classlist=@(classlist)', function (data) {
+            if (data.result == 1) {
+                classGroupObject.classList = data.dataList;
+                setgroup(parseInt($("#txtNowGroupCount").val()));
+            } else {
+                art.dialog.tips(data.message, 1.5);
+            }
+        });
+    });
+
+    //选择小组屏蔽其他相同组的事件
+    function changegroupstatus(obj) {
+        if($(obj).attr("checked")) {
+            $("input[data-group='" + $(obj).attr('data-group') + "']").attr("disabled", true);
+            $(obj).attr("disabled", false);
+        }else {
+            $("input[data-group='" + $(obj).attr('data-group') + "']").attr("disabled", false);
+        }
+    }
+
+    //重新设置分组数
+    function setgroup(count) {
+        $("#setgroupList").html("");
+        for (var i = 0; i < count; i++) {
+            classGroupObject.number = parseInt($("#setgroupList .tab-Form").length);
+            $("#setgroupList").append($("#listNowGroupTemplate").render({ number: classGroupObject.number+1, classlist: classGroupObject.classList }));
+        }
+    }
+</script>

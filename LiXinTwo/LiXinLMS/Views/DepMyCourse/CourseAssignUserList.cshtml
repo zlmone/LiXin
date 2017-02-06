@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "CourseAssignUserList";
+    Layout = null;
+    //
+    var type = Request.QueryString["type"] ?? "0";
+}
+
+<div id="div_Search" class="so-set">
+<input type="hidden" id="commonSelectedIdStr" value=""/>
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">姓名：</td>
+            <td><input type="text" name="UserName" id="txtUserName"  value="" class="span15" /></td>
+            <td class="Tit span6">部门/分所：</td>
+            <td><input type="text" id="txtdeptName"  value="" class="span15" /></td>
+            <td class="Tit span8">培训级别：</td>
+            <td>
+                <div class="sel">
+                   @{
+                        foreach (var item in @ViewBag.trainGrade)
+                        {
+                        <input type="checkbox"  name="OpenLevel" value="@item" /><label>@item</label>
+                        }      
+                    }
+                </div>
+            </td>
+            <td class="so-do">
+                <input type="button" value="查询" onclick="fnSearch()" class="btn" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="pop_userList">
+<table class="tab-List mt10">
+    <thead>
+        <tr>
+            <th class="span4">
+                <input type="checkbox" id="pop_selectall" value="" />
+            </th>
+            <th class="span6">
+                姓名
+            </th>
+            <th jsrendersortfield="DeptName" sort="desc">
+                部门/分所
+            </th>
+            <th class="span10" jsrendersortfield="TrainGrade" sort="desc">
+                培训级别
+            </th>
+            <th class="span15">
+                联系方式
+            </th>
+            <th class="span16">
+               邮箱
+            </th>
+        </tr>
+    </thead>
+    <tbody id="pop_tbUserList">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+</div>
+<center class="mt10">
+    <input type="button" value="添加" onclick="fnAddAssignUser();" class="btn btn-co" />
+</center>
+<script id="userListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+             <td><input type="checkbox" name="chbAssign" value="{{:UserId}}" id="{{:UserId}}" /></td>
+             <td>{{:Realname}}</td>
+             <td>{{:deptpath}}</td>
+             <td>{{:TrainGrade}}</td>
+             <td>{{:Telephone}}</td>
+             <td>{{:Emailstr}}</td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        fnGetUserList();
+    });
+
+    function fnGetUserList() {
+        $("#pop_tbUserList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "DeptName",
+            jsRenderASC: "desc",
+            templateID: "userListTemplate",
+            funCallback: function () {
+                SetCheckBox('pop_selectall', 'pop_tbUserList');
+                HiddenSelectUser('commonSelectedIdStr');
+            }
+        });
+    }
+
+    function GetPopParameters() {
+        var url = "/DepMyCourse/GetCourseAssignUserList?t=" + new Date();
+        url += "&userName=" + escape($.trim($("#txtUserName").val())) + "&deptname=" + escape($.trim($("#txtdeptName").val())) + "&CourseId=@ViewBag.CourseId" + "&deptCourseID=@ViewBag.deptCourseID";
+        var trainGrade="";
+        $("input[name=OpenLevel]:checked").each(function () {
+            trainGrade+=$(this).val()+",";
+        });
+        if (trainGrade.length > 0) {
+            trainGrade = trainGrade.substring(0, trainGrade.length - 1);
+            url += "&trainGrade=" + trainGrade;
+        }
+        return url;
+
+    }
+    function fnSearch() {
+        fnGetUserList();
+    }
+
+    function HiddenSelectUser(ID) {
+        if ($("#" + ID) != undefined && $("#" + ID) != null) {
+            $("#pop_userList tbody input[type='checkbox']").each(function () {
+                if ((',' + $("#commonSelectedIdStr").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('checked', true);
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+        }
+    }
+
+    
+</script>

@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "其他形式申请导出Word预览";
+    Layout = null;
+}
+<style>
+    table { border-collapse: collapse; border-spacing: 0; }
+    #otherWord td { border: 1px solid; }
+
+    #otherWord { text-align: center; height: 620px; width: 627px; font-family: FangSong_GB2312; font-size: 14px}
+
+    .w18 td { width: 182px; height: 56px; }
+
+    .w30 { width: 288px; height: 130px; }
+
+    #joinInfo td { border: 0 none; }
+</style>
+<div style="text-align: center">
+    <h3>我所内部培训－其他形式培训学时申请表</h3>
+</div>
+<table border=0 cellspacing=0 cellpadding=0 width=634
+ style='width:475.5pt;border-collapse:collapse; id='otherWord'>
+    <tr class='w18'>
+        <td>姓名</td>
+        <td>杜珉周</td>
+        <td>性别</td>
+        <td>男</td>
+        <td>CPA证书号码</td>
+        <td></td>
+    </tr>
+    <tr class='w18'>
+        <td>所在会计师事务所</td>
+        <td colspan="5">立信会计师事务所（特殊普通合伙）</td>
+    </tr>
+    <tr class='w18'>
+        <td>申请确认的学时数</td>
+        <td colspan="5">2014</td>
+    </tr>
+    <tr style='height: 56px'>
+        <td>参加继续教育的形式</td>
+        <td colspan='5'></td>
+    </tr>
+    <tr>
+        <td colspan='4' style='border-bottom: 0 none'>
+            <div style='float: left; padding-right: 10px'>参加其他形式培训情况说明:</div>
+        </td>
+    </tr>
+    <tr style='height: 270px'>
+        <td colspan='4' style='border-top: 0 none; border-bottom: 0 none;vertical-align: top;'>
+        </td>
+    </tr>
+    <tr>
+        <td colspan='4' style='border-top: 0 none'>
+            <div style='float: right; padding-right: 10px'>
+                <div>申请人：杜珉周</div>
+                2014-04-16 13:47
+            </div>
+
+        </td>
+    </tr>
+    <tr>
+        <td colspan='2' class='span29 tl'>所在会计师事务所意见:同意</td>
+        <td colspan='2' class='span29 tl'>地方协会意见:同意</td>
+    </tr>
+    <tr>
+        <td colspan='4' style='border: 0 none;'><div style='color: gray;text-align: left;'>
+            说明：<p>1.本申请表中，经教育培训部确认的学时数可计入当年内部培训年度目标学时。</p>
+            <p>2.“其他形式培训”包括：1、christmas其他项目-THREE-ALL2、christmas其他项目-TWO-所内3、christmas其他项目-ONE-CPA4、公开发表专业论文5、公开出版专业著作、承担课题研究</p>
+            <p>3.申请人提交本申请表时，请一并报送相关证明材料</p>
+        </div>
+        </td>
+    </tr>
+</table>
+<center>
+   <input type="button" onclick="AllAreaWord();" value="导出" class="btn" />
+</center>
+
+
+<script>
+    $(document).ready(function ()
+    {
+        $("#Text1").bind("click", function ()
+        {
+           
+            $("#textdiv").appendTo($("#Text1").html())
+        });
+    });
+    
+</script>

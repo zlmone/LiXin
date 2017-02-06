@@ -1,0 +1,194 @@
+﻿@model LiXinModels.SystemManage.Free_ApplyConfig
+@{
+    ViewBag.Title = "AddFreeItem";
+    Layout = null;
+}
+<form id="form_FreeItem">
+    <table class="tab-Form">
+        <tbody>
+            <tr>
+               <td class="Tit span15">免修项目：</td>
+               <td>
+                    <input id="FreeName" name="FreeName" type="text" class="span20" value="@(ViewBag.id == 0 ? "" : Model.FreeName)" />
+               </td>
+            </tr>
+            <tr>
+                <td class="Tit">上传文件提示：</td>
+                <td>
+                    <input id="UploadTip" name="UploadTip" type="text" class="span20" value="@(ViewBag.id == 0 ? "" : Model.UploadTip)"/></td>
+            </tr>
+            <tr>
+                <td class="Tit">适用的申请：</td>
+                <td>
+                    <input name="chApplyType" type="checkbox" onchange="changetd(this,1)"  value="0"/>所内免修
+                    <input name="chApplyType" type="checkbox" onchange="changetd(this,0)"  value="1"/>CPA免修
+                    <input id="ApplyType" name="ApplyType" type="hidden" />
+                </td>
+            </tr>
+            <tr class="Togethermax">
+                <td class="Tit">所内免修学时：</td>
+                <td>
+                    <input id="TogetherFreeScore" name="TogetherFreeScore" type="text" class="span20" value="@(ViewBag.id == 0 ? 0 : Model.TogetherFreeScore)" /></td>
+            </tr>
+            <tr class="CPAmax">
+                <td class="Tit">CPA免修学时：</td>
+                <td>
+                    <input id="CPAFreeScore" name="CPAFreeScore" type="text" class="span20" value="@(ViewBag.id == 0 ? 0 : Model.CPAFreeScore)" /></td>
+            </tr>
+            <tr>
+                <td class="Tit">情况说明模板：</td>
+                <td>
+                    <textarea id="txtMemo" name="Memo" cols="20" rows="2" class="span20">@(ViewBag.id == 0 ? "" : Model.Memo)</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">情况说明输入提示：</td>
+                <td>
+                    <textarea id="txtMemoTip" name="MemoTip" cols="20" rows="2" class="span20" maxlength="200">@(ViewBag.id == 0 ? "" : Model.MemoTip)</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="button" value="保存" class="btn" onclick="saveItem()" >
+                    <input type="button" value="取消" name="cancel" class="btn" onclick="hideFreeItem()">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <input id="ID" name="ID" type="hidden"  value="@(ViewBag.id)"/>
+</form>
+<script type="text/javascript">
+    var validator=null;
+    $(document).ready(function ()
+    {
+        initSearch();
+        GetOther();
+        if (@ViewBag.id == 0)
+        {
+            $(".CPAmax").hide();
+            $(".Togethermax").hide();
+        }
+
+        jQuery.validator.addMethod("checkNumber", function (value, element)
+        {
+            var reg=/^\d+[\.]?\d{0,2}$/;
+            return $(element).is(":hidden")||(reg.test(value)&& (parseFloat(value) <=999)&& (parseFloat(value)>0));
+        }, $.validator.format("请输入学时，规则：输入保留2位小数，且在0-999范围内（不包括0）"));
+        validator= $("#form_FreeItem").validate(
+           {
+               errorPlacement: function (error, element)
+               {
+                   var eid = element.attr('name');
+                   if (element.is(':radio') || element.is(':checkbox'))
+                   {
+                       $('input[name=' + eid + ']:last').next().after(error);
+                   }
+                   else
+                   {
+                       error.insertAfter(element);
+                   }
+               },
+              // debug: true,
+              // submitHandler: saveItem,
+               event: "blur",
+               rules: {
+                   FreeName: { required: true,maxlength: 200 },
+                   UploadTip: { maxlength: 200 },
+                   chApplyType: { required: true },
+                   TogetherFreeScore:{checkNumber:true},
+                   CPAFreeScore:{checkNumber:true},
+                   Memo: { maxlength: 200 }
+               },
+               messages: {
+                   FreeName: { required: "请输入免修项目",maxlength: "免修项目字符不能超过200个字符！" },
+                   UploadTip: { maxlength: "上传文件提示字符不能超过200个字符！" },
+                   chApplyType: { required: "请选择适用的申请！" },
+                   Memo: { maxlength: "情况说明字符不能超过200个字符！" }
+                  
+               }
+           });
+    });
+
+  
+    function changetd(obj,type)
+    {
+        if(type==0)
+        {
+            if($(obj).attr("checked")=="checked")
+            {
+                $(".CPAmax").show();
+                $("#CPAFreeScore").show();
+               
+            }
+            else
+            {
+                $(".CPAmax").hide();
+                $("#CPAFreeScore").hide();
+            }
+        }
+        else
+        {
+            if($(obj).attr("checked")=="checked")
+            {
+                $(".Togethermax").show();
+                $("#TogetherFreeScore").show();
+                
+            }
+            else
+            {
+                $(".Togethermax").hide();
+                $("#TogetherFreeScore").hide();
+            }
+        }
+       
+    }
+    function GetOther()
+    {
+        if (@ViewBag.id != 0)
+        {
+            if ("@Model.ApplyType" == "2")
+            {
+                $("input[name='chApplyType']").attr("checked", true);
+                $(".CPAmax").show();
+                $(".Togethermax").show();
+            }
+            else
+            {
+                $("input[name='chApplyType'][value='" +@Model.ApplyType + "']").attr("checked", true);
+                if("@Model.ApplyType"=="0")
+                {
+                    
+                    $(".CPAmax").hide();
+                    $(".Togethermax").show();
+                }
+                else
+                {
+                    $(".CPAmax").show();
+                    $(".Togethermax").hide();
+                }
+            }
+        }
+    }
+
+    function saveItem()
+    {
+        //alert(111);
+        if(validator.form())
+        {
+            var obj = $("input[name='chApplyType']:checked");
+            if (obj.length == 2)
+            {
+                $("#ApplyType").val(2);
+            }
+            else
+            {
+                $("#ApplyType").val($(obj).val());
+            }
+       
+            $.post("/ParamConfig/SaveItem?year=@ViewBag.year", $("#form_FreeItem").formSerialize(), function (data)
+            {
+                Getdata();
+            });
+        }
+    }
+</script>

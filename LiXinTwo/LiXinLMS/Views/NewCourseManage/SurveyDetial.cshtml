@@ -1,0 +1,95 @@
+﻿@model LiXinModels.Survey.Survey_Exampaper
+@{
+    Layout = null;
+}
+<div id="divAfterCourse0">
+    <table class="tab-Form">
+        <tr>
+            <td class="span6">问卷标题：</td>
+            <td>
+                <strong>@Model.ExamTitle</strong>
+            </td>
+            <td class="span6">问卷分类：
+            </td>
+            <td>
+                <strong>@Model.ExamTypeShow</strong>
+            </td>
+            <td class="span6">所属分类：
+            </td>
+            <td>
+                <strong>@Model.CategoryName</strong>
+            </td>
+        </tr>
+    </table>
+    <div class="sur-do">
+        @{
+    foreach (var Question in Model.Questions)
+    {
+            <div id="QuestionID@(Question.QuestionID)" class="list">
+                <input type="hidden" class="questionid" name="@(Question.QuestionType)" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                <div class="tit">
+                    <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                </div>
+                @{
+        if (Question.QuestionType == 2)
+        {
+                    <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+        }
+                }
+                @{  switch (Question.QuestionType)
+                    {
+                        //单选题
+                        case 0:
+                            {
+                                int count = 0;
+
+                                foreach (var s in Question.Answers)
+                                {
+                    <p>
+                        <input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                    </p>
+                                    count++;
+                                }
+                            }
+                    <div class="why">
+                        <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                    </div>
+                            break;
+                        //多选题
+                        case 1:
+                            {
+                                int count = 0;
+
+                                foreach (var s in Question.Answers)
+                                {
+                    <p>
+                        <input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                    </p>
+                                    count++;
+                                }
+                            }
+                    <div class="why">
+                        <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                    </div>
+                            break;
+                        //主观题
+                        case 2:
+                    <p>
+                        <textarea disabled="disabled" style="width: 338px; height: 104px;">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                    </p> 
+                            break;
+                        case 3:
+                    <input type="hidden" class="xp" />
+                    <div id='divScore_@(Question.QuestionOrder)' class="ml35 ">
+                    </div>
+                    <div class="why mt5">
+                        <span>理由：</span><input name="xingPReplay" type="text" disabled="disabled" />
+                    </div>
+                            break;
+                    }
+                }
+            </div>
+    }   
+        }
+    </div>
+</div>

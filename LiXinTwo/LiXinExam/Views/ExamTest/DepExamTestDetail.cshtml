@@ -1,0 +1,218 @@
+﻿@using LiXinModels.Examination.DBModel
+@{
+    Layout = null;
+    var questionList = ViewBag.QuestionList as List<tbQuestion>;
+    var examUser = ViewBag.ExanUser as tbExamSendStudent;
+}
+<script src="@Url.Content("~/Scripts/ckplayer5.8/ckplayer.js")" type="text/javascript"> </script>
+<div class="main-c">
+    <div class="TitClass_line">
+        @{
+            if (ViewBag.ExamScoreStatus == 1)
+            {
+            <span>得分: <strong class="c_blue f16">@(ViewBag.PercentFlag == 0 ? (examUser.StudentAnswerList.Sum(p => p.GetScore) * 100 / examUser.StudentAnswerList.Sum(p => p.Score)) : (examUser.StudentAnswerList.Sum(p => p.GetScore)))</strong>
+                分</span>
+            }
+        }
+        <h2>@(ViewBag.ExamName)</h2>
+    </div>
+    <div class="qView">
+        <span class="ml10">答错：@(examUser.StudentAnswerList.Count(p => p.GetScore == 0 && p.Answer != ""))</span>
+        <span class="ml10">未答：@(examUser.StudentAnswerList.Count(p => p.Answer == ""))</span>
+        <span class="ml10">正确：@(examUser.StudentAnswerList.Count(p => p.GetScore > 0))</span>
+    </div>
+    <div class="exam-list mt10">
+        @{
+            foreach (ReStudentExamAnswer q in examUser.StudentAnswerList.OrderBy(p => p.Order))
+            {
+                string rightAnswer = "";
+                tbQuestion qu = questionList.FirstOrDefault(p => p._id == q.Qid);
+            <div class="QSingle">
+                <div class="title">
+                    <div class="info">
+                        <span>@(q.Order)</span> . [ <span class="fen">@(q.Score)</span>分 ]
+                    </div>
+                    <h5>
+                        @(Html.Raw(qu.QuestionContent))
+                        @{
+                if (qu.QuestionType == 6)
+                {
+                    string name = qu.FileUpload[0].FileName;
+                    switch (qu.FileUpload[0].FileType)
+                    {
+                        case 0:
+                            {
+                            <center class="mt10">
+                                <div id="imageCollection">
+                                    <a id="k-prev" class="pl" onclick=" turnToNext(this, 'left'); "></a>
+                                    <input type="hidden" value="1" />
+                                    @{
+                                for (int i = 0; i < qu.FileUpload.Count; i++)
+                                {
+                                        <img src="../../ClientBin/UploadFile/@(qu.FileUpload[i].FileName)" style="@(i == 0 ? " display:block; " : " display:none; ")" />
+                                }
+                                    }
+                                    <a id="k-next" class="pr" onclick=" turnToNext(this, 'right'); "></a>
+                                </div>
+                            </center>
+                            }
+                            break;
+                        case 1:
+                            <div class="mt10">
+                                <embed type="application/x-mplayer2" src="../../ClientBin/UploadFile/@name" name="mediaplayer" width="500" height="250" showcontrols="1" showstatusbar="0" showdisplay="0" autostart="0"></embed>
+                            </div>
+                                                                                                break;
+                        case 2:
+                                                                                                {
+                                                                                                    var id = name.Substring(0, name.Length - 4);   
+                            <input name="FlvName" value="@name" type="hidden" />
+                            <div class="mt10">
+                                <div id='@id'>
+                                </div>
+                            </div> 
+                                                                                                }
+                                                                                                break;
+                    }
+                }
+                        }
+                    </h5>
+                </div>
+                <div class="content">
+                    @{
+                if (qu.QuestionType == 1)
+                {
+                    rightAnswer = qu.QuestionAnswer[0].Answer;
+                        <!-- 问答题 -->
+                        <div class="ans">
+                            <div class="ans-stu">
+                                <span class="tit"><i></i>学员答案</span>
+                                <p>@(q.Answer)</p>
+                            </div>
+                        </div>
+                }
+                else if (qu.QuestionType == 2 || qu.QuestionType == 3)
+                {
+                        <!-- 单选题 -->
+                    foreach (QuestionAnswer an in qu.QuestionAnswer.OrderBy(p => p.Order))
+                    {
+                        rightAnswer += an.AnswerFlag == 1 ? (rightAnswer == "" ? ((char)(an.Order + 64)).ToString() : ("、" + ((char)(an.Order + 64)))) : "";
+                        <div>
+                            <input disabled="disabled" type="@(qu.QuestionType == 2 ? "radio" : "checkbox")" @(("," + q.Answer + ",").IndexOf("," + an.Order + ",") >= 0 ? "checked=checked" : "") name="answer_@(qu._id)" />@((char)(an.Order + 64)).
+                            @(an.Answer)</div>
+                    }
+                }
+                else if (qu.QuestionType == 4)
+                {
+                    rightAnswer = qu.QuestionAnswer[0].Answer == "0" ? "A、正确" : "B、错误";
+                        <!-- 判断题 -->
+                        <div class="jud">
+                            <span>
+                                <input disabled="disabled" type="radio" name="answer_@(qu._id)" @(q.Answer == "0" ? "checked=checked" : "") /><label>A.
+                                    正确</label></span> <span>
+                                        <input disabled="disabled" type="radio" name="answer_@(qu._id)" @(q.Answer == "1" ? "checked=checked" : "") /><label>B.
+                                            错误</label></span>
+                        </div>
+                }
+                else if (qu.QuestionType == 5)
+                {
+                    rightAnswer = qu.QuestionAnswer[0].Answer.Replace("!!%%!!", " ");
+                        <!-- 填空题 -->
+                        <div class="ans">
+                            <div class="ans-stu">
+                                <span class="tit"><i></i>学员答案</span>
+                                <p>@(q.Answer.Replace("##**##", " "))</p>
+                            </div>
+                        </div>
+                }
+                else if (qu.QuestionType == 6)
+                {
+                    int type = qu.QuestionAnswer[0].AnswerType;
+                    if (type == 0)
+                    {
+                        rightAnswer = qu.QuestionAnswer[0].Answer;
+                        <!-- 问答题 -->
+                        <div class="ans">
+                            <div class="ans-stu">
+                                <span class="tit"><i></i>学员答案</span>
+                                <p>@(q.Answer)</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- 单选题 -->
+                        foreach (QuestionAnswer an in qu.QuestionAnswer.OrderBy(p => p.Order))
+                        {
+                            rightAnswer += an.AnswerFlag == 1 ? (rightAnswer == "" ? ((char)(an.Order + 64)).ToString() : ("、" + ((char)(an.Order + 64)))) : "";
+                        <div>
+                            <input disabled="disabled" type="@(type == 1 ? "radio" : "checkbox")" @(("," + q.Answer + ",").IndexOf("," + an.Order + ",") >= 0 ? "checked=checked" : "") name="answer_@(qu._id)" />@((char)(an.Order + 64))、
+                            @(an.Answer)</div>
+                        }
+                    }
+                }
+                    }
+                    <div class="ans">
+                        <div class="ans-ok">
+                            <span class="tit"><i></i>正确答案</span>
+                            <p>@(rightAnswer)</p>
+                        </div>
+                    </div>
+                    @{
+                if (qu.QuestionAnalysis == "")
+                {
+                }
+                else
+                {
+                        <div class="ans">
+                            <div class="ans-res">
+                                <span class="tit"><i></i>试题解析</span>
+                                <p>@(qu.QuestionAnalysis)</p>
+                            </div>
+                        </div>
+                }
+                    }
+                </div>
+            </div>
+            }
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("input[name='FlvName']").each(function ()
+        {
+            ckplay($(this).val());
+        });
+        //ckplay();
+    });
+
+    function ckplay(name)
+    {
+
+        var url = '@Url.Content("~/ClientBin/UploadFile/")' + name;
+        var id = name.substring(0, name.length - 4);
+        var s1 = new swfupload();
+        s1.ckplayer_url = '@Url.Content("~/Scripts/ckplayer5.8/ckplayer.swf")'; //播放器文件名
+        s1.ckplayer_flv = url; //视频地址,这里也可以填写一个网址或xml地址或flash文件,具体的设置请到网站了解
+        s1.ckplayer_pat = '1'; //传递的参数,这里的具体参数设置方式到网站了解
+        s1.ckplayer_style = 0; //传递的方式,0是普通方式，1是网址传送，2是xml传送，3是flash传送
+        s1.ckplayer_default = 0; //读取文本配置，此参数具有非常强大的功能，（比如外站引用视频只需一个参数即可）说来话长，请到网站了解详情
+        s1.ckplayer_xml = ''; //风格配置xml文件，如果为空的话将使用js文件配置
+        s1.ckplayer_loadimg = ''; //初始图片地址
+        s1.ckplayer_pauseflash = ''; //暂停时播放的广告，只支持flash和图片
+        s1.ckplayer_pauseurl = ''; //暂停时播放图片时需要加一个链接
+        s1.ckplayer_loadadv = ''; //视频开始前播放的广告，可以是flash,也可是视频格式
+        s1.ckplayer_loadurl = ''; //视频开始前广告的链接地址，主要针对视频广告，如果是flash可以不填写
+        s1.ckplayer_loadtime = 0; //视频开始前广告播放的秒数,只针对flash或图片有效
+        s1.ckplayer_endstatus = 2; //视频结束后的动作，0停止播放并发送js,1是不发送js且重新循环播放,2停止播放
+        s1.ckplayer_volume = 40; //视频默认音量0-100之间
+        s1.ckplayer_play = 0; //视频默认播放还是暂停，0是暂停，1是播放
+        s1.ckplayer_width = 300; //播放器宽度
+        s1.ckplayer_height = 150; //播放器高度
+        s1.ckplayer_bgcolor = '#000000'; //播放器背景颜色
+        s1.ckplayer_allowFullScreen = true; //是否支持全屏，true支持，false不支持，默认支持
+        s1.swfwrite(id); //div的id
+
+    }
+</script>

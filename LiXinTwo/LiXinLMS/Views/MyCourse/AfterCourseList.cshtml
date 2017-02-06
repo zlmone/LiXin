@@ -1,0 +1,249 @@
+﻿@using LiXinModels.CourseManage
+@using LiXinModels.Survey
+@{
+    Layout = null;
+    var qaaList = ViewBag.qaaList as List<Survey_QuestionAndAnswer>;
+}
+<div>
+    <input type="hidden" id="txt_CourseId" value="@ViewBag.Id"/><!--存放课程id-->
+    @if (qaaList != null)
+    {
+        <input type="hidden" id="txt_SurveyPaperId" value="@ViewBag.SurveyPaperId"/>
+    }
+    else
+    {
+        <input type="hidden" id="txt_SurveyPaperId" value="0" />
+    }
+</div>
+<div class="ul_menu">
+    @if (qaaList != null)
+    {
+        foreach (Survey_QuestionAndAnswer mm in qaaList)
+        {
+        <ul class="ul-list" type="@mm.sq.ExampaperID" questionid="@mm.sq.QuestionID">
+            <h5>
+                <span>@mm.sq.QuestionOrder . </span>@mm.sq.QuestionContent</h5>
+            @if (mm.sqalist.Count != 0 || ((mm.sq.QuestionType == 1) && (mm.sq.QuestionType == 0)))
+            {
+                foreach (Survey_QuestionAnswer nn in mm.sqalist)
+                {
+                <li type="@mm.sq.QuestionType">
+                    @if (mm.sq.QuestionType == 0)
+                    {
+                        @nn.ShowOrder
+                        <input type="radio"  name="rad_@(mm.sq.QuestionID)" value="@nn.AnswerId" onclick=" QuXiao(this) " />
+                        @nn.AnswerContent
+                    }
+                    else if (mm.sq.QuestionType == 1)
+                    {
+                        @nn.ShowOrder 
+                        <input type="checkbox" value="@nn.AnswerId" onclick=" QuXiao(this) "/>
+                        @nn.AnswerContent
+                    }
+                </li>
+                }
+            }
+            else
+            {
+                <li type="@mm.sq.QuestionType">
+                    <input type="text" class="all60" /></li>
+            }
+        </ul>
+        }
+        <center class="mt10">
+            <input type="button" value="保存" id="btn_Save" class="btn btn-co" />
+            <input type="button" value="提交" id="btn_Add" class="btn btn-co" />
+            <input type="button" value="返回" id="btn_Can" class="btn btn-cancel" onclick="javascript:history.go(-1)" />
+        </center>
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        fOnload();
+
+        $("#btn_Add").click(function () {
+            var str = "";
+            var count = $(".ul-list").size();
+            var strcount = 0;
+            var lengthtrue = false;
+            $(".ul-list").each(function (d, i) {
+                //ul-type:所属试卷ID  ul-questionid:问题ID  ul-li-type:提干类型0:单选题;1:多选题;2:主观题
+                str += $(i).attr("type") + "." + $(i).attr("questionid") + ".";
+                var t = $(this).children("li").attr("type");
+                if (t == 0) {
+                    str += t + ".";
+                    if ($(this).children("li").children("input[type='radio']:checked").val() != undefined) {
+                        str += $(this).children("li").children("input[type='radio']:checked").val();
+                    }
+                    str += ";";
+                }
+                else if (t == 1) {
+                    //alert("11111");
+                    var tt = "";
+                    str += t + ".";
+                    $(this).children("li").children("input[type='checkbox']:checked").each(function (d, i) {
+                        tt += $(i).val() + ",";
+                    });
+                    str += tt.substring(0, tt.lastIndexOf(','));
+                    str += ";";
+                } else {
+                    str += t + ".";
+                    if ($(this).children("li").children("input[type='text']").val() != "") {
+                        if ($(this).children("li").children("input[type='text']").val().length < 240)
+                            str += encodeURIComponent($(this).children("li").children("input[type='text']").val()) + ""; //1为提交,0为保存
+                        else {
+                            alert("输入的字符过多,请删除些");
+                            lengthtrue = true;
+                            return;
+                        }
+                    } else {
+                        alert("请完成所有选项");
+                        lengthtrue = true;
+                        return;
+                    }
+                    str += ";";
+                }
+            });
+
+            if (lengthtrue) {
+                return;
+            }
+
+            str = str.substring(0, str.lastIndexOf(';'));
+            strcount = Fnumber(str);
+            if (strcount < count) {
+                alert("请完成所有选项");
+            } else {
+                $.post("/MyCourse/FInsertSurvey_ReplyAnswer?tt=" + str + "&type=1&courseId=" + $("#txt_CourseId").val(), function (data) {
+                    if (data.result == 0) {
+                        alert(data.content);
+                        $("#btn_Add").attr("disabled", "disabled");
+                        $("#btn_Save").attr("disabled", "disabled");
+                    } else {
+                        alert(data.content);
+                    }
+                });
+            }
+            //少判断
+        });
+
+        $("#btn_Save").click(function () {
+            var str = "";
+            var tt = "";
+            var count = $(".ul-list").size();
+            var strcount = 0;
+            var lengthtrue = false;
+            $(".ul-list").each(function (d, i) {
+                //1.1.1.1--问题ID.提干类型ID. .选择项值
+                str += $(i).attr("type") + "." + $(i).attr("questionid") + ".";
+                var t = $(this).children("li").attr("type");
+                //alert(t);
+                if (t == 0) {
+                    //str += $(i).attr("type") + "." + $(i).attr("questionid") + ".";
+                    str += t + ".";
+                    if ($(this).children("li").children("input[type='radio']:checked").val() != undefined) {
+                        str += $(this).children("li").children("input[type='radio']:checked").val();
+                    }
+                    str += ";";
+                }
+                else if (t == 1) {
+                    //str += $(i).attr("type") + "." + $(i).attr("questionid") + ".";
+                    var tt = "";
+                    str += t + ".";
+                    $(this).children("li").children("input[type='checkbox']:checked").each(function (a, b) {
+                        tt += $(b).val() + ",";
+                    });
+                    str += tt.substring(0, tt.lastIndexOf(','));
+                    str += ";";
+                } else {
+                    str += t + ".";
+                    if ($(this).children("li").children("input[type='text']").val() != "") {
+                        if ($(this).children("li").children("input[type='text']").val().length < 240)
+                            str += encodeURIComponent($(this).children("li").children("input[type='text']").val()) + ""; //1为提交,0为保存
+                        else {
+                            alert("输入的字符过多,请删除些");
+                            lengthtrue = true;
+                            return;
+                        }
+                    } else {
+                        alert("请完成所有选项");
+                        lengthtrue = true;
+                        return;
+                    }
+                    str += ";";
+                }
+            });
+
+            if (lengthtrue) {
+                return;
+            }
+            str = str.substring(0, str.lastIndexOf(';'));
+            strcount = Fnumber(str);
+
+            if (strcount < count) {
+                alert("请完成所有选项");
+            } else {
+                $.post("/MyCourse/FInsertSurvey_ReplyAnswer?tt=" + str + "&type=0&courseId=" + $("#txt_CourseId").val(), function (data) {
+                    alert(data.content);
+                });
+            }
+        });
+    });
+
+    //取消radio选中
+    function QuXiao(obj) {
+        var nm = $(obj).attr("name");
+        $(":radio[name=" + nm + "]:not(:checked)").attr("tabindex", 0);
+        if ($(obj).attr("tabindex") == 1) {
+            $(obj).attr("checked", false);
+            $(obj).attr("tabindex", 0);
+        } else {
+            $(obj).attr("tabindex", 1);
+        }
+    }
+
+    function Fnumber(str) {
+        var strcount = 0;
+        for (var a = 0; a < str.split(';').length; a++) {
+            if (str.split(';')[a].split('.')[3] != "") {
+                strcount++;
+            }
+        }
+
+        return strcount;
+    }
+
+    function fOnload() {
+        var CourseId = $("#txt_CourseId").val();
+        var SurveyPaperId = $("#txt_SurveyPaperId").val();
+
+        $.post("/MyCourse/FBindSurvey_ReplyAnswer?CourseId=" + CourseId + "&SurveyPaperId=" + SurveyPaperId, function (data) {
+            //alert(data.content);
+            //1--1|2--1,2|3--1,2,3ch
+            if (data.result == 1) {
+                var arr = data.content.split('|');
+                if (data.status == 1) {
+                    $(":input[type='radio']").attr("disabled", "true");
+                    $(":input[type='text']").attr("disabled", "true");
+
+                    $("#btn_Add").attr("disabled", "true");
+                    $("#btn_Save").attr("disabled", "true");
+                }
+                for (var a = 0; a < arr.length; a++) {
+                    if ($(".ul-list:eq(" + a + ")").children("li").attr("type") == "0") {
+                        $(".ul-list:eq(" + a + ")").children("li").children("input[type='radio'][value='" + arr[a].split('-')[2] + "']").attr("checked", true);
+                    }
+                    else if ($(".ul-list:eq(" + a + ")").children("li").attr("type") == "1") {
+                        //循环值
+                        for (var b = 0; b < arr[a].split('-')[2].split(',').length; b++) {
+                            $(".ul-list:eq(" + a + ")").children("li").children("input[type='checkbox'][value='" + arr[a].split('-')[2].split(',')[b] + "']").attr("checked", true);
+                        }
+                    } else {
+                        $(".ul-list:eq(" + a + ")").children("li").children("input[type='text']").val(arr[a].split('-')[1]);
+                    }
+                }
+            }
+        });
+    }
+</script>

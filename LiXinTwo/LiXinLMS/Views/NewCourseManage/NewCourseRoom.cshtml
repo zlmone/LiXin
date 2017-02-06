@@ -1,0 +1,71 @@
+﻿@using LiXinModels.PlanManage
+@{
+    Layout = null;
+    string cousreId = Request.QueryString["id"] == null ? "0" : Request.QueryString["id"];
+    string type = Request.QueryString["type"] == null ? "0" : Request.QueryString["type"];
+}
+<h2 class="tit-h2">
+    <span class="tit-con">@(type=="0"?"集中授课信息":"分组带教信息")</span>
+</h2>
+<div id="course_Infor">
+    <table class="tab-Form tab-now" id="mycourseList" style="width:100%;"></table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (@type==0){
+            InitgettoList(getParamUrl());
+        }else{
+            InitgetvoList(getParamUrl());
+        }
+    });
+
+    //显示集中授课信息列表
+    function InitgettoList(url) {
+        $.getJSON(url, function (data) {
+            var courList = data.roomSeatList;
+            $("#mycourseList").html("");
+            if (courList.length > 0) {
+                for (var i = 0; i < courList.length; i++) {
+                    var strhtml = "";
+                    strhtml += '<tr><td colspan="2"><div class="tl ovh" title="' + courList[i].Roomname + '"><a style="font-weight:bold; cursor:pointer;" onclick="lookUser(' + courList[i].id + '); ">教室：' + courList[i].Roomname + '    共计：' + courList[i].userCount + '人</a></div></td></tr>';
+                    var roomList = courList[i].tempdate;
+                    for (var j = 0; j < roomList.length; j++) {
+                        strhtml += '<tr><td><div class="Tit span10">讲师：' + roomList[j].teachername + '</td>';
+                        strhtml += '<td>上课时间：' + roomList[j].starttime + '—' + roomList[j].endtime + '</td></tr>';
+                    }
+                    $("#mycourseList").append(strhtml);
+                }
+            }
+        });
+    }
+    //显示分组带教信息列表
+    function InitgetvoList(url) {
+        $.getJSON(url, function (data) {
+            var courList = data.roomSeatList;
+            $("#mycourseList").html("");
+            if (courList.length > 0) {
+                for (var i = 0; i < courList.length; i++) {
+                    var strhtml = "";
+                    var A_Z = String.fromCharCode(65 + i);
+                    strhtml += '<tr><td colspan="2"><div class="tl ovh" title="' + courList[i].Roomname + '"><a style="font-weight:bold; cursor:pointer;" onclick="lookUser(' + courList[i].id + '); ">' + A_Z + '组    共计：' + courList[i].userCount + '人</a></div></td></tr>';
+                    strhtml += '<tr><td colspan="2"><div class="tl ovh span12" title="' + courList[i].Roomname + '">教室：' + courList[i].Roomname + '</div></td></tr>';
+                    var roomList = courList[i].tempdate;
+                    for (var j = 0; j < roomList.length; j++) {
+                        strhtml += '<tr><td><div class="Tit span10">讲师：' + roomList[j].teachername + '</div></td>';
+                        strhtml += '<td>上课时间：' + roomList[j].starttime + '—' + roomList[j].endtime + '</td></tr>';
+                    }
+                    $("#mycourseList").append(strhtml);
+                }
+            }
+        });
+    }
+    function getParamUrl() {
+        return "/NewCourseManage/GetCoRoomRuleList?courseID=@cousreId&type=@type&t=" + new Date();
+    }
+
+    //查看座位
+    function lookUser(id) {
+        art.dialog.load("/NewCourseManage/ShowUserSeatDetail?id=" + id + "&t="+new Date(), { title: '查看座位安排', id: "showuserSeat" }, false);
+    }
+</script>
+

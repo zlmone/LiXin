@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "我的班组";
+    var model = (LixinModels.NewClassManage.New_GroupUser)ViewBag.model;
+    var flag = model == null ? 0 : 1;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "我的班组" }))
+    @{
+        if (model != null)
+        {
+            <table class="tab-Form">
+                <tbody>
+                    <tr>
+                        <td class="Tit span4">姓名：</td>
+                        <td><strong>@ViewBag.realName</strong></td>
+                        <td class="Tit span8 ">班级：</td>
+                        <td><strong>@(model.ClassName)</strong></td>
+                        <td class="Tit span8 ">组：</td>
+                        <td><strong>@(model.GroupName)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="Search" class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span3">姓名：
+                        </td>
+                        <td>
+                            <input type="text" class="span16 Box searchclass" id="realName" value="请输入搜索内容" info="" />
+                        </td>
+                        <td rowspan="2" class="so-do">
+                            <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- 列表 -->
+            <div class="mt10">
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+
+                            <th class="span4">序号
+                            </th>
+                            <th class="span8">登录名
+                            </th>
+                            <th class="span8">学号
+                            </th>
+                            <th class="span5">姓名
+                            </th>
+                            <th class="span8">培训级别
+                            </th>
+                            <th class="span8">毕业院校
+                            </th>
+                            <th class="span8">所学专业
+                            </th>
+                            <th class="span8">实习部门
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="userList">
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="mt10 lh30 tc" style="font-size:16px; color:#555; margin-top:100px;">您还有被分配到任何班、组，请联系相关负责人进行班组分配。</div>
+        }
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if(@(flag)==1) {
+            //初始化搜索条件
+            initSearch();
+
+            //加载列表
+            InitData();
+        }
+    });
+
+    //初始化列表
+    function InitData()
+    {
+        $("#userList").JsRenderData({
+            sourceUrl: "GetClassUserList?classID=@(model==null?0:model.ClassId)&realName=" + escape(getSearchWord('realName')),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "UserId",
+            jsRenderASC: "desc",
+            templateID: "userListTemplate"
+        });
+    }
+
+</script>
+<script id="userListTemplate" type="text/x-jsrender">
+     {{for #data}}
+        <tr>
+           
+            <td>{{:#index+1}}</td>
+            <td>{{:Username}}</td>
+            <td>{{:NumberID}}</td>
+            <td class="span8 tl">
+              {{if Sex==0}}
+                  <span style="color:blue">♂</span>
+              {{else}}
+                  <span style="color:red">♀</span>      
+              {{/if}}
+              {{:Realname}}
+            </td> 
+            <td>{{:TrainGrade}}/{{:OldTrainGrade}}</td>
+            <td>{{:GraduateSchoolStr}}</td>
+            <td>{{:MajorStr}}</td>
+             <td>
+               <div class="tl ovh span10" title="{{:InternDeptStr}}">{{:InternDeptStr}}</div>
+            </td>
+        </tr>
+    {{/for}}
+</script>

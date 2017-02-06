@@ -1,0 +1,124 @@
+﻿@{
+    Layout = null;
+    var timemodel = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+<form method="POST" id="data">
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">过时课程学时折算分布</span>
+    </h2>
+    <table class="tab-Form mt20">
+        <input type="hidden" value="50" id="configType" /><!--区分ID-->
+        <tr>
+            <td class="Tit span20">
+                考勤：
+            </td>
+            <td>
+                <input type="text"id="attendce" maxlength="3" name="attendce"/>%
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span20">
+                在线测试：
+            </td>
+            <td>
+                <input type="text"id="onlineTest"  maxlength="3" name="onlineTest"/>%
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span20">
+                课后评估：
+            </td>
+            <td>
+                <input type="text"id="afterclass"  maxlength="3" name="afterclass"/>%
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="button" value="确定" id="btn_Add" name="btn_Add" class="btn"/>
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var flag = "@timemodel.ConfigValue";
+        var num = flag.split(';');
+        $("#attendce").val(num[0]);
+        $("#onlineTest").val(num[1]);
+        $("#afterclass").val(num[2]);
+    });
+
+    //jQuery.validator.addMethod("IsNum_1", function (value, element) {
+    //    var length = value.length;
+    //    var number = /^[1-9]*[1-9][0-9]*$/;
+    //    return this.optional(element) || number.test(value);
+    //}, "请输入不大于99的正整数！");
+    
+    $("#data").validate({
+        debug: true,
+        submitHandler: submitform,
+        event: "blur",
+        rules: {
+            attendce: {
+                required: true,
+                max:100,
+                min:0
+                //IsNum_1: true
+            },
+            onlineTest: {
+                required: true,
+                max:100,
+                min:0
+                //IsNum_1: true
+            },
+            afterclass: {
+                required: true,
+                max:100,
+                min:0
+                //IsNum_1: true
+            }
+        },
+        messages: {
+            attendce: {
+                required: "请输入考勤百分比！",
+                max: "请输入不大于100的正整数！",
+                min: "考勤百分比最小为0！"
+            },
+            onlineTest: {
+                required:"请输入在线测试百分比！",
+                max: "请输入不大于100的正整数！",
+                min: "在线测试百分比最小为0！"
+            },
+            afterclass: {
+                required: "请输入课后评估百分比！",
+                max: "请输入不大于100的正整数！",
+                min: "课后评估百分比最小为0！"
+            }
+        }
+    });
+
+    function submitform(form) {
+        var total;
+        var updateData;
+        total = parseInt($("#attendce").val()) + parseInt($("#onlineTest").val()) + parseInt($("#afterclass").val());
+        if (total == 100) {
+            updateData = $("#attendce").val() + ";" + $("#onlineTest").val() + ";" + $("#afterclass").val();
+            $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + updateData, function(data) {
+                if (data.result == 1) {
+                    art.dialog.tips("配置成功");
+                } else {
+                    art.dialog.tips("配置失败");
+                }
+            });
+        } else {
+            art.dialog.tips("考勤百分比加在线测试百分比加课后评估百分比为100%！", 3);
+        }
+    }
+
+    $("#btn_Add").click("click", function () {
+        $("#data").submit();
+    });        
+
+</script>
+

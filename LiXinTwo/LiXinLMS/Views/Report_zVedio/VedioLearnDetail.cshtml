@@ -1,0 +1,91 @@
+﻿@{
+    ViewBag.Title = "视频课程学习详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var tabIndex = Request.QueryString["tabIndex"] ?? "0";
+}
+<script src="../../Scripts/report/highcharts.js" type="text/javascript"></script>
+<script src="../../Scripts/report/column.js" type="text/javascript"></script>
+<script src="../../Scripts/report/pie.js" type="text/javascript"></script>
+<script src="../../Scripts/report/line.js" type="text/javascript"></script>
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "视频课程学习详情"
+}))
+
+    @(Html.Action("CourseBaseInfo", "Report_zVedio", new { courseID = @ViewBag.courseID }))
+    <div class="tab-bk mt10">
+        <ul id="pop_tag">
+            <li class="On" id="pop_tag0">参与情况</li>
+            <li id="pop_tag1">在线测试详情</li>
+            <li id="pop_tag2">学习人员明细</li>
+        </ul>
+    </div>
+    <div id="details_div">
+    </div>
+    <div class="mt10 tc">
+        <input type="button" id="btnback" class="btn btn-cancel" value="返回">
+    </div>
+    <input id="hidType" type="hidden" value="0" />
+</div>
+<script>
+    $(document).ready(function ()
+    {
+        //show(0);
+        
+        show(@(ViewBag.type))
+        $("#pop_tag li").click(function ()
+        {
+            $("#pop_tag li").removeClass("On");
+            $(this).addClass("On");
+
+            var index = $(this).index();
+            show(index);
+        });
+
+        $("#btnback").bind("click", function ()
+        {
+            window.location.href = "VedioLearnList?tabIndex=@tabIndex&cp=1";
+        });
+
+        if ($("#hidTest").val() == "0")
+        {
+            $("#pop_tag1").hide();
+        }
+        else
+        {
+            $("#pop_tag1").show();
+        }
+    });
+
+    function show(type)
+    {
+     //   $("#pop_tag li").eq(type).addClass("On").siblings("li").removeClass("On");
+        switch (type)
+        {
+            case 0:
+                $("#details_div").load("CourseJoinDetails?courseID=@ViewBag.courseID");
+                break;
+            case 1:
+                $("#details_div").load("/Report_zVedio/Report_zOnLineTest?courseid=@ViewBag.courseID");
+                break;
+            case 2:
+                $("#details_div").load("/Report_zVedio/Report_zOnLineTestDetail?courseid=@ViewBag.courseID");
+                break;
+        }
+    }
+
+    function fabu(funCallback)
+    {
+        zhezaowait();
+        $.get("RefreshfVedioJoinNumber", function ()
+        {
+            closewait();
+            art.dialog.tips("更新成功", 3);
+          
+                funCallback();
+            
+
+        });
+    }
+</script>

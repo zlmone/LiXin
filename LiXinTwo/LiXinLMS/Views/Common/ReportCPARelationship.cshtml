@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "CPA关系所在地";
+    Layout = null;
+}
+<div>
+    <table class="tab-Form" id="pop_tbCPARelationship">
+        <tr>
+            <td class="span15">
+                <input type="button" value="全选" class="btn btn-cancel " onclick="pop_selectall(0)" />
+                <input type="button" value="反选" class="btn btn-cancel" onclick="pop_selectall(1)" />
+            </td>
+            <td class="span8">关系所在地:</td>
+            <td class="span20">
+                <input type="text" id="txtCPARelationship" value="请输入搜索内容" info="" class="Box searchclass span15" /></td>
+            <td class="so-do  span15">
+                <input class="btn" type="button" value="搜索" id="pop_CPARelationship" />
+                <input type="button" id="pop_btnSure" class="btn  btn-co" value="确定" onclick="GetCPARelationshipList()" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <div class="sel" style="height: 250px; overflow-y: scroll;" id="pop_CPARelationshipList">
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<script>
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch("pop_tbCPARelationship");
+        BindRelationship();
+        $("#pop_CPARelationship").bind("click", function ()
+        {
+            BindRelationship();
+        });
+    });
+
+    function BindRelationship()
+    {
+        $.get("/Common/GetCPARelationship?name=" + escape($.trim(getSearchWord("txtCPARelationship"))), function (data)
+        {
+            var htmls = "";
+            for (var i = 0; i < data.dataList.length; i++)
+            {
+                var value = data.dataList[i] 
+                //value=(value == "" ? "无" : value)
+                if ($("#CPARelationship").val().length > 0)
+                {
+                    var checked = "";
+                    if ($.inArray("'"+value+"'", $("#CPARelationship").val().split(',')) >= 0)
+                    {
+                        checked = "checked='checked'";
+                    }
+
+                    var htmls = htmls + "<span class='span15 mt10'><input type='checkbox' " + checked + " name='sys_CPARelationship' value='" + value + "'>";
+                    var htmls = htmls + "<label title=" + value + " style='display: inline-block;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;width: 120px;'>" + value + "</label></span>";
+                }
+                else
+                {
+                    var htmls = htmls + "<span class='span15 mt10'><input type='checkbox' checked='checked' name='sys_CPARelationship' value='" + value + "'>";
+                    var htmls = htmls + "<label title=" + value + " style='display: inline-block;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;width: 120px;'>" + value + "</label></span>";
+                }
+            }
+            if (data.dataList.length == 0)
+            {
+                var html = "<span>暂无数据</span>"
+            }
+            $("#pop_CPARelationshipList").html(htmls);
+        });
+    }
+    //0 全选 1反选
+    function pop_selectall(type)
+    {
+    
+        $("#pop_CPARelationshipList input[type='checkbox']").each(function ()
+        {
+            var valueID = $(this).attr("id");
+            if (type == 0)
+            {
+                $(this).attr("checked", true);
+
+            }
+            else
+            {
+                if ($(this).attr("checked") == "checked")
+                {
+                    $(this).attr("checked", false);
+
+                }
+                else
+                {
+                    $(this).attr("checked", true);
+
+                }
+            }
+        });
+    }
+</script>
+
+

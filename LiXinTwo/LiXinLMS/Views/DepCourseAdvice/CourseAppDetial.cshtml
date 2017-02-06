@@ -1,0 +1,112 @@
+﻿@{
+    ViewBag.Title = "课程评估详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var cid = Request.QueryString["id"] == null ? "0" : Request.QueryString["id"];
+    var type = Request.QueryString["type"] ?? "0";
+    var backURL = Request.QueryString["backURL"] ?? "";
+    var year = Request.QueryString["year"] ?? DateTime.Now.Year.ToString();
+    var teacher = Request.QueryString["teacher"] ?? "0";
+}
+
+<div class="main-c">
+    @if (ViewBag.show == 0)
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "DepCourseEvlutionDetail" }))
+    }
+    else
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "EvlutionDetail" }))
+    }
+    <!-- 列表 -->
+    <div id="Content" class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th class="span11">学员名称</th>
+                    <th class="span12">所在部门</th>
+                    <th class="span8">课程平均分</th>
+                    <th class="span11">讲师</th>
+                    <th class="span8">讲师平均分</th>
+                    <th class="span10">操作</th>
+                </tr>
+            </thead>
+            <tbody id="CourseAvgList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+        <div class="mt10 tc">
+            <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+        </div>
+    </div>
+</div>
+<script id="CourseAvgListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+             <td><div class="ovh tl" title="{{:Realname}}">{{:Realname}}</div></td>
+             <td>{{:DeptName}}</td>
+             <td>{{:CoAvg==-1?"——":CoAvg}}</td>
+             <td><div class="ovh tl" title="{{:TeacherName}}">{{:TeacherName==""?"——":TeacherName}}</div></td>
+             <td>{{:TeacherName==""?"——":TeAvg}}</td>
+            <td>
+                
+                <a onclick="AppraiseDetial({{:CourseId}},{{:UserId}})" class="icon iview" title="查看详情"></a>
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        fnGetCourseList();
+
+        //返回
+        $("#btnback").bind("click", function ()
+        {
+            if ("@type" == "0")
+            {
+                window.location.href = "/DepCourseAdvice/CourseIndex?p=1&t=" + new Date();
+            }
+            else
+            {
+                window.location.href = "/Report_DepCourse/CourseSurveyTeacher?teacher=@teacher&year=@year";
+            }
+        });
+    });
+
+    function fnGetCourseList()
+    {
+        $("#CourseAvgList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseAvgListTemplate",
+            funCallback: function ()
+            {
+            }
+        });
+    }
+
+
+    function GetPopParameters()
+    {
+        var url = "/DepCourseAdvice/GetCourseAvg?CourseID=@(cid)&t=" + new Date();
+        return url;
+
+    }
+
+    function AppraiseDetial(id, userid)
+    {
+        if(@ViewBag.show==0)
+        {
+            window.location.href = "/DepCourseAdvice/AfterCourse?courseid=" + id + "&userid=" + userid + "&backurl=" + encodeURIComponent(window.location.href); // + "&t=" + new Date();
+        }
+        else
+        {
+            window.location.href = "/DepCourseAdvice/FAfterCourse?courseid=" + id + "&userid=" + userid + "&backurl=" + encodeURIComponent(window.location.href); // + "&t=" + new Date();
+        }
+    }
+</script>

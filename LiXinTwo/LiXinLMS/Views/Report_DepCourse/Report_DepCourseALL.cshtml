@@ -1,0 +1,97 @@
+﻿@{
+    ViewBag.Title = "部门/分所自学课程汇总统计";
+    var cp = Request.QueryString["cp"] ?? "0";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "部门/分所自学课程汇总统计"
+}))
+</div>
+<div class="tab-bk  mt10">
+    <ul id="tag">
+        <li class="On" id="tag0">各部门/分所自学完成情况汇总表</li>
+        <li id="tag1">部门/分所自学员工学习情况明细表</li>
+        <li id="tag2">部门/分所自学涉及师资情况</li>
+    </ul>
+    <input id="hiddeptids" type="hidden" value="" />
+
+</div>
+<div id="details_div">
+</div>
+
+<script>
+    $(document).ready(function ()
+    {
+        show(@(ViewBag.type));
+        $("#tag li").click(function ()
+        {
+            $("#tag li").removeClass("On");
+            $(this).addClass("On");
+
+            var index = $(this).index();
+            show(index);
+        });
+
+    });
+    function show(type,cp)
+    {
+        $("#tag li").removeClass("On");
+        $("#tag" + type).addClass("On");
+        //$("#pop_tag li").eq(type).addClass("On").siblings("li").removeClass("On");
+        Init();
+        switch (type)
+        {
+            case 0:
+                if(cp==undefined)
+                {
+                    $("#details_div").load("/Report_DepCourse/Report_Complete?cp=@cp");
+                }
+                else
+                {
+                    $("#details_div").load("/Report_DepCourse/Report_Complete?cp="+cp);
+                }
+                break;
+            case 1:
+                $("#details_div").load("/Report_DepCourse/Report_CompleteDetail?cp=@cp&deptid="+@(ViewBag.deptid));
+                break;
+            case 2:
+                $("#details_div").load("/Report_DepCourse/Report_Teachers?cp=@cp");
+                break;
+
+            default:
+                // $("#details_div").load("");
+                break
+        } 
+    }
+
+    function Init()
+    {
+        $("#hiddeptids").val("");
+        $("#hidismian").val(0);
+    }
+
+    //function fabu(funCallback)
+    //{
+    //    zhezaowait();
+    //    $.get("RefreshGetAllCourseScore", function ()
+    //    {
+    //        closewait();
+    //        art.dialog.tips("更新成功", 3);
+
+    //        funCallback();
+
+    //    });
+    //}
+
+    //跳转到完成情况明细表
+    function ToCompletionDetails(deptids)
+    {
+        
+        $("#tag li").removeClass("On");
+        $("#tag1").addClass("On");
+        zhezaowait(); //等待提示
+        $("#details_div").load("/Report_DepCourse/Report_CompleteDetail?deptid="+deptids+"&year="+$("#sel_year").val()+"&show=1");
+    }
+</script>
+

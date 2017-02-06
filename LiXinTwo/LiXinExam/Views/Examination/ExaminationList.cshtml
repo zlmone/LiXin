@@ -1,0 +1,220 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "考试管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="contentInfor" class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new {linkName = "ExaminationList"}))
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">考试名称：</td>
+                <td class="span21"><input type="text" class="span20" name="examinationTitle" value="请输入搜索内容" info="" id="txt_examTitle" /></td>
+                <td class="Tit span8">考试开始时间：</td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" name="examBeginTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_examEndTime\')}' }) "
+                               id="txt_examBeginTime" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="time-choose">
+                        <input type="text" name="examEndTime" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_examBeginTime\')}' }) "
+                               value="" id="txt_examEndTime" />
+                        <i></i>
+                    </div>
+                    @*<span class="Icon_16 iTime Inp_iTime" onclick="WdatePicker({el:'txt_examBeginTime',dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'txt_examEndTime\')}'});"></span>*@
+                    @*<span class="Icon_16 iTime Inp_iTime" onclick="WdatePicker({el:'txt_examEndTime',dateFmt: 'yyyy-MM-dd HH:mm:ss', minDate: '#F{$dp.$D(\'txt_examBeginTime\')}'});"></span>*@
+                </td>
+                <td class="so-do">
+                    <input type="button" class="btn" name="搜索" value="搜索" onclick=" searchExamList() " />
+                    <a name="" id="btnAdd" onclick=" AddExamination(); " class="btn btn-co">新建考试</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="sel_examStatus" onchange=" selectExamStatus() ">
+            <option value="-1">考试状态</option>
+            <option value="3">未发布</option>
+            <option value="0">未开始</option>
+            <option value="1">进行中</option>
+            <option value="2">已结束</option>
+        </select>
+    </div>
+        @*<a class="search_hold">收起搜索</a>*@
+        <ul class="clb" style="display:none;">
+            <li class="fl">
+                <input type="hidden" value="1" id="orderbyFlag" />
+                <span class="Seq" onclick=" orderFlag(0) " style=" color:#0072e7">
+                    创建时间 <span id="OrderDown_0" title="创建时间从晚到早排序">↓</span>
+                     <span id="OrderUp_0" title="创建时间从早到晚排序" style="display: none;">↑</span>
+                </span>
+                <span onclick=" orderFlag(1) " class="Seq" style=" color:#0072e7">
+                    考试开始时间 <span id="OrderDown_1" title="考试开始时间从晚到早排序">↓</span>
+                     <span id="OrderUp_1" title="考试开始时间从早到晚排序" style="display: none;">↑</span>
+                </span>
+                <span onclick=" orderFlag(2) " class="Seq" style=" color:#0072e7">
+                    考试次数 <span id="OrderDown_2" title="考试次数从多到少排序">↓</span>
+                     <span id="OrderUp_2" title="考试次数从少到多排序"  style="display: none;">↑</span>
+                </span>
+                <input type="hidden" value="0" id="orderflagName" />
+            </li>
+            @*<li class="fr ShowType"><a id="view_list" class="listOn mRight_1" onclick="changeView('list');">
+            <span></span>列表</a> <a id="view_pic" class="pic" onclick="changeView('pic');"><span></span>大图</a> </li>*@
+        </ul>
+    <div id="Content">
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th>
+                        考试名称
+                    </th>
+                    <th class="span12">起止时间</th>
+                    <th class="span10">状态</th>
+                    <th class="span14">操作</th>
+                </tr>
+            </thead>
+            <tbody id="examList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+        @*<a href="#" class="Remark_hold" title="查看备注">备注</a>
+        <div class="dis" id="MemoTip">
+            <div class="tiptitle">
+                温馨提示</div>
+            <div class="tipcontent">
+                温馨提示</div>
+        </div>*@
+    </div>
+</div>
+<div class="clear">
+</div>
+<script id="examListTemplate" type="text/x-jsRender">
+ {{for #data}}
+    <tr>
+        <td>
+            <div class="tl">
+            <p><strong title="{{:ExaminationTitle}}">{{:ExaminationTitle.length>20?(ExaminationTitle.substring(0,20)+"…"):ExaminationTitle}}</strong></p>
+            <p class="Info">时长: {{:ExamLength}}<i>|</i>进入次数: {{:TestTimes}}<i>|</i>总分: {{:examTotalScore}}<i>|</i>及格线: {{:intPassScore}}</p>
+            </div>
+        </td>
+        <td><div class="f11 tl">{{:ExamBeginTime}} -<br/>{{:ExamEndTime}}</div></td>
+        <td>{{:ExamStaus}}</td>
+        <td>
+            <a title="考试授权" {{:AuthExamHtml}} class="icon iexam-aut"></a>
+            <a title="编辑" {{:ModifyExamHtml}} class="icon iedit"></a>
+            <a title="查看详情" {{:DetailExamHtml}} class="icon iview"></a>
+            <a title="发布" {{:PublishExamHtml}} class="icon ipub"></a>
+            <a title="删除" {{:DeleteExamHtml}} class="icon idel"></a>
+        </td>
+    </tr>
+    
+    {{/for}}
+</script>
+<script type="text/javascript">
+      function changeView(str) {
+          ChangeList({ str: str, fun: function() { InitExamList(); } });
+      }
+
+      $(document).ready(function() {
+          InitExamList();
+      });
+
+
+      function AddExamination() {
+          window.location.href = "/Examination/EditExamination";
+      }
+
+      function selectExamStatus() {
+          searchExamList();
+      }
+
+      function searchExamList() {
+          InitExamList();
+      }
+
+      function orderFlag(flagName) {
+          $("#orderflagName").val(flagName);
+          if ($("#OrderDown_" + flagName).is(":hidden")) {
+              $("#orderbyFlag").val(1);
+              $("#OrderDown_" + flagName).show();
+              $("#OrderUp_" + flagName).hide();
+          } else {
+              $("#OrderUp_" + flagName).show();
+              $("#OrderDown_" + flagName).hide();
+              $("#orderbyFlag").val(0);
+          }
+          searchExamList();
+      }
+
+      function getUrlParms() {
+          return "/Examination/GetExaminationList?examBeginTimeStart=" + $("#txt_examBeginTime").val() + "&examBeginTimeEnd=" + $("#txt_examEndTime").val() +
+              "&examinationTitle=" + escape($.trim(getSearchWord($("#txt_examTitle").val()))) + "&startFlag=" + $("#sel_examStatus").val() + "&orderbyFlag=" + $("#orderbyFlag").val() + "&orderbyName=" + $("#orderflagName").val();
+      }
+
+      function InitExamList() {
+
+          var templateId = '';
+          //          if ($(".listOn").length > 0) {
+          //              $("#examList").addClass("Wordlist").removeClass("Piclist");
+          //              templateId = 'examListTemplate';
+          //          } else {
+          //              $("#examList").addClass("Piclist").removeClass("Wordlist");
+          //              templateId = 'examBlockTemplate';
+          //          }
+          $("#examList").JsRenderData({
+              sourceUrl: getUrlParms(),
+              isPage: true,
+              pageSize: 10,
+              pageIndex: 1,
+              templateID: 'examListTemplate',
+              //              templateID: templateId,
+              funCallback: function() {
+              }
+          });
+      }
+
+      function AuthExam(id) {
+          window.location.href = '/Examination/AuthorizedExamManage?examinationId=' + id;
+      }
+
+      function DetailExam(id) {
+          window.location.href = '/Examination/ExaminationDetail/' + id;
+      }
+
+      function ModifyExam(id) {
+          window.location.href = '/Examination/EditExamination/' + id;
+      }
+
+      function DeleteExam(id) {
+          art.dialog({
+              title: "@CommonLanguage.Common_Tip",
+              content: '是否确定删除该考试？',
+              width: 200,
+              okValue: '@CommonLanguage.Common_Sure',
+              cancelValue: '@CommonLanguage.Common_Cancel',
+              height: 50,
+              fixed: true,
+              lock: true,
+              ok: function() {
+                  $.post("/Examination/DeleteExam/" + id, function(data) {
+                      art.dialog.tips(data.content, 3);   
+                      //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                      searchExamList();
+                  });
+              },
+              cancel: function() {
+              }
+          });
+      }
+
+      function PublishExam(id) {
+          $.post("/Examination/SubmitPublishExam/" + id, function(data) {
+              //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+              art.dialog.tips(data.content, 3);
+              InitExamList();
+          });
+      }
+  </script>

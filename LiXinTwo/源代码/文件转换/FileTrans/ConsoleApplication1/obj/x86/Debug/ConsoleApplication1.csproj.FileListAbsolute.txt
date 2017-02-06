@@ -1,0 +1,15 @@
+F:\FileTrans\ConsoleApplication1\bin\Debug\ConsoleApplication1.exe
+F:\FileTrans\ConsoleApplication1\bin\Debug\ConsoleApplication1.pdb
+F:\FileTrans\ConsoleApplication1\obj\x86\Debug\ResolveAssemblyReference.cache
+F:\FileTrans\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.exe
+F:\FileTrans\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.pdb
+E:\我的项目\FileTrans\ConsoleApplication1\bin\Debug\ConsoleApplication1.exe
+E:\我的项目\FileTrans\ConsoleApplication1\bin\Debug\ConsoleApplication1.pdb
+E:\我的项目\FileTrans\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.csprojResolveAssemblyReference.cache
+E:\我的项目\FileTrans\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.exe
+E:\我的项目\FileTrans\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.pdb
+E:\我的项目\branch20130701\源代码\文件转换\FileTrans\ConsoleApplication1\bin\Debug\ConsoleApplication1.exe
+E:\我的项目\branch20130701\源代码\文件转换\FileTrans\ConsoleApplication1\bin\Debug\ConsoleApplication1.pdb
+E:\我的项目\branch20130701\源代码\文件转换\FileTrans\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.csprojResolveAssemblyReference.cache
+E:\我的项目\branch20130701\源代码\文件转换\FileTrans\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.exe
+E:\我的项目\branch20130701\源代码\文件转换\FileTrans\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.pdb

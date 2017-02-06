@@ -1,0 +1,45 @@
+﻿@{
+    //ViewBag.Title = "DepTran_AttendceApprovalRecord";
+    Layout = null;
+}
+
+<div id="Content" class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th class="span11">考勤上传者</th>
+                <th class="span10">考勤时间</th>
+                <th class="span8">审批者</th>
+                <th class="span10">审批时间</th>
+                <th class="span10">审批结果</th>
+                <th class="span18">审批原因</th>
+            </tr>
+        </thead>
+        <tbody id="tbCourseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+    
+
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //InitList();
+    });
+
+    function InitList() {
+        var v = 'courseName=' + escape(getSearchWord("txtCourseName")) + '&ismust=' + $("#ismust").val() + '&isopen=' + $("#isopen").val() + '&appFlag=' + flag + '&startTime=' + $("#txt_StartTime").val() + '&endTime=' + $("#txt_EndTime").val() + '&kind=' + $("#isapproval").val();
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: '/DepTranAttendce/GetDepTranAttendceApprovalList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "courseListTemplate"
+        });
+    }
+</script>
+

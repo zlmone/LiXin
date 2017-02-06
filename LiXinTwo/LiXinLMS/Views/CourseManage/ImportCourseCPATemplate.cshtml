@@ -1,0 +1,74 @@
+﻿@{
+    Layout = null;
+}
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+    .uploadify
+    {
+        margin: 0 auto;
+    }
+</style>
+
+<div class="centerbody">
+    <div class="ma span25">
+        <table class="tab-Form">
+            <tr>
+                <td style="height:120px;">
+                    <input type="file" name="ImportCourseCPATemplate" id="txtImportCourseCPATemplate" value="" />
+                </td>
+            </tr>
+            <tr>
+                <td class="tc">
+                    <input type="button" name="btnSubUpload" onclick="fnImportSureCPACourse()" value="确定" class="btn" />
+
+    </td>
+            </tr>
+        </table>
+</div>
+</div>
+
+
+<script type="text/javascript">
+    function fnInitUploadifyCPAScore() {
+        $('#txtImportCourseCPATemplate').uploadify({
+            'formData': { 'folder': '@System.Configuration.ConfigurationManager.AppSettings["UFCOResource"]' },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '../../Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/CourseManage/SubmitImport?courseId=@ViewBag.CourseId',
+            'auto': false,
+            'multi': false,
+            'onCancel': function (file) { },
+            'onSelect': function (file) {
+            },
+            'onUploadStart': function (file) {
+            },
+            'onUploadSuccess': function (file, data, response) {
+                if (data == "1") {
+                    art.dialog.tips("导入成功！", 3);
+
+                    art.dialog.list['pop_ImportCourseCPATemplate'].close();
+                    fnGetCourseList();
+                } else {
+
+                    art.dialog.tips("导入失败，模板中的数据格式存在错误，请更正后导入", 3);
+                    $('#txtImportCourseCPATemplate').uploadify('cancel', '*');
+                }
+            },
+            'fileTypeExts': "*.xls; *.xlsx"
+        });
+
+    }
+
+    function fnImportSureCPACourse() {
+        var scromLength = $("#txtImportCourseCPATemplate-queue").find(".uploadify-queue-item").length;
+        if (scromLength > 0) {
+            $('#txtImportCourseCPATemplate').uploadify('upload', '*');
+        } else {
+            art.dialog.tips("请选择文件！", 3);
+        }
+    }
+
+</script>

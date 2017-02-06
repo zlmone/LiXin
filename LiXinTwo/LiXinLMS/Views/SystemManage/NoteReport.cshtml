@@ -1,0 +1,79 @@
+﻿@{
+    ViewBag.Title = "公告统计";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "公告统计" }))
+
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">公告标题：</td>
+                <td class="span11">
+                    <input type="text" class="span16 Box searchclass" id="txtNoteTitle" value="请输入搜索内容" info="" /></td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick="Getdata();" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th class="span14">公告标题</th>
+                    <th class="span8" jsrendersortfield="PublishTime" sort="desc">发布日期</th>
+                    <th class="span8" jsrendersortfield="LookCount" sort="desc">阅读人次</th>
+                    <th class="span8" jsrendersortfield="DownCount" sort="desc">下载人次</th>
+                    <th class="span8">操作</th>
+                </tr>
+            </thead>
+            <tbody id="noteList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="noteListTemplate" type="text/x-jsrender">
+   {{for #data}}
+      <tr>
+           <td>{{:#index+1}}</td>
+           <td style="text-align:left;">{{:NoteTitle}}</td>
+           <td>{{:publishtimeStr}}</td>
+           <td>{{:LookCount}}</td>
+           <td>{{:DownCount}}</td>
+           <td><a class="icon iview" onclick="view({{:NoteId}})" title="查看详情"></a></td>
+       </tr>
+   {{/for}}
+</script>
+<script>
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        Getdata();
+    });
+
+    function Getdata()
+    {
+        $("#noteList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "noteListTemplate",
+            jsRenderSortField: " PublishTime",
+            jsRenderASC: "desc"
+        });
+    }
+
+    function view(id)
+    {
+        window.location.href = "NoteReportDetails?NoteID=" + id;
+    }
+    function getParamUrl()
+    {
+       return "/SystemManage/GetNoteReport?NoteTitle=" + escape($.trim(getSearchWord("txtNoteTitle")));
+    }
+</script>

@@ -1,0 +1,494 @@
+﻿@using LiXinModels.PlanManage
+@{
+    Layout = null;
+    ViewBag.Title = "MyCourse";
+    var trGrade = Request.QueryString["TrGrade"] ?? "0";
+    var strYear = ViewData["StrYear"] as List<int>;
+    var allsum = ViewData["allsum"] as string;
+    int DepOrBranch = Convert.ToInt32(ViewBag.DepOrBranch);
+   
+}
+<h2 class="tit-h2">
+    <i></i>
+    <span class="tit-con">我的年度培训目标</span>
+</h2>
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6" id="spanName">课程名称：</td>
+            <td>
+                <input type="text" class="span30 searchclass" id="tbTitle" value="请输入搜索课程" info="请输入搜索课程" />
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="ibtnSearch" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <select id="selyear" onchange="showleft(this);">
+        @{ 
+            for (var i = 0; i < strYear.Count; i++)
+            {
+                if ((strYear[i]) == ViewBag.nowyear)
+                {
+            <option selected="selected" value="@(strYear[i])">@(strYear[i])</option>
+                }
+                else
+                {
+            <option value="@(strYear[i])">@(strYear[i])</option>
+                }
+            }
+        }
+    </select>
+
+    <select id="Way" name="Way" onchange="change();yearChange();">
+        <option value="1">集中授课</option>
+        <option value="2">视频课程</option>
+        @{if (ViewBag.IsCpa == "是")
+          {
+            <option value="3">CPA折算</option>
+          }}
+        @if (ViewBag.DepOrBranch)
+        {
+            <option value="5">部门自学</option>
+        }
+        else
+        {
+            <option value="4">视频转播</option>
+            <option value="5">分所自学</option>
+        }
+        <option value="6">其他形式</option>
+        <option value="7">免修</option>
+        <option value="8">其他有组织形式</option>
+    </select>
+    <select id="typeFormother" style="display: none" onchange="searchFreeData(this);">
+        <option value="-1">选择申请类型</option>
+        <option value="0">自主申请</option>
+        <option value="1">管理员导入</option>
+        <option value="2">评估自动折算</option>
+        <option value="3">授课自动折算</option>
+    </select>
+     <select id="Freeother" style="display: none" onchange="searchFreeData(this);">
+        <option value="-1">选择申请类型</option>
+        <option value="0">自主申请</option>
+        <option value="1">管理员导入</option>
+        <option value="4">免修自动折算</option>
+    </select>
+    <div id="targetinfor" class="list-do lh30">
+        <label>年度所内培训目标学时：</label><span id="allsum">@(allsum)</span>
+        <label class="ml20">已获得学时：</label><span id="passsum">0</span>
+        <label class="ml20">（有效学时：</label><span id="cosum">0</span>）
+        <label class="ml20">有效完成率：</label><span id="lengthRate">0</span>
+    </div>
+    <div id="Freediv" class="list-do lh30 mr20">
+        <label>年度所内培训目标学时：</label><span>@(allsum)</span>
+        <label class="ml20">已获得学时：</label><span id="getsum">0</span>
+    </div>
+</div>
+<div class="mt10" id="onetable">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th class="span6">课程学时</th>
+                <th class="span8">课程类型</th>
+                <th id="ismust">选/必修</th>
+                <th id="addre">地点</th>
+                <th class="span12">课程时间</th>
+                <th id="examscore" class="span6">获得成绩</th>
+                <th class="span6">获得学时</th>
+            </tr>
+        </thead>
+        <tbody id="mycourseList">
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+
+<div class="mt10" id="twotable" style="display: none;">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th class="span6">课程学时</th>
+                <th class="span6">课程类型</th>
+                <th class="span6">选/必修</th>
+                <th class="span12">地点</th>
+                <th class="span14">课程时间</th>
+                <th class="span7">获得成绩</th>
+                <th class="span7">获得学时</th>
+            </tr>
+        </thead>
+        <tbody id="courseList">
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+
+<!--其他形式、免修-->
+<div class="mt10" id="freetable" style="display: none">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th class="span16">申请内容</th>
+                <th class="span8" jsrendersortfield="typeForm" sort="asc" >申请类型</th>
+                <th class="span12" jsrendersortfield="ApplyTime" sort="asc">申请时间</th>
+                <th class="span6" jsrendersortfield="GettScore" sort="asc">获得学时</th>
+            </tr>
+        </thead>
+        <tbody id="FreeList">
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+<input id="typeForm" type="hidden" />
+<script id="mycourseTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="tl span16 ovh" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>{{:CourseLength}}</td> 
+            {{if Way!=3}}
+               <td>{{:WayStr}}</td>
+               <td>{{:IsMustStr}}</td>
+            {{else}}
+               <td>CPA折算</td>
+            {{/if}}
+            {{if Way==1}}
+            <td><div class="tl span16 ovh" title="{{:RoomName}}">{{:RoomName==""?"——":RoomName}}</div></td>
+            {{/if}}
+            <td><div class="f11">{{:CourseTime}}</div></td>
+            {{if Way!=3}}
+            <td>{{:GetexamScore}}/{{:ExamScore}}</td>
+            {{/if}}
+            <td>{{:GetScore}}</td>
+        </tr>  
+    {{/for}}
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td style="text-align:left;"><div class="ovh span16" title="{{:CourseNameStr}}">{{:CourseNameStr}}</div></td>
+            <td>{{:CourseLength}}</td>
+            <td>
+            {{if CourseType==1}}
+                视频转播
+            {{else}}
+                部门自学
+            {{/if}}
+            </td>
+            <td>{{:IsMustStr}}</td>
+            <td><div class="ovh span8" title="{{:RoomName}}">{{:RoomName}}</div></td>  
+            <td class="f11" style="text-align:left;">{{:CourseTime}} </td>
+            <td>{{:GetexamScore}}/{{:ExamScore}}</td>
+            <td>{{:GetSumScore}}</td>
+        </tr> 
+        {{/for}}
+</script>
+
+<script id="FreeListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="tl span45 ovh">{{:ApplyContent}}</div></td>
+            <td>{{:typeFormStr}}</td>
+            <td>{{:ApplyTimeStr}}</td>
+            <td>{{:GettScore}}</td>
+        </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //查询条件输入框初始化
+        initSearch();
+
+        if(@DepOrBranch==0)
+        {
+           // $("#depselyear option[value='@ViewBag.year']").attr("selected",true);
+            $("#Way option[value='4']").attr("selected","true");
+            //$("#depselyear").show();
+          
+            $("#twotable").show();
+            $("#onetable").hide();
+            $("#targetinfor").hide();
+         
+        }
+        $("#p_usercommon").load("UserInfoComm?nowyear=" + $("#selyear").val(),function(){
+            yearChange();   
+        });
+        $("#cosum").html($("#hidCoSum").val());
+     
+        if ($("#selyear option").length > 0)
+        {
+            if(@DepOrBranch==0&&$("#Way").val() == '4')
+            {
+                tranCourseData();
+            }
+            else
+            {
+                InitgetList(getParamUrl());
+            }
+        }   
+        else
+            $("#mycourseList").html('<tr><td colspan="7">暂无数据</td></tr>');
+        //查询
+        $("#ibtnSearch").bind("click", function () {
+            var way=parseInt($("#Way").val());
+            if (way < 4) {
+                InitgetList(getParamUrl());
+            }
+            else if (way==4||way==5) 
+            {
+                if ($("#Way").val() == '4') {
+                    tranCourseData();
+                } else {
+                    depCourseData();
+                }
+            }
+            else
+            {
+                freeInitData();
+            }
+
+        });
+    });
+
+    //显示年度培训课程列表
+    function InitgetList(url) {
+        var templateId = 'mycourseTemplate';
+        $("#mycourseList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function (data) {
+                if (data.dataList.length != 0) {
+                    $("#passsum").html(data.dataList[0].passsum);
+                    $("#lengthRate").html(data.dataList[0].lengthRate);
+                } else {
+                    $("#passsum").html("0");
+                    $("#lengthRate").html("0%");
+                }
+            }
+        });
+    }
+
+    function getParamUrl() {
+        //var year = @(DateTime.Now.Year);
+        
+        //if (parseInt($("#Way").val()) < 4) {
+           year = $("#selyear").val();
+        //}else {
+        //    year = $("#depselyear").val();
+        //}
+      
+        return "/UserManage/GetMyCourse?year=" + year + "&name=" + escape($.trim(getSearchWord("tbTitle"))) + "&allsum=@(allsum)&way=" + $("#Way").val() + "&coLength=" + $("#cosum").html() + "&t=" + new Date();
+    }
+
+    //左边的跟着变
+    function showleft(obj)
+    {
+        $("#p_usercommon").load("UserInfoComm?nowyear=" + $(obj).val(),function(){
+            yearChange();   
+        });
+        
+    }
+    function yearChange() {     
+        var way=parseInt($("#Way").val());
+        if ( way< 4) {
+
+            $("#spanName").html("课程名称：");
+            $("#Freediv").hide();
+            $("#youxiao").show();
+            $("#cosum").html($("#hidCoSum").val());
+           // $("#selyear").show();
+            //$("#depselyear").hide();
+            $("#onetable").show();
+            $("#twotable").hide();
+            $("#targetinfor").show();
+            $("#freetable").hide();
+            $("#typeFormother").hide();
+            $("#Freeother").hide();
+            //视频课程
+            if (way==2) {
+                $("#ismust").show();
+                $("#addre").hide();
+                $("#examscore").show();
+                $("#cosum").html($("#hidVoSum").val());
+            } 
+                //CPA折算
+            else if (way==3) {
+                $("#ismust").hide();
+                $("#addre").hide();
+                $("#examscore").hide();
+                $("#cosum").html($("#hidCPASum").val());
+            }
+                //集中授课
+            else {
+                $("#ismust").show();
+                $("#addre").show();
+                $("#examscore").show();
+                $("#cosum").html($("#hidCoSum").val());
+            }
+            InitgetList(getParamUrl());
+        }
+        else if (way==4||way==5){
+            $("#spanName").html("课程名称：");
+            $("#Freediv").hide();
+            $("#youxiao").show();
+            $("#cosum").html($("#hidDSum").val());
+            //$("#depselyear").show();
+           // $("#selyear").hide();
+            $("#twotable").show();
+            $("#onetable").hide();
+            $("#freetable").hide();
+            $("#typeFormother").hide();
+            $("#Freeother").hide();
+            switch(way)
+            {
+                case 4: //视频转播
+                    $("#targetinfor").hide();
+                    tranCourseData();
+                    break;
+                case 5://分所自学 or 部门自学
+                    $("#targetinfor").show();
+                    depCourseData();
+                    break;
+            }
+           
+        }
+        else//其他形式、免修
+        {
+            $("#spanName").html("申请内容：");
+            $("#Freediv").show();
+            $("#targetinfor").hide();
+            $("#youxiao").hide();
+            $("#twotable").hide();
+            $("#onetable").hide();
+            $("#freetable").show();
+
+            switch(way)
+            {
+                case 6://其他形式
+                    $("#typeForm").val(6);
+                    $("#typeFormother").show();
+                    $("#Freeother").hide();
+                    $("#Freeother option[value=-1]").attr("selected",true);
+                    $("#typeFormother option[value=-1]").attr("selected",true);
+                    freeInitData();
+                    break;
+                case 7://免修
+                    $("#typeFormother").hide();
+                    $("#Freeother").show();
+                    $("#typeForm").val(7);
+                    $("#Freeother option[value=-1]").attr("selected",true);
+                    $("#typeFormother option[value=-1]").attr("selected",true);
+                    freeInitData();
+                    break;
+                case 8://其他有组织形式
+                    $("#typeFormother").hide();
+                    $("#Freeother").hide();
+                    $("#typeForm").val(8);
+                    freeInitData();
+                    break;
+            }
+        }
+    }
+
+    function change()
+    {
+        @*var way=parseInt($("#Way").val());
+        if ( way==4||way==5)
+        {
+            $("#depselyear option[value='@ViewBag.year']").attr("selected",true);
+       }*@
+    }
+
+//我的视频转播学分
+function tranCourseData() {
+    var param = "courseName=" + escape(getSearchWord("tbTitle")) + "&year=" + $("#selyear").val() + "&flag=percenter";
+    $("#courseList").JsRenderData({
+        sourceUrl: "/DepTranMyCourse/GetCourseShowList?" + param,
+        isPage: true,
+        pageSize: 10,
+        pageIndex: 1,
+        templateID: "CourseListTemplate",
+        funCallback: function () {}
+    });
+}
+
+//我的部门分所课程学分
+function depCourseData() {
+    var param = "courseName=" + escape(getSearchWord("tbTitle")) + "&year=" + $("#selyear").val() + "&flag=percenter"+ "&coLength=" + $("#cosum").html()+"&allsum=@(allsum)";
+    $("#courseList").JsRenderData({
+        sourceUrl: "/DeptCourseCourseLearn/GetCourseShowList?" + param,
+        isPage: true,
+        pageSize: 10,
+        pageIndex: 1,
+        templateID: "CourseListTemplate",
+        funCallback:  function (data) {
+            if (data.dataList.length != 0) {
+                $("#passsum").html(data.sum);
+                $("#lengthRate").html(data.lengthRate);
+            } else {
+                $("#passsum").html("0");
+                $("#lengthRate").html("0%");
+            }
+        }
+    });
+}
+//其他形式、免修
+function freeInitData(typeForm)
+{
+    var type=parseInt($("#typeForm").val());
+    typeForm=typeForm==undefined?-1:typeForm;
+    var Url="";
+    var param="type=0&typeForm="+typeForm+"&name="+escape(getSearchWord("tbTitle"))+"&year="+$("#selyear").val();
+    switch(type)
+    {
+        case 6://其他形式
+            Url="/MyApply/GetUserFreeOtherList?"+param;
+            break;
+        case 7://免修
+            Url="/MyApply/GetUserFreeList?"+param;
+            break;
+        case 8://其他有组织形式
+            Url="/MyApply/GetUserFreeOrgList?"+param;
+            break;
+    }
+    $("#FreeList").JsRenderData({
+        sourceUrl: Url,
+        isPage: true,
+        pageSize: 10,
+        pageIndex: 1,
+        templateID: "FreeListTemplate",
+        jsRenderSortField: " typeForm,ApplyID,ApplyTime",
+        jsRenderASC: "asc",
+        funCallback:  function (data) 
+        {
+            if (data.dataList.length != 0) 
+            {
+                $("#getsum").html(data.sum);
+            } 
+            else 
+            {
+                $("#getsum").html("0");
+            }
+        }
+    });
+        
+}
+
+function searchFreeData(obj)
+{
+    var typeForm=$(obj).val();
+    freeInitData(typeForm);
+}
+</script>
+

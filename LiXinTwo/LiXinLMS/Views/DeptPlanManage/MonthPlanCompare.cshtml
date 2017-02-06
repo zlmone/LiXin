@@ -1,0 +1,188 @@
+﻿@{
+    ViewBag.Title = "差异对比";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="../../Scripts/report/highcharts.js" type="text/javascript"></script>
+<script src="../../Scripts/report/column.js" type="text/javascript"></script>
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new{linkName = "MonthPlanCompare"}))
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">年度：
+            </td>
+            <td class="span6">
+                <strong>@(ViewBag.monthPlan.Year)</strong>
+            </td>
+            <td class="Tit span6">月份：
+            </td>
+            <td class="span6">
+                <strong>@(ViewBag.monthPlan.Month)</strong>
+            </td>
+            <td class="Tit span14">年度预计课程数：
+            </td>
+            <td class="span6">
+                <strong>@(ViewBag.monthPlan.yearCourseCount)</strong>
+            </td>
+            <td class="Tit span8">实际课程数：
+            </td>
+            <td>
+                <strong>@(ViewBag.monthPlan.monthCourseCount)</strong>
+            </td>
+        </tr>
+    </table>
+
+    <center id="showchar" class="mt10 span60 h30">
+    </center>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th>课程名称
+                </th>
+                <th class="span16">预计开课时间
+                </th>
+                <th class="span12">开放级别
+                </th>
+                <th class="span8">学时</th>
+                <th class="span8">地点</th>
+                <th class="span7">讲师姓名
+                </th>
+                <th class="span8">必修/选修
+                </th>
+                <th class="span4">框架内/外
+                </th>
+            </tr>
+        </thead>
+        <tbody id="monthCourseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <div class="mt10 tc">
+        <input type="button" class="btn btn-cancel" value="返回" onclick="back()" />
+    </div>
+</div>
+<script id="monthCourseTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>
+                {{if DeleteOrNew==1}}
+                    {{:OpenTime}}
+                {{else}}
+                    {{:PreCourseTimeStr}}
+                {{/if}}    
+            </td>
+            <td>{{:OpenLevel}}</td>
+            <td>{{:CourseLength}}</td>
+            <td>
+                <div class="ovh span8 tl" title=" {{:RoomNamestr}}"> {{:RoomNamestr}}</div>
+            </td>
+            <td>
+               <div class="ovh span8 tl" title="{{:Realname}}">{{:Realname}}</div>
+            </td>
+            <td>{{:IsMustStr}} </td>
+            <td>{{:IsSystemStr}} </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        Getdata();
+    });
+
+    //月度课程
+    function Getdata()
+    {
+        $("#monthCourseList").JsRenderData({
+            sourceUrl: getmonthUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "monthCourseTemplate",
+            funCallback: function (data)
+            {
+                if (data.res.DivID != null)
+                {
+
+                    $("#showchar").html("");
+                    var chart_value = DrawImageColumn(data.res);
+                    chart_value.legend.enabled = false;
+                    var chart = new Highcharts.Chart(chart_value);
+                    $("#showchar").show();
+                } else
+                {
+                    $("#showchar").hide();
+                }
+
+                ClickFunction();
+
+            }
+        });
+    }
+
+    function getmonthUrl()
+    {
+        return "/DeptPlanManage/GetMonPlanCompare?year=@ViewBag.year&month=@ViewBag.month&DeptID=@ViewBag.DeptID";
+    }
+    //支持IE8及其以上的浏览器，其他浏览器无法不保证
+    function ClickFunction()
+    {
+        var x = " tspan";
+        var y = "rect";
+        //IE8，渲染的标签什么都不一样，进行特别判断
+        if (navigator.userAgent.indexOf("MSIE 8.0") > 0)
+        {
+            x = " .highcharts-axis span";
+            y = " shape";
+        }
+
+        //列表X轴绑定事件
+        $("#showchar " + x).each(function ()
+        {
+            switch ($(this).text())
+            {
+                case "新增":
+                    BindClick($(this), 2);
+                    break;
+                case "删除":
+                    BindClick($(this), 1);
+                    break;
+                case "未变":
+                    BindClick($(this), 0);
+                    break;
+            }
+        });
+
+        //柱形图的事件
+        //新增
+        BindClick($("#showchar .highcharts-tracker").find(y).eq(0), 2);
+        //未变
+        BindClick($("#showchar .highcharts-tracker").find(y).eq(1), 0);
+        //删除
+        BindClick($("#showchar .highcharts-tracker").find(y).eq(2), 1);
+    }
+
+    function BindClick(obj, type)
+    {
+        var page = "CompareDetail"
+        if (type == 0)
+        {
+            page = "CompareDetailsForUpdate";
+        }
+
+        obj.css("cursor", "pointer").click(function ()
+        {
+            window.location.href = page + "?type=" + type +
+                   "&year=@ViewBag.year&month=@ViewBag.month&id=@ViewBag.id&DeptID=@ViewBag.DeptID";
+        });
+    }
+
+    function back()
+    {
+        window.location.href = "MonthPlan";
+    }
+</script>

@@ -1,0 +1,162 @@
+﻿@using LiXinLanguage
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "我的视频课程学习统计表";
+ 
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "我的视频课程学习统计表" }))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_CourseName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">
+                    <select id="sltStatus">
+                        <option value="99">请选择考试状态</option>
+                        <option value="1">未参与</option>
+                        <option value="2">考试中</option>
+                        <option value="3">已通过</option>
+                        <option value="4">未通过</option>
+                        <option value="5">N/A</option>
+                    </select>
+                </td>
+                <td class="span17">
+                    <select id="sltIsMust">
+                        <option value="99">选/必修</option>
+                        <option value="1">选修</option>
+                        <option value="0">必修</option>
+                    </select>
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input type="button" value="导出EXCEL" id="btn_execl" class="btn btn-co" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span12">课程名称
+                </th>
+                <th class="span7" jsrendersortfield="CourseLength" sort="desc">课程学时
+                </th>
+                <th class="span5">选/必修
+                </th>
+                <th class="span7" jsrendersortfield="MyReport_LearnTimes" sort="desc">在线观看次数
+                </th>
+                <th class="span11" jsrendersortfield="MyReport_VedioTime" sort="desc">在线观看时间<br />
+                    （分钟）
+                </th>
+                <th class="span7">考试状态
+                </th>
+                <th class="span6" jsrendersortfield="MyReport_ExamNum" sort="desc">考试次数
+                </th>
+                <th class="span5" jsrendersortfield="MyReport_ExamScore" sort="desc">考试成绩
+                </th>
+                <th class="span7" jsrendersortfield="GetLengthDouble" sort="desc">获取学时
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function (e)
+    {
+        initSearch();
+
+        InitData(); //加载
+
+
+        $("#btn_Select").click(function ()
+        {
+            InitData(1);
+        });
+
+        $("#sltStatus,#sltIsMust").change(function () { InitData(1); })
+
+        $("#btn_execl").click(function ()
+        {
+            art.dialog({
+                content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+                ok: function ()
+                {
+                    var v = "coursename=" + escape(getSearchWord('txt_CourseName')) + "&examstatus=" + $("#sltStatus").val() + "&ismust=" + $("#sltIsMust").val();
+                    window.location.href = "/MyCourse/GetMyReportForReport?" + v;
+                },
+                cancel: true
+            });
+
+        })
+
+     
+    });
+
+
+    function InitData()
+    {
+        var v = "coursename=" + escape(getSearchWord('txt_CourseName')) + "&examstatus=" + $("#sltStatus").val() + "&ismust=" + $("#sltIsMust").val();
+
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/MyCourse/GetMyReport?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "LearnId",
+            jsRenderASC: "desc",
+            templateID: "CourseListTemplate"
+        });
+    }
+
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr class="{{:IsAppoint>0?"top":""}}">
+            <td>
+            {{:#index+1}}
+            </td>
+            <td style="text-align:left;">
+                {{:CourseName}}
+            </td>
+            <td>
+                {{:CourseLength}}
+            </td>
+            <td>
+                {{:IsMustStr}}
+            </td>
+            <td>
+                {{:MyReport_LearnTimes}}
+            </td>
+            <td>
+                {{:MyReport_VedioTimeint}}
+            </td>
+            <td>
+                {{:StrExamStatus}}{{:ExamStatus}}
+            </td>
+            <td>
+                {{:MyReport_ExamNumStr}}
+            </td>
+            <td>
+                {{:MyReport_ExamScoreStr}}
+            </td>
+            <td>
+                {{if MyReport_IsPass==0&&MyReport_ExamStatus==0}}
+                    N/A
+                {{else}}
+                    {{:GetLength}}
+                {{/if}}
+            </td>
+        </tr> 
+        {{/for}}
+</script>

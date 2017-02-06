@@ -1,0 +1,93 @@
+﻿@using LiXinLanguage
+@using LiXinModels.Survey
+@{
+    Layout = null;
+    Response.Expires = 0;
+    var model = ViewData["model"] as Survey_ExampaperCategory;
+    var fsort = Request.QueryString["fatherID"] ?? "0";
+}
+<div class="centerbody">
+    <form id="paperSortForm">
+    <input id="hidfatherID" name="hidfatherID" type="hidden" value="@ViewData["fatherID"]" />
+    <table class="tab-Form" style="width: 450px">
+        <tr>
+            <td class="Tit span8">
+                上级分类：
+            </td>
+            <td>
+                <input type="hidden" id="fatherSort" name="fatherSort" value="@fsort" />
+                <div title="@ViewData["fatherModel"]">@ViewData["fatherModel"]</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <span class="must">*</span>分类名称：
+            </td>
+            <td>
+                <input class="span20" type="text" maxlength="30" id="txtSortName" name="txtSortName" value="@(model.CategoryName)" isType="text" isnull="0" message="请填写名称" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="submit" name="submit" value="保存" class="btn btn-co" />
+                <input type="button" value="取消" onclick="fnCancel()" class="btn btn-cancel" />
+            </td>
+        </tr>
+
+    </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("#paperSortForm").validate(
+            {
+                submitHandler: fnSubmitEditSort,
+                event: "blur",
+                rules: {
+                    txtSortName: {
+                        required: true,
+                        maxlength: 30,
+                        remote: {
+                            type: "get",
+                            dataType: "json",
+                            url: "/DeptSurvey/IsExsitPaperSort?Id=@(model.CategoryId)&DeptID=" + $("#selDept").val()+"&t=" + new Date(),
+                            data: {
+                                name: function () { return $.trim($("#txtSortName").val()); },
+                                pID: function () { return $("#hidfatherID").val() }
+                            }
+                        }
+                    }
+                },
+                messages: {
+                    txtSortName: {
+                        required: "分类名称不能为空！",
+                        maxlength: "分类名称不能多于30个字符！",
+                        remote: "该分类名称已存在！"
+                    }
+                }
+            });
+
+    });
+
+
+    function fnSubmitEditSort()
+    {
+        $.post("/DeptSurvey/SubmitPaperSort?id=@(model.CategoryId)&DeptID=" + $("#selDept").val(), $("#paperSortForm").formSerialize(), function (data)
+        {
+            if (data.result == 1)
+            {
+                initPaperSort();
+                art.dialog.list['qSortEdit'].close();
+            } else
+            {
+                art.dialog.tips(data.content, 3);
+            }
+        });
+    }
+
+    function fnCancel()
+    {
+        art.dialog.list['qSortEdit'].close();
+    }
+</script>

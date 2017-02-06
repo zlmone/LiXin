@@ -1,0 +1,246 @@
+﻿@using LiXinModels.MyApproval;
+@{
+    ViewBag.Title = "审批流程线";
+    Layout = null;
+    var ApproveList = ViewBag.ApproveList as List<Free_Apporve>;
+}
+
+
+<div class="app-req" style="margin-bottom: 10px">
+    <div class="head">
+        <div class="num"></div>
+        <div class="spo">发起人</div>
+        <div class="dep">部门/分所负责人审批</div>
+        <div class="tol">教育培训部审批</div>
+    </div>
+    <div class="list">
+    @{
+        var tuihui=false;
+        if (ApproveList.Count == 0)
+        {
+        <div class="item new">
+            <div class="num"><span>1</span></div>
+            <div class="spo">
+                <p class="tit"><span>@ViewBag.Realname</span>发起</p>
+                <p>@ViewBag.ApplyTimeStr</p>
+                <i class="next"></i>
+            </div>
+            <div class="tol">
+                <p class="status">当前状态：待审批</p>
+            </div>
+            <div class="tol">
+            </div>
+        </div>
+        }
+        else
+        {
+            var flag = true;
+            foreach (var Batch in ApproveList.Select(p => p.CheackBatch).Distinct().OrderByDescending(p => p))
+            {
+                
+                var single = ApproveList.Where(p => p.CheackBatch == Batch);
+                var DepTrainList = single.Where(p => p.type == 1);
+                var DepSingle = single.Where(p => p.type == 2).FirstOrDefault();
+
+                var DepTrainSingle = DepTrainList.Where(p => p.DepApprove != 2).FirstOrDefault();
+                DepTrainSingle=DepTrainSingle==null?DepTrainList.FirstOrDefault():DepTrainSingle;
+                if (DepTrainList.Count()==1)
+                {
+
+                    if (DepTrainSingle.DepApprove == 2)
+                    {
+                        tuihui = true;
+                    }
+                    //#region 部门审批通过 总所待审批或者审批通过
+                    if (DepTrainSingle.DepApprove == 1 || (DepTrainSingle.DepApprove == 2 && DepSingle == null) || DepTrainSingle.DepApprove == 0)
+                    {
+                        flag = false;
+                        
+                        if (DepSingle == null)
+                        {
+                            <div class="@(DepTrainSingle.DepApprove == 2?"item": "item new")">
+
+                            <div class="num"><span>@Batch</span></div>
+                            <div class="spo">
+                                <p class="tit"><span>@ViewBag.Realname</span>发起</p>
+                                <p>@ViewBag.ApplyTimeStr</p>
+                                    <i class="next"></i>
+                            </div>
+                            <div class="dep" id="DepReason" title="@DepTrainSingle.DepReason">
+                                <p class="tit"><span>@DepTrainSingle.Realname</span>@DepTrainSingle.DepApproveStr</p>
+                                <p>@DepTrainSingle.ApproveTimeStr</p>
+                                <i class="next"></i>
+                            </div>
+                                <div class="tol">
+                                    <p class="status">N/A</p>
+                                </div>
+                        </div>
+                        }
+                        else
+                        {
+                            if (DepSingle.DepApprove != 2)
+                            {
+                            <div class="@(DepTrainSingle.DepApprove == 2?"item": "item new")">
+
+                            <div class="num"><span>@Batch</span></div>
+                            <div class="spo">
+                                <p class="tit"><span>@ViewBag.Realname</span>发起</p>
+                                <p>@ViewBag.ApplyTimeStr</p>
+                                    <i class="next"></i>
+                            </div>
+                            <div class="dep" title="@DepTrainSingle.DepReason">
+                                <p class="tit"><span>@DepTrainSingle.Realname</span>@DepTrainSingle.DepApproveStr</p>
+                                <p>@DepTrainSingle.ApproveTimeStr</p>
+                                <i class="next"></i>
+                            </div>
+                              @if (DepSingle.DepApprove == 0)
+                                {
+                                <div class="tol">
+                                    <p class="status">当前状态：待审批</p>
+                                </div>
+                                }
+                              else if (DepSingle.DepApprove == 1)
+                                {
+                                <div class="dep" id="DepReason" title="@DepSingle.DepReason">
+                                    <p class="tit"><span>@DepSingle.Realname</span>审批通过</p>
+                                    <p>@DepSingle.ApproveTimeStr</p>
+                                
+                                </div>
+                                }
+                             </div>
+                          }
+                        }
+                    }
+                }
+
+                if (DepSingle != null)
+                {
+                    if (DepTrainList.Count()==1)
+                {
+                    //#endregion
+                    //待退回
+                    if (DepTrainSingle.DepApprove == 1 && DepSingle.DepApprove == 2)
+                    {
+                        tuihui = true;
+                        <div class="item back">
+                            <div class="num"><span>@Batch</span></div>
+                            <div class="spo">
+                                <p class="tit"><span>@ViewBag.Realname</span>发起</p>
+                                <p>@ViewBag.ApplyTimeStr</p>
+                                <i class="next"></i>
+                            </div>
+                            <div class="dep">
+                                <p class="tit"><span>@DepTrainSingle.Realname</span>审批通过</p>
+                                <p>@DepTrainSingle.ApproveTimeStr</p>
+                                <i class="next"></i>
+                            </div>
+                            <div class="tol"  id="DepReason" title="@DepSingle.DepReason">
+                                <p class="tit"><span>@DepSingle.Realname</span>审批退回</p>
+                                <p>@DepSingle.ApproveTimeStr</p>
+                            </div>
+                            <div class="spo">
+                            </div>
+                            <div class="dep">
+                                <p class="status">待负责人退回</p>
+                                <i class="back"></i>
+                            </div>
+                            <div class="tol">
+                            </div>
+                        </div>
+                    }
+                    }
+                   
+                       //退回成功
+                    if (DepSingle.DepApprove == 2)
+                    {
+                        tuihui = true;
+                        if (DepTrainList.Count()==1)
+                        {
+                            if (DepTrainSingle.DepApprove == 2)
+                            {
+                            <div class="item back">
+                            <div class="num"><span>@Batch</span></div>
+                            <div class="spo">
+                                <p class="tit"><span>@ViewBag.Realname</span>发起</p>
+                                <p>@ViewBag.ApplyTimeStr</p>
+                                <i class="next"></i>
+                            </div>
+                            <div class="dep">
+                                <p class="tit"><span>@DepTrainSingle.Realname</span>审批通过</p>
+                                <p>@DepTrainSingle.ApproveTimeStr</p>
+                                <i class="next"></i>
+                            </div>
+                            <div class="dep"  id="DepReason" title="@DepSingle.DepReason">
+                                <p class="tit"><span>@DepSingle.Realname</span>审批退回</p>
+                                <p>@DepSingle.ApproveTimeStr</p>
+                                    
+                            </div>
+                            <div class="spo">
+                                <p class="status">退回成功</p>
+                                <i class="back"></i>
+                            </div>
+                                 
+                                <div class="tol">
+                                    <p class="tit"><span>@DepTrainSingle.Realname</span>审批退回</p>
+                                    <p>@DepTrainSingle.ApproveTimeStr</p>
+                                        <i class="back"></i>
+                                </div>
+                                
+                            <div class="tol">
+                            </div>
+                        </div>
+                            }
+                        }
+                        else
+                        {
+                            tuihui = true;
+                            var sencond = DepTrainList.Where(p => p.DepApprove == 2).FirstOrDefault(); 
+                            <div class="item back">
+                                <div class="num"><span>@Batch</span></div>
+                                <div class="spo">
+                                    <p class="tit"><span>@ViewBag.Realname</span>发起</p>
+                                    <p>@ViewBag.ApplyTimeStr</p>
+                                    <i class="next"></i>
+                                </div>
+                                <div class="dep">
+                                    <p class="tit"><span>@DepTrainSingle.Realname</span>审批通过</p>
+                                    <p>@DepTrainSingle.ApproveTimeStr</p>
+                                    <i class="next"></i>
+                                </div>
+                                <div class="dep"  id="DepReason" title="@DepSingle.DepReason">
+                                    <p class="tit"><span>@DepSingle.Realname</span>审批退回</p>
+                                    <p>@DepSingle.ApproveTimeStr</p>
+                                    
+                                </div>
+                                <div class="spo">
+                                    <p class="status">退回成功</p>
+                                    <i class="back"></i>
+                                </div>
+                                      <div class="tol">
+                                        <p class="tit"><span>@sencond.Realname</span>审批退回</p>
+                                        <p>@sencond.ApproveTimeStr</p>
+                                           <i class="back"></i>
+                                    </div>
+                                
+                                <div class="tol">
+                                </div>
+                            </div>
+                              
+                        }
+                        }
+                }
+       
+            }
+        }
+      
+        if(tuihui)
+        {
+           
+               <div style="color:red" class="ml35">*提示：光标悬浮在审批退回上可以查看退回原因</div> 
+        }
+    }
+           <div class="line"></div>
+        
+        </div>
+</div>
+

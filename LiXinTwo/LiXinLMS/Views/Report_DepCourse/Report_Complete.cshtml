@@ -1,0 +1,337 @@
+﻿@{
+    ViewBag.Title = "总所自学培训完成情况";
+    Layout = null;
+}
+<script src="../../Scripts/report/highcharts.js" type="text/javascript"></script>
+<script src="../../Scripts/report/column.js" type="text/javascript"></script>
+<script src="../../Scripts/report/pie.js" type="text/javascript"></script>
+<script src="../../Scripts/report/line.js"></script>
+<input type="hidden" id="txt_deptid_list" />
+
+<div class="main-c">
+    @*@(Html.Action("SiteMapLink", "Common", new { linkName = "我的已预订课程" }))*@
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span10">部门/分所：
+                </td>
+                <td class="span17">
+                    <input type="button" class="btn  btn-co" value="选择部门/分所" id="btn_selectdeptid" />
+                </td>
+                <td class="Tit span12">选择年度：</td>
+                <td class="span16">
+                    @Html.Action("ReportYear", "Common", new { id = "sel_year" })
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input id="btn_execl" type="button" class="btn btn-co" value="导出EXCEL" onclick="ExportUser()" />
+                    <input type="button" class="btn btn-co" value="同步" onclick="tongbu()" />
+                </td>
+
+            </tr>
+            <tr>
+                <td class="Tit span12">计划上报类型：</td>
+                <td>
+                    <select id="sel_PlanType">
+                        <option value="0">计划上报类型</option>
+                        <option value="1">单体上报</option>
+                        <option value="2">联合上报</option>
+                        <option value="3">被联合上报</option>
+                        <option value="4">N/A</option>
+                        <option value="5">全部</option>
+                    </select>
+
+                </td>
+                <td class="Tit span12">是否已完成目标学时：
+                </td>
+                <td>
+                    <input type="checkbox" name="iscomplete" value="0" />是
+                    <input type="checkbox" name="iscomplete" value="1" />否
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table class="tab-List mt10" id="tbCoursePass">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span16">部门/分所
+                </th>
+                <th class="span8" style="text-align: left">是否已完成目标学时
+                </th>
+                <th class="span7" style="text-align: left">计划上报类型
+                </th>
+                <th class="span12" jsrendersortfield="PlanTime" sort="desc">计划上报时间
+                </th>
+                <th class="span8" jsrendersortfield="Dep_Course_Commencement" sort="desc">计划开设课程数（学时）
+                </th>
+                <th class="span7" jsrendersortfield="IsYearPlan_length" sort="desc">实际开设计划内/外课程数（学时）
+                </th>
+                <th class="span8" jsrendersortfield="IsSystem_length" sort="desc">框架内/外课程数（学时）
+                </th>
+                <th class="span8" jsrendersortfield="IsOpenSub" sort="desc">开放至全所课程数（学时）
+                </th>
+                <th class="span5" jsrendersortfield="UploadAttend_Num" sort="desc">已上传考勤课程数
+                </th>
+                <th class="span7" jsrendersortfield="ApprovalPass" sort="desc">审批通过/退回课程数
+                </th>
+                <th class="span4" jsrendersortfield="UploadRes_Num" sort="desc">讲义上传课程数</th>
+                <th class="span8" jsrendersortfield="Avg_GetLength" sort="desc">人均获取学时</th>
+                <th class="span4" style="text-align: left">平均出勤率/迟到率/缺勤率</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="courseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <br />
+    <div class="mt10">
+        <!--学员人数分布-->
+        <div id="showpie" style="width: 80%; height: 400px; display: none">
+        </div>
+        <!--分所员工学习分布-->
+        <div id="showfeng" style="width: 80%; height: 400px; display: none">
+        </div>
+        <div id="showshiji" style="width: 80%; height: 400px; display: none"></div>
+        <!--各月份学习情况分布-->
+        <div id="showmonth" class="trendgraph" style="width: 80%; height: 300px; display: none">
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        showdata();
+
+        MyTablesort("tbCoursePass", fInitData);
+
+        //fDraw();
+
+        $("#btn_Select").click(function ()
+        {
+            fInitData();
+            //fDraw();
+        })
+
+        $("#sel_PlanType,#sel_year").change(function ()
+        {
+            fInitData();
+            // fDraw();
+        })
+
+        $("#btn_selectdeptid").click(function ()
+        {
+            art.dialog.load("/Report_zAttendce/SelectDept?deptid=0&ReportType=0&naru=1", { title: '选择部门/分所', id: "win_deptmanage" }, false);
+        })
+    });
+
+    function showdata()
+    {
+
+        if ("@ViewBag.cp" == "1")
+        {
+            $("#txt_deptid_list").val("@ViewBag.deptid");
+            $("#sel_year option[value='@ViewBag.year']").attr("selected", true);
+            $("#sel_PlanType option[value='@ViewBag.PlanType']").attr("selected", true);
+            if ("@ViewBag.iscomplete" == "2")
+            {
+                $("input[name='iscomplete']").attr("checked", true);
+            }
+            else
+            {
+                $("input[name='iscomplete'][value='@ViewBag.iscomplete']").attr("checked", true);
+            }
+        }
+        fInitData();
+    }
+
+    function fInitData(jsRenderSortField)
+    {
+
+        var iscomplete = "";
+        if ($("input[name='iscomplete']:checked").length == 2)
+        {
+            iscomplete = "2";
+        }
+        else
+        {
+            $("input[name='iscomplete']:checked").each(function ()
+            {
+                iscomplete = $(this).val();
+            })
+        }
+        //    + "&jsRenderSortField=" + 1 
+
+
+        if (jsRenderSortField == undefined)
+        {
+            jsRenderSortField = " IsCompleteStr,IsYearPlan_length asc";
+        }
+        else
+        {
+            jsRenderSortField = jsRenderSortField;
+        }
+        zhezaowait(); //等待提示
+        //var jsRenderSortField = " IsCompleteStr desc";
+        $.post("/Report_DepCourse/GetReport_DepCourseList?deptype=0&deptid=" + $("#txt_deptid_list").val() + "&year=" + $("#sel_year").val() + "&PlanType=" + $("#sel_PlanType").val()
+       + "&iscomplete=" + iscomplete + "&jsRenderSortField=" + jsRenderSortField, function (data)
+       {
+
+           closewait();
+           $("#courseList").html(data.list);
+
+           $("#showpie").show();
+           var piechart_value = DrawImagePie(data.pie);
+           var piechart = new Highcharts.Chart(piechart_value);
+
+
+           $("#showfeng").show();
+           var fengchart_value = DrawImagePie(data.feng);
+           var fengchart = new Highcharts.Chart(fengchart_value);
+
+           $("#showshiji").show();
+           var shijichart_value = DrawImagePie(data.shiji);
+           var shijichart_value = new Highcharts.Chart(shijichart_value);
+
+           $("#showmonth").show();
+           var monthchart_value = DrawImageLine(data.month);
+           var monthchart = new Highcharts.Chart(monthchart_value);
+
+       });
+    }
+
+    function searchByDept()
+    {
+        var ids = $("#selAllDeptIDs").val();
+        var selids = "";
+        $("input[name=check_deptid]:checked").each(function ()
+        {
+            selids = selids == "" ? $(this).attr("id") : selids + "," + $(this).attr("id");
+        });
+        $("#txt_deptid_list").val(ids == "" ? selids : ids + "," + selids);
+        art.dialog.list['win_deptmanage'].close();
+        fInitData();
+    }
+
+    function ExportUser()
+    {
+        var iscomplete = "";
+        if ($("input[name='iscomplete']:checked").length == 2)
+        {
+            iscomplete = "";
+        }
+        else
+        {
+            $("input[name='iscomplete']:checked").each(function ()
+            {
+                iscomplete = $(this).val();
+            });
+        }
+        art.dialog({
+            content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+            ok: function ()
+            {
+                var v = "/Report_DepCourse/GetReport_DepCourseListForReport?deptype=0&deptid=" + $("#txt_deptid_list").val() + "&year=" + $("#sel_year").val() + "&PlanType=" + $("#sel_PlanType").val()
+       + "&iscomplete=" + iscomplete;
+                window.location.href = v;
+            },
+            cancel: true
+        });
+    }
+
+    function fDraw()
+    {
+        var iscomplete = "";
+        if ($("input[name='iscomplete']:checked").length == 2)
+        {
+            iscomplete = "";
+        }
+        else
+        {
+            $("input[name='iscomplete']:checked").each(function ()
+            {
+                iscomplete = $(this).val();
+            })
+        }
+
+        $.post("/Report_DepCourse/CourseJoinChart?deptype=0&deptid=" + $("#txt_deptid_list").val() + "&year=" + $("#sel_year").val() + "&PlanType=" + $("#sel_PlanType").val()
+       + "&iscomplete=" + iscomplete, function (data)
+       {
+
+           $("#showpie").show();
+           var piechart_value = DrawImagePie(data.pie);
+           var piechart = new Highcharts.Chart(piechart_value);
+
+
+           $("#showfeng").show();
+           var fengchart_value = DrawImagePie(data.feng);
+           var fengchart = new Highcharts.Chart(fengchart_value);
+
+           $("#showshiji").show();
+           var shijichart_value = DrawImagePie(data.joinshiji);
+           var shijichart_value = new Highcharts.Chart(shijichart_value);
+
+           $("#showmonth").show();
+           var monthchart_value = DrawImageLine(data.month);
+           var monthchart = new Highcharts.Chart(monthchart_value);
+
+       })
+
+    }
+
+    //显示隐藏  2分所  1总所
+    function showHide(type, obj)
+    {
+        var isMain = type == 2 ? 0 : 1;
+        if ($(obj).hasClass("buttonshow"))
+        {
+
+            $(".report_" + isMain).hide();
+            $(obj).removeClass('buttonshow').addClass('buttonhide');
+        }
+        else
+        {
+            $(".report_" + isMain).show();
+            $(obj).removeClass('buttonhide').addClass('buttonshow');
+        }
+
+    }
+
+    function showfenHide(deptName, obj)
+    {
+        if ($(obj).hasClass("buttonshow"))
+        {
+
+            $(".report_" + deptName).hide();
+            $(obj).removeClass('buttonshow').addClass('buttonhide');
+        }
+        else
+        {
+            $(".report_" + deptName).show();
+            $(obj).removeClass('buttonhide').addClass('buttonshow');
+        }
+    }
+
+    function tongbu()
+    {
+        zhezaowait();
+        $.get("RefreshGetDepCourseUser", function ()
+        {
+            closewait();
+            art.dialog.tips("更新成功", 3);
+            fInitData();
+
+        });
+    }
+
+
+    function ViewDepOpenCourse(deptids, isYearStatus, isDeptFlag)
+    {
+        //var type = isYearStatus ? 1 : 0;
+        window.location.href = "/DepCourseOpenOthersCheck/DepCourseLearnSelfList?yearPlan=" + $("#sel_year").val() + "&deptId=" + deptids + "&isDeptFlag=" + isDeptFlag + "&type=1&isYearStatus=" + isYearStatus;
+    }
+</script>

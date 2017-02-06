@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "QuestionSortCorrectReport";
+    Layout = null;
+}
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/report/highcharts.js")"> </script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/report/line.js")"> </script>
+<table class="dataView">
+    <tr class="Tit">
+        <td><strong>最高正确率: <span id="SortMaxCorrectRate"></span>%</strong></td>
+        <td><strong>最低正确率: <span id="SortMinCorrectRate"></span>%</strong></td>
+        <td><strong>平均正确率最高: <span id="SortAveMaxCorrectRate"></span>%</strong></td>
+        <td><strong>平均正确率最低: <span id="SortAveMinCorrectRate"></span>%</strong></td>
+    </tr>
+    <tr class="Name">
+        <td><p id="SortMaxCorrectRateTitle"></p><p class="c66">( <span id="SortMaxCorrectRateName"></span> )</p></td>
+        <td><p id="SortMinCorrectRateTitle"></p><p class="c66">( <span id="SortMinCorrectRateName"></span> )</p></td>
+        <td><p id="SortAveMaxCorrectRateTitle"></p></td>
+        <td><p id="SortAveMinCorrectRateTitle"></p></td>
+    </tr>
+</table>
+<center id="QuestionSortCorrectChart" class="trendgraph" style="height:300px;width:100%; margin:10px 0px;"></center>
+<div id="SortQuestionCorrectlist" class="mTop_1 btop_so_ce">
+    <table class="blue_table all">
+        <thead id="hearID">
+        </thead>
+
+        <tbody id="SortQuestionCorrectList">
+        </tbody>
+
+        <tfoot></tfoot>
+        @*<thead>
+            <tr>
+                <th>考试名称</th>
+                <th>考试时长(分钟)</th>
+                <th>总分</th>
+                <th>单选题</th>
+                <th>多选题</th>
+                <th>判断题</th>
+                <th>情景题</th>
+                <th>填空题</th>
+                <th>问答题</th>
+            </tr>
+        </thead>
+        <tbody >
+        </tbody>
+        <tfoot></tfoot>*@
+    </table>
+</div>
+
+
+<script id="SortQuestionCorrectTemplate" type="text/x-jsrender">
+    {{for #data}}
+        {{:body}}
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        InitTable();
+    });
+
+    function InitTable() {
+        $("#SortQuestionCorrectList").JsRenderData({
+            sourceUrl: '/ExamReport/GetQuestionSortCorrectReport?ExamName=' + escape($("#examName").val())
+                + '&StartTime=' + $("#startDate").val()
+                + '&EndTime=' + $("#endDate").val()
+                + '&t=' + new Date(),
+            isPage: true,
+            pageSize: 20,
+            pageIndex: 1,
+            templateID: 'SortQuestionCorrectTemplate',
+            funCallback: function (data) {
+                if (data.MaxRate == null) {
+                    $("#SortMaxCorrectRate").text("");
+                    $("#SortMaxCorrectRateName").text("");
+                    $("#SortMaxCorrectRateTitle").text("");
+                }
+                else {
+                    $("#SortMaxCorrectRate").text(data.MaxRate.QuesSortCorrectMaxRate);
+                    $("#SortMaxCorrectRateName").text(data.MaxRate.QuesSortCorrectMaxRateName);
+                    $("#SortMaxCorrectRateTitle").text(data.MaxRate.ExaminationTitle);
+                }
+
+                if (data.MinRate == null) {
+                    $("#SortMinCorrectRate").text("");
+                    $("#SortMinCorrectRateName").text("");
+                    $("#SortMinCorrectRateTitle").text("");
+                }
+                else {
+                    $("#SortMinCorrectRate").text(data.MinRate.QuesSortCorrectMinRate);
+                    $("#SortMinCorrectRateName").text(data.MinRate.QuesSortCorrectMinRateName);
+                    $("#SortMinCorrectRateTitle").text(data.MinRate.ExaminationTitle);
+                }
+
+                if (data.MaxAve == null) {
+                    $("#SortAveMaxCorrectRate").text("");
+                    $("#SortAveMaxCorrectRateTitle").text("");
+                }
+                else {
+                    $("#SortAveMaxCorrectRate").text(data.MaxAve.QuesSortCorrectAverageRate);
+                    $("#SortAveMaxCorrectRateTitle").text(data.MaxAve.ExaminationTitle);
+                }
+
+                if (data.MinAve == null) {
+                    $("#SortAveMinCorrectRate").text("");
+                    $("#SortAveMinCorrectRateTitle").text("");
+                }
+                else {
+                    $("#SortAveMinCorrectRate").text(data.MinAve.QuesSortCorrectAverageRate);
+                    $("#SortAveMinCorrectRateTitle").text(data.MinAve.ExaminationTitle);
+                }
+
+                $("#hearID").html(data.head);
+                $("#SortQuestionCorrectList").parent().find("tfoot tr td").eq(0).attr("colspan", $("#SortQuestionCorrectList").parent().find("thead tr th").length);
+
+                var chart_value = DrawImageLine(data.res);
+                var chart = new Highcharts.Chart(chart_value);
+            }
+        });
+    }
+
+    function ExportReportChart() {
+        window.location.href = '/ExamReport/ExportQuestionSortCorrectChart?ExamName=' + escape($("#examName").val())
+            + '&StartTime=' + $("#startDate").val()
+            + '&EndTime=' + $("#endDate").val()
+            + '&t=' + new Date();
+    }
+</script>

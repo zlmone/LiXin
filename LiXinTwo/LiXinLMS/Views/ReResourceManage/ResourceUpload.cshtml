@@ -1,0 +1,568 @@
+﻿@{
+    ViewBag.Title = "上传知识";
+}
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+    .ru_prompt {
+        margin-bottom: 10px;
+        padding: 10px;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;
+        background-color: #e5e5e5;
+        color: #4d4d4d;
+        -o-border-radius: 2px;
+    }
+
+    .ico_doc {
+        padding-left: 18px;
+        background: url(/Images/icon/ico_doc.png) no-repeat scroll 0 center;
+        line-height: 26px;
+    }
+
+    .ico_pdf {
+        padding-left: 18px;
+        background: url(/Images/icon/ico_pdf.png) no-repeat scroll 0 center;
+        line-height: 26px;
+    }
+
+    .ico_txt {
+        padding-left: 18px;
+        background: url(/Images/icon/ico_txt.png) no-repeat scroll 0 center;
+        line-height: 26px;
+    }
+
+    .ico_video {
+        padding-left: 18px;
+        background: url(/Images/icon/ico_video.png) no-repeat scroll 0 center;
+        line-height: 26px;
+    }
+</style>
+<input type="hidden" id="resourceName" />
+<input type="hidden" id="ResourceImage" value="empty" />
+<input type="hidden" id="typeid" value="@ViewBag.typeID" />
+<input type="hidden" id="hidUserID" value="@ViewBag.userID" />
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "上传知识" }))
+    <form id="formEditNote">
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span20">知识类别：
+                </td>
+                <td>
+                    <input id="Rtype" class="inpbor" type="text"  value="@ViewBag.typeName" disabled="disabled" readonly="readonly"/>
+                    <input type="button" class="btn" value="选择知识类别" onclick="ShowType();" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <input type="hidden" id="txtOpenDepartObject" name="OpenDepartObject" value="" />
+                    <input type="hidden" id="txtOpenGroupObject" name="OpenGroupObject" value="" />
+                    <input type="hidden" id="txtTempOpenDepartObject" name="OpenDepartObject" value="" />
+                    <input type="hidden" id="txtTempOpenGroupObject" name="OpenGroupObject" value="" />
+                    <input type="hidden" name="OpenFlag" id="txtOpenFlag" value="" />开放人群：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="checkbox" name="chbOpenFlag" id="chbOpenFlag1" onclick="fnChooseOpen(this, 1)"
+                            value="1" /><label>群组</label>
+                        <input type="checkbox" name="chbOpenFlag" id="chbOpenFlag2" onclick="fnChooseOpen(this, 2)"
+                            value="2" /><label>组织结构</label>
+                    </div>
+                    <div id="div_showgroup">
+                    </div>
+                    <div id="div_showDept">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">上传封面：
+                </td>
+                <td>
+                    <div>
+                        <img id="picture" src="/Images/photo/default.jpg" height="150px" width="220px" />
+                    </div>
+                    <div id="uploadImage">
+                        <div id="ImageQueue" style="max-height: 250px; overflow: visible">
+                        </div>
+                        <input type="file" name="uploadifyImage" id="uploadifyImage" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">资源描述：
+                </td>
+                <td>
+                    <textarea cols="53" rows="6" id="content" name="content"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit"></td>
+                <td>
+                    <div class="ru_prompt">
+                        <p>
+                            为了保证文档能够正常显示，我们支持以下格式上传：
+                        </p>
+                        <ul>
+                            <li class="ico_doc">doc，docx，ppt，pptx，xls，xlsx</li>
+                            <li class="ico_pdf">pdf</li>
+                            <li class="ico_txt">txt</li>
+                            <li class="ico_video">rmvb，avi，wmv</li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit"></td>
+                <td>
+                    <div id="uploadfile">
+                        <div id="fileQueue" style="max-height: 250px; overflow: auto">
+                        </div>
+                        <input type="file" name="uploadify" id="uploadify" />
+                        <span id="speed" style="display: none">上传速率为：<span id="skb"></span>kb/s</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit"></td>
+                <td>
+                    <input type="button" class="btn" id="OK" value="上传" onclick="upload();" />
+                    <input type="button" class="btn" value="取消上传" onclick="cancel();" />
+                    <a id="btnBack" onclick="Back()" class="btn btn-cancel">返回</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function ()
+    {
+        $("#uploadify").uploadify(
+            {
+                'formData': { 'folder': "@System.Configuration.ConfigurationManager.AppSettings["ReResourceOldFile"]" },
+                'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+                'uploader': '/Common/UploadFileAction?detailFlag=1',
+                'cancelText': '取消',
+                'buttonText': '选择文件',
+                'buttonClass': 'browser',
+                'queueID': 'fileQueue',
+                "queueSizeLimit": 999, //设置选择文件的个数
+                'fileDesc': '文档与视频',
+                'fileTypeExts': '*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx;*.txt;*.pdf;*.avi;*.rmvb;*.wmv',
+                'sizeLimit': '1048576000', //1G  
+                'auto': false, //设置为true当选择文件后就直接上传了，为false需要点击上传按钮才上传
+                'multi': true, //设置为true时可以上传多个文件
+                'onSelect': function (file)
+                {
+                    $("#resourceName").val(delExtension(file.name));
+                    var name = $("#resourceName").val();
+                    var filesize = file.size;
+                    var fileExt = (/[.]/.exec(file.name)) ? /[^.]+$/.exec(file.name.toLowerCase()) : '';
+                    var isExistsUrl = "/ReResourceManage/isExistsORisnull?name=" + escape(name) + "&suffix=" + fileExt + "&size=" + filesize;
+                    $.getJSON(isExistsUrl, function (data)
+                    {
+                        if (data.result == 1)
+                        {
+                            art.dialog.tips(data.content, 3);
+                            $("#uploadify").uploadify('cancel', file.id);
+                            return;
+                        }
+                    });
+
+                },
+                'onUploadSuccess': function (file, data, response)
+                {
+                    if (response != "1")
+                    {
+                        setTimeout(function ()
+                        {
+                            art.dialog.tips(response, 5);
+                        }, 1000);
+                    }
+                },
+                'onQueueComplete': function (stats)
+                {
+                    $("#content").val("");
+                    art.dialog.tips(stats.uploadsSuccessful + "个文件上传成功，"
+                        + stats.uploadsErrored + "个文件上传失败！平均上传速率 "
+                        + stats.averageSpeed + "kb/s", 3, function ()
+                        {
+                             window.location.href = "/ReResourceManage/ReResourceManage";
+                        });
+                    //                    art.dialog({ title: "提示",
+                    //                        content: stats.uploadsSuccessful + "个文件上传成功，" + stats.uploadsErrored + "个文件上传失败！平均上传速率 " + stats.averageSpeed + "kb/s",
+                    //                        time: 3000,
+                    //                        beforeunload: stats.filesErrored == 0 ? artDialog.defaults.beforeunload : function () {
+                    //                            window.location.href = "/ReResourceManage/ReResourceManage";
+                    //                        }
+                    //                    });
+                }
+            });
+
+        $("#uploadifyImage").uploadify(
+        {
+            'formData': { 'folder': "@System.Configuration.ConfigurationManager.AppSettings["ReResourceImg"]" },
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=0',
+            'cancelText': '取消',
+            'buttonText': '选择图片',
+            'buttonClass': 'browser',
+            'queueID': 'ImageQueue',
+            "queueSizeLimit": 1, //设置选择文件的个数
+            'fileDesc': '图片',
+            'fileTypeExts': '*.jpg;*.png;*.gif;*.jpeg;*.bmp',
+            'sizeLimit': '1048576000', //1G  
+            'auto': true, //设置为true当选择文件后就直接上传了，为false需要点击上传按钮才上传
+            'multi': false, //设置为true时可以上传多个文件
+            'onUploadSuccess': function (file, data, response)
+            {
+                $("#ResourceImage").val(data);
+                $("#picture").attr("src", "@System.Configuration.ConfigurationManager.AppSettings["ReResourceImg"].TrimStart('~')" + data);
+                $("#picture").fadeIn("slow");
+            }
+        });
+    });
+
+    function delExtension(str)
+    {
+        var reg = /\.\w+$/;
+        return str.replace(reg, '');
+    }
+
+    //上传
+    function upload()
+    {
+        //开放人群判断
+        if ($("#chbOpenFlag1").is(":checked") && $("#chbOpenFlag2").is(":checked"))
+        {
+            $("#txtOpenFlag").val("3");
+        }
+        else if ((!$("#chbOpenFlag1").is(":checked")) && (!$("#chbOpenFlag2").is(":checked")))
+        {
+            $("#txtOpenFlag").val("0");
+            $("#txtOpenGroupObject").val(""); $("#txtOpenDepartObject").val("");
+        }
+        else
+        {
+            var t = $("input[name='chbOpenFlag']:checked").val();
+            if (t == "1")
+            {
+                $("#txtOpenDepartObject").val("");
+            }
+            if (t == "2")
+            {
+                $("#txtOpenGroupObject").val("");
+            }
+            $("#txtOpenFlag").val(t);
+        }
+        //类别判断
+        var typeID = $("#typeid").val();
+        var userID = $("#hidUserID").val();
+        if (typeID == 0)
+        {
+            art.dialog.tips("请选择类别！", 3);
+            return;
+        }
+        var Rdec = $.trim($("#content").val());
+        if (Rdec.length > 200)
+        {
+            art.dialog.tips("资源描述长度不能超过200！", 3);
+            return;
+        }
+        var ishavechild = $("#fileQueue").children();
+        if (ishavechild.length < 1)
+        {
+            art.dialog.tips("请选择文件！", 3);
+            return;
+        }
+
+        $("#uploadify").uploadify("settings", "formData", { 'OpenDepartObject': $("#txtOpenDepartObject").val() });
+        $("#uploadify").uploadify("settings", "uploader", '/ReResourceManage/UploadResourceFileAction?typeID=' + typeID
+            + '&Rdec=' + escape(Rdec)
+                + "&userID=" + userID
+                    + "&ImageName=" + escape($("#ResourceImage").val())
+                        + "&OpenFlag=" + $("#txtOpenFlag").val()
+                            + "&OpenGroupObject=" + $("#txtOpenGroupObject").val()
+                                );
+        $("#speed").hide();
+        $('#uploadify').uploadify('upload', '*');
+    }
+    //弹出知识分类弹窗
+    function ShowType()
+    {
+        art.dialog.load("/ReResourceManage/ResourceTypeTreeView",
+            {
+                title: '选择知识类别',
+                id: 'art_ResourceTypeTreeView',
+                width: 500
+            });
+    }
+    //关闭知识分类弹窗
+    function NodeClick()
+    {
+        $("#typeid").val($("#hidNodeID").val());
+        $("#Rtype").val($("#hidNodeIDName").val());
+        closeDialog("art_ResourceTypeTreeView");
+    }
+
+    //返回
+    function Back()
+    {
+        location.href = "/ReResourceManage/ReResourceManage";
+    }
+    function cancel()
+    {
+        var ishavechild = $("#fileQueue").children();
+        if (ishavechild.length < 1)
+        {
+            art.dialog.tips("请选择文件！", 3);
+        }
+        $('#uploadify').uploadify('cancel', '*');
+    }
+</script>
+
+<script type="text/javascript">
+    //开放人群方法
+
+    //选择群组或组织结构
+    function fnChooseOpen(obj, flag)
+    {
+
+        if (flag == 1)//群组
+        {
+            if ($(obj).is(":checked"))
+            {
+                art.dialog.load("/CourseManage/CourseChooseGroup?ids=" + $("#txtOpenGroupObject").val() + "&TokenPublishflag=1" + "&tempGroupIds=" + $("#txtTempOpenGroupObject").val(), {
+                    title: '选择群组', id: "pop_chooseGroup",
+                    close: function ()
+                    {
+                        if ($("#txtOpenGroupObject").val() == "")
+                        {
+                            $(obj).attr("checked", false); $("#sp_choosegroup").hide();
+                        } else
+                        {
+                            $(obj).attr("checked", true); $("#sp_choosegroup").show();
+                        }
+                    }
+                }, false);
+            }
+            else
+            {
+                $("#div_showgroup").html("");
+                $("#txtOpenGroupObject").val("");
+            }
+        }
+        if (flag == 2)//组织结构
+        {
+            if ($(obj).is(":checked"))
+            {
+                art.dialog.load("/UserCommon/DeptTree?type=checkbox&buttonShow=1", {
+                    title: '选择组织结构', id: "pop_chooseDept",
+                    close: function ()
+                    {
+                        if ($("#txtOpenDepartObject").val() == "")
+                        {
+                            $(obj).attr("checked", false);
+                        }
+                    }
+                }, false);
+            }
+            else
+            {
+                $("#div_showDept").html("");
+                $("#txtOpenDepartObject").val("");
+            }
+
+        }
+    }
+
+    function InitDeptTree()
+    {
+        if (($("#txtOpenDepartObject").val() != "") && ($("#txtOpenDepartObject").val() != 0))
+        {
+            var checkboxArray3 = $('#pop_deptTree input[type=checkbox]');
+            var IsOrderList = "," + $("#txtOpenDepartObject").val() + ",";
+            var IsOrderList2 = "," + $("#txtTempOpenDepartObject").val() + ",";
+            $.each(checkboxArray3, function (index, value)
+            {
+                if (IsOrderList.indexOf("," + $(value).val().split("_")[0] + ",") >= 0)
+                {
+                    $(this).attr('checked', true);
+                    $(this).attr('disabled', "disabled");
+                }
+            });
+        }
+    }
+    function SelectDept()
+    {
+        var ids = $("#txtOpenDepartObject").val();
+        var names = "";
+        var html = "";
+        var flag = 0;
+        if ($("#sp_chooseDept").length == 0)
+        {
+            html += "<div class='seled-list'><h4 id='sp_chooseDept'>已选组织结构：</h4><ul>";
+            flag = 1;
+        }
+        $("#pop_deptTree input:checked").each(function ()
+        {
+            if ($(this).attr("disabled") == "disabled")
+            {
+                return;
+            }
+            var s = $(this).attr("value").split("_");
+            ids = ids == "" ? s[0] : ids + "," + s[0];
+            names = names + $(this).next().text() + "♣";
+            html += "<li id='div_DeptItem_" + s[0] + "'><span title='" + $(this).next().text() + "'>" + $(this).next().text() + "</span>";
+            if ($(this).attr("oldchoose") != "oldchoose")
+            {
+                html += "<input class='btn btn-cancel' type='button' name='btn' value='X' title='移除'  onclick=fnRemoveDeptItem(\'div_DeptItem_" + s[0] + "\'," + s[0] + ") /></li>";
+            }
+
+
+        });
+        if (ids.length > 0)
+        {
+            names = names.substring(0, names.length - 1);
+            if (flag == 1)
+            {
+                html += "</ul><div class='mt10'><input type='button' class='btn btn-co' id='btnGoOnAddDept' onclick='fnGoOnAddDept()' value='继续添加组织结构' /></div></div>";
+                $("#div_showDept").append(html);
+            }
+            else
+            {
+                $("#div_showDept").find("ul").eq(0).append(html);
+            }
+        }
+        else
+        {
+            html = "";
+        }
+        $("#txtOpenDepartObject").val(ids);
+        art.dialog.list["pop_chooseDept"].close();
+    }
+
+
+    //继续添加群组
+    function fnGoOnAddGroups()
+    {
+        art.dialog.load("/CourseManage/CourseChooseGroup?ids=" + $("#txtOpenGroupObject").val() + "&TokenPublishflag=1" + "&tempGroupIds=" + $("#txtTempOpenGroupObject").val(), {
+            title: '选择群组', id: "pop_chooseGroup",
+            close: function ()
+            {
+                if ($("#txtOpenGroupObject").val() == "")
+                {
+                    $("#chbOpenFlag1").attr("checked", false);
+                    $("#sp_choosegroup").hide();
+                } else
+                {
+                    $("#chbOpenFlag1").attr("checked", true); $("#sp_choosegroup").show();
+                }
+            }
+        }, false);
+
+    }
+    //继续添加部门
+    function fnGoOnAddDept()
+    {
+        art.dialog.load("/UserCommon/DeptTree?type=checkbox&buttonShow=1", {
+            title: '选择组织结构', id: "pop_chooseDept",
+            close: function ()
+            {
+                if ($("#txtOpenDepartObject").val() == "")
+                {
+                    $("#chbOpenFlag2").attr("checked", false);
+                } else
+                {
+                    $("#chbOpenFlag2").attr("checked", true);
+                }
+            }
+        }, false);
+
+    }
+
+    //从隐藏域中移除相关的群组编号
+    function fnRemoveGroupItem(id, groupId)
+    {
+        $("#" + id).remove();
+        var oldGroupIds = $("#txtOpenGroupObject").val();
+
+        oldGroupIds = "," + oldGroupIds + ",";
+        var str = "," + groupId + ",";
+        if (oldGroupIds == str)
+        {
+            oldGroupIds = oldGroupIds.replace(str, "");
+        } else
+        {
+            oldGroupIds = oldGroupIds.replace(str, ",");
+        }
+        oldGroupIds = oldGroupIds.substring(1, oldGroupIds.length - 1);
+        var splitObj = oldGroupIds.split(",");
+        var objflag = true;
+        if (splitObj.length > 0)
+        {
+            for (var i = 0; i < splitObj.length; i++)
+            {
+                if (splitObj[i] != "")
+                {
+                    objflag = false;
+                }
+            }
+        }
+        if (objflag == true)
+        {
+            oldGroupIds = "";
+        }
+        $("#txtOpenGroupObject").val(oldGroupIds);
+        if (oldGroupIds == "")
+        {
+            $("#chbOpenFlag1").attr("checked", false);
+            $("#div_showgroup").html("");
+        }
+    }
+
+    //
+    function fnRemoveDeptItem(id, groupId)
+    {
+        $("#" + id).remove();
+        var oldGroupIds = $("#txtOpenDepartObject").val();
+
+        oldGroupIds = "," + oldGroupIds + ",";
+        var str = "," + groupId + ",";
+        if (oldGroupIds == str)
+        {
+            oldGroupIds = oldGroupIds.replace(str, "");
+        } else
+        {
+            oldGroupIds = oldGroupIds.replace(str, ",");
+        }
+        oldGroupIds = oldGroupIds.substring(1, oldGroupIds.length - 1);
+        var splitObj = oldGroupIds.split(",");
+        var objflag = true;
+        if (splitObj.length > 0)
+        {
+            for (var i = 0; i < splitObj.length; i++)
+            {
+                if (splitObj[i] != "")
+                {
+                    objflag = false;
+                }
+            }
+        }
+        if (objflag == true)
+        {
+            oldGroupIds = "";
+        }
+        $("#txtOpenDepartObject").val(oldGroupIds);
+        if (oldGroupIds == "")
+        {
+            $("#chbOpenFlag2").attr("checked", false);
+            $("#div_showDept").html("");
+        }
+    }
+</script>
+

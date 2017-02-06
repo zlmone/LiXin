@@ -1,0 +1,85 @@
+﻿@using LiXinModels.CourseManage
+@{
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
+    var course = ViewBag.courselist as Co_Course;
+    var flag = Request.QueryString["flag"] ?? "0";//为1时来自首页
+}
+
+        @*<input type="hidden" id="txt_CourseId" value="@ViewBag.courseid"/>*@
+<div class="course-top">
+    <div class="pic">
+        <img src="../../Images/course-pic.jpg"/>
+    </div>
+    <div class="info">
+        <h3 class="ovh">@course.CourseName</h3>
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span9">开课时间：</td>
+                <td colspan="3">@course.TeacherCourseTime</td>
+            </tr>
+            <tr>
+                <td class="Tit">课程开放级别：</td>
+                <td>@course.OpenLevel</td>
+                <td class="Tit span6">课程学时：</td>
+                <td>@course.CourseLength</td>
+                @*<td class="Tit">通过状态：</td>
+                <td>
+                    @if (@course.IsTest == 1)
+                    { 
+                        @(course.PassStatus == 1 ? "通过" : "未通过")
+                    }
+                    else
+                    {
+                        <span>--</span>
+                    }
+                </td>*@
+            </tr>
+        </table>
+    </div>
+</div>   
+<div class="tab-bk mt10">
+    <ul id="ul_menu">
+        <li class="On" onclick="fhref(0)">
+            课程详情
+            @*@Html.ActionLink("课程详情", "VideoCourseMain", new { id = @course.Id ,flag=flag})  *@
+        </li>
+        <li  onclick="fhref(1)">
+            @* @Html.ActionLink("课后评估", "VideoAfterCourse", new { id = @course.Id })*@
+             @* <a onclick="FUrl();">课后评估</a>*@
+             课后评估
+        </li>
+        <li  onclick="fhref(2)">
+            在线测试
+           @* @Html.ActionLink("在线测试", "VideoCourseOnLineTest", new { id = @course.Id, flag = flag })*@
+        </li>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    //var urlstr = encodeURIComponent(window.location.href);
+    function FUrl() {
+        if ('@(flag)' == '1') {
+            window.location.href = "/MyCourse/VideoAfterCourse?flag=@(flag)&id=" + @(course.Id) + "&backurl=/Home/MyTrainIndex";
+        } else {
+            window.location.href = "/MyCourse/VideoAfterCourse?flag=@(flag)&id=" + @(course.Id) + "&backurl=/MyCourse/VideoCourseList";
+        }
+    }
+    function fhref(i)
+    {
+        switch(i)
+        {
+            case 0:location.href="/MyCourse/VideoCourseMain?id="+@(course.Id)+"&flag="+@(flag);break;
+            case 1:
+                if ('@(flag)' == '1') {
+                        window.location.href = "/MyCourse/VideoAfterCourse?flag=@(flag)&id=" + @(course.Id) + "&backurl=/Home/MyTrainIndex";
+                    } else {
+                        window.location.href = "/MyCourse/VideoAfterCourse?flag=@(flag)&id=" + @(course.Id) + "&backurl=/MyCourse/VideoCourseList";
+                    }
+            ;break;
+            case 2:location.href="/MyCourse/VideoCourseOnLineTest?id="+@(course.Id)+"&flag="+@(flag);break;
+
+        }
+    }
+
+</script>

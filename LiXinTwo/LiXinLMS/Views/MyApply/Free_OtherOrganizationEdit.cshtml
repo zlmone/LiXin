@@ -1,0 +1,304 @@
+﻿@model LiXinModels.SystemManage.Free_UserApplyOtherForm
+@{
+    ViewBag.Title = "我的申请";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .choose input[type="text"] { width: 120px; }
+</style>
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的申请"
+}))
+    @Html.Action("Free_ApproveHead", "MyApply")
+    <form id="from_org">
+        <table class="tab-Form" id="tab">
+            <tr>
+                <td class="Tit">年度：</td>
+                <td>@ViewBag.year</td>
+            </tr>
+            <tr>
+                <td class="Tit span10"><span class="must">*</span>课程名称：</td>
+                <td>
+                    <input name="CourseName" type="text" class="span16 CourseName " maxlength="200"  value="@(Model.CourseName)"/></td>
+            </tr>
+            <tr>
+                <td class="Tit"><span class="must">*</span>培训地点：</td>
+                <td>
+                    <input name="Address" type="text" class="span16 Address" maxlength="200" value="@(Model.Address)" /></td>
+            </tr>
+            <tr>
+                <td class="Tit"><span class="must">*</span>培训时间：</td>
+                <td>
+                    <div class="data-choose choose">
+                        <input type="text" time="stime" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" class="StartTime span12" name="StartTime" value="@(Model.StartTime.ToString("yyyy-MM-dd HH:mm"))" />
+                        <i></i>
+                    </div>
+                    <label>
+                        至</label>
+                    <div class="data-choose choose">
+                        <input type="text" time="etime" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" class="EndTime span12" name="EndTime"  value="@(Model.EndTime.ToString("yyyy-MM-dd HH:mm"))" />
+                        <i></i>
+                    </div>
+                </td>
+            </tr>
+            @if (Model.OtherFromID != 0)
+            {
+                <tr>
+                    <td class="Tit"><span class="must">*</span>申请所内学时：</td>
+                    <td>
+                        <input name="TogetherScore" type="text" class="span16 TogetherScore" maxlength="200"  value="@(Model.TogetherScore)"/>
+                        <span style="color: gray">单门课程最高可折算@(ViewBag.tScore)所内学时</span>
+                    </td>
+                </tr>
+            }
+            @if (Model.OtherFromID != 1)
+            {
+                <tr>
+                    <td class="Tit"><span class="must">*</span>申请CPA学时：</td>
+                    <td>
+                        <input name="CPAScore" type="text" class="span16 CPAScore" maxlength="200"  value="@(Model.CPAScore)" />
+                        <span style="color: gray">单门课程最高可折算@(ViewBag.CPAScore)CPA学时</span>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td class="Tit"><span class="must">*</span>证明资料：</td>
+                <td>
+                    <input type="file" name="orgResource" value="" class="uploadResource" id="uploadResource" />
+                    <div class="charleft originalTextareaInfo mb5" style="font-weight: bold; font-size: 14px;white-space:normal">
+                        <p>可以上传的文档类型有：doc，docx，xls，xlsx，ppt，pptx，txt，pdf，bmp，png，jpeg，gif，tiff，jpg</p>
+                    </div>
+                    <input type="hidden" id="hidOther" />
+                    @if ((IEnumerable<LiXinModels.SystemManage.Free_UserApplyFiles>)ViewBag.UserApplyFiles != null)
+                    {
+                        <div class="seled-list" id="seled-list_@(Model.ID)">
+                            <ul>
+                                @foreach (var t in (IEnumerable<LiXinModels.SystemManage.Free_UserApplyFiles>)ViewBag.UserApplyFiles)
+                                {
+                                    <li id="div_courseOther_@(t.ID)"><span title="@t.ResourceName">
+                                        @t.ResourceName
+                                    </span>
+                                        <input  type="button" name="btn" value="X" title="移除" class="btn btn-cancel" onclick="fnRemoveOther('div_courseOther_@(t.ID)    ',@t.ID,@Model.ID)" />
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="button" value="保存" id="btn_save" class="btn" onclick="SaveOrgan(0)" />
+                    <input type="button" value="提交" class="btn" id="btn_up" onclick="SaveOrgan(1)" />
+                    <input type="button" value="取消" class="btn" id="btn_cancel" />
+                </td>
+            </tr>
+        </table>
+    </form>
+    <input type="hidden" id="txt_id" value="@ViewBag.ID" />
+</div>
+
+<script type="text/javascript">
+
+    var fileCount = 0;
+    var currNum = 0;
+    var interval = null;
+    var  validator = null;
+    $(document).ready(function ()
+    {
+
+        //上传附件
+        $('.uploadResource').uploadify({
+            'formData': { 'folder': "@(System.Configuration.ConfigurationManager.AppSettings["FreeUplpadUrl"])" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',//此处因需要增加了detailFlag字段 其他地方使用请自行移除
+            'auto': false,
+            'multi': true,
+            'fileTypeExts': '*.doc; *.docx; *.xls; *.xlsx;*.ppt;*.pptx;*.txt;*.pdf;*.bmp;*.png;*.png;*.jpeg;*.gif;*.tiff;*.jpg;',
+            'onCancel': function (file)
+            {
+            },
+            'onSelect': function (file)
+            {
+                $("#tempAttachQueueId").val(file.id);
+            },
+            'onUploadStart': function (file)
+            {
+            },
+            'onUploadError': function (file, errorCode, errorMsg, errorString)
+            {
+                if (errorCode != -280)
+                {
+                    art.dialog.tips('上传过程中发送异常，请重新选择文件！', 1.5);
+                }
+            },
+            'onUploadSuccess': function (file, data, response)
+            {
+                var a = data.split('|');
+
+                if (a.length > 0)
+                {
+
+                    var ResourceName = a[0];
+                    var RealName = a[1];
+                    if ($("#txt_id").val() != "")
+                    {
+                        $.post("/MyApply/SubmitAddOrgResource?userApplyID=@(ViewBag.ID)&ResourceName=" + escape(ResourceName) + "&RealName=" + RealName, function (data)
+                        {
+                            currNum++;
+                        });
+                    }
+                    else
+                    {
+                        art.dialog.tips('上传发生错误！', 3);
+                    }
+                }
+            },
+            'onAllComplete': function () { }
+        })
+
+
+        $("#btn_cancel").bind("click", function ()
+        {
+            back();
+        });
+
+        $.validator.addMethod("CourseName", function (value, element)
+        {
+            return !this.optional(element) && (value != "");
+        }, "请输入课程名称");
+        $.validator.addMethod("Address", function (value, element)
+        {
+            return !this.optional(element) && (value != "");
+        }, "请输入培训地点");
+        $.validator.addMethod("StartTime", function (value, element)
+        {
+            return !this.optional(element) && (value != "");
+        }, "请输入开始时间");
+        $.validator.addMethod("EndTime", function (value, element)
+        {
+            return !this.optional(element) && (value != "");
+        }, "请输入结束时间");
+        $.validator.addMethod("TogetherScore", function (value, element)
+        {
+            var reg = /^\d+[\.]?\d{0,2}$/;
+            return !this.optional(element) && (reg.test(value)) && (parseFloat(value) <= parseFloat(@ViewBag.tScore));
+        }, "请输入申请所内学时,规则：输入保留2位小数，且在0-" +@ViewBag.tScore +"范围内");
+        $.validator.addMethod("CPAScore", function (value, element)
+        {
+            var reg = /^\d+[\.]?\d{0,2}$/;
+            return !this.optional(element) && (reg.test(value)) && (parseFloat(value) <= parseFloat(@ViewBag.CPAScore));
+        }, '请输入申请CPA学时,规则：输入保留2位小数，且在0-' +@ViewBag.CPAScore +"范围内");
+
+        validator= $("#from_org").validate({
+            errorPlacement: function (error, element)
+            {
+                if (element.attr("time") == "stime" || element.attr("time") == "etime")
+                {
+                    error.insertAfter(element.parent());
+                }
+                else
+                {
+                    error.insertAfter(element);
+                }
+            },
+            highlight: function (element, errorClass)
+            {
+                $(element).addClass(errorClass);
+            },
+            submitHandler: SaveOrgan
+        });
+    });
+
+    function back()
+    {
+        if (currNum == fileCount)
+        {
+            clearInterval(interval);
+            // art.dialog.tips("保存成功！", 1);
+            window.location.href = '/MyApply/MyApply?flag=4&nextflag=2';
+        }
+        
+    }
+
+    function SaveOrgan(type)
+    {
+        if(validator.form())
+        {
+            var obj=$(".CourseName");
+            var count=0;//是否有重复
+          //  var error = "<span  generated='true'  ><span class='Validform_checktip Validform_wrong chongfu'>课程名称重复</span></span>"
+            flag = false;
+      
+            //var value = escape($(obj).val());
+           // var name = $(obj).attr("name");
+
+            if (value != "")
+            {
+                //if ($(obj).parent().find(".chongfu").html() == "课程名称重复")
+                //{
+                //    $(obj).parent().find("span").remove();
+                //}
+               @* $.post("/MyApply/GetExistFreeName?FreeName=" +value+"&ID=@(ViewBag.ID)", function (data)
+                {
+                    if (data.count > 0)
+                    {
+                        $(obj).parent().append(error);
+                        flag = true;
+                    }
+                    else
+                    {*@
+                        fileCount = $("#uploadResource-queue").find(".uploadify-queue-item").length;
+
+
+                        if($('#seled-list_@(ViewBag.ID)').children("ul").children("li").length==0&&fileCount==0)
+                        {
+                            art.dialog.tips('请上传证明资料', 3);
+                            return false;
+                        }
+
+                        $("#btn_save").attr("disabled",true);
+                        $.post("/MyApply/UpdateOrg?ID=@ViewBag.ID&deleteids="+$("#hidOther").val()+"&type="+type, $("#from_org").formSerialize(), function (data)
+                        {
+                            if (fileCount > 0)
+                            {
+                                $("#uploadResource").uploadify('upload', '*');
+                            }
+                            //back();
+                            if (interval == null || interval == undefined)
+                            {
+
+                                interval = setInterval("back()", 1000);
+                            }
+                            $("#btn_save").attr("disabled",false);
+            
+                        });
+                //    }
+                //});
+            }
+        }
+    }
+
+    function fnRemoveOther(id,relid,itemID)
+    {
+        $("#"+id).remove();
+        var ids= $("#hidOther").val();
+        if (ids=="") {
+            ids=relid;
+        }
+        else if (ids!="") {
+            ids += "," + relid;
+        }
+        $("#hidOther").val(ids);
+    }
+</script>

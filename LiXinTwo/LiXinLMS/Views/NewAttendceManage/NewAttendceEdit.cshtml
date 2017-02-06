@@ -1,0 +1,80 @@
+﻿@{
+    Layout = null;
+}
+<form id="formEditNewAtt">
+<div>
+    <table class="tab-Form" style="width:450px;">
+        <tr>
+            <td class="Tit span10">学号：</td>
+            <td><strong id="NumberId"></strong></td>
+        </tr>
+        <tr>
+            <td class="Tit span10">姓名：</td>
+            <td><strong id="usname"></strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">所在班级/小组：</td>
+            <td><strong id="classname"></strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">上课考勤时间：</td>
+            <td>
+                <div class="time-choose ">
+                    <input type="text" name="beginTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'endTime\')}' }) " id="beginTime" />
+                    <i></i>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">下课考勤时间：</td>
+            <td>
+                <div class="time-choose">
+                    <input  type="text" name="endTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'beginTime\')}' }) " id="endTime" />
+                    <i></i>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <center class="mt10"><input type="button" value="保存" class="btn btn-co" onclick="$(this).submit();" /></center>
+</div>
+@*<input id="courseid" name="courseid" type="hidden" />
+<input id="attid" name="attid" type="hidden" />
+<input id="userid" name="userid" type="hidden" />
+<input id="subcourseid" name="subcourseid" type="hidden" />*@
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (@(ViewBag.courseId) > 0) {
+            $("#NumberId").html($("#num@(ViewBag.userId)").text());
+            $("#usname").html($("#user@(ViewBag.userId)").text());
+            $("#classname").html($("#class@(ViewBag.userId)").text());
+//            $("#courseid").val('@(ViewBag.courseId)');
+//            $("#attid").val('@(ViewBag.attId)');
+//            $("#userid").val('@(ViewBag.userId)');
+//            $("#subcourseid").val('@(ViewBag.subcourseId)');
+        }
+
+        $("#formEditNewAtt").validate(
+        {
+            event: "blur",
+            submitHandler: function () {
+                $.post("/NewAttendceManage/SubmitNewAttend?t="+new Date(),{
+                        courseid:@(ViewBag.courseId),
+                        attid:@(ViewBag.attId),
+                        userid:@(ViewBag.userId),
+                        IsAttFlag:@(ViewBag.isatt),
+                        subcourseid:@(ViewBag.subcourseId),
+                        beginTime:$("#beginTime").val(),
+                        endTime:$("#endTime").val()
+                    },function(data){
+                    if (data.result == 1) {
+                        art.dialog.list['NewAttendEdit'].close();
+                        InitList(getUrl());
+                    } else {
+                        art.dialog.tips(data.content,3);
+                    }
+                });
+            }
+        });
+    });
+</script>

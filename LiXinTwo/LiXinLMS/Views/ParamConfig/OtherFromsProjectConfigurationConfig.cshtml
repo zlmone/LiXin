@@ -1,0 +1,92 @@
+﻿@model LiXinModels.Sys_ParamConfig
+@{
+    ViewBag.Title = "课后评估";
+    Layout = null;
+
+}
+<h2 class="tit-h2 mt10">
+    <i></i><span class="tit-con">其他形式、免修申请项目配置>其他有组织形式折算学时限制</span>
+</h2>
+<form id="form_survey">
+    <div id="div_teacher">
+        <table class="tab-Form">
+
+            <tr>
+                <td class="Tit span30">单门课程可折CPA学时年度的最高限制：</td>
+                <td>
+                    <input id="surveyScore" name="surveyScore" type="text" class="span10 searchclass"  
+                    value="@(Model== null ? "" : Model.ConfigValue.Split(',')[0])"   /></td>
+            </tr>
+            <tr>
+                <td class="Tit span30">单门课程可折所内学时年度的最高限制：</td>
+                <td>
+                    <input id="maxsurveyScore" name="maxsurveyScore" type="text" class="span10 searchclass" 
+                       value="@(Model== null ? "" : Model.ConfigValue.Split(',')[1])"   /></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="submit" value="保存" class="btn">
+                    <input type="button" name="cancel" value="取消" class="btn" onclick="FromCanlcel();">
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+       // initSearch();
+        jQuery.validator.addMethod("checkNumber", function (value, element)
+        {
+            var reg = /^\d+[\.]?\d{0,2}$/;
+            return this.optional(element) || (reg.test(value)&&value>0&&value<=999);
+        }, $.validator.format("请输入学时，规则：输入保留2位小数，且在0-999范围内（不包括0）"));
+
+        jQuery.validator.addMethod("checkNumber1", function (value, element)
+        {
+            var reg = /^\d+[\.]?\d{0,2}$/;
+            return this.optional(element) || (reg.test(value) && value >= 0 && value <= 999);
+        }, $.validator.format("请输入学时，规则：输入保留2位小数，且在0-999范围内"));
+
+        $("#form_survey").validate(
+            {
+                errorPlacement: function (error, element)
+                {
+                    error.insertAfter(element);
+                },
+                debug: true,
+                submitHandler: saveSurvey,
+                event: "blur",
+                rules: {
+                    surveyScore: { checkNumber: true },
+                    maxsurveyScore: { checkNumber1: true }
+                }
+            });
+    });
+
+    function saveSurvey()
+    {
+        if ($.trim($("#surveyScore").val()) == "" ||$.trim($("#maxsurveyScore").val()) == "")
+        {
+            art.dialog({ title: '提示', content: '请输入学时年度最高限制', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+            return;
+        }
+        var value = $("#surveyScore").val() + "," + $("#maxsurveyScore").val();
+        $.post("/ParamConfig/AddConfig?year=@ViewBag.year&configType=65&configValue=" + value, function (data)
+        {
+            if (data.result == 1)
+            {
+               FromCanlcel();
+            }
+            else
+            {
+                art.dialog({ title: '提示', content: '配置失败', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+            }
+        });
+    }
+
+    function FromCanlcel()
+    {
+        window.location.href = "/ParamConfig/ParamConfig?id=999&manType=2";
+    }
+</script>

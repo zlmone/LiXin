@@ -1,0 +1,72 @@
+﻿@{
+    Layout = null;
+    var timemodel = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+
+<!DOCTYPE html>
+<form>
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">是否需要月度大纲</span>
+    </h2>
+    <table class="tab-Form mt20">
+        <input type="hidden" value="45" id="configType" /><!--区分ID-->
+        <tr>
+            <td class="Tit span20">
+                部门是否需要月度大纲分解：
+            </td>
+            <td>
+                <input type="radio" id="BMsetOrderYes" name="BMsetOrder" value="0"/>是
+                <input type="radio" id="BMsetOrderNo" name="BMsetOrder" value="1"/>否
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span20">
+                分所是否需要月度大纲分解：
+            </td>
+            <td>
+                <input type="radio" id="FSsetOrderYes" name="FSsetOrder" value="0" />是
+                <input type="radio" id="FSsetOrderNo" name="FSsetOrder" value="1"/>否
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="button" value="确定" id="btn_Add" name="btn_Add" class="btn" onclick="btnClick()"/>
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var flag = "@timemodel.ConfigValue";
+        if (flag.split(';')[0] == "0") {
+            $("#BMsetOrderYes").attr("checked", true);
+        } else {
+            $("#BMsetOrderNo").attr("checked", true);
+        }
+
+        if (flag.split(';')[1] == "0") {
+            $("#FSsetOrderYes").attr("checked", true);
+        } else {
+            $("#FSsetOrderNo").attr("checked", true);
+        }
+    });
+
+
+    function btnClick() {
+        var flagData;
+        //if ($("#setOrderYes").attr("checked") == "checked") {
+        //    flagData = "1";
+        //} else {
+        //    flagData = "0";
+        //}
+        flagData = $("input[name='BMsetOrder']:checked").val() + ";" + $("input[name='FSsetOrder']:checked").val()
+        //alert(flagData);
+        $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + flagData, function (data) {
+            if (data.result == 1) {
+                art.dialog.tips("配置成功");
+            } else {
+                art.dialog.tips("配置失败");
+            }
+        });
+    }
+</script>

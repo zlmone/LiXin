@@ -1,0 +1,111 @@
+﻿@{
+    Layout = null;
+    var modell = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+<form method="POST" id="fnSumitConfig" style="width:750px">
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">其他形式、免修申请开放时间配置</span>
+    </h2>
+<table class="tab-Form mt10">
+    <tr>
+        <td class="Tit span20">
+            其他形式申请开放时间配置：
+        </td>
+        <td>
+            <div class="time-choose">
+                <input type="text" id="txt_StartTime_one" name="starttime_one" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '%y-01-01', maxDate: '#F{$dp.$D(\'txt_EndTime_one\',{m:-1},%y-12-31)}' })  "  value="@(modell.ConfigValue == "" ? "" : modell.ConfigValue.Split(';')[0].Split(',')[0])" />
+                <i></i>
+            </div>
+            至
+            <div class="time-choose">
+                <input type="text" id="txt_EndTime_one" name="endtime_one" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime_one\',{m:1},%y-01-01)}', maxDate: '{%y+1}-12-31' })"  value="@(modell.ConfigValue == "" ? "" : modell.ConfigValue.Split(';')[0].Split(',')[1])"/>
+                <i></i>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit span20">免修申请开放时间配置：</td>
+        <td>
+            <div class="time-choose">
+                <input type="text" id="txt_StartTime_two" name="starttime_two" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '%y-01-01', maxDate: '#F{$dp.$D(\'txt_EndTime_two\',{m:-1},%y-12-31)}' })  "  value="@(modell.ConfigValue == "" ? "" : modell.ConfigValue.Split(';')[1].Split(',')[0])"/>
+                <i></i>
+            </div>
+            至
+            <div class="time-choose">
+                <input type="text" id="txt_EndTime_two" name="endtime_two" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime_two\',{m:1},%y-01-01)}', maxDate: '{%y+1}-12-31' })" value="@(modell.ConfigValue == "" ? "" : modell.ConfigValue.Split(';')[1].Split(',')[1])" />
+                <i></i>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td  class="Tit span20">其他有组织形式申请开放时间配置：</td>
+        <td>
+            <div class="time-choose">
+                <input type="text" id="txt_StartTime_three" name="starttime_three" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '%y-01-01', maxDate: '#F{$dp.$D(\'txt_EndTime_three\',{m:-1},%y-12-31)}' })  " value="@(modell.ConfigValue == "" ? "" : modell.ConfigValue.Split(';')[2].Split(',')[0])"/>
+                <i></i>
+            </div>
+            至
+            <div class="time-choose">
+                <input type="text" id="txt_EndTime_three" name="endtime_three" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime_three\',{m:1},%y-01-01)}', maxDate: '{%y+1}-12-31' })" value="@(modell.ConfigValue == "" ? "" : modell.ConfigValue.Split(';')[2].Split(',')[1])"/>
+                <i></i>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+        </td>
+        <td>
+            <input type="submit" value="确定" id="btn_Add" class="btn" />
+        </td>
+    </tr>
+</table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function() {            
+
+
+        $("#fnSumitConfig").validate({
+            event: "blur",
+            rules: {
+                starttime_one: { required: true },
+                endtime_one: { required: true},
+                starttime_two: { required: true},
+                endtime_two: { required: true },
+                starttime_three: { required: true },
+                endtime_three: { required: true}
+            },
+            messages: {
+                starttime_one: { required: "请输入开始日期"},
+                endtime_one: { required: "请输入结束日期" },
+                starttime_two: { required: "请输入开始日期"},
+                endtime_two: { required: "请输入结束日期" },
+                starttime_three: { required: "请输入开始日期" },
+                endtime_three: { required: "请输入结束日期" }
+            },
+            errorPlacement: function (error, element) {
+                var eid = element.attr('name');
+                if (element.is(':radio') || element.is(':checkbox')) {
+                    $('input[name=' + eid + ']:last').parent(".time-choose").after(error);
+                } else {
+
+                    error.insertAfter(element.parent());
+                }
+
+            },
+            submitHandler: fnSumitConfig
+        });
+
+        });
+
+    function fnSumitConfig() {     
+    
+        var zhi = $("#txt_StartTime_one").val() + "," + $("#txt_EndTime_one").val() + ";" + $("#txt_StartTime_two").val() + "," + $("#txt_EndTime_two").val() + ";" + $("#txt_StartTime_three").val() + "," + $("#txt_EndTime_three").val();
+            $.post("/ParamConfig/fUpdateParamConfig?configType=60&configValue=" + zhi, function (data) {
+                if (data.result == 1) {
+                    art.dialog.tips('配置成功', 3);
+                } else {
+                    art.dialog.tips('配置失败', 3);
+                }
+            });
+        }
+</script>

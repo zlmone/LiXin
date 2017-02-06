@@ -1,0 +1,100 @@
+﻿@{
+    Layout = null;
+    var emailmodel = ViewBag.model as LiXinModels.Sys_ParamConfig;
+
+}
+<form id="fnSumitConfig">
+<h2 class="tit-h2 mt10">
+    <i></i><span class="tit-con">邮箱配置</span>
+</h2>
+<input type="hidden" value="1" id="configType" /><!--区分ID-->
+<table class="tab-Form mt20">
+    <tr>
+        <td class="Tit span20">
+            用户名：
+        </td>
+        <td>
+            <input type="text" id="txt_Name" name="Name" class="span30" value="@emailmodel.ConfigValue.Split(';')[0]" />
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            密码：
+        </td>
+        <td>
+            <input type="text" id="txt_Password" name="Password" class="span30" value="@emailmodel.ConfigValue.Split(';')[1]"/>
+        </td>
+    </tr>
+    <tr style="display:none;">
+        <td class="Tit">
+            接受服务器：
+        </td>
+        <td>
+            <input type="text" id="txt_ReceiveUrl" name="ReceiveUrl" class="span30" value="@emailmodel.ConfigValue.Split(';')[2]"/>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            端口号：
+        </td>
+        <td>
+            <input type="text" id="txt_Number" name="Number" class="span30" value="@emailmodel.ConfigValue.Split(';')[3]"/>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            发送邮件服务器：
+        </td>
+        <td>
+            <input type="text" id="txt_PostUrl" name="PostUrl" class=" span30" value="@emailmodel.ConfigValue.Split(';')[4]"/>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" class="tc">
+            <input type="submit" value="确定" id="btn_Add" class="btn" />
+        </td>
+    </tr>
+</tabel>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        var re = /^\d+(?=\.{0,1}\d+$|$)/;
+
+        $("#fnSumitConfig").validate({
+            event: "blur",
+            rules: {
+                Name: { required: true, email: true },
+                Password: { required: true },
+                ReceiveUrl: { required: true },
+                PostUrl: { required: true },
+                Number: { required: true, digits: true, min: 1 }
+            },
+            messages: {
+                Name: { required: "请输入用户名", email: "请输入正确格式的电子邮件" },
+                Password: { required: "请输入密码" },
+                ReceiveUrl: { required: "请输入接受服务器" },
+                PostUrl: { required: "请输入发送邮件服务器" },
+                Number: { required: "请输入端口号", digits: "请输入大于0的正整数", min: "请输入大于0的正整数" }
+            },
+            submitHandler: fnSumitConfig
+        });
+
+        function fnSumitConfig()
+        {
+            var tt = $("#txt_Name").val() + ";" + $("#txt_Password").val() + ";" + $("#txt_ReceiveUrl").val() + ";" + $("#txt_Number").val() + ";" + $("#txt_PostUrl").val()
+
+            $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + tt, function (data)
+            {
+                if (data.result == 1)
+                {
+                    art.dialog.tips('配置成功', 3);
+                } else
+                {
+                    art.dialog.tips('配置失败', 3);
+                }
+            });
+        }
+
+    })
+</script>

@@ -1,0 +1,151 @@
+﻿@model LiXinModels.Survey.Survey_Exampaper
+@using LiXinLanguage
+@{
+    ViewBag.Title = "预览问卷";
+    var browseType = Request.QueryString["browseType"] ?? "0";
+    if (browseType == "1")
+    {
+        Layout = null;
+
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+
+}
+<div class="main-c">
+    @{
+        if (browseType == "0")
+        {
+        @(Html.Action("SiteMapLink", "Common", new
+      {
+          linkName = "预览问卷"
+      }))
+        }   
+    }
+    <table class="tab-Form">
+        <tr>
+            <td class="span6">
+                问卷名称：
+            </td>
+            <td>
+               <div class="span20 ovh tl" title="@Model.ExamTitle"> <strong>@Model.ExamTitle</strong></div>
+            </td>
+            <td class="span6">
+                问卷分类：
+            </td>
+            <td>
+                <div class="span20 ovh tl" title="@Model.ExamTypeShow"><strong>@Model.ExamTypeShow</strong></div>
+            </td>
+            <td class="span6">
+                所属分类：
+            </td>
+            <td>
+             <div class="span20 ovh tl" title="@Model.CategoryName"><strong>@Model.CategoryName</strong></div>
+            </td>
+        </tr>
+    </table>
+    <div class="sur-do">
+        @{
+            
+            foreach (var Question in @Model.Questions)
+            {
+            <div id="QuestionID@(Question.QuestionID)" class="list">
+                <input type="hidden" name="@(Question.QuestionType)" value="@(Question.QuestionID)"/>
+                <div class="tit">
+                    <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                </div>
+                @{
+                if (Question.QuestionType == 2)
+                {
+                    <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                }
+                }
+                @{  switch (Question.QuestionType)
+                    {
+                        //单选题
+                        case 0:
+                            {    
+                                int count = 0;
+
+                                foreach (var s in Question.Answers)
+                                {
+                    <p>
+                        <input type="radio" disabled="disabled" />@((char)(65 + count)). @s.AnswerContentNohtml
+                    </p>
+                                    count++;
+                                }
+                            }
+                    <div class="why">
+                        <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                    </div>
+                            break;
+                        //多选题
+                        case 1:
+                            {
+                                int count = 0;
+
+                                foreach (var s in Question.Answers)
+                                {
+                    <p>
+                        <input type="checkbox" disabled="disabled" />@((char)(65 + count)). @s.AnswerContentNohtml
+                    </p>
+                                    count++;
+                                }
+                            }
+                    <div class="why">
+                        <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                    </div>
+                            break;
+                        //主观题
+                        case 2:
+                    <p>
+                        <textarea disabled="disabled" style="width: 338px; height: 104px;">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                    </p> 
+                                                                                       break;
+                        case 3:
+                  
+                    <div id='divScore_@(Question.QuestionOrder)' class="ml35 " title='5'>
+                    </div>
+                    <div class="why mt5">
+                        <span>理由：</span><input name="xingPReplay" type="text" disabled="disabled" />
+                    </div>
+                                  break;
+                    }
+                }
+            </div>
+            }   
+        }
+    </div>
+    <center class="mt10"><a onclick="fnBrowsePaperBack()" target="_self" class="btn btn-cancel">@(browseType == "1" ? "关闭" : "返回")</a></center>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        showStars();
+    });
+    function fnBrowsePaperBack()
+    {
+        if ("@browseType" == "1")
+        {
+            fnBrowsePopCallBack(); //弹出层中添加回调函数
+        }
+        else
+        {
+            window.location.href = 'DeptSurveyExampaperList';
+        }
+    }
+
+    //加载星评题
+    function showStars()
+    {
+
+        if ($("div[id^='divScore_']").length > 0)
+        {
+            $("div[id^='divScore_']").studyplay_star({ MaxStar: 5, CurrentStar: 0, Enabled: false }, function (value)
+            {
+            });
+        }
+    }
+</script>

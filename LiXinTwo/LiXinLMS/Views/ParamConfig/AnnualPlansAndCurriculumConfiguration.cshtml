@@ -1,0 +1,68 @@
+﻿@{
+    Layout = null;
+    var timemodel = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+
+<!DOCTYPE html>
+<form>
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">年度计划与课程关联配置</span>
+    </h2>
+    <input type="hidden" value="43" id="configType" /><!--区分ID-->
+    <table class="tab-Form mt20">
+        <tr>
+            <td colspan="2"><div class="red" style="margin-left:30px;">注：如果选择是，那么在当前年度下一定要有年度计划才能开始课程</div></td>
+        </tr>
+        <tr>
+            <td class="Tit span16">
+                年度计划与开课是否关联：
+            </td>
+            <td>
+                <input type="radio" id="setOrderYes" name="setOrderYes" onclick="isCheckedYes()" />是
+                <input type="radio" id="setOrderNo" name="setOrderNo" onclick="isCheckedNo()" class="ml20" />否
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc"><input type="button" value="确定" id="btn_Add" name="btn_Add" class="btn" onclick="btnClick()"/></td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var flag = "@timemodel.ConfigValue";
+        if (flag == "1") {
+            $("#setOrderYes").attr("checked", true);
+        } else {
+            $("#setOrderNo").attr("checked", true);
+        }
+    });
+
+    function isCheckedYes() {
+        if ($("#setOrderYes").attr("checked")=="checked") {
+            $("#setOrderNo").attr("checked", false);
+        }
+       
+    }
+    
+    function isCheckedNo() {
+        if ($("#setOrderNo").attr("checked") == "checked") {
+            $("#setOrderYes").attr("checked", false);
+        }
+    }
+
+    function btnClick() {
+        var flagData;
+        if ($("#setOrderYes").attr("checked") == "checked") {
+            flagData = "1";
+        } else {
+            flagData = "0";
+        }
+        $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + flagData, function(data) {
+            if (data.result == 1) {
+                art.dialog.tips("配置成功");
+            } else {
+                art.dialog.tips("配置失败");
+            }
+        });
+    }
+</script>

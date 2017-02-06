@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "其他项目";
+    Layout = null;
+}
+<div id="div_other">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tbody>
+                <tr>
+                    <td class="Tit span6">申请内容：
+                    </td>
+                    <td>
+                        <input type="text" class="span30 Box searchclass" id="ApplyContent" value="请输入申请内容" info="请输入申请内容" />
+                    </td>
+                    <td class="so-do">
+                        <input class="btn" type="button" value="搜索" id="btnSearch" onclick="Getdata();" />
+                        <input class="btn" type="button" value="新增项目" id="AddFreeOther"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="mt10" id="div0">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th class="span15">申请内容</th>
+                    <th class="span12">学时折算方法</th>
+                    <th class="span11" style="text-align: left">可折内部培训学时年度的最高限制</th>
+                    <th class="span11" style="text-align: left">可折CPA学时年度的最高限制</th>
+                    <th class="span12">上传文件提示</th>
+                    <th class="span6">操作</th>
+                </tr>
+            </thead>
+            <tbody id="OtherList"></tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+</div>
+<div id="add_other" style="display: none">
+    正在加载......
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        if (@ViewBag.IsEdit==0)
+        {
+            $("#AddFreeOther").attr("disabled",true);            
+        }
+        else
+        {
+            $("#AddFreeOther").click(function(){
+                AddFreeOther();
+            });
+        }
+        initSearch();
+        Getdata();
+
+        
+    });
+
+    function Getdata()
+    {
+        $("#div_other").show();
+        $("#add_other").hide();
+        $("#OtherList").JsRenderData({
+            sourceUrl: "/ParamConfig/GetFreeOtherList?year=@ViewBag.year&ApplyContent=" + escape(getSearchWord("ApplyContent")),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "OtherListTemplate"
+        });
+    }
+
+    function AddFreeOther()
+    {
+        // window.location.href = "AddFreeOther?id=0";
+        $("#div_other").hide()
+        $("#add_other").show();
+        $("#add_other").load("AddFreeOther?id=0&year=@ViewBag.year");
+    }
+
+    function hideFreeOther()
+    {
+        $("#div_other").show();
+        $("#add_other").html("");
+    }
+
+    function DeleteFreeOther(id)
+    {
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function ()
+            {
+                $.post("DeleteFreeOther?id=" + id, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        art.dialog.tips(data.Content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    function EditFreeOther(id)
+    {
+        $("#div_other").hide();
+        $("#add_other").show();
+        $("#add_other").load("AddFreeOther?id=" + id + "&year=@ViewBag.year");
+    }
+</script>
+<script id="OtherListTemplate" type="text/x-jsrender">
+   {{for #data}}
+      <tr>
+          <td>{{:#index+1}}</td>
+          <td title="{{:ApplyContent}}" style="text-align: left;">{{:ApplyContent}}</td>
+          <td>{{:ConvertBaseTo}}个学时/{{:ConvertBase}}{{:ConvertBaseInfo}}</td>
+          <td style="text-align: left;">{{:TrainGradeScore}}</td>
+          <td>{{:ConvertMaxStr}}</td>
+          <td style="text-align: left;">{{:UploadTip}}</td>
+          <td>
+            {{if @ViewBag.IsEdit==1}}
+                <a class="icon iedit" title="编辑" onclick="EditFreeOther({{:ID}})">编辑</a>
+                <a class="icon idel" title="删除" onclick="DeleteFreeOther({{:ID}})">删除</a>
+            {{else}}
+                <a title='历史数据无法修改' class="icon iedit" disabled="disabled" ></a>
+                <a title='历史数据无法修改' class="icon idel" disabled="disabled"></a>
+            {{/if}}
+          </td>
+      </tr>
+   {{/for}}
+</script>
+

@@ -1,0 +1,123 @@
+﻿
+@using LiXinModels.Examination.DBModel;
+@using LiXinModels.CourseManage
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var CoCoursePaper = ViewBag.Co_CoursePaper as Co_CoursePaper;
+    var exap = ViewBag.exap as tbExamination;
+    var examsendstudent = ViewBag.examsendstudent as tbExamSendStudent;
+    var exampapger = ViewBag.exampapger as tbExampaper;
+    var course = ViewBag.course as Co_Course;
+    ViewBag.Title = "课程详情";
+    
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+    <style type="text/css">
+    </style>
+</head>
+<body>
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "课程详情" }))
+        @Html.Action("MyCourse", "MyCourse", new { id = @ViewBag.courseid })
+        
+        <input type="hidden" id="txt_CourseId" value="@ViewBag.courseid"/>
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th>试卷名称</th>
+                    <th>考试时长(分钟)</th>
+                    <th>考试时间</th>
+                    <th>考试分数/通过分数</th>
+                    <th>允许(进入)考试次数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @*&& @exampapger.Status==0*@
+                @if (CoCoursePaper != null && @course.IsTest == 1 && exampapger!=null)
+                { 
+                    <tr>
+                        <td>
+                            <div class="tl ovh span30" title="@exampapger.ExampaperTitle">@exampapger.ExampaperTitle</div>
+                        </td>
+                        <td>
+                            @CoCoursePaper.Length
+                        </td>
+                        <td>
+                            课程结束后 @CoCoursePaper.Hour 小时
+                        </td>
+                        <td>
+                        
+                            @if (examsendstudent != null)
+                            {
+                                <span>@examsendstudent.StudentAnswerList.Sum(pa => pa.GetScore)</span>
+                            }
+                            else
+                            {
+                                <span>0</span>
+                            }
+                        
+                            <span>
+                                / @(Convert.ToInt32(CoCoursePaper.LevelScore * 0.01 * @exampapger.ExampaperScore))
+                            </span>
+                        
+                        </td>
+                        <td>
+                            @if (examsendstudent != null)
+                            {
+                                <span>@examsendstudent.TestTimes/</span>
+                            }
+                            else
+                            {
+                                <span>0/</span>
+                            }
+                            <span>@CoCoursePaper.TestTimes</span>
+                        </td>
+                   
+                        <td>
+                            @if (ViewBag.leavestatus == 1)
+                            { 
+                                <a onclick="fGoIn(@CoCoursePaper.PaperId)" class="icon iexam" title="进入" ></a>
+                            }
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr><td colspan="6">暂无数据</td></tr>
+                }
+            </tbody>
+            <tfoot></tfoot>
+        </table>
+        
+        <div class="tc mt10">@Html.ActionLink("返回", "MyCourseList", "MyCourse", new { p = "1" },new { @class = "btn btn-cancel" })</div>
+    </div>
+</body>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#ul_menu li:eq(4)").addClass("On").siblings("li").removeClass("On");
+        });
+        function fGoIn(id) {
+            $.post("/MyCourse/FGetInto?courseid=" + $("#txt_CourseId").val() + "&ExamPaperId=" + id+"&SourceType=1", function (data) {
+                if (data.result == 1) {
+                    location.href = "/ExamTest/ExamTestOnline?euID=" + data.euId + "&SourceType=1&backurl=/MyCourse/OnlineTest?id=" + $("#txt_CourseId").val()+"&tp=";
+                } else if (data.result == 0) {
+//                    art.dialog({ title: '温馨提示', content: data.message, width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () {
+//                        //window.location.href = '/MyCourse/AfterCourse?SurveyPaperId=CoCoursePaper.PaperId)&id=' + $("#txt_CourseId").val();
+//                    } 
+//                    });
+
+                    art.dialog.tips(data.message, 3);
+                } else {
+                   // art.dialog({ title: '温馨提示', content: data.message, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                    art.dialog.tips(data.message, 3);
+                }
+            });
+        }
+    </script>
+</html>

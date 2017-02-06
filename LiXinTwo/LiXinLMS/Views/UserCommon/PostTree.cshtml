@@ -1,0 +1,83 @@
+﻿@*
+在调本页面时，要注意，页面载入方法中有四个参数，可传可不传都有默认值
+flag            1：不带全部；0：带全部；默认为0
+type            ''：啥不带；'checkbox'：带checkbox；'radio'带radio；默认为''
+clickFunction   click事件；默认为'postNodeClick(this)'
+buttonShow      0：不显示；1：显示；默认为0
+
+$("#pop_hidPostID").val() 存放着被选中节点的id，默认为0
+$("#pop_hidParentPostID").val() 存放着被选中节点的父级id，默认为0
+$("#pop_hidPostName").val() 存放着被选中节点的Name，默认为空
+NodePostClick() 为点击节点事件的补充，可以自定义事件
+InitPostTree() 为加载完之后补充
+
+GetPosts() 返回选择了的部门的信息；
+返回格式为 { ids,names } ids：以“,”相隔的部门ID的集合；names：以“♣”相隔的部门名称的集合
+*@
+@{
+    Layout = null;
+}
+<div id="pop_postTree" class="treeview" >
+    @ViewBag.html
+</div>
+<div class="mTop_1 tc">
+    @{
+        if (ViewBag.buttonShow == 1)
+        {
+            <a title="确定" class="Btn Btn_blue" onclick=" SelectPost(); " id="btnSure">确定</a>
+        }
+    }
+</div>
+<input type="hidden" id="pop_hidPostID" value="0" />
+<input type="hidden" id="pop_hidParentPostID" value="0" />
+<input type="hidden" id="pop_hidPostName" value="" />
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#pop_postTree").treeview({
+            persist: "location",
+            collapsed: false,
+            unique: false
+        });
+        try {
+            InitPostTree();
+        } catch(e) {
+        }
+    });
+
+    function postNodeClick(obj) {
+        //获取具体的分类信息
+        var ids = $(obj).attr("id");
+        var id = ids.split("_")[0];
+        var pid = ids.split("_")[1];
+        var Name = $(obj).text();
+        $("#pop_hidPostID").val(id);
+        $("#pop_hidParentPostID").val(pid);
+        $("#pop_hidPostName").val(Name);
+        $("#pop_postTree").find("a").each(function () {
+            $(this).css("background-color", "");
+            $(this).css("color", "");
+        });
+
+        $(obj).css("background-color", "rgb(204, 204, 204)");
+        $(obj).css("color", "#cc0000");
+        try {
+            NodePostClick();
+        } catch(e) {
+        }
+    }
+
+    function GetPosts() {
+        var ids = "";
+        var names = "";
+        $("#pop_postTree input:checked").each(function () {
+            var s = $(this).attr("value").split("_");
+            ids = ids + s[0] + ",";
+            names = names + $(this).next().text() + "♣";
+        });
+        if (ids.length > 0) {
+            ids = ids.substring(0, ids.length - 1);
+            names = names.substring(0, names.length - 1);
+        }
+        return { ids: ids, names: names };
+    }
+</script>

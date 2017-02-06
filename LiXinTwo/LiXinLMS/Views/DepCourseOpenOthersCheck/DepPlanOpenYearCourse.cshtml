@@ -1,0 +1,381 @@
+﻿@using LiXinLanguage
+@using LiXinModels.DepPlanManage
+@using LiXinModels.User
+@{
+    ViewBag.Title = NavigateMenuLanguage.DepPlanOpenYearCourse;
+    var strYear = ViewBag.Yearmodel as Dep_YearPlan;
+    var type = Request.QueryString["type"] ?? "0";
+}
+<script src="/Scripts/js_pager.js" type="text/javascript"></script>
+<div class="main-c">
+     @if (ViewBag.show == 0)
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "DepPlanOpenYearCourse" }))
+    }
+    else
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "FDepPlanOpenYearCourse" }))
+    }
+   
+    <div class="tab-bk mt10">
+        <input type="hidden" id="hidDeptFlag" value="0"/>
+        <ul id="tagDeptFlag">
+            <li id="tagDeptFlag_0"  onclick="DeptFlagOn();">实际开课详情</li>
+            <li  class="On" id="tagDeptFlag_1"  style="cursor: default;">计划开课详情</li>
+        </ul>
+    </div>
+    <div class="tab-bk mt10">
+        <input type="hidden" id="hidIsOpenFlag" value="@ViewBag.isOpen"/>
+        <ul id="tagOpenOthers">
+            <li class="On" id="tagOpenOthers_0" onclick="IsOpenFlagOn(0);">单体上报</li>
+            <li id="tagOpenOthers_1"  onclick="IsOpenFlagOn(1);" >联合上报</li>
+        </ul>
+    </div>
+    @if (strYear != null)
+    {
+        <h3 class="tit-h3">年度计划基本信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span6">年度：</td>
+                <td class="span8">
+                    <strong>@(strYear.Year)</strong>
+                </td>
+                <td class="Tit span6">包含课程：</td>
+                <td class="span8">
+                    <strong>@(strYear.courseCount)</strong>
+                </td>
+                <td class="Tit span6">创建时间：</td>
+                <td class="span20">
+                    <strong>@(strYear.CreateTimeStr)</strong>
+                </td>
+                <td class="Tit span6">创建人：</td>
+                <td>
+                    <strong>@(strYear.Realname)</strong>
+                </td>
+                <td class="Tit span6">创建部门：</td>
+                <td>
+                    <strong>@(strYear.DeptName)</strong>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr id="opentype"></tr>
+            <tr id="OpenOKDep" style="display: none;">
+                <td class="Tit">联合成功：</td>
+                <td>
+                    <div>
+                        <div class="seled-list">
+                            <ul>
+                                @if (ViewBag.OKDeparts != null && ((List<Sys_Department>) ViewBag.OKDeparts).Count > 0)
+                                {
+                                    foreach (var item in (List<Sys_Department>) ViewBag.OKDeparts)
+                                    {
+                                        <li><span title="@item.DeptName">@item.DeptName</span></li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr id="OpenNODep" style="display: none;">
+                <td class="Tit">联合失败：</td>
+                <td>
+                    <div>
+                        <div class="seled-list">
+                            <ul>
+                                @if (ViewBag.NODeparts != null && ((List<Sys_Department>) ViewBag.NODeparts).Count > 0)
+                                {
+                                    foreach (var item in (List<Sys_Department>) ViewBag.NODeparts)
+                                    {
+                                        <li><span title="@item.DeptName">@item.DeptName</span>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr id="OpenUnDep" style="display:none;">
+            <td class="Tit">待接受：</td>
+            <td>
+                <div>
+                    <div class="seled-list">
+                        <ul>
+                        @if (ViewBag.UnDeparts != null && ((List<Sys_Department>)ViewBag.UnDeparts).Count > 0)
+                        {
+                            foreach (var item in (List<Sys_Department>)ViewBag.UnDeparts)
+                            {
+                            <li><span title="@item.DeptName">@item.DeptName</span>
+                            </li>
+                            }
+                        }
+                        </ul>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        </table>
+        <div id="Search" class="so-set mt10">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">课程名称：</td>
+                    <td class="span31">
+                        <input type="text" class="span30 searchclass" id="CourseName" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="Tit span6">开放级别：</td>
+                    <td colspan="3">
+                        <div class="sel">
+                            @{
+                                foreach (var item in ViewBag.trainGrade)
+                                {
+                                    <input type="checkbox" value="@item" name="OpenLevel" />
+                                    <label>@item</label>
+                                }
+                            }
+                        </div>
+                    </td>
+                    <td class="so-do" rowspan="2">
+                        <input type="button" value="查询" id="ibtnSearch" class="btn" />
+                        <input type="button" class="btn btn-co " id="btnout" onclick=" OutData(@strYear.Id);" value="导出EXCEL" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit span6">讲师：</td>
+                    <td class="span31">
+                        <input type="text" class="span30 searchclass" id="TearchName" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="Tit span6">选/必修：</td>
+                    <td>
+                        <div class="sel">
+                            <input type="hidden" id="hidIsMust" value="-1"/>
+                            <input type="checkbox" name="popIsMust" id="chbIsMust1" value="1" /><label>选修</label>
+                            <input type="checkbox" name="popIsMust" id="chbIsMust0" value="0" /><label>必修</label>
+                        </div>
+                    </td>
+                    <td class="Tit span6">框架内/外：</td>
+                    <td>
+                        <div class="sel">
+                            <input type="hidden" id="hidIsSystem" value="-1"/>
+                            <input type="checkbox" name="popIsSystem" value="1" id="chkIsSystem1" /><label>内</label>
+                            <input type="checkbox" name="popIsSystem" value="0" id="chkIsSystem0" /><label>外</label>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <input type="hidden" id="selOrder" value="asc" />
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>课程名称</th>
+                    <th>学时</th>
+                    <th  jsrendersortfield="Month_Day" sort="desc" >预计开课时间</th>
+                    <th>开放级别</th>
+                    <th>授课讲师</th>
+                    @*<th>讲师薪酬</th>*@
+                    <th>必修/选修</th>
+                    @*<th>是否折算CPA学时</th>*@
+                    <th>框架内/外</th>
+                </tr>
+            </thead>
+            <tbody id="yearCourseList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    }
+    @if(strYear==null)
+    {
+        <div class="mt10 tc" style="border-bottom:1px dotted #aaa;">
+            暂无数据
+        </div>
+    }
+    <div class="mt10 tc">
+        <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+    </div>
+</div>
+<script id="yearCourseTemplate" type="text/x-jsrender">
+   {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh span20 tl" title="{{>CourseName}}">{{>CourseName}}</div></td>
+        <td>{{:CourseLength}}</td>
+        <td>{{:OpenTime}}</td>
+        <td><div class="ovh span10" title="{{:OpenLevel}}">{{:OpenLevel}}</div></td>
+        <td><div class="ovh span10" title="{{>RealnameStr}}">{{>RealnameStr}}</div></td>
+        <td>{{:IsMustStr}} </td>
+        @*<td>{{:IsCPAStr}} </td>*@
+        <td>{{:IsSystemStr}} </td>
+    </tr>
+   {{/for}}
+</script>
+
+<script type="text/javascript">
+    //链接到实际开课详情tab页
+    function DeptFlagOn() {
+        if (@ViewBag.show == 0)
+        {
+            window.location.href = '/DepCourseOpenOthersCheck/DepCourseLearnSelfList?yearPlan=@ViewBag.yearPlan&deptId=@ViewBag.deptId&isDeptFlag=@ViewBag.isDeptFlag&type=@type';
+        }
+        else
+        {
+            window.location.href = '/DepCourseOpenOthersCheck/FDepCourseLearnSelfList?yearPlan=@ViewBag.yearPlan&deptId=@ViewBag.deptId&isDeptFlag=@ViewBag.isDeptFlag&type=@type';
+        }
+
+                          }
+
+    //单体/联合上报tab标签事件
+
+    function IsOpenFlagOn(id)
+    {
+        if (@ViewBag.show == 0)
+        {
+            window.location.href = '/DepCourseOpenOthersCheck/DepPlanOpenYearCourse?yearPlan=@ViewBag.yearPlan&deptId=@ViewBag.deptId&isOpen=' + id + '&isDeptFlag=@ViewBag.isDeptFlag&type=@type';
+        }
+        else
+        {
+            window.location.href = '/DepCourseOpenOthersCheck/FDepPlanOpenYearCourse?yearPlan=@ViewBag.yearPlan&deptId=@ViewBag.deptId&isOpen=' + id + '&isDeptFlag=@ViewBag.isDeptFlag&type=@type';
+        }
+    }
+
+    //初始化tab标签
+    function TabOn(id) {
+        $("#tagOpenOthers li").removeClass("On");
+        $("#tagOpenOthers_" + id).addClass("On");
+    }
+
+
+    //查询时给隐藏域赋值
+    function InitHiddenValue() {
+        //选修必修
+        var chbIsMust0 = ($("#chbIsMust0").attr("checked") == true || $("#chbIsMust0").attr("checked") == "checked") ? true : false;
+        var chbIsMust1 = ($("#chbIsMust1").attr("checked") == true || $("#chbIsMust1").attr("checked") == "checked") ? true : false;
+        if (chbIsMust0 && chbIsMust1) {
+            $("#hidIsMust").val(-2);
+        } else if (chbIsMust0) {
+            $("#hidIsMust").val(0);
+        } else if (chbIsMust1) {
+            $("#hidIsMust").val(1);
+        } else {
+            $("#hidIsMust").val(-1);
+        }
+
+        //计划内外
+        var chkIsSystem0 = ($("#chkIsSystem0").attr("checked") == true || $("#chkIsSystem0").attr("checked") == "checked") ? true : false;
+        var chkIsSystem1 = ($("#chkIsSystem1").attr("checked") == true || $("#chkIsSystem1").attr("checked") == "checked") ? true : false;
+        if (chkIsSystem0 && chkIsSystem1) {
+            $("#hidIsSystem").val(-2);
+        } else if (chkIsSystem0) {
+            $("#hidIsSystem").val(0);
+        } else if (chkIsSystem1) {
+            $("#hidIsSystem").val(1);
+        } else {
+            $("#hidIsSystem").val(-1);
+        }
+    }
+    //获取培训级别
+    function ReturnOpenLevel() {
+        var openLevel = "";
+        $("input[name='OpenLevel']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                openLevel = openLevel == "" ? $(this).val() : openLevel + "," + $(this).val();
+            }
+        });
+        return openLevel;
+    }
+</script>
+
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+        var hidIsOpenFlag = $("#hidIsOpenFlag").val();
+        TabOn(hidIsOpenFlag); //初始化tab标签
+
+        initSearch();
+        InitializeTargetList(getyearUrl());
+
+        if ('@ViewBag.isOpen' == '1') {
+            var openTypeHtml = '<td class="Tit span6">上报方式：</td><td class="span10"><strong>联合上报</strong></td>'
+                + '<td class="Tit span6">联合部门：</td><td class="span10"><strong>@(strYear==null?0:strYear.linkCount)</strong></td>'
+                    +'<td class="Tit span6">成功联合：</td><td class="span10"><strong>@(strYear==null?0:strYear.linkYesCount)</strong></td>';
+            $("#opentype").html(openTypeHtml);
+            $("#OpenOKDep").show();
+            $("#OpenNODep").show();
+            $("#OpenUnDep").show();
+        } else {
+            $("#opentype").html('<td class="Tit span6">上报方式：</td><td class="span10"><strong>单体上报</strong></td>');
+            $("#OpenOKDep").hide();
+            $("#OpenNODep").hide();
+            $("#OpenUnDep").hide();
+        }
+
+        //返回
+        $("#btnback").bind("click", function () {
+            if("@type" == "1")
+            {
+                window.location.href = "/Report_DepCourse/Report_DepCourseALL?cp=1";
+            }
+            else if ("@type" == "2")
+             {
+                window.location.href = "/Report_DepCourse/fReport_DepCourseALL?cp=1";
+             }
+             else
+             {
+                 window.location.href = "/DepCourseOpenOthersCheck/DepOpenCourseFollowing?p=1";
+             }
+           
+        });
+
+        //查询
+        $("#ibtnSearch").bind("click", function () {
+            InitializeTargetList(getyearUrl());
+        });
+    });
+
+    //显示群组列表
+    function InitializeTargetList(url)
+    {
+        $("#yearCourseList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "Month_Day",
+            jsRenderASC: " desc",
+            templateID: 'yearCourseTemplate'
+        });
+    }
+
+    //年度的课程相关的url
+    function getyearUrl()
+    {
+        InitHiddenValue();
+        var url = "/DepCourseOpenOthersCheck/GetDepPlanOpenYearCourseList?"
+            + "courseName=" + escape($.trim(getSearchWord("CourseName")))
+                + "&teacherName=" + escape($.trim(getSearchWord("TearchName")))
+                    + "&openLevel=" + ReturnOpenLevel()
+                        + "&isMust=" + $("#hidIsMust").val()
+                            + "&isSystem=" + $("#hidIsSystem").val()
+                                + "&yearPlan=@ViewBag.yearPlan&deptId=@ViewBag.deptId&isOpen=@ViewBag.isOpen&t=" + new Date();
+        return url;
+    }
+
+    
+    //导出EXCEL
+    function OutData(id){
+       InitHiddenValue();
+        window.location.href = "/DepCourseOpenOthersCheck/ExportDepPlanOpenYearCourseList?"
+            + "yearPlanId=@(strYear==null?0:strYear.Id)"
+                + "&courseName=" + escape($.trim(getSearchWord("CourseName")))
+                    + "&teacherName=" + escape($.trim(getSearchWord("TearchName")))
+                        + "&openLevel=" + ReturnOpenLevel()
+                            + "&isMust=" + $("#hidIsMust").val()
+                                + "&isSystem=" + $("#hidIsSystem").val()
+                                    + "&yearPlan=@ViewBag.yearPlan&deptId=@ViewBag.deptId&isOpen=@ViewBag.isOpen&t=" + new Date();
+    }
+    
+</script>

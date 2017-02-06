@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "AllInput";
+    Layout = null;
+}
+<table class="tab-Form" style="width: 320px">
+    @{
+        if (ViewBag.IsGroupTeach == 1 || ViewBag.IsGroupTeach == 3)
+        {
+        <tr>
+            <td class="Tit span13">集中授课现场评分：</td>
+            <td style="vertical-align: middle">
+                <div id='divScore_1' title='5'>
+                </div>
+                <input class="xp" id="TogetherScore" type="hidden" value="3" />
+            </td>
+        </tr>
+        }
+        if (ViewBag.IsGroupTeach == 2 || ViewBag.IsGroupTeach == 3)
+        {
+        <tr>
+            <td class="Tit span13">分组带教现场评分：</td>
+            <td style="vertical-align: middle">
+                <div id='divScore_2' title='5'>
+                </div>
+                <input class="xp" id="GroupScore" type="hidden" value="3" />
+            </td>
+        </tr>
+        }
+    }
+    <tr>
+        <td colspan="2" class="tc">
+            <input type="button" class="btn" value="确定" onclick="AllInput()" />
+            <input type="button" class="btn  btn-cancel" value="取消" id="close" onclick="closeDialog('AllScore');" />
+        </td>
+    </tr>
+</table>
+
+
+<script type="text/javascript">
+    showStars();
+    //加载星评题
+    function showStars()
+    {
+        if ($("div[id^='divScore_']").length > 0)
+        {
+            $("div[id^='divScore_']").each(function ()
+            {
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: 3, Enabled: true }, function (value)
+                {
+                    $(obj).parent().find(".xp").val(value);
+                });
+            });
+
+        }
+    }
+
+    function AllInput()
+    {
+        $.post("SubmitAllInputScore",
+        {
+            TogetherScore: $("#TogetherScore").length == 0 ? 0 : $("#TogetherScore").val(),
+            GroupScore: $("#GroupScore").length == 0 ? 0 : $("#GroupScore").val(),
+            ids: $("#ids").val()
+        }, function (data)
+        {
+            if (data.result == 1)
+            {
+                closeDialog('AllScore');
+                InitData();
+            }
+        });
+    }
+</script>

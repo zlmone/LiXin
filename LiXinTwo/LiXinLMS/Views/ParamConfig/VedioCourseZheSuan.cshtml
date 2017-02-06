@@ -1,0 +1,66 @@
+﻿@{
+    Layout = null;
+    var modell = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+
+<form id="fnSumitConfig">
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">视频课程学时折算</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span20">视频课程学时折算：</td>
+            <td>
+                <div class="fl">
+                <input type="text" class="span16" id="level_A" name="Anumber" maxlength="3" value="@(modell.ConfigValue)"/>%
+                </div>
+            </td>
+        </tr>
+       
+        <tr>
+            <td class="Tit"></td>
+            <td><input type="submit" value="确定" id="btn_Add" class="btn"/></td>
+        </tr>
+    </table>
+</form>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#fnSumitConfig").validate({
+                event: "blur",
+                rules: {
+                    Anumber: { required: true, digits: true, min: 0, max: 100 }
+                  
+                },
+                messages: {
+                    Anumber: { required: "请输入百分比", digits: "请输入大于等于0的整数", min: "请输入大于等于0的整数", max: "请输入小于等于100的整数" }
+           
+                },
+                errorPlacement: function (error, element) {
+                    var eid = element.attr('name');
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        $('input[name=' + eid + ']:last').next().after(error);
+                    } else {
+                       
+                        error.insertAfter(element.parent());
+                    }
+
+                },
+                submitHandler: fnSumitConfig
+            });
+        });
+
+        function fnSumitConfig() {
+            //var t = $("#level_A").val() + ";" + $("#level_B").val() + ";" + $("#level_C").val();
+            var level_A = $("#level_A").val();
+ 
+
+            $.post("/ParamConfig/fUpdateParamConfig?configType=53&configValue=" + level_A, function (data) {
+                if (data.result == 1) {
+                    art.dialog.tips('配置成功', 3);
+                } else {
+                    art.dialog.tips('配置失败', 3);
+                }
+            });
+        }
+    </script>

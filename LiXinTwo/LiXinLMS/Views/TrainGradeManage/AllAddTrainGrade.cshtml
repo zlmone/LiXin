@@ -1,0 +1,186 @@
+﻿@{
+    ViewBag.Title = "批量提交申请";
+    var type = Request.QueryString["type"];
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "批量提交申请" }))
+    <form id="formAddTrainGrade">
+        <div id="gradeList" class="clb">
+        </div>
+        <center class="mt10">
+            <input id="btnSave" class="btn" type="submit" value="保存" />
+            <input type="button" name="cancel" class="btn btn-cancel" value="返回" onclick="back()" />
+        </center>
+    </form>
+</div>
+<script id="gradeListTemplate" type="text/x-jsrender">
+   {{for #data}}
+      <div class="train-allgra">
+      <h5 class="tit-h5"><span>{{:Realname}}</span></h5>
+      <table class="tab-Form">
+        <tr>
+            <td class="Tit span10">
+                原培训级别：
+            </td>
+            <td>
+               <span name="oldgrade">{{:TrainGrade}}</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                建议培训级别：
+            </td>
+            <td>
+              <input  type="hidden" name="grade" value="{{:TrainGrade}}" />
+                <select name="selTrainGrade" onchange="singCheck(this)" >
+                   {{for TraindGradeList}}
+                       <option value="{{:#data}}">{{:#data}}</option>
+                   {{/for}}
+                </select>
+                <span generated="true" name="TipCode" class="error" style="display: none;"></span>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                变更理由：
+            </td>
+            <td>
+                <textarea id="{{:UserId}}"   name="txtReason" cols="20" rows="2" maxlength="1000"></textarea>
+                <span generated="true"  class="reason error" style="display: none;"></span>
+            </td>
+        </tr>
+     </table>
+     </div>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        showData();
+        $("#formAddTrainGrade").validate(
+        {
+            event: "blur",
+            debug:true,
+            rules: {},
+            messages: {},
+            errorPlacement: function (error, element)
+            {
+                if (element.is(':radio') || element.is(':checkbox'))
+                {
+                    var eid = element.attr('name');
+                    error.appendTo(element.parent());
+                } else
+                {
+                    error.insertAfter(element);
+                }
+            },
+            submitHandler:function (){
+               var flag=true;
+               $("textarea").each(function(){
+                    var obj= $(this).parent().find(".reason");
+                    if($.trim($(this).val())=="")
+                    {
+                       flag=false;
+                      obj.html("<span class='Validform_checktip Validform_wrong'>请输入变更理由</span>");
+                      obj.show();
+                    }
+                    if($.trim($(this).val()).length>200)
+                    {
+                       flag=false;
+                      obj.html("<span class='Validform_checktip Validform_wrong'>理由不能多于200个字符</span>");
+                      obj.show();
+                    }
+               });
+
+              $("input[name='grade']").each(function(){
+                   var obj=$(this).parent().find("[name='TipCode']");
+                   if($(this).val()==$(this).parent().find("[name='selTrainGrade']").val())
+                   {
+                      flag=false;
+                      obj.html("<span class='Validform_checktip Validform_wrong'>请选择不一样的级别</span>");
+                      obj.show();
+                   }
+               });
+               if(flag)
+               {
+                  saveAll();
+               }
+            } 
+        });
+    });
+
+    function saveAll()
+    {
+      if(checkgrade())
+      {
+        var data = { gradeList: JSON.stringify(getData()) };
+        $.post("/TrainGradeManage/InsertAllTrainGrade", data, function (data)
+        {
+            if (data.result == 1)
+            {
+                window.location.href = "TrainGrade";
+            }
+        });
+      }
+
+    }
+
+    //显示批量维护的基本信息
+    function showData()
+    {
+        $.getJSON("/TrainGradeManage/GetUpdateUser?userIDs=@ViewBag.userIDs", function (data)
+        {
+            $('#gradeList').append($("#gradeListTemplate").render(data.dataList));
+        });
+    }
+    //获取数据
+    function getData()
+    {
+        var dataList = [];
+        $("#gradeList table").each(function ()
+        {
+            var obj = {
+                oldgrade: $(this).find("span").html(),
+                newgrade: $(this).find("select").val(),
+                reason: $(this).find("textarea").val(),
+                userID: $(this).find("textarea").attr("id"),
+                status:@type
+            };
+            dataList.push(obj);
+        });
+        return dataList;
+
+    }
+
+    function checkgrade()
+    {
+       var flag=true;
+       $("select[name='selTrainGrade']").each(function(index,value){
+           flag=singCheck(this);
+       });
+       return flag;
+    }
+
+
+    function singCheck(obj)
+    {
+        var singflag=true;
+        var tip= $(obj).parent().find("[name='TipCode']");
+        if($(obj).val()==$(obj).parent().find("[type=hidden]").val())
+        {
+            $(tip).html("<span class='Validform_checktip Validform_wrong'>请选择不一样的级别</span>");
+            $(tip).css("display","");
+            singflag=false;
+        }
+        else
+        {
+            $(tip).css("display","none");
+        } 
+        return singflag;    
+    }
+
+    function back()
+    {
+       window.location.href="TrainGrade";
+    }
+</script>

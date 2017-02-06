@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F365A61B-9921-4E95-9D3D-F8133F143BB2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LiXinDataAccess</RootNamespace>
+    <AssemblyName>LiXinDataAccess</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LiXinCommon">
+      <HintPath>..\LiXinCommon\bin\Debug\LiXinCommon.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\Lib\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\Lib\MongoDB.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.Core">
+      <HintPath>..\Lib\Retech.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.Data">
+      <HintPath>..\Lib\Retech.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AttendceManage\AttendceDB.cs" />
+    <Compile Include="BaseDB.cs" />
+    <Compile Include="BaseMethod.cs" />
+    <Compile Include="ClassRoom\ClassRoomDB.cs" />
+    <Compile Include="ClassRoom\ClassRoomResourceDB.cs" />
+    <Compile Include="ClassRoom\NewClassRoomDB.cs" />
+    <Compile Include="CourseLearn\Cl_AttendceDB.cs" />
+    <Compile Include="CourseLearn\Cl_CourseAdviceDB.cs" />
+    <Compile Include="CourseLearn\Cl_LearnVideoInforDB.cs" />
+    <Compile Include="CourseLearn\Cl_MidAttendceDB.cs" />
+    <Compile Include="CourseLearn\CourseOrderDB.cs" />
+    <Compile Include="CourseLearn\Cl_MakeUpOrderDB.cs" />
+    <Compile Include="CourseLearn\Cl_CpaLearnStatusDB.cs" />
+    <Compile Include="CourseManage\Cl_VideoManageDB.cs" />
+    <Compile Include="CourseManage\Co_CourseDB.cs" />
+    <Compile Include="CourseManage\Co_CourseResourceDB.cs" />
+    <Compile Include="CourseManage\Co_CourseSystemDB.cs" />
+    <Compile Include="CourseManage\Co_SystemLinkCourseDB.cs" />
+    <Compile Include="CourseManage\Co_CoursePaperDB.cs" />
+    <Compile Include="CourseManage\Co_VideoResourceDB.cs" />
+    <Compile Include="CourseManage\Sys_PayGradeDB.cs" />
+    <Compile Include="DepAttendce\Dep_AttendceApprovalDB.cs" />
+    <Compile Include="DepAttendce\Dep_AttendceApprovalRecordDB.cs" />
+    <Compile Include="DepAttendce\Dep_AttendceDB.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DepAttendce\Dep_CourseAttFileDB.cs" />
+    <Compile Include="DepClassRoom\ClassRoomDB.cs" />
+    <Compile Include="DepCourseLearn\Dep_CpaLearnStatusDB.cs" />
+    <Compile Include="DepCourseLearn\DepCourseAdviceDB.cs" />
+    <Compile Include="DepCourseManage\Dep_CourseDB.cs" />
+    <Compile Include="DepCourseManage\Dep_CourseDeptDB.cs" />
+    <Compile Include="DepCourseManage\Dep_CourseOrderDB.cs" />
+    <Compile Include="DepCourseManage\Dep_CoursepaperDB.cs" />
+    <Compile Include="DepCourseManage\Dep_CourseResourceDB.cs" />
+    <Compile Include="DepLeaveApproval\DepLeaveApprovalDB.cs" />
+    <Compile Include="DeptCourseManage\DeptCourseResourceDB.cs" />
+    <Compile Include="DeptCourseManage\DeptCoursePaperDB.cs" />
+    <Compile Include="DeptCourseManage\DeptCourseDB.cs" />
+    <Compile Include="DeptPlanManage\Dep_LinkDepartDB.cs" />
+    <Compile Include="DeptPlanManage\Dep_MonthPlanDB.cs" />
+    <Compile Include="DeptPlanManage\Dep_YearPlanCourseDB.cs" />
+    <Compile Include="DeptPlanManage\Dep_YearPlanDB.cs" />
+    <Compile Include="DepCourseManage\DepMyScoreDB.cs" />
+    <Compile Include="DepTranAttendce\DepTranAttendceApprovalDB.cs" />
+    <Compile Include="DeptCourseManage\MyScoreDB.cs" />
+    <Compile Include="DepTranAttendce\DepTran_AttendceApprovalRecordDB.cs" />
+    <Compile Include="DepTranAttendce\DepTran_AttendceDB.cs" />
+    <Compile Include="DepTranAttendce\DepTran_CourseAttFileDB.cs" />
+    <Compile Include="DepTranManage\DepTran_CourseOpenDB.cs" />
+    <Compile Include="DepTranManage\DepTran_CourseOrderDB.cs" />
+    <Compile Include="DepTranManage\DepTran_DepartConfigDB.cs" />
+    <Compile Include="DepSurvey\SurveyExampaperCategoryDB.cs" />
+    <Compile Include="DepSurvey\SurveyExampaperDB.cs" />
+    <Compile Include="DepSurvey\SurveyQuestionAnswerDB.cs" />
+    <Compile Include="DepSurvey\SurveyQuestionDB.cs" />
+    <Compile Include="DepSurvey\SurveyReplyAnswerDB.cs" />
+    <Compile Include="DepSurvey\Survey_SurveyDB.cs" />
+    <Compile Include="DeptSystemManage\DepParamConfigDB.cs" />
+    <Compile Include="DeptSystemManage\Dept_NotesDB.cs" />
+    <Compile Include="DeptSystemManage\Dept_NoteSortDB.cs" />
+    <Compile Include="Examination\ExaminationDB.cs" />
+    <Compile Include="Examination\ExampaperDB.cs" />
+    <Compile Include="Examination\ExampaperSortDB.cs" />
+    <Compile Include="Examination\ExamReportDB.cs" />
+    <Compile Include="Examination\ExamTestDB.cs" />
+    <Compile Include="Examination\KnowledgeKeyDB.cs" />
+    <Compile Include="Examination\QuestionDB.cs" />
+    <Compile Include="Examination\QuestionSortDB.cs" />
+    <Compile Include="Home\HomeDB.cs" />
+    <Compile Include="MyApproval\FreeDB.cs" />
+    <Compile Include="MyApproval\MyApprovalDB.cs" />
+    <Compile Include="NewCourseManage\New_AttendceDB.cs" />
+    <Compile Include="NewCourseManage\New_CourseAdviceDB.cs" />
+    <Compile Include="NewCourseManage\New_CourseOrderDB.cs" />
+    <Compile Include="NewCourseManage\New_CourseOrderDetailDB.cs" />
+    <Compile Include="NewCourseManage\New_CourseRoomRuleDB.cs" />
+    <Compile Include="NewCourseManage\New_CpaLearnStatusDB.cs" />
+    <Compile Include="NewCourseManage\New_LearnVideoInforDB.cs" />
+    <Compile Include="NewQueryStatistics\TeacherDB.cs" />
+    <Compile Include="NewQueryStatistics\UserStatisticsDB.cs" />
+    <Compile Include="NewUserManage\NewUserDB.cs" />
+    <Compile Include="NewCourseManage\New_CourseDB.cs" />
+    <Compile Include="NewCourseManage\New_CourseFilesDB.cs" />
+    <Compile Include="NewCourseManage\New_CoursePaperDB.cs" />
+    <Compile Include="NewClassManage\NewClassDB.cs" />
+    <Compile Include="NewClassManage\NewGroupDB.cs" />
+    <Compile Include="NewClassManage\NewGroupUserDB.cs" />
+    <Compile Include="PlanManage\Tr_MonthPlanDB.cs" />
+    <Compile Include="PlanManage\Tr_YearPlanCourseDB.cs" />
+    <Compile Include="PlanManage\Tr_YearPlanDB.cs" />
+    <Compile Include="Report_All\Report_AllDB.cs" />
+    <Compile Include="Report_CPA\ReportCPADB.cs" />
+    <Compile Include="Report_Free\Report_FreeDB.cs" />
+    <Compile Include="Report_fVedio\ReportDB.cs" />
+    <Compile Include="Report_fVedio\Report_fOnLineTestDB.cs" />
+    <Compile Include="Report_Together\TogetherCourseLearnDB.cs" />
+    <Compile Include="Report_Together\Report_DepCourseDB.cs" />
+    <Compile Include="Report_Together\Report_TogetherDB.cs" />
+    <Compile Include="Report_zAttendce\zAttendceDB.cs" />
+    <Compile Include="Report_zVedio\VedioCourseLearnDB.cs" />
+    <Compile Include="ReResourceManage\ReMyResourceDB.cs" />
+    <Compile Include="ReResourceManage\ReResourceDB.cs" />
+    <Compile Include="ReResourceManage\ReResourceTypeDB.cs" />
+    <Compile Include="Survey\SurveyExampaperCategoryDB.cs" />
+    <Compile Include="Survey\SurveyExampaperDB.cs" />
+    <Compile Include="Survey\SurveyQuestionAnswerDB.cs" />
+    <Compile Include="Survey\SurveyQuestionDB.cs" />
+    <Compile Include="Survey\SurveyReplyAnswerDB.cs" />
+    <Compile Include="Survey\Survey_SurveyDB.cs" />
+    <Compile Include="SystemManage\FreeConfigDB.cs" />
+    <Compile Include="SystemManage\Free_AllOtherApplyDB.cs" />
+    <Compile Include="SystemManage\Free_OtherFromsDB.cs" />
+    <Compile Include="SystemManage\Free_UserApplyFilesDB.cs" />
+    <Compile Include="SystemManage\Free_UserApplyOtherFormDB.cs" />
+    <Compile Include="SystemManage\Free_UserApplyTeacherDetailsDB.cs" />
+    <Compile Include="SystemManage\Free_UserOtherApplyDB.cs" />
+    <Compile Include="SystemManage\Sys_LeaderDB.cs" />
+    <Compile Include="SystemManage\Sys_LogTrainDB.cs" />
+    <Compile Include="SystemManage\Sys_LogDB.cs" />
+    <Compile Include="SystemManage\Sys_NoteResourceDB.cs" />
+    <Compile Include="SystemManage\Sys_NotesDB.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SystemManage\Sys_GroupDB.cs" />
+    <Compile Include="SystemManage\Sys_GroupUserDB.cs" />
+    <Compile Include="SystemManage\Sys_NoteSortDB.cs" />
+    <Compile Include="SystemManage\Sys_ParamConfigDB.cs" />
+    <Compile Include="SystemManage\Sys_UserLinkLeaderDB.cs" />
+    <Compile Include="TrainGradeManage\Sys_TrainGradeDB.cs" />
+    <Compile Include="User\UserFingerInforDB.cs" />
+    <Compile Include="User\DepartmentDB.cs" />
+    <Compile Include="User\PostDB.cs" />
+    <Compile Include="User\RightDB.cs" />
+    <Compile Include="User\RoleDB.cs" />
+    <Compile Include="User\UserDB.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LixinModels\LiXinModels.csproj">
+      <Project>{9F7DCE1F-6769-4BED-8876-B3D118306F57}</Project>
+      <Name>LiXinModels</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

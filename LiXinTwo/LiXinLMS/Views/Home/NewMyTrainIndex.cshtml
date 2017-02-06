@@ -1,0 +1,270 @@
+﻿@using LiXinModels.User
+@{
+    ViewBag.Title = "我的培训首页";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var model = ViewData["model"] as Sys_User;
+    var myClass = (LixinModels.NewClassManage.New_GroupUser)ViewBag.MyClass;
+}
+<style type="text/css">
+    .iconButton {display: block;}
+    .iconButton li {display: block;float: left;margin: 10px;}
+    .iconButton li a {text-decoration: none;width: 310px;line-height: 100px;height: 100px;cursor: pointer;display: block;text-align: center;color: #fff;font-size: 20px;}
+    .iconButton li a.red {background-color: red;}
+    .iconButton li a.green {background-color: green;}
+    .iconButton li a.blue {background-color: blue;}
+</style>
+<div class="main-c">
+    <input type="hidden" id="qiehuan" value="0" />
+    <div class="clb">
+        <div class="fl span19">
+            <div class="perInfo" style="height: 330px;">
+                <h4>基本信息</h4>
+                <ul class="pi-list">
+                    <li class="name"><span>@(model.Realname)</span></li>
+                </ul>
+                <div class="pi-re">
+                    <h5 class="tit-pc">我的成绩单</h5>
+                    <ul>
+                        <li>排名：第@(ViewBag.Score.number)/@(ViewBag.TotalPerson)名</li>
+                        <li>综合分数：@(ViewBag.Score.SSumScore)/@(ViewBag.TotalScore)分</li>
+                        <li>我的班组：@(myClass==null?"--":myClass.ClassName)，@(myClass == null ? "--" : myClass.GroupName)</li>
+                        <li>大教室：@(ViewBag.BigSeat)</li>
+                        <li>小教室：@(ViewBag.SmallSeat)</li>
+                        @*<li class="span17 ovh" title="@(ViewBag.ExamRoom)">考试教室：@(string.IsNullOrEmpty(ViewBag.ExamRoom) ? "--" : ViewBag.ExamRoom)</li>*@
+                        <li style="overflow:hidden;width:170px;height:30px;" title="@(ViewBag.ExamSeat)">考试教室：@(ViewBag.ExamSeat)</li>
+                    </ul>
+                </div>
+                <div class="per">
+                    <a href="/NewQueryStatistics/MyQueryStatistics" class="btn-blue span13" style="padding:0px 20px;">我的综合评定</a>
+                </div>
+            </div>
+        </div>
+        <div class="pic-show fl ml10">
+            <ol id="piccourse">
+            </ol>
+            <ul id="picnumber">
+            </ul>
+            <div class="num-bg">
+            </div>
+            <a class="fr pointer" style="font-size:12px;color:red; right:10px; bottom:10px;position:absolute;z-index:200;" onclick="loadCourseShedule();">下载课程表</a>
+        </div>
+        <div class="calendarTask fr">
+            <h4>我的课程</h4>
+            <table>
+                <thead>
+                    <tr class="calendarheadone">
+                        <td colspan="7">
+                            <a id="preMonth" class="fr" onclick=" goAnotherMonth(1); ">>></a> <a id="nextMonth"
+                                class="fl" onclick=" goAnotherMonth(-1); "><<</a>
+                            <div class="ma tac">
+                                <select id="currentYear" class="sel" onchange=" goAnotherMonth(0); ">
+                                    @{
+                                        for (var i = DateTime.Now.Year - 1; i <= DateTime.Now.Year + 2; i++)
+                                        {
+                                        <option value="@(i)" @(i == DateTime.Now.Year ? "selected=selected" : "")>@(i)</option>
+                                        }
+                                    }
+                                </select>
+                                <span class="line_h20 c3c">年</span>
+                                <select id="currentMonth" class="sel" onchange=" goAnotherMonth(0); ">
+                                    @{
+                                        for (var i = 1; i <= 12; i++)
+                                        {
+                                        <option value="@(i)" @(i == DateTime.Now.Month ? "selected=selected" : "")>@(i)</option>
+                                        }
+                                    }
+                                </select>
+                                <span class="line_h20 c3c">月</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="calendarheadtwo">
+                        <td class="headworkweekbg">周一
+                        </td>
+                        <td class="headworkweekbg">周二
+                        </td>
+                        <td class="headworkweekbg">周三
+                        </td>
+                        <td class="headworkweekbg">周四
+                        </td>
+                        <td class="headworkweekbg">周五
+                        </td>
+                        <td class="headrestweekbg">周六
+                        </td>
+                        <td class="headrestweekbg">周日
+                        </td>
+                    </tr>
+                </thead>
+                <tbody id="calendarTask">
+                    <tr>
+                        <td class="passdaybg" order="1" isday="0">
+                            <div>
+                                <p>
+                                    25
+                                </p>
+                                <span class="am">am</span> <span class="pm">pm</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="7" id="totaltask"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="mt10" style="display:none;">
+        <h2 class="tit-h2 navigation">
+            <i></i><span class="tit-con">操作向导</span>
+        </h2>
+        <ul class="iconButton">
+            <li><a class="red" href="/NewMyCourse/CourseList">我的课程</a></li>
+            <li><a class="green" href="/NewQueryStatistics/MyQueryStatistics">我的综合评定</a></li>
+            <li><a class="blue" href="/NewClassManage/MyClassRoom">我的班组</a></li>
+        </ul>
+    </div>
+</div>
+<!--日历单元格模板-->
+<script id="calendarTaskTemplte" type="text/x-jsrender">
+    {{for #data}}
+        {{if (#index%7==0)}}
+            <tr>
+        {{/if}}
+        {{if Bg==0}}
+        <td class="passdaybg" isday="0" order="{{:(#index%7+1)}}">
+        <div><span class="am">am</span><span class="pm">pm</span><p>{{:Day}}</p></div>
+        </td>
+        {{/if}}
+         {{if (Bg==1 || Bg==3)}}
+        <td id="bg1td_{{:Day}}" year="{{:Year}}" month="{{:Month}}" day="{{:Day}}" class="{{:Bg==1?"mondaybg":"mondaybg bg-on"}} {{:(MoringStr=="" && AfterStr=="")?"":"pointer"}}" isday="{{:TaskTotal>0?1:0}}" order="{{:(#index%7+1)}}" onclick="{{:(MoringStr=="" && AfterStr=="")?"":"browseCourse(this);"}}">
+        <div><i title="今天"></i><span class="am {{:MoringStr==""?"":"bl"}}" title="{{:MoringStr==""?"":MoringStr}}">am</span><span class="pm {{:AfterStr==""?"":"bl"}}" title="{{:AfterStr==""?"":AfterStr}}">pm</span><p>{{:Day}}</p></div>
+        </td>
+        {{/if}}
+        {{if (#index+1)%7==0}}
+            </tr>
+        {{/if}}
+    {{/for}}
+</script>
+<!--模板-->
+<script id="picTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <li class="pointer" order="{{:order}}" style="background-image:url('../../Images/index/1.jpg');" onclick="window.location.href='/SystemManage/NoteDetail?noteID={{:id}}&from=newindex';">
+            <dl>
+                {{if type==0}}
+                <dt>《<span class="ovh"style="display:inline-block;margin-bottom:-7px;max-width:400px;" title="{{:name}}">{{:name}}</span>》</dt>
+                <dd>讲师：{{:teacher}}</dd>
+                <dd>时间：{{:date}}</dd>
+                {{else}}
+                <dt><span class="ovh"style="display:inline-block;margin-bottom:-7px;max-width:400px;" title="{{:name}}">{{:name}}</span></dt>
+                <dd>时间：{{:notedate}}</dd>
+                <dd id="memoinfor">内容：{{:memo}}</dd>
+                {{/if}}
+            </dl>
+        </li>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    var courselist = [];
+    var intevalfun;
+    var currentorder = 1;
+
+    $(document).ready(function () {
+        //加载图片切换
+        initindexad();
+        
+        //加载我的课程表
+        initCalendarTask(@(DateTime.Now.Year), @(DateTime.Now.Month), 0);
+    });
+
+    //下载课程表
+    function loadCourseShedule() {
+        window.open("/Common/DownLoadFile?url=~/TemplateFile/CourseSchedule.pdf");
+    }
+
+    //图片切换
+    function exchangepic(o) {
+        if(o!=undefined)
+            clearInterval(intevalfun);
+        var order = currentorder;
+        currentorder = o == undefined ? (currentorder + 1 > courselist.length ? 1 : currentorder + 1) : o;
+        $("#piccourse li[order='" + order + "']").eq(0).fadeOut();
+        $("#piccourse li[order='" + currentorder + "']").eq(0).fadeIn();
+
+        $("#picnumber li").removeClass("On");
+        $("#picnumber li[order='" + currentorder + "']").eq(0).addClass("On");
+    }
+    
+    //开始切换图片
+    function beginchangepic() {
+        if(courselist.length>1) {
+            intevalfun = setInterval(exchangepic, 4000);
+        }
+    }
+
+    //加载切换的图片课程
+    function changepicture() {
+        if(courselist.length>0) {
+            for(var i=0;i<courselist.length;i++) {
+                //加载图片数字
+                $("#picnumber").append('<li order="'+(i+1)+'" class="'+(i+1==1?"On":"")+'" onmouseleave="beginchangepic();" onmouseover="exchangepic('+(i+1)+')">'+(i+1)+'</li>');
+                //加载图片课程
+                $("#piccourse").append($("#picTemplate").render(courselist[i]));
+                $("#piccourse li:last #memoinfor").html($("#piccourse li:last #memoinfor").text());
+            }
+            //开始切换
+            if(courselist.length>1) {
+                intevalfun = setInterval(exchangepic, 4000);
+            }
+        }
+    }
+
+
+    //加载数据
+    function initCalendarTask(year, month, addMonth) {
+        $("#calendarTask").html('<tr><td colspan="7"><div class="tc"><img src="../../Images/loading.gif" /></div></td></tr>');
+
+        $.getJSON("/NewMyCourse/GetCalendarTask?year=" + year + "&month=" + month + "&addMonth=" + addMonth, function(data) {
+            
+            $("#currentYear").val(data.year);
+            $("#currentMonth").val(data.month);
+            InitTask(data);
+        });
+    }
+
+    function InitTask(data) {
+
+        $("#calendarTask").JsRenderData({
+            dataSource: data,
+            isPage: false,
+            templateID: "calendarTaskTemplte",
+            funCallback:function()
+            {
+            }
+        });
+    }
+
+    //查看上月（下月）的信息
+    function goAnotherMonth(addMonth) {
+        if (($("#currentYear").val() == $("#currentYear option:first").text() && (parseInt($("#currentMonth").val()) + parseInt(addMonth)) < 1) || ($("#currentYear").val() == $("#currentYear option:last").text() && (parseInt($("#currentMonth").val()) + parseInt(addMonth)) > 12))
+            return;
+        initCalendarTask($.trim($("#currentYear").val()), $.trim($("#currentMonth").val()), addMonth);
+    }
+    
+    //加载图片切换
+    function initindexad() {
+        $.getJSON("/Home/GetNewIndexAdList", function(data) {
+            for (var i = 0; i < data.length; i++) {
+                courselist.push({ id: data[i].id, name: data[i].name, date: data[i].picdate,notedate:data[i].date, teacher: data[i].teacher, order: i + 1, memo: data[i].memo, type: data[i].type });
+            }
+            //加载切换的图片课程
+            changepicture();
+        });
+    }
+
+    //查看课程
+    function browseCourse(obj) {
+        window.location.href = '/NewMyCourse/CourseList?s=' + $(obj).attr("year") + '-' + $(obj).attr("month") + '-' + $(obj).attr("day");
+    }
+</script>

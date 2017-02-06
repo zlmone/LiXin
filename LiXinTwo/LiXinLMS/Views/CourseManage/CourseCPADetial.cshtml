@@ -1,0 +1,225 @@
+﻿@model LiXinModels.CourseManage.Co_Course
+@using LiXinModels.CourseManage
+@using LiXinControllers
+
+@{
+    var titlestr = "";
+
+    if (ViewBag.Flag == 1 || ViewBag.Flag == 2)
+    {
+        titlestr = "查看注协课程";
+    }
+    else if (ViewBag.Flag == 3)
+    {
+        titlestr = "CPA课程详情";
+    }
+    else if (ViewBag.Flag == 4)
+    {
+        titlestr = "查看注协课程详情";
+    }
+
+    ViewBag.Title = titlestr;
+    var flag = Request.QueryString["flag"] ?? "0";
+    var Id = Request.QueryString["Id"] ?? "0";
+    var CourseAttachList = ViewBag.CourseAttachList as List<Co_CourseResource>;
+    var Resourceurl = BaseController.UFCOResource as string;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = titlestr }))
+    <h3 class="tit-h3">课程基础信息</h3>
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span10">课程名称：
+            </td>
+            <td class="span30">
+                <strong>@Model.CourseName</strong>
+            </td>
+            <td class="Tit span10">开课时间：
+            </td>
+            <td>
+                <strong>@Model.StartTime.ToString("yyyy-MM-dd HH:mm") - @Model.EndTime.ToString("yyyy-MM-dd HH:mm")</strong>
+            </td>
+            <td class="span10">
+                @{
+                    if (ViewBag.Predit != null && ViewBag.Predit)
+                    {
+                    <div id="predit">
+                        <input class="btn btn-co" type="button" onclick="SubscribeCPA(@Model.Id);" value="预订"/>
+                    </div>
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">课程开放级别：
+            </td>
+            <td>
+                <strong>@Model.OpenLevel</strong>
+            </td>
+            <td class="Tit">课程学时：
+            </td>
+            <td>
+                <strong>@Model.CourseLength</strong>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="Tit">是否为职业道德：
+            </td>
+            <td>
+                <strong>@(Model.IsMust == 1 ? "是" : "否")</strong>
+            </td>
+            <td class="Tit">最大允许人数：
+            </td>
+            <td>
+                <strong>@Model.NumberLimited</strong>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="Tit">培训天数：
+            </td>
+            <td>
+                <strong>@Model.TrainDays</strong>
+            </td>
+            <td class="Tit">授课地点：
+            </td>
+            <td>
+                <strong>
+                    <div class="span35 ovh" title="@Model.CourseAddress">@Model.CourseAddress</div>
+                </strong>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="Tit">培训对象：
+            </td>
+            <td colspan="4">
+                <strong class="span80 dis_bl fl">@Model.CourseObjectMemo</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span12">课程提供/组织方：
+            </td>
+            <td colspan="4">
+                <strong class="span80 dis_bl fl">@Model.courseProvideStr</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">课程大纲：
+            </td>
+            <td colspan="4">
+                @if (!string.IsNullOrEmpty(Model.Memo))
+                {
+                    <strong class="span80 dis_bl fl">@Model.Memo</strong>	
+                }
+                else
+                {
+                    <span>暂无内容</span>
+                }
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">学习要求：
+            </td>
+            <td colspan="4">
+                  @if (!string.IsNullOrEmpty(Model.studyRequirement))
+                {
+                    <strong class="span80 dis_bl fl">@Html.Raw(Model.studyRequirement)</strong>	
+                }
+                else
+                {
+                    <span>暂无内容</span>
+                }
+            </td>
+        </tr>
+         <tr>
+            <td class="Tit">备注：
+            </td>
+            <td colspan="4">
+                  @if (!string.IsNullOrEmpty(Model.remark))
+                {
+                    <strong class="span80 dis_bl fl">@Html.Raw(Model.remark)</strong>	
+                }
+                else
+                {
+                    <span>暂无内容</span>
+                }
+            </td>
+        </tr>
+    </table>
+
+    <h4>课程资源：</h4>
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th>资源名称</th>
+                <th>资源类型</th>
+                <th>资源大小</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (CourseAttachList.Find(p => p.ResourceType == 1) != null)
+            {
+
+                foreach (var coCourseResource in CourseAttachList)
+                {
+                    if (coCourseResource.ResourceType == 1)
+                    { 
+                <tr>
+                    <td>
+                        <div class="tl">@coCourseResource.ResourceName</div>
+                    </td>
+                    <td>@coCourseResource.ExtendName</td>
+                    <td>@coCourseResource.ResourceSize K</td>
+                    <td><a href="@Url.Content(Resourceurl + coCourseResource.RealName)" target="_Blank" class="icon idown" title="我要下载"></a></td>
+                </tr>
+                    }
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="tc">暂无资源</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    @{
+        if (ViewBag.Flag == 1)
+        {
+        <center class="mt20">
+            <a href="/Home/MyTrainIndex" class="btn btn-cancel">返回</a></center>
+        }
+        else if (ViewBag.Flag == 2)
+        {
+        <center class="mt20">
+            <a href="/CourseLearn/MyCourseSubscribe?showflag=1&cp=1" class="btn btn-cancel">返回</a></center>
+        }
+        else if (ViewBag.Flag == 4)
+        {
+        <center class="mt20">
+            <a href="/MyCourse/CPACourselist?p=1" class="btn btn-cancel">返回</a></center>
+        }
+        else
+        {
+        <center class="mt20">
+            <a href="/CourseManage/CourseManageList?way=3&p=1" class="btn btn-cancel">返回</a></center>
+        }
+    }
+</div>
+<script type="text/javascript">
+    //预订
+    function SubscribeCPA(courseid) {
+        $.getJSON("/CourseLearn/SubscribeCPA?courseId=" + courseid, function (data) {
+            if (data.result == 1) {
+                art.dialog.tips(data.content, 3);
+                $("#predit").remove();
+            } else {
+                art.dialog.tips(data.content, 3);
+            }
+        });
+    }
+</script>

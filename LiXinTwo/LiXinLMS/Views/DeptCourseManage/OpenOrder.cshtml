@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "OpenOrder";
+    Layout = null;
+}
+@using LiXinLanguage
+@using System.IO
+@model LiXinModels.DeptCourseManage.Dept_Course
+<form id="forOpenOrder">
+    <div>
+        <table class="tab-Form" style="width: 520px">
+            <tr>
+                <td class="Tit">最大允许人数：
+                </td>
+                <td>
+                    <input class="" type="text" id="txtNumLimited" name="NumberLimited" value="@ViewBag.num" />
+                </td>
+            </tr>
+            <tr class=" mt5">
+                <td colspan="2" class="tc">
+                    <input type="submit" class="btn" value="确定" />
+                    <input type="button" class="btn  btn-cancel" value="取消" id="close" onclick="closeDialog('pop_OpenOrder');" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("#forOpenOrder").validate(
+            {
+                debug: true,
+                event: "blur",
+                rules: { NumberLimited: { required: true, min: 1, max: 9999, digits: true } },
+                messages: { NumberLimited: { required: "请输入最大允许人数！", min: "最大允许人数必须是大于0的正整数！", max: "最大允许人数不能大于9999！", digits: "最大允许人数必须是大于0的正整数！" } },
+                errorPlacement: function (error, element)
+                {
+                    error.insertAfter(element);
+                },
+                submitHandler: fnSubmitOpenOrder
+            });
+    });
+
+    function fnSubmitOpenOrder()
+    {
+        $.post("/DeptCourseManage/ModifyOpenOrder?courseId=@ViewBag.courseId&StartTime=@ViewBag.StartTime&EndTime=@ViewBag.EndTime&departId=@ViewBag.departId&num=" + $("#txtNumLimited").val(), function (data)
+        {
+            if (data == 1)
+            {
+                art.dialog.tips("设置成功！", 3);
+            } else if (data == 2)
+            {
+                art.dialog.tips("设置失败！", 3);
+            }
+            if (@ViewBag.type == 0) {
+                fnSearch();
+            } else {
+                $("#numLimited").val($("#txtNumLimited").val());
+                $("#numLimit").val($("#txtNumLimited").val());
+            }
+            closeDialog('pop_OpenOrder');
+
+        });
+    }
+</script>
+

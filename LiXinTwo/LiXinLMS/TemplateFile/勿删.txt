@@ -1,0 +1,2 @@
+NewUserTemplate  新进员工导入模板
+NewUserScoreTemplate  综合评分导入模板

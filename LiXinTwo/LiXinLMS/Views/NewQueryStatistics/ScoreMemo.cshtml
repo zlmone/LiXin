@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "分数说明";
+    Layout = null;
+    var Id = ViewBag.Id;
+    var Way = Request.QueryString["Way"] ?? "0";
+}
+
+<table class="tab-Form" style="width: 420px" id="pop_List">
+    <tr>
+        <td class="Tit span12">实际考勤/应考勤：</td>
+        <td><span id="pop_Attend"></span></td>
+
+    </tr>
+    <tr>
+        <td class="Tit span10">考勤说明： </td>
+        <td id="pop_AttendStr">@ViewBag.AttendStr</td>
+    </tr>
+    @{
+        if (@ViewBag.IsGroupTeach == 1 || @ViewBag.IsGroupTeach == 3)
+        {
+        <tr>
+            <td class="Tit span13">集中授课现场评分：</td>
+            <td style="vertical-align: middle" id="pop_together">
+                <div id='start_Together' title='' class="fl mt5">
+                </div>
+                <span id="memo_Together" class="ml5"></span>
+                <div id="null_Together" style="display: none">未评分</div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="Tit span8">分数说明：</td>
+            <td><span id="pop_togherMemo"></span></td>
+        </tr>
+        }
+        if (@ViewBag.IsGroupTeach == 2 || @ViewBag.IsGroupTeach == 3)
+        {
+        <tr>
+            <td class="Tit span13">分组带教现场评分：</td>
+            <td style="vertical-align: middle" id="pop_group">
+
+                <div id='start_group' title='' class="fl mt5">
+                </div>
+                <span id="memo_group" class="ml5"></span>
+                <div id="null_group" style="display: none">未评分</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span8">分数说明：</td>
+            <td><span id="pop_groupMemo"></span></td>
+        </tr>
+        }
+    }
+    <tr>
+        <td class="Tit span10">奖励：</td>
+        <td><span id="pop_Reward"></span></td>
+    </tr>
+    <tr>
+        <td class="Tit span10">考试得分：</td>
+        <td>@ViewBag.Score/@ViewBag.sumScore</td>
+    </tr>
+    <tr>
+        <td colspan="2" class="tc">
+            <input type="button" class="btn  btn-cancel" value="关闭" id="close" onclick="closeDialog('pop_ScoreMemo');" />
+        </td>
+    </tr>
+
+</table>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+        var together = $("#Score_Together_@(Id)").attr("title");
+        var group = $("#Score_Group_@(Id)").attr("title");
+        $("#pop_Attend").html($("#Attend_@(Id)").html());
+        $("#start_Together").attr("title", $("#Score_Together_@(Id)").attr("title"));
+        $("#start_group").attr("title", $("#Score_Group_@(Id)").attr("title"));
+        $("#pop_Reward").html($("#Reward_@(Id)").html());
+        if ("@Way" == "2")
+        {
+            $("#pop_Attend,#pop_AttendStr,#pop_together,#pop_togherMemo,#pop_group,#pop_groupMemo").html("--");
+        }
+        else
+        {
+            if (together != 0)
+            {
+                $("#pop_togherMemo").html($("#Score_Together_@(Id)").attr("memo"));
+                $("#memo_Together").html("(" + together + "分 " + $("#Score_Together_@(Id)").attr("scorememo") + ")");
+            }
+            if (group != "0")
+            {
+                $("#pop_groupMemo").html($("#Score_Group_@(Id)").attr("memo"));
+                $("#memo_group").html("(" + group + "分  " + $("#Score_Group_@(Id)").attr("scorememo") + ")");
+            }
+            pop_ShowStart();
+            if (together == "0")
+            {
+                $("#start_Together").hide();
+                $("#null_Together").show();
+            }
+            if (group == "0")
+            {
+                $("#start_group").hide();
+                $("#null_group").show();
+            }
+        }
+
+
+
+    });
+
+    function pop_ShowStart()
+    {
+        if ($("div[id^='start_']").length > 0)
+        {
+            $("div[id^='start_']").each(function ()
+            {
+
+                var obj = this;
+                var title = $(this).attr("title");
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: title, Enabled: false }, function (value)
+                {
+                });
+            });
+        }
+    }
+
+</script>

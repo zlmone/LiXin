@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "Pop_AddBackImage";
+    Layout = null;
+}
+
+<table id="div_list" class="tab-List mt10">
+    <thead>
+        <tr>
+            <th class="span4">选择</th>
+            <th class="span4">序号</th>
+            <th>图片缩略图</th>
+        </tr>
+    </thead>
+    <tbody id="BackImageList" class="tc">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+<center>
+     <input type="button"  value="保存" class="btn" onclick="SaveBackUrl()" />
+     <a onclick="pop_close()" class="btn btn-cancel">取消</a>
+</center>
+<script id="BackImageListTemplate" type="text/x-jsrender">
+   {{for #data}}
+         <tr>
+            <td><input type="radio"  Realname="{{:RealName}}"/></td>   
+           <td class="span4">{{:#index+1}}</td>
+            <td><img alt="" src="../../UploadFiles/NoteBackImage/{{:RealName}}" width="224px" height="155.2px"/></td>
+        </tr>
+   {{/for}}
+</script>
+<script>
+    $(document).ready(function ()
+    {
+        InitData();
+    });
+
+    function InitData()
+    {
+        $("#BackImageList").JsRenderData({
+            sourceUrl: "/SystemManage/GetImageList?type=1",
+            isPage: true,
+            pageSize: 3,
+            pageIndex: 1,
+            templateID: "BackImageListTemplate",
+            funCallback: function ()
+            {
+                var realname = $("#BackUrlName").val();
+                $("#BackImageList").find("input[type='radio']").each(function ()
+                {
+                    if ($(this).attr("Realname") == realname)
+                    {
+                        $(this).attr("checked",true);
+                    }
+                });
+            }
+        });
+    }
+
+    function pop_close()
+    {
+        art.dialog.list["Pop_BackImage"].close();
+    }
+
+    
+</script>

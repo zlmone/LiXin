@@ -1,0 +1,42 @@
+﻿@model LiXinModels.Report_zVedio.VedioLearnSingle
+@{
+    Layout = null;
+    var type = Request.QueryString["type"] ?? "0";
+}
+<div class="so-set">
+    <table class="tab-Form">
+        <tbody>
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td colspan="3">
+                    <div class="ovh tl span15" title=" @(Model.CourseName)">@(Model.CourseName)</div>
+                </td>
+                <td class="Tit span6">开放时间：</td>
+                <td colspan="4">@(Model.CourseTime)</td>
+                @if (type == "0")
+                {
+                    <td class="Tit span6">已参加人数：</td>
+                    <td>@(Model.LearnNumber)</td>
+                    <td class="Tit span6">开放总人数：</td>
+                    <td>@(Model.sumNumber)</td>
+                }
+            </tr>
+            <tr>
+                <td class="Tit span6">学时：</td>
+                <td>@(Model.CourseLength)</td>
+                <td class="Tit span6">讲师：</td>
+                <td>@(Model.Teacher)</td>
+                <td class="Tit span6">选/必修：</td>
+                <td>@(Model.IsMustStr)</td>
+                <td class="Tit span6">开放对象：</td>
+                <td>
+                    <div class="ovh tl span10" title="@(Model.openObjectStr)">@(Model.openObjectStr)</div>
+                </td>
+                <td class="Tit span6">是否折算CPA学时：</td>
+                <td>@(Model.IsCPAStr)</td>
+                <td class="Tit span6">是否有在线测试：</td>
+                <td>@(Model.IsTestStr)</td>
+        </tbody>
+    </table>
+    <input id="hidTest" type="hidden" value="@(Model.IsTest)" />
+</div>

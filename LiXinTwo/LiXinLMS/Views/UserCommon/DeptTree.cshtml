@@ -1,0 +1,145 @@
+﻿@*
+在调本页面时，要注意，页面载入方法中有四个参数，可传可不传都有默认值
+flag            1：不带全部；0：带全部；默认为0
+type            ''：啥不带；'checkbox'：带checkbox；'radio'带radio；默认为''
+clickFunction   click事件；默认为'deptNodeClick(this)'
+buttonShow      0：不显示；1：显示；默认为0
+
+$("#pop_hidDeptID").val() 存放着被选中节点的id，默认为0
+$("#pop_hidParentDeptID").val() 存放着被选中节点的父级id，默认为0
+$("#pop_hidDeptName").val() 存放着被选中节点的Name，默认为空
+NodeDeptClick() 为点击节点事件的补充，可以自定义事件
+InitDeptTree() 为加载课程体系数之后补充
+
+GetDepts() 返回选择了的部门的信息；
+返回格式为 { ids,names } ids：以“,”相隔的部门ID的集合；names：以“♣”相隔的部门名称的集合
+*@
+@{
+    Layout = null;
+}
+<div class="treeview-box span50" id="pop_dept">
+    <div>
+        <input type="text" class="searchclass span13" id="pop_searchdept" value="请输入搜索内容"
+            info="" />
+        <input class="btn" type="button" value="搜索" onclick="pop_resetDeptTree(); " />
+    </div>
+    <div id="pop_deptTree" class="tree-list">
+        @ViewBag.html
+    </div>
+</div>
+<center class="mt10">
+    @{
+        if (ViewBag.buttonShow == 1)
+        {
+        <a title="确定" class="btn btn-co" onclick="SelectDept();" id="btnSure">确定</a>
+        }
+    }
+</center>
+
+<input type="hidden" id="pop_hidDeptID" value="0" />
+<input type="hidden" id="pop_hidParentDeptID" value="0" />
+<input type="hidden" id="pop_hidDeptName" value="" />
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch("pop_dept");
+        deptReady();
+        HiddenSelectdept('pop_deptID');
+        //选择上级组织自动选择下级组织
+        $("#pop_deptTree input[type='checkbox']").bind('change', function () {
+            var checked = false;
+            $(this).parent().find("input[type='checkbox']").each(function (index, value) {
+                if (index == 0) {
+                    checked = $(this).attr("checked") ? true : false;
+                }
+                if ($(this).attr("disabled") == undefined) {
+                    $(this).attr('checked', checked);
+                }
+            });
+
+            //$(this).parent().find("input[type='checkbox']")
+        });
+    });
+
+    function pop_resetDeptTree() {
+        $.getJSON("/UserCommon/GetDeptTree?flag=@ViewBag.flag&type=@ViewBag.type&clickFunction=@ViewBag.clickFunction&name=" + escape(getSearchWord("pop_searchdept")),
+            function (data) {
+                $("#pop_deptTree").html(data);
+                deptReady();
+                HiddenSelectdept('pop_deptID');
+                //选择上级组织自动选择下级组织
+                $("#pop_deptTree input[type='checkbox']").bind('change', function () {
+                    $(this).parent().find("input[type='checkbox']").each(function () {
+                        if (!$(this).attr("disabled")) {
+                            $(this).attr('checked', $(this).attr('checked') ? true : false);
+                        }
+                    });
+                });
+            });
+    }
+
+    function deptReady() {
+        $("#pop_deptTree").treeview({
+            persist: "location",
+            collapsed: true,
+            unique: false
+        });
+        $("#pop_deptTree").removeClass("treeview");
+        $("#pop_deptTree #0_-1").click();
+        $("#pop_deptTree #0>ul>li>div:first").click();
+        try {
+            InitDeptTree();
+        } catch (e) {
+        }
+    }
+
+    function deptNodeClick(obj) {
+        //获取具体的分类信息
+        var ids = $(obj).attr("id");
+        var id = ids.split("_")[0];
+        var pid = ids.split("_")[1];
+        var Name = $(obj).text();
+        $("#pop_hidDeptID").val(id);
+        $("#pop_hidParentDeptID").val(pid);
+        $("#pop_hidDeptName").val(Name);
+        deptNodeClickSelect(obj);
+        try {
+            NodeDeptClick();
+        } catch (e) {
+        }
+    }
+
+    function deptNodeClickSelect(obj) {
+        $("#pop_deptTree").find("a").each(function () {
+            $(this).removeClass("On");
+        });
+        $(obj).addClass("On");
+    }
+
+    function GetDepts() {
+        var ids = "";
+        var names = "";
+        $("#pop_deptTree input:checked").each(function () {
+            var s = $(this).attr("value").split("_");
+            ids = ids + s[0] + ",";
+            names = names + $(this).next().text() + "♣";
+        });
+        if (ids.length > 0) {
+            ids = ids.substring(0, ids.length - 1);
+            names = names.substring(0, names.length - 1);
+        }
+        return { ids: ids, names: names };
+    }
+
+    function HiddenSelectdept(ID) {        
+        if ($("#" + ID) != undefined && $("#" + ID) != null) {
+            $("#pop_deptTree input[type='checkbox']").each(function () {
+                if ((',' + $("#" + ID).val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('disabled', 'disabled');
+                }
+                if ((',' + $("#commonSelectedIdStr").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('checked', true);
+                }
+            });
+        }
+    }
+</script>

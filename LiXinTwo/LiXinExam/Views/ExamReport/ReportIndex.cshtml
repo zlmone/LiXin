@@ -1,0 +1,235 @@
+﻿@{
+    ViewBag.Title = "考试评估";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="contentInfor" class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+          {
+              linkName = "TestingAssessment"
+          }))
+    <!--上半部分-->
+    <div class="tab-bk">
+        <ul class="clb" id="tabmenu">
+            <li onclick=" Search(1); $('#tabmenu li').removeClass('On'); $(this).addClass('On');">最近一个月</li>
+            <li onclick=" Search(2); $('#tabmenu li').removeClass('On'); $(this).addClass('On'); ">最近一季度</li>
+            <li onclick=" Search(3); $('#tabmenu li').removeClass('On'); $(this).addClass('On');">最近半年</li>
+            <li class="On" onclick="Showinfo();$('#tabmenu li').removeClass('On'); $(this).addClass('On');Search(4);">更多查询</li>
+        </ul>
+        <p class="fr mTop_05 mRight_1">
+            <input type="button" class="btn btn-co" onclick=" ExportReportChart() " value="导出" /></p>
+        <div class="" id="show">
+            <input id="btnSearch" type="button" value="查询" onclick=" Search(4) " class="Btn Btn_blue" />
+            <label>
+                结束时间:
+            </label>
+            <div class="data-choose"><input type="text" id="txtStartTime" onclick=" WdatePicker({ el: 'txtStartTime' }); " value="" /><i></i></div>
+            至
+            <div class="data-choose"><input type="text" id="txtEndTime" onclick=" WdatePicker({ el: 'txtEndTime' }); " value="" /><i></i></div>
+        </div>
+    </div>
+    <!--下半部分-->
+    <div class="clb mTop_1">
+        <!--左边的菜单-->
+        <div class="fl Raster_21 box_white">
+            <div class="box_w_title">
+                <h1>
+                    考试总体分析</h1>
+            </div>
+            <ul class="sort_tree">
+                <li><a onclick=" MenuClick(1) ">参与及通过情况统计</a></li>
+                <li><a onclick=" MenuClick(2) ">题型正确率统计</a> </li>
+                <li><a onclick=" MenuClick(3) ">题库正确率统计</a> </li>
+                <li><a onclick=" MenuClick(4) ">成绩分布统计</a> </li>
+            </ul>
+            <div class="box_w_title">
+                <h1>
+                    考试情况分析</h1>
+            </div>
+            <ul class="sort_tree">
+                <li><a onclick=" MenuClick(5) ">成绩与排名统计</a></li>
+                @* <li><a onclick="MenuClick(6)">答卷情况统计</a></li>*@
+            </ul>
+        </div>
+        <!--右边的内容边的菜单-->
+        <div id="content" class="fr Raster_78">
+        </div>
+        <input id="Menutype" type="hidden" />
+        <input id="startDate" type="hidden" />
+        <input id="endDate" type="hidden" />
+        <input id="examName" type="hidden" value="" />
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        MenuClick(1);
+    });
+
+    function Showinfo()
+    {
+        $("#txtStartTime").val("");
+        $("#txtEndTime").val("");
+        if ($("#show").hasClass('dis'))
+        {
+            $("#show").removeClass('dis');
+            $(".tab_menu").addClass('mBot_5');
+        } else
+        {
+
+            $("#show").addClass('dis');
+            $(".tab_menu").removeClass('mBot_5');
+        }
+
+
+    }
+
+
+    //点击菜单
+
+    function MenuClick(type)
+    {
+        //Showinfo();
+        $("#Menutype").val(type);
+        Menu();
+    }
+
+    //点击查询条件
+
+    function Search(type)
+    {
+        start = $("#txtStartTime").val();
+        end = $("#txtEndTime").val();
+        if (start > end)
+        {
+            art.dialog.tips('请输入正确的时间范围', 3);
+            return;
+        }
+        DateChange(type);
+        InitTable();
+    }
+
+    //加载不同的内容
+
+    function Menu()
+    {
+        //var query = "startDate=" + $("#startDate").val() + "&endDate=" + $("#endDate").val() + "&examName=" + $("#examName").val();
+        switch ($("#Menutype").val())
+        {
+            //参与及通过情况统计                                                            
+            case "1":
+                $("#content").load("JoinAndPassExam?t=" + (new Date()).valueOf());
+                break;
+            //题型正确率统计                                                            
+            case "2":
+                $("#content").load("QuestionCorrectReport?t=" + (new Date()).valueOf());
+                break;
+            //题库正确率统计                                                            
+            case "3":
+                $("#content").load("QuestionSortCorrectReport?t=" + (new Date()).valueOf());
+                break;
+            //成绩分布统计   
+            case "4":
+                $("#content").load("ExaminationRecordsDistributionReport?t=" + (new Date()).valueOf());
+                break;
+            //成绩与排名统计   
+            case "5":
+                $("#content").load("/ExamReport/GradeRank");
+                break;
+            //答卷情况统计                                                            
+            case "6":
+                $("#content").load();
+                break;
+        }
+    }
+
+    //时间的获取
+
+    function DateChange(DateType)
+    {
+
+        var now = new Date();
+
+        var month = now.getMonth();
+
+        var year = now.getFullYear();
+
+        var day = now.getDate();
+
+        var start;
+
+        var end = new Date(year, month, day).Format("yyyy-MM-dd");
+
+        var examName = "";
+        switch (DateType)
+        {
+            //最近一个月   
+            case 1:
+                start = new Date(year, month, 1).Format("yyyy-MM-dd");
+                break;
+            //最近一季度                                                          
+            case 2:
+                start = new Date(year, getQuarterStartMonth(month), 1).Format("yyyy-MM-dd");
+                break;
+            //最近半年                                                         
+            case 3:
+                start = new Date(year, getYearStartMonth(month), 1).Format("yyyy-MM-dd");
+                break;
+            case 4:
+                start = $("#txtStartTime").val();
+                end = $("#txtEndTime").val();
+                // examName = $("#txtExamName").val();
+                break;
+        }
+
+        $("#startDate").val(start);
+        $("#endDate").val(end);
+
+        if (DateType == 1 || DateType == 2 || DateType == 3)
+        {
+            if (!$("#show").hasClass('dis'))
+            {
+                $("#show").addClass('dis');
+                $(".tab_menu").removeClass('mBot_5');
+            }
+        }
+    }
+
+    //获得本季度的开始月份     
+
+    function getQuarterStartMonth(nowMonth)
+    {
+        var quarterStartMonth = 0;
+        if (nowMonth < 3)
+        {
+            quarterStartMonth = 0;
+        }
+        if (2 < nowMonth && nowMonth < 6)
+        {
+            quarterStartMonth = 3;
+        }
+        if (5 < nowMonth && nowMonth < 9)
+        {
+            quarterStartMonth = 6;
+        }
+        if (nowMonth > 8)
+        {
+            quarterStartMonth = 9;
+        }
+        return quarterStartMonth;
+    }
+
+    //获得半年的开始月份
+
+    function getYearStartMonth(nowMonth)
+    {
+        var yearStartMonth = 0;
+        if (5 < nowMonth)
+        {
+            yearStartMonth = 6;
+        } else
+        {
+            yearStartMonth = 0;
+        }
+        return yearStartMonth;
+    }
+</script>

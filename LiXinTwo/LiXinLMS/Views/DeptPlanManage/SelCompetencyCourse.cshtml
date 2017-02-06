@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "PopCompetencyCourseShowList";
+    Layout = null;
+    //fnChooseSelectCourse  为 确认按钮触发的客户端 函数 需要自定义 2013-3-22 2:29:39
+}
+<div style="width:810px;">
+    <div id="div_courseSystem" class="fl span20"></div>
+    <div id="div_CompetencyCourseList" class="fr span60 ml10 pb20"></div>
+    <div style="clear:both;"></div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.get("/CourseManage/CompetencyCourseList?showCCCheckbox=2&showCCSureButton=1&showtype=1", function (data) { $("#div_CompetencyCourseList").html(data); });
+        $.get("/CourseManage/CourseSystemTree?checkBoxFlag=1", function (data) { $("#div_courseSystem").html(data); });
+    });
+</script>
+

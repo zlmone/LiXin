@@ -1,0 +1,142 @@
+﻿@{
+    ViewBag.Title = "Repot_fCanYu";
+    Layout = null;
+}
+
+<div class="main-c">
+    @*@(Html.Action("SiteMapLink", "Common", new { linkName = "我的已预订课程" }))*@
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">对象名称：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_CourseName" value="请输入对象名称" info="" class="Box span16 searchclass" />
+                </td>               
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input type="button" value="导出EXCEL" id="btnout" class="btn btn-co" />
+                </td>
+            </tr>
+        </table>
+    </div>    
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span16" class="">对象名称
+                </th>
+                <th class="span5" jsrendersortfield="" sort="desc">课程参与率
+                </th>
+                <th class="span7" jsrendersortfield="" sort="desc">已参加人数
+                </th>
+                <th class="span12" jsrendersortfield="" sort="desc">应参加人数
+                </th>
+                <th class="span8" jsrendersortfield="" sort="desc">学习人次
+                </th>
+                <th class="span7" jsrendersortfield="" sort="desc">累计观看时间<br />（分钟）
+                </th>
+                <th class="span8" jsrendersortfield="" sort="desc">平均观看时间<br />（分钟）
+                </th>
+                <th class="span5" jsrendersortfield="" sort="desc">人均观看次数
+                </th>                             
+            </tr>
+        </thead>
+        <tbody id="courseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+     <div class="">
+         <div id="showall" style="width: 80%; height: 300px;">
+        </div>
+        <div id="showcolumn" style="width: 80%; height: 300px; ">
+        </div>
+        <div id="showpie" style="width: 80%; height: 300px;">
+        </div>
+         <div id="showmonth" class="trendgraph" style="width: 80%; height: 300px;">
+
+         </div>
+    </div>
+</div>
+
+<script id="courseListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+         <td>{{:#index+1}}</td>
+         <td>{{:DeptName}}</td>
+         <td>{{:CanYuLv}}</td>
+         <td>{{:YiCanJia}}</td>
+         <td>{{:YingCanJia}}</td>
+         <td>{{:IsPassNum}}</td>
+         <td>{{:CeShiPass}}</td> 
+         <td>{{:AvgAnswerTime}}</td>
+         <td>{{:AvgAnswerNum}}</td>        
+     </tr>
+  {{/for}}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {     
+        initSearch();
+        InitData();
+
+        $("#btn_Select").click(function(){
+            InitData();
+        })
+
+        $("#btn_execl").click(function(){
+
+        })
+      
+      });
+
+    function InitData() {     
+
+        $.post("/Report_fVedio/GetfCanYu?courseid=" +@(ViewBag.courseid) +"&CourseName=" + escape(getSearchWord('txt_CourseName')), function (data) {
+         
+            $("#courseList").html(data.html);
+
+            if (data.fensuo != 0) {
+
+                var piechart_value = DrawImagePie(data.pie);
+                var piechart = new Highcharts.Chart(piechart_value);
+            }
+            else { $("#showpie").css("display", "none"); }
+
+            if (data.zongsuo != 0) {
+
+                var chart_value = DrawImageColumn(data.column);
+                chart_value.legend.enabled = true;
+                var chart = new Highcharts.Chart(chart_value);
+            }
+            else { $("#showcolumn").css("display", "none"); }
+
+
+
+            if (data.list != 0) {
+
+                var chart_value = DrawImagePie(data.pieAll);                
+                var chart = new Highcharts.Chart(chart_value);
+            }
+            else { $("#showall").css("display", "none"); }
+
+            if (data.allmonth != 0) {                
+                var chart_value = DrawImageLine(data.month);
+                var chart = new Highcharts.Chart(chart_value);
+            }
+            else {
+                $("#showmonth").css("display", "none");
+                
+            }
+
+
+            //DrawImageLine
+
+
+        });
+
+
+    }
+    </script>

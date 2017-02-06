@@ -1,0 +1,118 @@
+﻿@using LiXinLanguage
+@using LiXinModels.Examination.DBModel
+@{
+    Layout = null;
+    Response.Expires = 0;
+    string id = Request.QueryString["id"];
+    var questonInfor = ViewData["QuestionInfor"] as List<QuestionAnswer>;
+    var baseInfor = ViewData["BaseInfor"] as tbQuestion;
+}
+@*填空题*@
+<table class="tab-Form">
+    <tr>
+        <td class="Tit all15"><span title="必填项" class="must">*</span>@Question.Question_QuestionManage_QuestionContent：</td>
+        <td>
+            <div class="charleft originalTextareaInfo mb5">( @(Question.Question_QuestionManage_FillBlankTip) <span class="red">"()"</span> )</div>
+            <div><textarea id="txtQuestionContent"  class="all80" name="txtQuestionContent" isType="text" isnull="0" message="@Question.Question_QuestionManage_QueationContentNotNull">@(baseInfor.QuestionContent)</textarea></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit"><span title="必填项" class="must">*</span>@Question.Question_QuestionManage_RightAnswer：</td>
+        <td>
+            <p>
+                <input id="btnAddRightAnswer" type="button" class="btn btn-co" value="@Question.Question_QuestionManage_AddRightAnswer"/>
+                <span class="charleft originalTextareaInfo">@Question.Question_QuestionManage_BtnAddRightAnswer</span>
+            </p>
+            <input type="hidden" id="txtQuestionAnswer" name="txtQuestionAnswer"/>
+            <div id="rightAnswerList" class="seled-list" style="width:70%;">
+                @{
+                    if (baseInfor._id > 0)
+                    {
+                        QuestionAnswer answer = questonInfor.FirstOrDefault();
+                        if (answer != null)
+                        {
+                            foreach (string an in answer.Answer.Split(new[] {"!!%%!!"}, StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                <div><span title="必填项" class="must">*</span><input class="all70" type="text" isType="text" value="@an" isnull="0"  message="@Question.Question_QuestionManage_ItemContentNotNull"/><a class="fr icon idel mt5" title="@CommonLanguage.Common_Delete" onclick=" deleteAnswer(this); "></a></div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <div><span title="必填项" class="must">*</span><input class="all70" type="text" isType="text" value="" isnull="0" message="@Question.Question_QuestionManage_ItemContentNotNull"/><a class="fr icon idel mt5" title="@CommonLanguage.Common_Delete" onclick=" deleteAnswer(this); "></a></div>
+                    }
+                }
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit"><span title="必填项" class="must">*</span>关键词：</td>
+        <td><p class="charleft originalTextareaInfo mb5">(每个空格对应一个关键词，每个关键词之间用空格隔开，如: AA BB CC )</p>
+        <input id="txtQuestionAnswerKeys" type="text" class="all80" name="txtQuestionAnswerKeys" isType="text" isnull="0" maxlength="30" onkeydown=" TextearaMaxlength(this); " onkeyup=" TextearaMaxlength(this); " onpropertychange="TextearaMaxlength(this);" message="试题关键字不可以为空" value="@(id == "0" ? "" : baseInfor.QuestionAnswerKeys)" />
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">试题解析：</td>
+        <td><textarea id="txtQuestionAnalysis" class="all80" name="txtQuestionAnalysis" message="试题解析不可以为空">@(id == "0" ? "" : baseInfor.QuestionAnalysis)</textarea></td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#submitQuestionForm").PreCheckForm();
+        $("#btnAddRightAnswer").bind("click", function() {
+            $("#rightAnswerList").append('<div>' +
+                '<span title="必填项" class="must">*</span><input type="text" class="all70" isType="text" value="" isnull="0" maxlength="50" message="@Question.Question_QuestionManage_ItemContentNotNull"/>' +
+                '<a class="fr icon idel mt5" title="@CommonLanguage.Common_Delete" onclick="deleteAnswer(this);"></a>' +
+                '</div>'
+            );
+            $("#submitQuestionForm").PreCheckForm();
+        });
+    });
+
+    //删除选项
+
+    function deleteAnswer(obj) {
+        $(obj).parent().remove();
+    }
+
+    //判断信息是否完整
+
+    function isCheck() {
+        $("#tempContent").html(editor.getContent().replace(/<[^>].*?>/g, ""));
+        var newStr = $("#tempContent").text().trim().replace(/\（/g, '(').replace(/\（/g, '(').replace(/\（/g, '(').replace(/\）/g, ')').replace(/\）/g, ')').replace(/\）/g, ')');
+        
+        var delStr = newStr;
+        while (delStr.indexOf("()") >= 0) {
+            delStr = delStr.replace("()", " ");
+        }
+        if (newStr.length - delStr.length == $("#rightAnswerList input[type='text']").length) {
+            if ($("#txtQuestionAnswerKeys").val().trim().split(' ').length == newStr.length - delStr.length) {
+                var flag = true;
+                var answerStr = '';
+                $("#rightAnswerList input[type='text']").each(function() {
+                    if ($(this).val() == "")
+                        flag = false;
+                    else {
+                        answerStr += answerStr == "" ? $(this).val() : ('!!%%!!' + $(this).val());
+                    }
+                });
+                $("#txtQuestionAnswer").val(answerStr);
+                if (!flag)
+                    return false;
+                if ($("#txtQuestionAnswer").val() != "")
+                    return true;
+                else
+                    return false;
+            } else {
+                3('关键词的个数与空格的个数不一致', 3);
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '关键词的个数与空格的个数不一致', width: 400, height: 50, fixed: true, lock: true, time: 5000 });
+                return false;
+            }
+        } else {
+            3('@Question.Question_QuestionManage_Tip_BlankNumberIsOK', 3);
+            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '@Question.Question_QuestionManage_Tip_BlankNumberIsOK！', width: 400, height: 50, fixed: true, lock: true, time: 5000 });
+            return false;
+        }
+    }
+</script>

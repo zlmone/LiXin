@@ -1,0 +1,53 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var modell = ViewBag.model as Sys_ParamConfig;
+}
+
+<form id="fnSumitConfig">
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">课程退订次数</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span20">课程退订次数：</td>
+            <td>
+                <input type="text" class="span16" name="Anumber"  id="level_A" value="@(modell.ConfigValue)"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td><input type="submit" value="确定" id="btn_Add" class="btn"/></td>
+        </tr>
+    </table>
+</form>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#fnSumitConfig").validate({
+                event: "blur",
+                rules: {
+                    Anumber: { required: true, number: true, min: -1, max: 1000 }
+                },
+                messages: {
+                    Anumber: { required: "请输入次数", number: "请输入大于0的正整数", min: "请输入大于-1的正整数", max: "输入次数小于1000" }
+                },
+                submitHandler: fnSumitConfig
+            });
+        });
+        function fnSumitConfig() {
+            var t = $("#level_A").val();
+            if (t.indexOf(".") >= 0) {
+                art.dialog.tips('请输入整数', 3);
+            } else {
+                $.post("/ParamConfig/fUpdateParamConfig?configType=47&configValue=" + t, function (data) {
+                    if (data.result == 1) {
+                        art.dialog.tips('配置成功', 3);
+                    } else {
+                        art.dialog.tips('配置失败', 3);
+                    }
+                });
+            }
+            
+        }
+    </script>

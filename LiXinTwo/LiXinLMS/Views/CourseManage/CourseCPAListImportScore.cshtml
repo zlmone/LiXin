@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "CPA考勤导入";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "CPA考勤导入"
+}))
+    <div class="so-set" id="div_Search">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td class="span31"><input type="text" id="txtCourseName" value="请输入搜索内容" info="" class="span30 searchclass" /></td>
+                <td class="Tit span6">开课时间：</td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                        name="StartTime" id="txt_StartTime" value="" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="time-choose">
+                        <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                        id="txt_EndTime" value="" />
+                        <i></i>
+                    </div>
+                </td>
+                <td class="so-do"><input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnSearch(); " /></td>
+            </tr>
+        </table>
+    </div>
+
+<div id="Content" class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th>课程名称
+                </th>
+                <th>学时
+                </th>
+                <th>开放级别
+                </th>
+                <th class="span8">授课讲师
+                </th>
+                <th class="span16" jsrendersortfield="StartTime" sort="desc">开课时间
+                </th>
+                <th class="span6">培训天数
+                </th>
+                <th>授课地点
+                </th>
+                <th class="span6">培训对象
+                </th>
+                <th class="span8">成绩导入状态
+                </th>
+                <th class="span8">操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="tbCourseCPAList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+</div>
+<script id="courseCPAListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+             <td>{{:#index+1}}</td>
+             <td><div class="tl ovh span15" title="{{:CourseName}}">{{:CourseName}}</div></td>
+             <td>{{:CourseLength}}</td>
+             <td>{{:OpenLevel}}</td>
+             <td><div class="ovh span7 tl" title="{{:CourseAddress}}">{{:CpaTeacher}}</div></td>
+             <td><div class="f11 tl">{{:StartTime}} - {{:EndTime}}</div></td>
+             <td>{{:TrainDays}}</td>
+             <td><div class="ovh span10 tl" title="{{:CourseAddress}}">{{:CourseAddress}}</div></td>
+             <td><div class="ovh span5 tl" title="{{:CourseObjectMemo}}">{{:CourseObjectMemo}}</div></td>
+             <td>{{:ImportOverFlag}}</td>
+                <td>
+                 {{if StateStr=="已结束"}}
+                    <a onclick="fnImportCPACourseScore({{:Id}})" class="icon imp" title="导入成绩"></a>
+                 {{/if}}
+                 {{if StateStr!="已结束"}}
+                    <span class="icon imp idis" title="导入成绩"></span>
+                 {{/if}}
+                        <a onclick="fnCPACourseScoreDetail({{:Id}})" class="icon iview" title="查看详情"></a>
+                </td>
+            
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //注册页面加载事件,解决flash的bug
+        addEvent(window, init, "load", "CPA考勤导入");
+        initSearch();
+        fnGetCourseList();
+    });
+
+    function fnGetCourseList() {
+        $("#tbCourseCPAList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "StartTime",
+            jsRenderASC: "desc",
+            templateID: "courseCPAListTemplate",
+            funCallback: function () {
+                SetCheckBox('pop_selectall', 'tbCourseCPAList');
+            }
+        });
+    }
+
+    function GetPopParameters() {
+        var url = "/CourseManage/GetCourseCPAListImportScore?t=" + new Date();
+        url += "&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val();
+        return url;
+
+    }
+    function fnSearch() {
+        fnGetCourseList();
+    }
+
+    function fnImportCPACourseScore(id) {
+        art.dialog.load("/CourseManage/ImportCourseCPATemplate/" + id, { title: "导入成绩", width: 300, height: 240, id: "pop_ImportCourseCPATemplate", init: function () { fnInitUploadifyCPAScore(); }, close: function(){
+            $("#txtImportCourseCPATemplate").uploadify("destroy");
+        } }, false);
+    }
+    function fnCPACourseScoreDetail(id) {
+        window.location.href = '/CourseManage/CourseCPADetailScoreList?CourseId=' + id;
+    }
+</script>

@@ -1,0 +1,132 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "知识中心";
+    Layout = "../Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "知识中心" }))
+    <div>
+        <div class="fl span20">
+            <div id="div_ReResourceManage">
+            </div>
+        </div>
+        <div class="fr span79">
+            <div class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span8">
+                            资源名称：
+                        </td>
+                        <td class="span11">
+                            <input type="text" class="span10 Box searchclass" id="txtName" value="请输入搜索内容" info="" />
+                        </td>
+                        <td class="Tit span8">
+                            格式：
+                        </td>
+                        <td>
+                            <select id="sel_Suffix" class="">
+                                <option value="all">显示全部</option>
+                                <option value="doc">doc</option>
+                                <option value="docx">docx</option>
+                                <option value="ppt">ppt</option>
+                                <option value="pptx">pptx</option>
+                                <option value="xls">xls</option>
+                                <option value="xlsx">xlsx</option>
+                                <option value="pdf">pdf</option>
+                                <option value="txt">txt</option>
+                                <option value="rmvb">rmvb</option>
+                                <option value="avi">avi</option>
+                                <option value="wmv">wmv</option>
+                            </select>
+                        </td>
+                        <td class="Tit span6">
+                            排序方式：
+                        </td>
+                        <td>
+                            <select id="sel_Way" class="">
+                                <option value="-1">无排序方式</option>
+                                <option value="0">评价由低到高</option>
+                                <option value="1">评价由高到低</option>
+                                <option value="2">阅读由低到高</option>
+                                <option value="3">阅读由高到低</option>
+                            </select>
+                        </td>
+                        <td class="so-do">
+                            <input class="btn" type="button" value="搜索" id="btnSearch" onclick="InitData();" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="all tab-List">
+                <div id="tbCourseList" class="blocklist">
+                    <div id="listbody"></div>
+                    <div id="listPage" class="listPage"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="CourseListTemplate" type="text/x-jsrender">
+{{for #data}}
+<div class="list-unit">
+    <div>
+        <img class="ki_cc_img" width="178px" height="126px" style="cursor:pointer"  title="{{:ResourceName}}" src="{{:ThumbnailURLStr}}" onclick="viewDetail({{:ResourceID}})">
+        <h3 class="tac ma w180 mt10 ovh fs14 c4d" >{{:ResourceName}}</h3>
+    </div>
+    <div class="btnbrowse">
+        <a class="icon iview" title="查看" href="/ReResourceManage/PreReMyResourceListShow?id={{:ResourceID}}&where=1"></a>
+        <a href="/ReResourceManage/PreReMyResourceListShow?id={{:ResourceID}}&where=1">查看</a>
+    </div>
+</div>
+{{/for}}
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        initSearch();
+        $("#sel_Suffix,#sel_Way").bind("change", function() {
+            InitData();
+        });
+
+        $.get("/ReResourceManage/ReResourceTypeManage?showManage=0", function (data) {
+            $("#div_ReResourceManage").html(data);
+            //            InitData();
+        });
+
+        InitData();
+    });
+
+    function InitData() {
+
+
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 15,
+            pageIndex: 1,
+            jsRenderSortField: "LastUpdateTime",
+            jsRenderASC: "desc",
+            templateID: "CourseListTemplate",
+            funCallback: function () {
+                //SetCheckBox('tbCourseList');
+            }
+        });
+    }
+
+    function GetPopParameters() {
+        var resourceTypeId = 0;
+        if ($("#txthidNoteSortId").length != 0) {
+            if ($("#txthidNoteSortId").val() != 0) {
+                resourceTypeId = $("#txthidNoteSortId").val();
+            }
+        }
+        var url = "/ReResourceManage/GetList?t=" + new Date() + "&courseName=" + escape(getSearchWord("txtName")) + "&kind=" + $("#sel_Suffix").val() + "&way=" + $("#sel_Way").val() + "&resourceTypeId=" + resourceTypeId;
+        return url;
+    }
+
+    function viewDetail(id) {
+        window.location = "/ReResourceManage/PreReMyResourceListShow?id=" + id + "&where=1";
+    }
+    
+    
+</script>

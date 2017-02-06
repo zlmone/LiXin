@@ -1,0 +1,531 @@
+﻿@{
+    ViewBag.Title = "CompletionDetial";
+    Layout = null;
+    var naru = Request.QueryString["naru"] ?? "1";
+    var CPA = Request.QueryString["CPA"] ?? "0";
+    var index = Request.QueryString["index"] ?? "-1";
+    var show = Request.QueryString["show"] ?? "0";
+}
+
+<div class="main-c">
+    <input type="hidden" id="txt_deptid_list" value="@(ViewBag.Deptid)" />
+    <input type="hidden" id="hidSelUserIds" />
+    @*@(Html.Action("SiteMapLink", "Common", new { linkName = "我的已预订课程" }))*@
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span8">部门/分所：
+                </td>
+                <td class="span8">
+                    <input type="button" id="btn_selectdeptid" value="选择部门/分所" class="btn  btn-co" />
+                </td>
+                <td class="Tit span6">选择年度：</td>
+                <td>
+                @(Html.Action("ReportYear", "Common", new { id = "sel_year" }))
+
+                <td class="Tit span6">培训目标是否完成：</td>
+                <td>
+                    <input type="checkbox" name="ispeixun" value="1" />是
+                    <input type="checkbox" name="ispeixun" value="0" />否 </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input id="btn_execl" type="button" class="btn btn-co" value="导出EXCEL" onclick="ExportUser()" />
+                    <input type="button" class="btn btn-co" value="同步" onclick="fabu(InitData)" />
+                    @*<input type="button" class="btn btn-co" value="同步" onclick="fabu(InitAllData)" />*@
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span8">员工姓名：</td>
+                <td>
+                    <input type="text" id="txt_realName" value="请输入搜索内容" info="" class="Box span16 searchclass" /></td>
+                <td class="Tit span8">是否执业CPA：</td>
+                <td>
+                    <input type="checkbox" name="iscpa" value="1" id="details_iscpa" />是
+                    <input type="checkbox" name="iscpa" value="0" />否 </td>
+                <td class="Tit">是否纳入考核范围：
+                </td>
+                <td>
+                    <input type="checkbox" name="naru" value="1" checked="checked" />是
+                    <input type="checkbox" name="naru" value="0" />否
+                </td>
+                <td class="so-do" colspan="2">
+                    <input type="button" value="短信/邮件提醒" class="btn" onclick="Remind(GetChecked('courseList')); " /></td>
+            </tr>
+            <tr>
+                <td class="Tit span8">培训级别：</td>
+                <td class="span20">
+                    @{
+                        for (int i = 0; i < ViewBag.allTrainGrade.Count; i++)
+                        {
+                        <input type="checkbox" id="@ViewBag.allTrainGrade[i]" value="@ViewBag.allTrainGrade[i]" name="OpenLevel"/><label>@ViewBag.allTrainGrade[i]</label>
+                        }
+                    }
+
+                </td>
+                <td class="Tit span8">是否完成职业道德课程：</td>
+                <td>
+                    <input type="checkbox" name="iszhiye" value="1" />是
+                    <input type="checkbox" name="iszhiye" value="0" />否 </td>
+                <td class="Tit span8">是否免修：</td>
+                <td>
+                    <input type="checkbox" name="isFree" value="1" />是
+                    <input type="checkbox" name="isFree" value="0" />否 
+                </td>
+
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <div class="course-tysel">
+            <span style="float: right; color: orangered;">温馨提示：名字红色的为有免修的人员</span>
+        </div>
+    </div>
+    <table class="tab-List mt10" id="tbCoursePass">
+        <thead>
+            <tr>
+                <th class="span4">
+                    <input type="checkbox" value="0" id="selectall" />
+                </th>
+                <th class="span4">序号
+                </th>
+                <th class="span8" class="">部门/分所
+                </th>
+                <th class="span8">员工姓名
+                </th>
+                <th class="span7">培训级别
+                </th>
+                <th class="span12">培训目标是否<br />
+                    完成（所内）
+                </th>
+                <th class="span8" jsrendersortfield="nopass_t_dScore" sort="desc">已获取/未完成目标学<br />
+                    时（所内）
+                </th>
+                <th class="span9" jsrendersortfield="OnlineTestPass" sort="desc">已通过在线次<br />
+                    数（所内）
+                </th>
+                <th class="span8" jsrendersortfield="nppass_cpaScore" sort="desc">已完成/未完成学时<br />
+                    （CPA）
+                </th>
+
+                @if (ViewBag.cpa == 1)
+                {
+
+                    <th class="span5" jsrendersortfield="nopass_cpazhouqi_length" sort="desc">本培训周期已完成/未完成
+                        学时（CPA）
+                    </th>
+
+                }
+                <th class="span7">是否已完成职业道德课程（CPA）
+                </th>
+
+                <th jsrendersortfield="co_cd" sort="desc">集中授课/部门学习迟到次数</th>
+                <th jsrendersortfield="co_qq" sort="desc">集中授课/部门学习缺勤次数</th>
+                <th jsrendersortfield="co_zt" sort="desc">集中授课/部门学习早退次数</th>
+                <th jsrendersortfield="co_cd_zt" sort="desc">集中授课/部门学习迟到并早退次数</th>
+            </tr>
+        </thead>
+        <tbody id="courseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <br />
+    @if (index != "-1")
+    {
+        <div class="mt10 tc">
+            <input type="button" id="d_btnback" class="btn btn-cancel" value="返回">
+        </div>
+    }
+    <input id="cpa_PayGrade" type="hidden" />
+    <input id="cpa_Relationship" type="hidden" />
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+         <td><input type="checkbox" id="{{:UserId}}" value="{{:UserId}}"</td>
+         <td>{{:#index+1}}</td>
+         <td style="text-align:left">{{:DeptName}}</td>
+         <td>
+            {{if  isFree==1}}
+                <a onclick="fhref({{:UserId}})" style="cursor:pointer;color:red;font-weight: bold;">{{:realname}}</a>
+            {{else}}
+                <a onclick="fhref({{:UserId}})" style="cursor:pointer">{{:realname}}</a>
+            {{/if}}
+         </td>
+         <td>{{:TrainGrade}}</td>
+         <td>{{:ComPletionStatu}}</td>
+         <td>{{:suonei_t_d_cpaScore}}/{{:nopass_t_dScore}}</td>
+         <td>{{:OnlineTestPass}}</td> 
+         <td>         
+             @*{{if iscpa=="是"}}
+             {{:cpa_t_d_cpaScore}}/{{:nppass_cpaScore}}
+             {{else}}
+                N/A
+             {{/if}}
+             {{:nppass_cpaScore}}*@
+             {{:cpa_statu}}
+         </td>
+         @if (ViewBag.cpa == 1)
+         {
+           <td>{{:cpazhouqi_statu}}</td>
+         }
+         <td>
+             {{if iscpa=="是"}}
+             {{:ismoral}}
+             {{else}}
+                N/A
+             {{/if}}
+         </td>
+         <td>{{:co_cd}}/{{:dep_cd}}</td>
+         <td>{{:co_qq}}/{{:dep_qq}}</td>
+         <td>{{:co_zt}}/{{:dep_zt}}</td>
+         <td>{{:co_cd_zt}}/{{:dep_cd_zt}}</td>
+     </tr>
+  {{/for}}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        var arr="A,B,C,D";
+        $('input[name=OpenLevel]').each(function (i,d) {
+            if(arr.split(',')[i]==$(this).attr("value"))
+                $(this).attr("checked",true);
+        });
+      
+        initSearch();
+        if("@show"=="1")
+        {
+            $('input[name=OpenLevel]').attr("checked",false);
+        }
+        if ("@naru" == "0")
+        {
+            $("input[name='naru']").attr("checked", false);
+        }
+        if("@CPA"=="1")
+        {
+           
+            $("#details_iscpa").attr("checked", true);
+        }
+
+        InitShow();
+
+        $("#btn_selectdeptid").click(function ()
+        {
+            var naru = "";
+            if ($("input[name='naru']:checked").length == 2)
+            {
+                naru = "";
+            }
+            else
+            {
+                $("input[name='naru']:checked").each(function ()
+                {
+                    naru = $(this).val();
+                })
+            }
+            
+            art.dialog.load("/Report_zAttendce/SelectDept?deptid=@(ViewBag.Deptid)&ReportType=@(ViewBag.ReportType)&naru="+naru, { title: '选择部门/分所', id: "win_deptmanage" }, false);
+        })
+        $("#btn_Select").click(function ()
+        {
+            zhezaowait(); //等待提示
+            InitData();
+        })
+
+        $("#d_btnback").click(function(){
+            show(@index,1);
+        });
+      
+    });
+
+    ///初始化查询条件
+    function InitShow()
+    {
+      
+        var openLevel=$("#hidOpenLevel").val();
+        var payGrade=$("#hidPayGrade").val();
+        var CPA=$("#hidCPA").val();
+        var year=$("#hidyear").val();
+        var CPARelationship=$("#hidCPARelationship").val();
+        if(openLevel!="")
+        {
+            $('input[name=OpenLevel]').attr("checked",false);
+            $('input[name=OpenLevel]').each(function (i,d) {
+                //debugger;
+                if($.inArray($(this).attr("value"), openLevel.split(','))>=0)
+                    $(this).attr("checked",true);
+            });
+        }
+        if(payGrade!="")
+        {
+            $("#cpa_PayGrade").val(payGrade);
+        }
+        if(CPA!="")
+        {
+            if(CPA=="2")
+            {
+                $("input[name='iscpa']").attr("checked",true)
+            }
+            else
+            {
+                $("input[name='iscpa'][value='"+CPA+"']").attr("checked",true)
+            }
+        }
+        if(year!="")
+        {
+            $("#sel_year option[value='"+year+"']").attr("selected",true);
+        }
+        if(CPARelationship!="")
+        {
+            $("#cpa_Relationship").val(CPARelationship);
+        }
+        InitData();   
+    }
+
+
+    function InitData()
+    {
+        var param={deptlist: $("#txt_deptid_list").val(),PayGrade:$("#cpa_PayGrade").val(),cpaRelationship:$("#cpa_Relationship").val()};
+        $("#courseList").JsRenderData({
+            sourceUrl: geturl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "courseListTemplate",
+            ajaxtype: "post",
+            ajaxParam: param,
+            wait:1,
+            funCallback: function (data)
+            {
+                SetCheckBox('selectall', 'courseList');
+                // closewait();
+            }
+        });
+        // closewait();
+    }
+    function fhref(userid)
+    {
+        if (@ViewBag.ReportType==0)
+        {
+            location.href = "/Report_zAttendce/CompletionDetialByUser?userid=" + userid + "&url=/Report_zAttendce/ReportAllScore?type=3";
+        }
+        else
+        {
+            location.href = "/Report_zAttendce/FCompletionDetialByUser?userid=" + userid + "&url=/Report_zAttendce/FReportAllScore?type=3";
+        }
+    }
+
+    function geturl()
+    {
+
+        var chk_value = "";
+        $('input[name="OpenLevel"]:checked').each(function ()
+        {
+            chk_value += "'" + $(this).val() + "',";
+        });
+        chk_value = chk_value.substring(0, chk_value.lastIndexOf(','));
+        var iscpa = "";
+        if ($("input[name='iscpa']:checked").length == 2)
+        {
+            iscpa = "";
+        }
+        else
+        {
+            $("input[name='iscpa']:checked").each(function ()
+            {
+                iscpa = $(this).val();
+            })
+        }
+
+        var ispeixun = "";
+        if ($("input[name='ispeixun']:checked").length == 2)
+        {
+            ispeixun = "";
+        }
+        else
+        {
+            $("input[name='ispeixun']:checked").each(function ()
+            {
+                ispeixun = $(this).val();
+            })
+        }
+
+        var iszhiye = "";
+        if ($("input[name='iszhiye']:checked").length == 2)
+        {
+            iszhiye = "";
+        }
+        else
+        {
+            $("input[name='iszhiye']:checked").each(function ()
+            {
+                iszhiye = $(this).val();
+            })
+        }
+
+        var naru = "";
+        if ($("input[name='naru']:checked").length == 2)
+        {
+            naru = "";
+        }
+        else
+        {
+            $("input[name='naru']:checked").each(function ()
+            {
+                naru = $(this).val();
+            })
+        }
+
+        var isFree="-1";
+        if ($("input[name='isFree']:checked").length != 2)
+        {
+            isFree = $("input[name='isFree']:checked").val();
+        }
+        return '/Report_zAttendce/GetCompletionDetial?ReportType=@(ViewBag.ReportType)&Deptid=@(ViewBag.Deptid)&year=' + $("#sel_year").val() +
+            "&realname=" +escape($.trim(getSearchWord("txt_realName")))+ "&iscpa=" + iscpa + "&ispeixun=" + ispeixun + "&naru=" + naru
+        + "&iszhiye=" + iszhiye + "&TrainGrade=" + chk_value+"&isFree="+isFree;
+
+    }
+
+
+    function Remind(ids)
+    {
+        if (ids == "")
+        {
+            art.dialog.tips("请选择用户！", 3);
+            return;
+        }
+        $("#hidSelUserIds").val(ids);
+        art.dialog.load("/SystemManage/MessageEdit?t=" + new Date(), { title: "消息编辑", id: "EditMessage", width: 600 });
+
+    }
+
+
+
+    function Send()
+    {
+        var ismust = 0;
+        $("input[name='mMust']").each(function (index)
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                ismust += parseInt($(this).val());
+            }
+        });
+        $.post("/SystemManage/SendMessageByGroup",
+            {
+                Uids: $("#hidSelUserIds").val(),
+                Title: $.trim(getSearchWord("mTitle")),
+                Content: $.trim(getSearchWord("mContent")),
+                Must: ismust
+            },
+            function (data)
+            {
+                if (data.result == 1)
+                {
+                    art.dialog.tips("提醒成功", 3);
+                    art.dialog.list['EditMessage'].close();
+                } else
+                {
+                    art.dialog.tips("提醒失败", 3);
+                }
+            }
+        );
+    }
+
+    function ExportUser()
+    {
+        var chk_value = "";
+        $('input[name="OpenLevel"]:checked').each(function ()
+        {
+            chk_value += "'" + $(this).val() + "',";
+        });
+        chk_value = chk_value.substring(0, chk_value.lastIndexOf(','));
+        var iscpa = "";
+        if ($("input[name='iscpa']:checked").length == 2)
+        {
+            iscpa = "";
+        }
+        else
+        {
+            $("input[name='iscpa']:checked").each(function ()
+            {
+                iscpa = $(this).val();
+            })
+        }
+
+        var ispeixun = "";
+        if ($("input[name='ispeixun']:checked").length == 2)
+        {
+            ispeixun = "";
+        }
+        else
+        {
+            $("input[name='ispeixun']:checked").each(function ()
+            {
+                ispeixun = $(this).val();
+            })
+        }
+
+        var iszhiye = "";
+        if ($("input[name='iszhiye']:checked").length == 2)
+        {
+            iszhiye = "";
+        }
+        else
+        {
+            $("input[name='iszhiye']:checked").each(function ()
+            {
+                iszhiye = $(this).val();
+            })
+        }
+        var naru = "";
+        if ($("input[name='naru']:checked").length == 2)
+        {
+            iszhiye = "";
+        }
+        else
+        {
+            $("input[name='naru']:checked").each(function ()
+            {
+                naru = $(this).val();
+            })
+        }
+
+        art.dialog({
+            content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+            ok: function ()
+            {
+                var v = '/Report_zAttendce/GetCompletionDetialForReport?ReportType=@(ViewBag.ReportType)&Deptid=@(ViewBag.Deptid)&deptlist=' + $("#txt_deptid_list").val() + "&year=" + $("#sel_year").val() +
+            "&realname=" + $("#txt_realName").val() + "&iscpa=" + iscpa + "&ispeixun=" + ispeixun + "&naru=" + naru;
+                + "&iszhiye=" + iszhiye + "&TrainGrade=" + chk_value;
+                window.location.href = v;
+            },
+            cancel: true
+        });
+        }
+
+
+        function searchByDept()
+        {
+            art.dialog.list['win_deptmanage'].close();
+            InitData();
+        }
+
+        function fabu1(funCallback)
+        {
+            zhezaowait();
+            $.get("RefreshGetCourseScore", function ()
+            {
+                closewait();
+                art.dialog.tips("更新成功", 3);
+
+                funCallback();
+
+            });
+        }
+</script>
+
+
+

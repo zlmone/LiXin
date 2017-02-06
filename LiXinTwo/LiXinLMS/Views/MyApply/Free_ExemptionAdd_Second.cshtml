@@ -1,0 +1,247 @@
+﻿@model LiXinModels.SystemManage.Free_UserOtherApply
+@{
+    ViewBag.Title = "我的申请";
+    var config = ViewBag.model as LiXinModels.SystemManage.Free_ApplyConfig;
+}
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的申请"
+}))
+    @Html.Action("Free_ApproveHead", "MyApply")
+
+    <div class="step-app">
+        <div class="ok"><span>1</span>选择申请内容<i></i></div>
+        <div class="on"><span>2</span>输入学时<i></i></div>
+    </div>
+    <form id="form_free">
+        <table class="tab-Form">
+            <tr style="font-weight: bold">
+                <td class="Tit">免修项目：</td>
+                <td>
+                    <input name="ApplyName" type="hidden" value="@(config.FreeName)" />
+                    @(config.FreeName)
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span8"><span class="must">*</span>申请年度：</td>
+                <td>
+                    <span id="selyear" name="Year">@ViewBag.year</span>
+
+                    @*  <input id="selyear" name="Year" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy',isShowClear:false,isShowToday:false });" 
+                        value="@(ViewBag.UserOtherApply_Id == 0 ? config.year : Model.Year)" />*@
+
+                </td>
+            </tr>
+            @if (config.ApplyType != 1)
+            {
+                <tr>
+                    <td class="Tit span12">所内免修学时：</td>
+                    <td>
+                        <input name="tScore" type="hidden" value="@(config.TogetherFreeScore)" />
+                        @(config.TogetherFreeScore)
+                    </td>
+                </tr>
+            }
+            @if (ViewBag.cpa == 1 && config.ApplyType != 0)
+            {
+                <tr>
+                    <td class="Tit span12">CPA免修学时：</td>
+                    <td>
+                        <input name="CPAScore" type="hidden" value=" @(config.CPAFreeScore)" />
+                        @(config.CPAFreeScore)
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td class="Tit"><span class="must">*</span>免修情况说明：</td>
+                <td>
+                    <div style="line-height: 20px; width: 88%; height: 50%; color: gray;">@(config.MemoTip)</div>
+                    @if (ViewBag.UserOtherApply_Id == 0)
+                    {
+                        <textarea id="Memo" name="Memo" cols="20" rows="2" maxlength="200" class="span25" style="width: 88%;">@(config.Memo)</textarea>
+                    }
+                    else
+                    {
+                        <textarea id="Memo" name="Memo" cols="20" rows="2" maxlength="200" class="span25" style="width: 88%;">@(Html.Raw(Model.MemoStr.Trim()))</textarea>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span8"><span class="must">*</span>证明资料：</td>
+                <td>
+                    <input id="hidFreeIDs" type="hidden" />
+                    <input type="file" value="" name="uploadResource" class="uploadResource" id="uploadResource" />
+                    <div class="charleft originalTextareaInfo mb5" style="font-weight: bold; font-size: 14px;white-space:normal">
+                        <p>文件提示：@(config.UploadTip)</p>
+                        <p>可以上传的文档类型有：doc，docx，xls，xlsx，ppt，pptx，txt，pdf，bmp，png，jpeg，gif，tiff，jpg</p>
+                    </div>
+                    <div id="uploadResource-queue">
+                    </div>
+                    @if (Model.UserApplyFiles != null)
+                    {
+                        <div class="seled-list" id="seled-list">
+                            <ul>
+                                @foreach (var t in Model.UserApplyFiles)
+                                {
+                                    <li id="div_Free_@(t.ID)"><span title="@t.ResourceName">
+                                        @t.ResourceName
+                                    </span>
+                                        <input  type="button" name="btn" value="X" title="移除" class="btn btn-cancel" onclick="fnRemoveFree('div_Free_@(t.ID)    ',@t.ID)" />
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </td>
+            </tr>
+        </table>
+        <div>
+            <input type="button" value="上一步" class="btn" id="btn_prev" />
+            <input type="button" value="保存" class="btn" id="btn_save" onclick="saveFreeExenotion(0)" />
+            <input type="button" value="提交" class="btn" id="btn_up" onclick="saveFreeExenotion(1)" />
+            <input type="button" value="取消" class="btn" id="btn_cancel" />
+        </div>
+        <input type="hidden" id="txt_id" />
+        <input type="hidden" id="UserOtherApply_Id"  name="ID" value="@ViewBag.UserOtherApply_Id"/>
+        <input name="ApplyID" type="hidden" value="@ViewBag.ID"/>
+    </form>
+</div>
+
+<script type="text/javascript">
+    var fileCount=0;
+    var currNum=0;
+    var interval = null;
+    $(document).ready(function () {
+
+        //#region
+        //上传附件
+        $('.uploadResource').uploadify({
+            'formData': { 'folder': "@(System.Configuration.ConfigurationManager.AppSettings["FreeUplpadUrl"])" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',//此处因需要增加了detailFlag字段 其他地方使用请自行移除
+            'auto': false,
+            'multi': true,
+            'queueID':'uploadResource-queue',
+            'fileTypeExts': '*.doc; *.docx; *.xls; *.xlsx;*.ppt;*.pptx;*.txt;*.pdf;*.bmp;*.png;*.png;*.jpeg;*.gif;*.tiff;*.jpg;',
+            'onCancel': function (file) {
+            },
+            'onSelect': function (file) {
+                $("#tempAttachQueueId").val(file.id);
+            },
+            'onUploadStart': function (file) {
+            },
+            'onUploadError': function (file, errorCode, errorMsg, errorString) {
+                if (errorCode != -280) {
+                    art.dialog.tips('上传过程中发送异常，请重新选择文件！', 1.5);
+                }
+            },
+            'onUploadSuccess': function (file, data, response) {
+                var a = data.split('|');
+                
+                if (a.length > 0) {
+
+                    var ResourceName = a[0];
+                    var RealName = a[1];
+                    if($("#txt_id").val()!="")
+                    {
+                        $.post("/MyApply/SubmitAddResource?userApplyID=" + $("#txt_id").val() + "&ResourceName=" + escape(ResourceName) + "&RealName=" + RealName +
+                            "&IsDelete=0", function (data) {
+                                currNum++;
+                            });
+                    }
+                    else
+                    {
+                        art.dialog.tips('上传发生错误！', 3);
+                    }
+                }
+            },
+            'onAllComplete': function () {
+
+            }
+        });
+
+        $("#btn_prev").click(function(){
+            if($("#UserOtherApply_Id").val()=="0")
+            {
+                location.href='/MyApply/Free_ExemptionAdd';
+               
+            }
+            else
+            {
+                location.href='/MyApply/MyApply?flag=4&nextflag=1';
+            }
+        })
+
+        $("#btn_cancel").click(function(){
+            location.href='/MyApply/MyApply?flag=4&nextflag=1';
+        })
+    });
+
+
+    function fnRemoveFree(id,relid)
+    {
+        $("#"+id).remove();
+        var ids= $("#hidFreeIDs").val();
+        if (ids=="") {
+            ids=relid;
+        }
+        else if (ids!="") {
+            ids += "," + relid;
+        }
+        $("#hidFreeIDs").val(ids);
+    }
+
+  
+    function saveFreeExenotion(status)
+    {
+        if($.trim($("#Memo").val())=="")
+        {
+            art.dialog.tips('请输入免修情况说明', 3);
+            return false;
+        }
+        fileCount=$("#uploadResource-queue").find(".uploadify-queue-item").length;
+        if($("#seled-list ul li").length==0&&fileCount==0)
+        {
+            art.dialog.tips('请上传证明资料', 3);
+            return false;
+        }
+
+       
+        var removefileID=$("#hidFreeIDs").val();
+        $.post("SubimtFree?status="+status+"&removefileID="+removefileID+"&year="+$("#selyear").html(), $("#form_free").formSerialize(),function(data){
+            $("#txt_id").val(data.ID);
+            if(data.result==1)
+            {
+                if(fileCount==0)
+                {
+                    window.location.href='/MyApply/MyApply?flag=4&nextflag=1';
+                }
+                if (fileCount > 0) {             
+                    $("#uploadResource").uploadify('upload', '*');  
+                    if(interval==null || interval==undefined) {
+                        interval=setInterval("CheckBack()", 1000);
+                    }
+                }
+            }
+        });
+           
+
+    }
+
+
+    function CheckBack()
+    {
+        if(currNum==fileCount) {
+            clearInterval(interval);
+            art.dialog.tips("保存成功！", 1);
+            window.location.href = '/MyApply/MyApply?flag=4&nextflag=1';
+        }
+    }
+</script>

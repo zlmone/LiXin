@@ -1,0 +1,110 @@
+﻿@{
+    //薪酬级别
+    Layout = null; 
+    var payGrade = ViewBag.PayGrade;
+            /*
+             方法名   GetPayGradeList(); 
+     
+             已选择的  放在cpa_PayGrade
+             
+             参数 type 等于1 查询所有考核范围内的  等于0 查询执业CPA所包含的级别 2 所有人员的薪酬级别
+             */
+}
+<div>
+    <table class="tab-Form" id="pop_tbpayGrade">
+        <tr>
+            <td class="span15">
+                <input type="button" value="全选" class="btn btn-cancel " onclick="pop_selectall(0)" />
+                <input type="button" value="反选" class="btn btn-cancel" onclick="pop_selectall(1)" />
+            </td>
+            <td class="span8">薪酬级别:</td>
+            <td class="span20">
+                <input type="text" id="pop_cpaPayGrade" value="请输入搜索内容" info="" class="Box searchclass span15" /></td>
+            <td class="so-do  span15">
+                <input class="btn" type="button" value="搜索" id="pop_cpasearch" />
+                <input type="button" id="pop_btnSure" class="btn  btn-co" value="确定" onclick="GetPayGradeList()" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <div class="sel" style="height: 250px; overflow-y: scroll;" id="pop_cpaPayGradeList">
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<script>
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch("pop_tbpayGrade");
+        BindPayGrade();
+        $("#pop_cpasearch").bind("click", function ()
+        {
+            BindPayGrade();
+        });
+    });
+
+    function BindPayGrade()
+    {
+
+        $.get("/Common/GetPayGrade?name=" + escape($.trim(getSearchWord("pop_cpaPayGrade"))) + "&type=@ViewBag.type", function (data)
+        {
+            var htmls = "";
+            for (var i = 0; i < data.dataList.length; i++)
+            {
+                var value = data.dataList[i];
+
+                if ($("#cpa_PayGrade").val().length > 0)
+                {
+                    var checked = "";
+                    if ($.inArray("'"+value+"'", $("#cpa_PayGrade").val().split(',')) >= 0)
+                    {
+                        checked = "checked='checked'";
+                    }
+
+                    var htmls = htmls + "<span class='span15 mt10'><input type='checkbox' " + checked + " name='sys_PayGrade' value='" + value + "'>";
+                    var htmls = htmls + "<label title=" + value + " style='display: inline-block;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;width: 120px;'>" + value + "</label></span>";
+                }
+                else
+                {
+                    var htmls = htmls + "<span class='span15 mt10'><input type='checkbox' checked='checked' name='sys_PayGrade' value='" + value + "'>";
+                    var htmls = htmls + "<label title=" + value + " style='display: inline-block;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;width: 120px;'>" + value + "</label></span>";
+                }
+            }
+            if (data.dataList.length == 0)
+            {
+                var html = "<span>暂无数据</span>"
+            }
+            $("#pop_cpaPayGradeList").html(htmls);
+        });
+    }
+    //0 全选 1反选
+    function pop_selectall(type)
+    {
+    
+        $("#pop_cpaPayGradeList input[type='checkbox']").each(function ()
+        {
+            var valueID = $(this).attr("id");
+            if (type == 0)
+            {
+                $(this).attr("checked", true);
+
+            }
+            else
+            {
+                if ($(this).attr("checked") == "checked")
+                {
+                    $(this).attr("checked", false);
+
+                }
+                else
+                {
+                    $(this).attr("checked", true);
+
+                }
+            }
+        });
+    }
+</script>
+

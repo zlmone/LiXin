@@ -1,0 +1,11 @@
+
+    <!--是否把FLV转换MP4   1：转；0：不转-->
+    <add key="IsTransFlv2Mp4" value="1"/>
+
+
+
+
+  <!--faststart.exe路径（可为空，默认debug目录）-->
+  <add key="faststartPath" value=""></add>
+  <!--faststart命令参数-->
+  <add key="faststartArgu" value=""></add>

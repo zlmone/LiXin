@@ -1,0 +1,187 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "我的课前建议与评估";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "NewMyPropose" }))
+        <div class="tab-bk">
+            <ul id="ul_id">
+                <li class="child" onclick="showTags(0)">所有的建议</li>
+                <li class="child" onclick="showTags(1)">已提交建议</li>
+                <li class="child" onclick="showTags(2)">未提交建议</li>
+                <li class="child" onclick="showTags(3)">全部评估</li>
+                <li class="On" onclick="showTags(4)">已参与评估</li>
+                <li class="child" onclick="showTags(5)">未参与评估</li>
+            </ul>
+        </div>
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">
+                        课程名称：
+                    </td>
+                    <td class="span21">
+                        <input type="text" id="txt_CourseName" class="span20 searchclass" value="请输入课程名称"
+                            info="" />
+                    </td>
+                    <td class="Tit span6">
+                        开课时间：
+                    </td>
+                    <td>
+                        <div class="time-choose">
+                            <input type="text" id="txt_StartTime" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  " />
+                            <i></i>
+                        </div>
+                        至
+                        <div class="time-choose">
+                            <input type="text" id="txt_EndTime" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })" />
+                            <i></i>
+                        </div>
+                    </td>
+                    <td class="so-do">
+                        <input type="button" value="查询" id="btn_add" class="btn" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        @*<div class="so-seq">
+            <select id="sel_type">
+                <option value="0">请选择培训形式</option>
+                <option value="1">集中授课</option>
+                <option value="2">视频课程</option>
+            </select>
+        </div>*@
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        序号
+                    </th>
+                    <th class="span19">
+                        课程名称
+                    </th>
+                    <th class="span8">
+                        授课形式
+                    </th>
+                                      
+                    <th class="span12">
+                        讲师
+                    </th>
+                    <th class="span12" jsrendersortfield="bb.StartTime" sort="desc">
+                        开课时间
+                    </th>
+                    <th class="span6">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="Courstlist">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        $("#txt_CourseName").val('@(ViewBag.coursename)');
+        $("#txt_StartTime").val('@(ViewBag.starttime)');
+        $("#txt_EndTime").val('@(ViewBag.endtime)');
+        
+        InitData(@(ViewBag.page));
+            $("#btn_add").click(function () {
+                InitData(1);
+                //var v = "CourseName=" + encodeURIComponent(getSearchWord("txt_CourseName"))+"&type="+$("#sel_type").val()+"&StartTime="+$("#txt_StartTime").val()+"&EndTime="+$("#txt_EndTime").val();
+                //$("#Courstlist").JsRenderData({
+                //    sourceUrl: '/NewMypropose/GetPassAfterCourseMain?' + v,
+                //    isPage: true,
+                //    pageSize: 10,
+                //    pageIndex: 1,
+                //    templateID: "CourseListTemplate"
+                //});
+            });
+
+            $("#sel_type").change(function () {
+                InitData(1);
+                //var v = "CourseName=" + encodeURIComponent(getSearchWord("txt_CourseName"))+"&type="+$("#sel_type").val()+"&StartTime="+$("#txt_StartTime").val()+"&EndTime="+$("#txt_EndTime").val();
+                //$("#Courstlist").JsRenderData({
+                //    sourceUrl: '/NewMypropose/GetPassAfterCourseMain?' + v,
+                //    isPage: true,
+                //    pageSize: 10,
+                //    pageIndex: 1,
+                //    templateID: "CourseListTemplate"
+                //});
+            });
+        });
+
+        
+     
+
+        function InitData(page) {            
+            var v = "?CourseName=" + encodeURIComponent(getSearchWord("txt_CourseName"))+"&type="+$("#sel_type").val()+"&StartTime="+$("#txt_StartTime").val()+"&EndTime="+$("#txt_EndTime").val();
+            $("#Courstlist").JsRenderData({
+                sourceUrl: '/NewMypropose/GetPassAfterCourseMain'+v,
+                isPage: true,
+                pageSize: 10,
+                pageIndex: page,
+                jsRenderSortField: "bb.StartTime",
+                jsRenderASC: "desc",
+                templateID: "CourseListTemplate"
+            });
+        }
+        
+         function FUrl(id) {
+             //window.location.href = "/NewMypropose/AfterCourse?courseid=" + id + "&backurl=" + encodeURIComponent(window.location.href);
+             window.location.href = "/NewMypropose/AfterCourse?courseid=" + id + "&backurl=/NewMypropose/AfterCourseList";
+             
+            }
+
+        function showTags(flag){           
+            switch (flag) {
+                case 0: //所有建议
+                    location.href = "/NewMypropose/MyproposeMain";
+                    break;
+                case 1: //已提交建议
+                    location.href = "/NewMypropose/MyproposeList";
+                    break;
+                case 2: //未提交建议
+                    location.href = "/NewMypropose/NoProposeList";
+                    break;
+                case 3: //全部评估
+                    location.href = "/NewMypropose/AfterCourseMain";
+                    break;
+                case 4: //已参与评估
+                    location.href = "/NewMypropose/AfterCourseList";
+                    break;
+                case 5: //未参与评估
+                    location.href = "/NewMypropose/NoAfterCourseList";
+                    break;
+                default:
+            }
+        }
+     
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+            {{:#index+1}}
+            </td>
+            <td>
+                <div class="span19" title="{{:CourseName}}">{{:CourseName}}</div>
+            </td>            
+           <td>
+                <div class="span15" title="{{:SortStr}}">{{:Type==0?"集中授课":"分组带教"}}</div>
+           </td>                   
+          <td>       
+              <div class="span10" title="{{:teachername}}">{{:teachername}}</div>
+            </td>
+            <td style="text-align:left;" class="f11">
+                {{:CourseTimeStr}}
+             </td>            
+            <td>            
+              <a  onclick="FUrl({{:Id}})" class="icon iview" title="详情"></a>             
+            </td>
+        </tr> 
+        {{/for}}
+</script>

@@ -1,0 +1,196 @@
+﻿@{
+    ViewBag.Title = "CourseTogetherList";
+    Layout = null;
+}
+<div id="div_Search" class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">课程名称：</td>
+            <td class="span25"><input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="Tit">开课时间：</td>
+            <td>
+                <div class="time-choose">
+                    <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                        name="StartTime" id="txt_StartTime" value="" />
+                    <i></i>
+                </div>
+                至
+                <div class="time-choose">
+                    <input  type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                        id="txt_EndTime" value="" />
+                    <i></i>
+                </div>
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnSearch(); " />
+                <a href="EditNewCourseTogether" class="btn btn-co">课程开设</a>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+     <select onchange="fnSearch()" id="sle_GroupTeach" style="display:none;">
+        <option value="-1">是否有分组带教</option>
+        <option value="0">否</option>
+        <option value="1">是</option>
+    </select>
+    <select onchange="fnSearch()" id="sle_State">
+        <option value="0">请选择课程状态</option>
+        <option value="1">未开始</option>
+        <option value="2">进行中</option>
+        <option value="3">已结束</option>
+        <option value="4">未发布</option>
+    </select>
+</div>
+<!-- 列表 -->
+<div id="Content" class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th class="span15">讲师</th>
+                @*<th class="span15">开放班级</th>*@
+                <th class="span14" jsrendersortfield="StartTime" sort="desc">课程时间段</th>
+                <th class="span6">开课教室</th>
+                <th class="span12">授课类型</th>
+                <th class="span7">课程状态</th>
+                <th class="span12">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbCourseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>
+            <div class="ovh tl span20" title="{{:CourseName}}">{{:CourseName}}</div>
+            </td>
+            <td><div class="ovh tl span14" title="{{:teacher}}">{{:teacher}}</div></td>
+            <td><div class="f11 tl">{{:StartTimeStr}} - {{:EndTimeStr}}</div></td>
+            <td><div class="ovh tl span6" title="{{:roomnames}}">{{:roomnames}}</div></td>
+            <td>
+                {{if IsGroupTeach==0}}
+                无
+                {{/if}}
+                {{if IsGroupTeach==1}}
+                集中授课
+                {{/if}}
+                {{if IsGroupTeach==2}}
+                分组带教
+                {{/if}}
+                {{if IsGroupTeach==3}}
+                集中授课，分组带教
+                {{/if}}
+            </td>
+            <td>{{:StatusShow}}</td>
+            <td>
+                {{if PublicFlag==0 || StatusShow!="已结束"}}
+                    <a onclick="fnModifyCourse({{:Id}})" class="icon iedit" title="编辑"></a>
+                {{else}}
+                    <a class="icon iedit idis" title="编辑"></a>  
+                {{/if}}
+                {{if PublicFlag==0}}
+                    <a onclick="fnDeleteCourse({{:Id}})" class="icon idel" title="删除"></a>
+                    <a onclick="fnPublishCourse({{:Id}})" class="icon ipub" title="发布"></a>
+                {{else}}
+                    <span class="icon idel idis" title="删除"></span>
+                    <span class="icon ipub idis" title="发布"></span>
+                {{/if}}
+                <a onclick="fnCourseDetial({{:Id}})" class="icon iview" title="查看详情"></a>
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        $("#txtCourseName").val('@(ViewBag.cname)');
+        
+        $("#txt_StartTime").val("@(ViewBag.nowTime)");
+
+        if("@(ViewBag.cstartTime)"!=""){
+            $("#txt_StartTime").val('@(ViewBag.cstartTime)');
+        }
+        if("@(ViewBag.cendTime)"!=""){
+            $("#txt_EndTime").val('@(ViewBag.cendTime)');
+        }
+        $("#sle_GroupTeach").val('@(ViewBag.isGroupt)');
+        $("#sle_State").val('@(ViewBag.state)');
+       
+        fnGetCourseList(@(ViewBag.page));
+
+    });
+
+    function fnGetCourseList(page) {
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "StartTime",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function getParamUrl() {
+        var url = "/NewCourseManage/GetNewCourseList?t=" + new Date();
+        url += "&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&IsGroupTeach=" + $("#sle_GroupTeach").val() + "&state=" + $("#sle_State").val()+"&way=1";
+        return url;
+    }
+
+    function fnSearch() {
+        fnGetCourseList(1);
+    }
+    //课程修改
+    function fnModifyCourse(Id) {
+        window.location.href = '/NewCourseManage/EditNewCourseTogether?courseID=' + Id + "&t="+new Date();
+    }
+    //删除课程
+    function fnDeleteCourse(Id) {
+        art.dialog({
+            lock: false,
+            content: "确定要删除该课程吗？",
+            ok: function () {
+                $.post("/NewCourseManage/UpdateNewCourse?flag=0&way=1&courseId=" + Id, function (data) {
+                    art.dialog.tips(data.content, 3, function () {
+                        if (data.result == 1) {
+                            fnGetCourseList(data.indexpage);
+                        }
+                    });
+
+
+                });
+            },
+            cancel: function () {
+                return;
+            }
+        });
+    }
+    //课程详情
+    function fnCourseDetial(Id) {
+        window.location.href = '/NewCourseManage/NewCourseTogetherDetial/' + Id;
+    }
+    //发布课程
+    function fnPublishCourse(Id) {
+        zhezaowait();
+        $.post("/NewCourseManage/UpdateNewCourse?flag=1&way=1&courseId=" + Id , function (data) {
+            closewait();
+            if (data.result == 1) {
+                art.dialog.tips('发布成功！', 3);
+                fnGetCourseList(data.indexpage);
+            }else {
+                art.dialog.tips(data.content, 3);
+            }
+        });
+    }
+</script>

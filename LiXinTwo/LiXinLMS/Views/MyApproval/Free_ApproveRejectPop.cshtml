@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "Free_ApproveRejectPop";
+    Layout = null;
+}
+
+<table class="tab-Form">
+    <tbody>
+        <tr class="span25">
+            <td class="Tit span8">退回理由：
+            </td>
+            <td>
+                <p id="pop_DepReason"></p>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="button" value="退回" onclick="saveRejectApprove()" class="btn">
+                <input type="button" value="取消" onclick="closeApproveRejectPop();" class="btn  btn-cancel" />
+            </td>
+        </tr>
+    </tbody>
+</table>
+<script>
+    $("#pop_DepReason").html($("#DepReason").attr("title"));
+</script>

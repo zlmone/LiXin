@@ -1,0 +1,176 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.CourseSubscribe;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var flag = Request.QueryString["flag"] ?? "";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "课程预订查询" }))
+    <div id="divjizhong">
+        <div id="Search" class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">课程名称：
+                    </td>
+                    <td class="span31">
+                        <input type="text" class="span30 searchclass" id="course" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="Tit span4">讲师：
+                    </td>
+                    <td>
+                        <input type="text" class="span10 searchclass" id="teaName" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="Tit">选择部门：</td>
+                    <td>
+                        <div class="sel">
+                            <select id="sel_pop_dept" name="sel_pop_dept" onchange="InitDataJizhong(1)" >
+                                        @{ 
+                                            @*<option value="0">选择部门</option>*@
+                                            foreach (var dept in ViewBag.DeptidList as List<LiXinModels.User.Sys_Department>)
+                                            {
+
+                                                <option value="@dept.DepartmentId">@dept.DeptName</option>
+                                            }
+                                        }
+                                     </select>  
+                        </div>
+                    </td>
+                    <td class="so-do">
+                        <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitDataJizhong(1); " />
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="sltCourseOrder" onchange=" InitDataJizhong(1); ">
+                <option value="99">课程性质</option>
+                <option value="2">指定</option>
+                <option value="1">预订</option>
+                <option value="3">兼有</option>
+            </select>
+        </div>
+        <!-- 列表 -->
+        <div id="Content" class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span4">序号
+                        </th>
+                        <th>课程名称
+                        </th>
+                        <th class="span10" jsrendersortfield="IsMust" sort="desc">选/必修
+                        </th>
+                        <th class="span12">讲师
+                        </th>
+                        <th class="span14" jsrendersortfield="StartTime" sort="desc">授课时间
+                        </th>
+                        <th class="span12">报名人数/<br />
+                            最大容纳人数
+                        </th>
+                        <th class="span12">开放级别
+                        </th>
+                        <th class="span12">是否可预订
+                        </th>
+                        <th class="span8">操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="courseList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script id="courseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh span25 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>   
+        <td>{{:IsMustStr}}</td> 
+        <td>{{:TeacherName}}</td> 
+        <td><div class="f11 tl">{{:CourseTime}}</div></td> 
+        <td><a onclick="Apply({{:Id}});" class="pointer" style="color:green;">{{:HasEntered}}/{{:NumberLimited}}</a></td> 
+        <td>{{:OpenLevel}}</td> 
+        <td>{{:OrderStr}}</td> 
+        <td>
+            {{if StopOrderFlag == 0}}
+                <a class="icon iapp-cl" onclick="OrderFlag({{:Id}},1);" title="报名关闭"></a>
+            {{else}}
+                <a class="icon iapp-op" onclick="OrderFlag({{:Id}},0);" title="报名开启"></a>
+            {{/if}}
+            <a class="icon iview" title="查看详情" onclick="View({{:Id}});"></a>
+        </td> 
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        selectTab();
+    });
+
+    //tab切换
+    function selectTab()
+    {
+
+        $("#divcpa").hide();
+        $("#divjizhong").show();
+        $("#course").val('@(ViewBag.csname)');
+            $("#teaName").val('@(ViewBag.cstea)');
+        $("#sltCourseOrder").val('@(ViewBag.csstate)');
+        InitDataJizhong(@(ViewBag.page));
+
+    }
+
+    //初始化集中授课列表
+    function InitDataJizhong(page)
+    {
+        var v = "course=" + escape(getSearchWord("course")) + "&teaName=" + escape(getSearchWord("teaName")) + "&courseOrder=" + $("#sltCourseOrder").val() + "&deptid=" + $("#sel_pop_dept").val();
+        $("#courseList").JsRenderData({
+            sourceUrl: '/DepCourseCourseLearn/GetCourseSubscribeList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "StartTime",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate",
+            funCallback: function ()
+            {
+            }
+        });
+    }
+
+
+    function OrderFlag(id, status)
+    { //报名
+        $.getJSON("/DepCourseCourseLearn/OrderFlag?id=" + id + "&status=" + status, function (da)
+        {
+            if (da.result == 1)
+            {
+                art.dialog.tips(da.content, 3);
+                InitDataJizhong(da.indexpage);
+            } else
+            {
+                art.dialog.tips(da.content, 3);
+            }
+        });
+    }
+
+    function Apply(id)
+    {//报名详情
+        window.location.href = "/DepCourseCourseLearn/CourseApplyDetail/" + id;
+    }
+
+
+    function View(id)
+    {//详情
+        window.location.href = "/DepCourseCourseLearn/CourseSubscribeDetail/" + id;
+    }
+
+</script>

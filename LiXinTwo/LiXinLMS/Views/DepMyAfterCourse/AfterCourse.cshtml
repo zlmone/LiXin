@@ -1,0 +1,35 @@
+﻿@using LiXinModels.DepCourseLearn
+@using LiXinModels.DepCourseManage
+@using LiXinModels.DepCourseManage
+@using LiXinModels.Survey
+@{
+    ViewBag.Title = ViewBag.TitleName; 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var course = ViewBag.course as Dep_Course;
+    var courseOrder = ViewBag.CourseOrder as Dep_CourseOrder;
+}
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = ViewBag.TitleName }))
+        <table class="tab-Form mt10">
+            @if (course != null)
+            { 
+                <tr>
+                    <td class="Tit span10">课程名称：</td><td colspan="7"><strong>@course.CourseName</strong></td>
+                </tr>
+                <tr>
+                    <td class="Tit">开课时间：</td><td><strong class="c_col">@course.TeacherCourseTime</strong></td>
+                    <td class="Tit span10">授课讲师：</td><td><strong>@course.TeacherName</strong></td>
+                    <td class="Tit span10">课程开放级别：</td><td><strong>@course.OpenLevel</strong></td>
+                    <td class="Tit span10">课程学时：</td><td><strong>@course.CourseLength</strong></td>
+                </tr>
+                <tr>
+                    <td class="Tit">开课地点：</td><td><div class="ovh span30" title="@course.RoomName"><strong>@course.RoomName</strong></div></td>
+                    <td class="Tit">课程状态：</td><td><strong class="c_col">@course.CourseStatus</strong></td>
+                </tr>
+            }
+        </table>
+        <div class="mt10">
+            @Html.Action("AfterCourseNewList", "DepMyCourse", new { id = @ViewBag.id, backurl = @ViewBag.backurl })
+        </div>
+    </div>

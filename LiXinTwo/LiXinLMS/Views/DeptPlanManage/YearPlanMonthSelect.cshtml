@@ -1,0 +1,121 @@
+﻿@*
+  viewType   0:  年度   月度   1： 年月下旬  默认为1
+  dataType   0： 年---今年往后推一共5年   1：取年度计划中的年 默认为0
+  onclick    年度下拉框,以及月度下拉框中的事件  默认为"" 
+  select的id均有sel的前缀
+  具体还有其他需求的，嘿嘿，自己动手吧
+
+*@
+@{
+    ViewBag.Title = "YearMonthSelect";
+    Layout = null;
+
+}
+@{
+    if (ViewBag.viewType == 0)
+    {
+    <label>
+        年度：</label>
+    }   
+}
+<select id="year0" name="year" onchange="GetMonth()" >
+    @{ 
+        if (ViewBag.viewType == 0)
+        {
+        <option value="-1">请选择年度</option>
+        }
+        else
+        {
+        <option value="-1">年</option>
+        }
+
+        if (ViewBag.dataType == 1)
+        {
+            foreach (var year in ViewBag.year)
+            {
+        <option value="@year">@year</option>
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 5; i++)
+            {
+        <option value="@(ViewBag.year + i)">@(ViewBag.year + i)</option>
+            }
+        }
+       
+    }
+</select>
+@{
+    if (ViewBag.viewType == 0)
+    {
+    <label>月度：</label>
+    }   
+}
+<select id="month0" name="month" class="span9" onchange="CkMonth()">
+    @{
+        if (ViewBag.viewType == 0)
+        {
+        <option value="-1">请选择月份</option>
+        }
+        else
+        {
+        <option value="-1">月</option>
+        }
+    }
+</select>
+@{
+    if (ViewBag.viewType == 1)
+    {
+    <select id="Day0" name="Day">
+        <option value="1">上旬</option>
+        <option value="2">中旬</option>
+        <option value="3">下旬</option>
+    </select>
+    }   
+}
+<script id="monthListTemplate" type="text/x-jsrender">
+   {{for monthList}}
+       <option value="{{:#data}}">{{:#data}}</option>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+
+    });
+
+    function GetMonth()
+    {
+    var selstr="";
+         if (@ViewBag.viewType == 0)
+        {
+            selstr="请选择月份";
+        }
+        else
+        {
+             selstr="月";
+        }
+        var year = $("#year0").val();
+      
+        if (year != -1)
+        {
+
+            $.getJSON("/PlanManage/GetMonthByYear?year=" + year, function (data)
+            {
+                $("#month0").html("");
+                $("#month0").append("<option value='-1' >"+selstr+"</option>"+$("#monthListTemplate").render(data));
+                if($("#hidmonth").val()!=null && $("#hidmonth").val()!=undefined && $("#hidmonth").val()!=""){
+                    $("#month0").val($("#hidmonth").val());
+                }
+            });
+        }
+        else
+        {
+            $("#month0").html("");
+            $("#month0").append("<option value='-1' >"+selstr+"</option>");
+        } 
+    }
+
+</script>

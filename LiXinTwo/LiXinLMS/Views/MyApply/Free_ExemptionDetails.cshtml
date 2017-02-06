@@ -1,0 +1,151 @@
+﻿@model LiXinModels.MyApproval.ShowFreeDetails
+@{
+    ViewBag.Title = "我的申请";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的申请"
+}))
+
+    @if(ViewBag.typeForm==0)
+    {
+       @Html.Action("Free_ApproveHead", "MyApproval", new { ID = ViewBag.ID, Realname = Model.Realname, ApplyTimeStr = Model.ApplyTimeStr,type=2 })
+    }
+    
+
+    <div>
+        <h3 class="tit-h3-app">
+            免修项目：@(Model.FreeName)</h3>
+        <table class="tab-Form lh30 pl20">
+            <tbody>
+                  <tr style="display: none">
+                    <td class="Tit">审批理由：</td>
+                     <td>
+                         <p class="span28" id="rejectReason"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit span7">姓名：</td>
+                    <td>@(Model.Realname)</td>
+                </tr>
+                <tr>
+                    <td class="Tit">培训级别：</td>
+                    <td>@(Model.TrainGrade)</td>
+                </tr>
+                <tr>
+                    <td class="Tit">所在部门：</td>
+                    <td>@(Model.DeptName)</td>
+                </tr>
+                @{
+                    if (Model.CPA == "是")
+                    {  
+                    <tr>
+                        <td class="Tit">CPA编号：</td>
+                        <td>@(Model.CPANo)</td>
+                    </tr>
+                    }
+                }
+                <tr>
+                    <td class="Tit">申请年度：</td>
+                    <td>@(Model.Year)</td>
+                </tr>
+                <tr>
+                    <td class="Tit span12">申请免修类型：</td>
+                    <td>@(Model.FreeApproveTypeStr)</td>
+                </tr>
+                @if (Model.ApplyType == 0 || Model.ApplyType == 2)
+                {
+                    <tr>
+                        <td class="Tit span12">申请所内免修学时：</td>
+                        <td>@(Model.tScore)</td>
+                    </tr>
+                }
+                @if (Model.CPA == "是"&&(Model.ApplyType == 1 || Model.ApplyType == 2))
+                {
+                    <tr>
+                        <td class="Tit">申请CPA免修学时：</td>
+                        <td>@(Model.CPAScore)</td>
+                    </tr>
+                }
+                <tr>
+                    <td class="Tit">免修情况说明：</td>
+                    <td>
+                        <p class="span28" title="@(Model.Memo)">@(Html.Raw(Model.MemoStr.Trim()))</p>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td class="Tit">证明资料：</td>
+                    <td>
+                        @if(Model.ApplyFileList.Count>0)
+                        {
+                            foreach (var item in Model.ApplyFileList)
+                            {
+                                <p class="span50" style="border-bottom: 1px solid #ccc">
+                                    @item.ResourceName
+                                        <a class="icon idown fr ml10 mt5" title="下载" onclick="DownFile(this,'@item.RealName','@item.ResourceName')"></a>
+                                        <a class="icon iview  fr mt5" title="查看" id="other_view" onclick="ViewFile('@item.ResourceName','@item.ConvertName')"></a>
+                                 </p>
+                            }
+                        }
+                        else
+                        {
+                            @:--
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">申请时间：</td>
+                    <td>
+                        @(Model.ApplyTimeStr)
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <center class="mt10">
+        <input type="button" class="btn  btn-cancel" value="返回" onclick="back()">
+    </center>
+    <input id="lookFile" type="hidden" value="0" />
+    <input id="DepReason" type="hidden" value="@ViewBag.DepReason" />
+</div>
+<script type="text/ecmascript">
+    var path = "@(System.Configuration.ConfigurationManager.AppSettings["FreeUplpadUrl"])"
+    $(document).ready(function ()
+    {
+        //var title = $("#DepReason").attr("title");
+        //$("#rejectReason").html(title);
+        //if (title != "" && title != undefined)
+        //{
+        //    $("#rejectReason").parent().parent().show();
+        //}
+    });
+
+    function DownFile(obj,Rname,name)
+    {
+        //debugger;
+        $.getJSON("/home/IsExistFile?path="  +path + "/" + Rname, function (data)
+        {
+            if (data.result == 1)
+            {
+                window.location.href = "/home/LoadPrincipleFile?type=1&path=" + path + "/" + Rname + "&name=" + escape(name);
+            }
+            else
+            {
+                art.dialog.tips('文件不存在', 3);
+            }
+        });
+    }
+    
+    function back()
+    {
+        location.href = '/MyApply/MyApply?flag=4&nextflag=1';
+    }
+
+    function ViewFile(ResourceName, name)
+    {
+        art.dialog.load("/MyApproval/Free_FilesView?type=1&ResourceName=" + escape(ResourceName) + "&name=" + name, { title: '文件查看', id: 'atr_ViewFile', height: 320, width: 550 });
+    }
+</script>

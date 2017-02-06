@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "我的学时及考勤获取";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "MyDepTranScore" }))
+    <div class="tab-bk">
+        <ul id="ul_menu">
+            @if (ViewBag.isman == 0)
+            {
+                <li class="On" id="tag0">分所自学</li>
+                 <li id="tag1">视频转播</li>
+            }
+            else
+            {
+                <li class="On" id="tag0">部门自学</li>
+            }
+        </ul>
+    </div>
+    <div id="content">
+    </div>
+</div>
+<script>
+    $(document).ready(function ()
+    {
+        Init(0);
+        $("#ul_menu li").click(function ()
+        {
+            $("#txtName").val("请输入搜索内容");
+            $("#start").val("");
+            $("#end").val("");
+
+            var index = $(this).index();
+            Init(index);
+        });
+    });
+
+    function Init(index)
+    {
+        $("#index").val(index);
+        $("#tag0").removeClass("On");
+        $("#tag1").removeClass("On");
+
+        $("#tag" + index).addClass("On");
+        if (index == 0)
+        {
+            //自学
+            $("#content").load("/DeptCourseCourseLearn/MyDepTranScore");
+        }
+        else
+        {
+            //转播
+            $("#content").load("/DepTranMyCourse/MyDepTranScore");
+        }
+    }
+</script>

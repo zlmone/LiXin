@@ -1,0 +1,209 @@
+﻿@{
+    ViewBag.Title = "请假审批管理";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
+    var appFlag = Request.QueryString["flag"] ?? "-1";
+}
+ @*@(Html.Action("SiteMapLink", "Common", new { linkName = "DepLeaveApprovalManage" }))*@
+<div class="main-c">
+    <input type="hidden" value="-1" id="selAppFlag"/>
+    <div  class="tab-bk">
+        <ul id="tagLeave">
+            <li id="tagTimeOut0" class="On" data-value="-1">全部</li>
+            <li id="tagTimeOut1" data-value="0">未审批</li>
+            <li id="tagTimeOut2" data-value="1">审批通过</li>
+            <li id="tagTimeOut3" data-value="2">审批拒绝</li>
+        </ul>
+    </div>
+    <div>
+        <div class="so-set">
+            <table class="tab-Form">
+                <tbody>
+                    <tr>
+                        <td class="Tit span4">
+                            姓名：
+                        </td>
+                        <td class="span15">
+                            <input id="name" class="span10 Box searchclass" type="text" info="请输入查找内容" value="请输入查找内容"/>
+                        </td>
+                        <td class="Tit span7">
+                            课程名称：
+                        </td>
+                        <td class="span15">
+                            <input id="cname" class="span10 Box searchclass" type="text" info="请输入查找内容" value="请输入查找内容"/>
+                        </td>
+                        <td class="Tit span7">
+                            申请时间：
+                        </td>
+                        <td><div class="time-choose">
+                            <input id="starttime" class="span16 Box" type="text" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'endtime\',{m:-1})}' }) " readonly="readonly"/><i></i>
+                            </div>
+                            至
+                            <div class="time-choose">
+                            <input id="endtime" class="span16 Box" type="text" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'starttime\',{m:1})}' }) " readonly="readonly"/><i></i>
+                            </div>
+                        </td>
+                        <td class="so-do">
+                            <input id="btnSearch" class="btn" type="button" onclick=" initData(); " value="搜索"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="slemust">
+                <option value="-1">选/必修</option>
+                <option value="0">必修</option>
+                <option value="1">选修</option>
+            </select>
+        </div>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th class="span6">姓名</th>
+                    <th>课程名称</th>
+                    <th class="span16" sort="desc" jsrendersortfield="LeaveTime">申请时间</th>
+                    <th class="span6">学时</th>
+                    <th class="span8">必修/选修</th>
+                    <th class="span8">审批状态</th>
+                    <th class="span16">审批时间</th>
+                    <th class="span6">操作</th>
+                </tr>
+            </thead>
+            <tbody id="leaveList"></tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+</div>
+<script id="leaveListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td>{{:RealName}}</td>
+        <td><div class="tl span20 ovh" title="{{:CourseName}}">{{:CourseName}}</div></td>
+        <td>{{:LeaveTimeShow}}</td>
+        <td>{{:CourseLength}}</td>
+        <td>
+            {{if IsMust==0}}
+            必修
+            {{else}}
+            选修
+            {{/if}}
+        </td>
+        <td>{{:LeaveStatus}}</td>
+        <td>{{:(AppFlag==0)?"——":AppTimeShow}}</td>
+        <td>
+            
+            <a class="icon iview" title="查看详情" onclick="browse({{:Id}});"></a>
+        </td>
+    </tr>
+    {{/for}}
+</script>
+@*{{if AppFlag==0 && LimitFlag==0}}
+<a class="icon icheck" title="审批" onclick="approvalLeave({{:Id}},'{{:Email}}','{{:Phone}}','{{:RealName}}','{{:CourseName}}');"></a>
+{{else}}
+<a class="icon icheck idis" title="审批"></a>
+{{/if}}*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        //tab页切换
+        $("#tagLeave li").bind("click", function () {
+            settab($(this).attr('data-value'));
+        });
+
+        //必修、选项下拉事件
+        $("#slemust").bind("change", function () {
+            //初始化数据
+            initData();
+        });
+
+        settab(@appFlag);
+    });
+    
+    function settab(index) {
+        $("#tagLeave li").removeClass("On");
+        $("#tagLeave li[data-value='" + index + "']").addClass("On");
+        $("#selAppFlag").val(index);
+        //初始化数据
+        initData();
+    }
+
+    //初始化数据
+    function initData() {
+        $("#leaveList").JsRenderData({
+            sourceUrl: '/DepLeaveApproval/GetApprovalLeaveList?name=' + escape(getSearchWord("name")) + '&cname=' + escape(getSearchWord("cname")) + '&isMust=' + $("#slemust").val() + '&appFlag=' + $("#selAppFlag").val() + '&starttime=' + $('#starttime').val() + '&endtime=' + $("#endtime").val() + '&t=' + new Date(),
+            isPage: true,
+            pageSize: 10,
+            jsRenderSortField: "LeaveTime",
+            jsRenderASC: "desc",
+            pageIndex: 1,
+            templateID: 'leaveListTemplate'
+        });
+    }
+    
+    //查看详情
+    function browse(id) {
+        window.location.href = "/DepLeaveApproval/DepLeaveDetail?id=" + id + "&appFlag=" + $("#selAppFlag").val();
+    }
+    
+    //提交审批
+    function Approval(id,email,phone,name,cname)
+    {
+        var str = $("#txtApprovalMemo").val();
+        var flag = 1;
+        if ($("#rd1").attr("checked"))
+        {
+            flag = 2;
+        }
+        if(flag==2 && $.trim(str)=='') {
+            art.dialog.tips('请填写理由', 3);
+            return;
+        }
+        var messtype = 0;
+        if($("#email").attr("checked") && $("#message").attr("checked")) {
+            messtype = 3;
+        }
+        if($("#email").attr("checked") && !$("#message").attr("checked")) {
+            messtype = 1;
+        }
+        if(!$("#email").attr("checked") && $("#message").attr("checked")) {
+            messtype = 2;
+        }
+
+        $.post("/DepLeaveApproval/UpdateLeaveInfor?t=" + new Date(), { id: id, reason: str, appFlag: flag, mtype: messtype,email:email,phone:phone,name:name,cname:cname }, function(da) {
+            if (da.result == 1) {
+                closeDialog("art_Approval");
+                art.dialog.tips(da.message, 3);
+                initData();
+            } else {
+                art.dialog.tips(da.content, 3);
+            }
+        });
+    }
+
+    //呈现审批理由
+    function approvalLeave(id,email,phone,name,cname) {
+        var div =
+            '<table class="tab-Form" id="div_Approval">'
+            + '<tr><td class="span6 Tit">审批状态：</td><td><div class="sel"><input id="rd0" type="radio" name="rdApproval" checked="checked" /><label>审批通过</label><input id="rd1" type="radio" name="rdApproval" /><label>审批拒绝</label></div><td></tr>'
+            + '<tr><td class="Tit"></td><td><textarea id="txtApprovalMemo" cols="20" rows="2" class="span30"></textarea></td></tr>'
+            +'<tr><td class="Tit">通知方式：</td><td><input type="checkbox" id="email"/>邮件<input class="ml10" type="checkbox" id="message"/>短信</td></tr>'
+            + '<tr><td class="Tit"></td><td><input type="button" class="btn btn-co" onclick="Approval(\'' + id + '\',\'' + email + '\',\'' + phone + '\',\'' + name + '\',\'' + cname + '\');" value="提交" /></td></tr>'
+            + '</table>';
+        art.dialog({
+            content: div,
+            title: '逾时审批申请',
+            id: 'art_Approval',
+            height: 260,
+            width: 500,
+            init: function() {
+                $("#txtApprovalMemo").textareaCount({ maxCharacterSize: 200 });
+            }
+        });
+    }
+</script>

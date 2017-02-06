@@ -1,0 +1,70 @@
+﻿@using LiXinModels.CourseManage
+@{
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
+    var course = ViewBag.Course as Co_Course;
+}
+<input type="hidden" id="txt_CourseId" value="@course.Id"/>
+<div class="course-top">
+    <div class="pic">
+        <img src="../../Images/course-pic.jpg" />
+    </div>
+    <div class="info">
+        <h3 class="ovh" title="@course.CourseName">@course.CourseName</h3>
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span9">开课地点：
+                </td>
+                <td>
+                    <div class="ovh span20 tl" title="@course.RoomName">@course.RoomName</div>
+                </td>
+                <td class="Tit span6">开课时间：
+                </td>
+                <td colspan="3">@course.TeacherCourseTime
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">课程开放级别：
+                </td>
+                <td>@course.OpenLevel
+                </td>
+                <td class="Tit">课程学时：
+                </td>
+                <td>@course.CourseLength
+                </td>
+                <td class="Tit span6">课程状态：
+                </td>
+                <td>
+                    @{
+                        if (DateTime.Now > course.StartTime && DateTime.Now < course.EndTime)
+                        {
+                        <span>进行中</span>
+                        }
+                        else if (DateTime.Now < @course.StartTime)
+                        {
+                        <span>预订中</span>
+                        }
+                        else
+                        {
+                        <span>已结束</span>
+                        }
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="tab-bk mt10">
+    <ul id="ul_menu">
+        <li class="@(ViewBag.showFlag == 0 ? "On" : "")" onclick="window.location.href='/DeptCourseManage/DeptAllCourseDetail?id=@(course.Id)';">课程详情
+        </li>
+        <li class="@(ViewBag.showFlag == 1 ? "On" : "")" onclick="window.location.href='/DeptCourseManage/ClassPro?id=@(course.Id)';">课前建议
+        </li>
+        <li class="@(ViewBag.showFlag == 2 ? "On" : "")" onclick="window.location.href='/DeptCourseManage/Attendance?id=@(course.Id)';">考勤详情
+        </li>
+        <li class="@(ViewBag.showFlag == 3 ? "On" : "")" onclick="window.location.href='/DeptCourseManage/AfterCourseNew?id=@(course.Id)';">课后评估
+        </li>
+        <li class="@(ViewBag.showFlag == 4 ? "On" : "")" onclick="window.location.href='/DeptCourseManage/OnlineTest?id=@(course.Id)';">在线测试
+        </li>
+    </ul>
+</div>

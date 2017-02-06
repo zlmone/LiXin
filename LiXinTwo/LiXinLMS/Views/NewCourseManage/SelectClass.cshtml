@@ -1,0 +1,113 @@
+﻿@*
+在调本页面时，要注意，页面载入方法中有一个参数，可传可不传都有默认值
+type            ''：啥不带；'checkbox'：带checkbox；'radio'带radio；默认为'radio'
+
+    加入方法，形如：
+    获取选择到的userID
+	方法名不要改
+	function GetUserIDList()
+	{
+		var userIds = GetChecked('pop_userList');
+		...
+        ...
+        ...
+		closePopWindow();
+	}
+*@
+@{
+    ViewBag.Title = "选择班级";
+    Layout = null;
+    var havedClassID = Request.QueryString["AllUserID"] ?? "";
+    var type = Request.QueryString["type"] ?? "checkbox";
+}
+<input type="hidden" value="@havedClassID" id="havedClassID"/>
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">班级名称：</td>
+            <td class="span11"><input id="className" type="text" class="span10 searchclass" value="请输入搜索内容" info="请输入搜索内容" /></td>
+            <td class="so-do"><input type="button" value="搜索" onclick="Getdata()" class="btn" /></td>
+        </tr>
+    </table>
+</div>
+<div id="allClass">
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span3">
+                    @{
+                        if (type == "checkbox")
+                        {
+                            <input type="checkbox" value="0" id="selectAllClass" />
+                        }
+                    }
+                </th>
+                <th class="span4">序号</th>
+                <th>
+                    班级名称
+                </th>
+                <th class="span6">
+                    班级人数
+                </th>
+            </tr>
+        </thead>
+        <tbody id="classList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<div class="mt10 tc"><input type="button" value="添加" onclick="GetClassIDList();" class="btn btn-co" /></div>
+<script id="classListTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+            <td>
+            {{if '@type'=='radio'}}
+                <input type='radio' id='{{:Id}}' value='{{:Id}}' username="{{:ClassName}}" name='class' />
+            {{else}}
+                <input type='checkbox' id='{{:Id}}' value='{{:Id}}' name="{{:ClassName}}"/>
+            {{/if}}
+            </td>
+            <td>{{:#index+1}}</td>
+            <td>
+                <div class="span30 ovh" title="{{:ClassName}}">{{:ClassName}}</div> 
+            </td>
+            <td>
+                {{:NowPeopleCount}}
+            </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        Getdata();
+    });
+    //获取数据
+    function Getdata() {
+        $("#classList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "classListTemplate",
+            funCallback: function () {
+                SetCheckBox('selectAllClass', 'classList');
+                HiddenSelectClass("@type");
+            }
+        });
+    }
+    //获取url
+    function getParamUrl() {
+        return "/NewCourseManage/GetClassList?realName=" + escape(getSearchWord("className"));
+    }
+    function HiddenSelectClass(obj) {
+        if ($("#havedClassID") != undefined && $("#havedClassID") != null) {
+            $("#allClass tbody input[type='" + obj + "']").each(function () {
+                if ((',' + $("#havedClassID").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+        }
+    }
+</script>

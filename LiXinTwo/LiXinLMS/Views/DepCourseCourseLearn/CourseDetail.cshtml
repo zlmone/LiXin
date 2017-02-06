@@ -1,0 +1,150 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "课程详情";
+    var course = ViewBag.Course as LiXinModels.DepCourseManage.Dep_Course;
+    var flag = Request.QueryString["flag"] ?? "0";//1:来自首页
+}
+<input type="hidden" id="comefrom" value="@(flag)"/>
+<div class="course-top">
+    @*@(Html.Action("SiteMapLink", "Common", new { linkName = "MyDepCourseSubscribe" }))*@
+
+     @(Html.Action("SiteMapLink", "Common", new { linkName = "CourseDetail" }))
+    <div class="pic">
+        <img src="../../Images/course-pic.jpg" />
+    </div>
+    <div class="info">
+        <h3 class="ovh" title="@course.CourseName">@course.CourseName</h3>
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span9">
+                    授课讲师：
+                </td>
+                <td>@course.TeacherName
+                </td>
+                <td class="Tit span6">
+                    开课时间：
+                </td>
+                <td colspan="3">@course.TeacherCourseTime
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    课程开放级别：
+                </td>
+                <td>@course.OpenLevel
+                </td>
+                <td class="Tit">
+                    开课地点：
+                </td>
+                <td>
+                    <div class="ovh span30" title="@course.RoomName">@course.RoomName</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    课程学时：
+                </td>
+                <td>@course.CourseLength
+                </td>
+                <td class="Tit">
+                    预订状态：
+                </td>
+                <td>@course.MyStatusStr
+                    @* @if (@courseOrder!= null)
+                {
+                    @(courseOrder.LearnStatus == 0 ? "未开始" : courseOrder.LearnStatus == 1 ? "进行中" : "已完成")
+                                
+                }*@
+                </td>
+                @*<td class="Tit">通过状态：</td>
+                <td colspan="3">
+                
+                    @if (@course.IsTest == 1)S
+                    { 
+                        @(course.PassStatus == 1 ? "通过" : "未通过")
+                    }
+                    else
+                    {
+                        <span>--</span>
+                    }
+               
+                </td>*@
+                <td>
+                    @{
+                        if (ViewBag.orderstatus==3)
+                        {
+                            <input type="button" class="btn btn-co" value="预订" onclick="Subscribe(@course.Id);"/>
+                        }
+                       
+                        
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="tab-bk mt10">
+    <ul id="ul_menu">
+        <li class="On" onclick="fonclick(0)">
+        课程详情        
+        </li>   
+        <li onclick="fonclick(1)"> 
+            课后评估
+        </li>
+        <li onclick="fonclick(2)">
+        在线测试           
+        </li>
+    </ul>
+</div>
+ <div id="div_CourseCommonList">
+
+    </div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        fonclick(0);
+    });
+
+    function fonclick(t)
+    {
+        switch(t)
+        {
+            case 0:                   
+                $.get("/DepCourseCourseLearn/CourseMain?id="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(0)").addClass("On").siblings("li").removeClass("On");
+                break;
+            case 1:
+                $.get("/DepCourseCourseLearn/AfterCourse?id="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                    $("#ul_menu li:eq(1)").addClass("On").siblings("li").removeClass("On");
+                    break;
+                case 2: 
+                    $.get("/DepCourseCourseLearn/OnlineCourse?id="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(2)").addClass("On").siblings("li").removeClass("On");
+                break;                   
+            default:
+        }
+    }
+
+    function Subscribe(courseid) {//预订
+        $.getJSON("/DepCourseCourseLearn/Subscribe?courseId=" + courseid, function (data) {
+            if (data.result == 3) {
+                //InitData(1);
+                art.dialog({
+                    content: data.content + "你可以进行以下操作",
+                    okVal: "继续预订课程",
+                    ok: function () {
+                        window.location.href = "/DepCourseCourseLearn/MyCourseSubscribe";
+                    },
+                    cancelVal: "查看已预订课程",
+                    cancel: function () {
+                      
+                        window.location.href ="/DepMyCourse/MyCourseList"; 
+                    }
+                });
+            }
+            else {                
+                art.dialog.tips(data.content, 3);
+                //InitData(1);
+            }
+        });
+    }
+</script>

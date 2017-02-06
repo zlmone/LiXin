@@ -1,0 +1,22 @@
+﻿@{
+    Layout = null;
+}
+
+    <div class="main-c">
+        <div id="CourseAdviceList" class="course-pro">
+        </div>
+    </div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {       
+        Onload();
+    });
+    function Onload() {
+        $.post("/DepCourseOpenOthersCheck/OnLoadDepCourseAdvice?courseid=@ViewBag.courseid", function (data)
+        {
+            $("#CourseAdviceList").append(data.content);
+        });
+
+    }
+
+</script>

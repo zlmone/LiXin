@@ -1,0 +1,131 @@
+﻿@model LiXinModels.Survey.Survey_Survey
+@using LiXinLanguage
+@{
+    var paperID = Request.QueryString["paperID"] ?? "0";
+    if (paperID == "0")
+    {
+        ViewBag.Title = LiXinLanguage.NavigateMenuLanguage.DeptBrowseSurvey;
+    }
+    else
+    {
+        ViewBag.Title = "查看调查详情";
+    }
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var index = Request.QueryString["index"] ?? "0";
+    var flag = ViewBag.Flag;//0:管理端；1:所内员工；2：新员工
+}
+<div class="main-c">
+    @{
+        if (paperID == "0")
+        {
+            @(Html.Action("SiteMapLink", "Common", new{linkName = "DeptBrowseSurvey"}))
+        }
+        else
+        {
+            @(Html.Action("SiteMapLink", "Common", new{linkName = flag == 1 ? "查看调查详情" : "NewBrowseSurveyResult"}))
+        }
+    }
+    <h3 class="tit-h3">@Model.Name <span class="fr">@Model.DoTime</span></h3>
+    <div class="sur-do">
+        @{
+            foreach (var Question in @Model.examPaper.Questions)
+            {
+                  
+            <div id="QuestionID@(Question.QuestionID)"  class="list">
+                <input type="hidden" name="@(Question.QuestionType)" value="@(Question.QuestionID)"/>
+                <div class="tit">
+                    <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)</div>
+                @{
+                if (Question.QuestionType == 2)
+                {
+                    <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                }
+                }
+                @{  switch (Question.QuestionType)
+                    {
+                        //单选题
+                        case 0:
+                            {
+                                int count = 0;
+                                foreach (var s in Question.Answers)
+                                {
+                    <p>
+                        <input type="radio" disabled="disabled" @(Question.ReplyAnswer == null ? "" : (Question.ReplyAnswer.ObjectiveAnswer == @s.AnswerId.ToString() ? "checked=checked" : ""))/>@((char)(65 + count)).
+                        @s.AnswerContentNohtml</p>
+                                    count++;
+                                }
+                    <div class="why">
+                        <span>理由：</span><input name="singReplay" type="text" disabled="disabled" value='@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.QuestionReply)' /></div>
+                            }
+                            break;
+                        //多选题
+                        case 1:
+                            {
+                                int count = 0;
+                                foreach (var s in Question.Answers)
+                                {
+                    <p>
+                        <input type="checkbox" disabled="disabled"
+                                    @(Question.ReplyAnswer == null ? "" : (Question.ReplyAnswer.objectAnswerList.Contains(@s.AnswerId.ToString()) ? "checked=checked" : ""))
+                                        />@((char)(65 + count)). @s.AnswerContentNohtml</p>
+                                    count++;
+                                }
+                    <div class="why">
+                        <span>理由：</span><input name="muiltReplay" type="text"  disabled="disabled" value='@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.QuestionReply)'/></div>
+                            }
+                            break;
+                        //主观题
+                        case 2:
+                    <p>
+                        <textarea disabled="disabled">@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.SubjectiveAnswer)</textarea></p>            
+                                                  break;
+                        case 3:
+                      
+                    <div id='divScore_@(Question.QuestionOrder)' title="@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.SubjectiveAnswer)" class="ml35 ">
+                    </div>
+                    <div class="why mt5">
+                        <span>理由：</span><input name="xingPReplay" type="text" disabled="disabled" value='@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.QuestionReply)' />
+                    </div>                                 
+                                                                                                     break;
+                    }
+                }
+            </div>
+            }   
+        }
+    </div>
+    <div class="mt10 tc">
+        <a onclick=" back()" class="btn btn-cancel">返回</a></div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        showStars();
+    });
+    function back()
+    {
+        if ("@ViewBag.backurl" == "")
+        {
+            window.location.href = "DeptSurveyManage";
+        }
+        else
+        {
+            window.location.href = "@ViewBag.backurl?index=@index";
+        }
+    }
+
+    //加载星评题
+    function showStars()
+    {
+
+        if ($("div[id^='divScore_']").length > 0)
+        {
+            $("div[id^='divScore_']").each(function ()
+            {
+                var star = $(this).attr("title");
+                $(this).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: false }, function (value)
+                {
+                });
+            });
+        }
+    }
+</script>

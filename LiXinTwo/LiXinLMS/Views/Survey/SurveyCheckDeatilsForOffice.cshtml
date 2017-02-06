@@ -1,0 +1,276 @@
+﻿@model LiXinModels.Survey.Survey_Survey
+@using LiXinLanguage
+@{
+    ViewBag.Title = "问卷审核汇总明细";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "问卷审核汇总明细"
+}))
+    <h3 class="tit-h3">调查基本信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span8">调查名称：
+            </td>
+            <td class="span15">
+                <strong>@(Model.Name)</strong>
+            </td>
+            <td class="Tit span6">发布时间：
+            </td>
+            <td>
+                <strong>@(Model.PublishTimeStr)</strong>
+            </td>
+            <td class="Tit span6">截止时间：
+            </td>
+            <td>
+                <strong>@(Model.EndTime.ToString("yyyy.MM.dd"))</strong>
+            </td>
+            <td class="Tit span9">是否在期限内：
+            </td>
+            <td>
+                <strong>否</strong>
+            </td>
+            <td class="Tit span6">开放人数：
+            </td>
+            <td>
+                <strong>@(Model.ShouldNumber)</strong>
+            </td>
+            <td class="Tit span6">参与人数：
+            </td>
+            <td>
+                <strong>@(Model.useNum)</strong>
+            </td>
+        </tr>
+    </table>
+    <div class="tab-bk mt10">
+        <ul id="ul_menu">
+            <li class="On" id="tag0">调查结果明细</li>
+            <li id="tag1">员工答卷明细</li>
+            <li id="tag2">员工提交明细</li>
+        </ul>
+    </div>
+    <div>
+        <!--调查结果明细--->
+        <div id="surveyResult" class="clb">
+            @Html.Action("surveyResult", new { type = 1 })
+        </div>
+        <!--员工答卷明细--->
+        <div id="studentResult" style="display: none" class="clb">
+            @Html.Action("studentResult", new { type = 1 })
+        </div>
+        <!--员工提交明细--->
+        <div id="studentSubmit" style="display: none" class="clb">
+            @*@Html.Action("studentSubmit")*@
+        </div>
+    </div>
+    <input id="questionID" type="hidden" /><!--选择的问题ID-->
+    <input id="questionType" type="hidden" /><!--选择的问题选项-->
+    <input id="surveyID" type="hidden" />
+    <input id="paperID" type="hidden" />
+    <input id="deptID" type="hidden" value="0" />
+    <center class="mt10">
+        <input type="button" class="btn btn-cancel" value="返回" onclick="back()" />
+    </center>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+      
+        showDept();
+        $("#ul_menu li").click(function ()
+        {
+            $("[id^='tag']").removeClass("On");
+
+            var index = $(this).index();
+
+            $("#tag" + index).addClass("On");
+
+            switch (index)
+            {
+                case 0:
+                    $("#surveyResult").show();
+                    $("#studentResult").hide();
+                   
+                    $("#studentSubmit").hide();
+                    showDept();
+                    break;
+                case 1:
+                    $("#surveyResult").hide();
+                    $("#studentResult").show();
+                    $("#studentSubmit").hide();
+                    getData();
+                    break;
+                case 2:
+                    $("#surveyResult").hide();
+                    $("#studentResult").hide();
+                    $("#studentSubmit").show();
+                    $("#studentSubmit").load("studentSubmit?surveyID=@ViewBag.surveyID&paperID=@ViewBag.paperID");
+                    break;
+            }
+           
+        });
+        $("#surveyID").val(@ViewBag.surveyID);
+        $("#paperID").val(@ViewBag.paperID);
+       
+    });
+
+    //初始化分类 
+    function showDept()
+    {
+        $.getJSON("DeptTree?surveyID=@ViewBag.surveyID&paperID=@ViewBag.paperID",function(data)
+        {
+            $("#deptID").val(data.depID);
+            showQuestion(data.depID);
+            $("#deptTree").html(data.dataList);
+            $("#deptTree").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+
+            $("#deptTree").removeClass("treeview");
+        })
+    }
+
+    function ShowQuestionForOffice(obj)
+    {
+        var deptID=$(obj).attr("id");
+        $("#deptID").val(deptID);
+        showQuestion(deptID);
+    } 
+
+    //显示问题
+    function showQuestion(deptID)
+    {
+        //    if(deptID!=0)
+        //    {
+
+        var  surveyID=@ViewBag.surveyID;
+        var paperID=@ViewBag.paperID;
+        $.getJSON("/Survey/GetQuestionSurveyForOffice?surveyID=@ViewBag.surveyID&&paperID=@ViewBag.paperID&deptID="+deptID, function (data)
+        {
+            if (data.result == 1)
+            {
+                if(data.dataList.length>0)
+                {
+                    $("#txtSubject").val(data.sumresult);
+                    $("#questionList").html($("#surveyCheckTemplate").render(data.dataList));
+                    $("#txtName").val("");
+                    $("#questionID").val(data.questionID);
+                    $("#questionType").val(data.qtype);
+                    switch(data.qtype)
+                    {
+                        case 0:
+                        case 1:
+                            $("#subjectresult").css("display", "none");
+                            $("#objectresult").css("display", "");
+                            GetObjectReplayAnswer(data.qtype);
+                            break;
+                        case 2:
+                            $("#subjectresult").css("display", "");
+                            $("#objectresult").css("display", "none");
+                            GetSubjectAnswer();
+                            break;
+                            //星评题
+                        case 3:
+                            $("#subjectresult").css("display", "");
+                            $("#objectresult").css("display", "none");
+                            $("#searchtab").css("display", "none");
+                            GetXinPAnswers();
+                            break;
+                    }
+
+
+                }
+                else
+                {
+                    $("#questionList").html("<li>暂无数据</li>");
+                    $("#pop_answer").html("暂无数据");
+                    $("#Allsubject").css("display",none);
+                }
+            }
+        });
+        //        }
+        //        else
+        //        {
+        //           $("#questionList").html("<li>暂无数据</li>");
+        //           $("#pop_answer").html("暂无数据");
+        //           $("#Allsubject").css("display",none);
+        //        }
+    }
+
+    //显示答案
+    function shouwAnswer(qID, type)
+    {
+    
+        $("#questionID").val(qID);
+        $("#questionType").val(type);
+        answerList(qID, type);
+    }
+
+    function answerList(qID, type)
+    {
+        switch (type)
+        {
+            case 0: //单选题
+            case 1: //多选题
+                $("#subjectresult").css("display", "none");
+                $("#objectresult").css("display", "");
+                $("#searchtab").css("display", "");
+                GetObjectReplayAnswer(type);
+                break;
+                //主观题
+            case 2:
+                $("#subjectresult").css("display", "");
+                $("#objectresult").css("display", "none");
+                $("#searchtab").css("display", "");
+                GetSubjectAnswer();
+                break;
+                //星评题
+            case 3:
+                $("#subjectresult").css("display", "");
+                $("#objectresult").css("display", "none");
+                $("#searchtab").css("display", "none");
+                GetXinPAnswers();
+                break;
+        }
+
+    }
+    //主观题的URl
+    function getSubjectUrl()
+    {
+        return "/Survey/GetSubjectOfficeAnswer?surveyID=" + @ViewBag.surveyID + "&paperID=" + @ViewBag.paperID + "&questionID=" +  $("#questionID").val() +"&deptID="+ $("#deptID").val()+ "&where=" + $("#txtName").val();
+    }
+
+    //客观题的URL
+    function getObjectUrl()
+    {
+        return "/Survey/GetObjectOfficeAnswer?surveyID=" + @ViewBag.surveyID + "&paperID=" + @ViewBag.paperID + "&questionID=" +  $("#questionID").val() +"&deptID="+ $("#deptID").val()+ "&where=" + $("#txtName").val();
+      }
+
+      //星评题的url
+      function getXinPUrl()
+      {
+          return "/Survey/GetXinPAnswersOffice?surveyID=" + @ViewBag.surveyID + "&paperID=" + @ViewBag.paperID + "&questionID=" +  $("#questionID").val();
+    }
+
+    //人员的URl
+    function geturl()
+    {
+        var   grade = "";
+        $("input[name='grade']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                grade = grade == "" ? $(this).val() : grade + "," + $(this).val();
+            }
+        });
+        return "/Survey/GetStudentForOffice?surveyID=" + $("#surveyID").val() + "&paperID=" + $("#paperID").val() + "&name=" + escape($("#txtRealName").val()) + "&grade=" + escape(grade)+"&deptID="+ $("#deptID").val();
+    }
+
+    function back()
+    {
+        window.location.href="SurveyCheckForOffice";
+    }
+</script>

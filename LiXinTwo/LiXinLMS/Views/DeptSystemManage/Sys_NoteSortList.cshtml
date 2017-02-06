@@ -1,0 +1,149 @@
+﻿@{
+    Layout = null;
+    var type = Request.QueryString["type"] ?? "0";
+}
+@model LiXinModels.User.Sys_Department
+<div  class="menu-list">
+<h3>
+    <i class="il"></i><i class="ir"></i>公告类别</h3>
+<div class="list-con">
+    @if (ViewBag.showManage == 1)
+    {
+        <div class="list-do">
+            <input class="btn btn-co" type="button" value="新增" onclick="fnAddNoteSort(0);$('#ul_SysNoteList a').removeClass('On');" />
+            <input class="btn btn-co" type="button" value="修改" onclick="fnAddNoteSort(1);" />
+            <input class="btn btn-cancel" type="button" value="删除" onclick="fnDelNoteSort();" />
+        </div>
+        <div class="Tit">
+            所管部门：
+            <select id="depart" class="span13" onchange="Getdatas()">
+                @{
+                    foreach (var item in (IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.departMent)
+                    {
+                        <option value="@item.DepartmentId">@item.DeptName</option>
+                    }
+                }
+            </select>
+        </div>
+        <div>
+            <input type="hidden" id="departIds" value=""/>
+        </div>
+    }
+    <input type="hidden" id="txthidNoteSortId" value="0" />
+</div>
+</div>
+    <div class="treeview-box">
+    <div id="ul_SysNoteList" class="tree-list"></div>
+    </div>
+<script id="noteSortListTemplate" type="text/x-jsrender">
+{{for #data}}
+    <li><a href="#" id="li_NoteSort_{{:NoteId}}" title="{{:SortName}}" onclick="fnChooseNote({{:NoteId}})">{{:SortName}}<i></i></a></li>
+{{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#departIds").val($("#depart").val());
+        InitNoteList();
+        fnChooseNote(0);
+    });
+
+    function Getdatas() {
+        $("#departIds").val($("#depart").val());
+        InitNoteList();
+        fnChooseNote(0);
+    }
+    function fnChooseNote(Id)
+    {
+        //加上选中class
+        $("#ul_SysNoteList a").removeClass("On");
+        $("#ul_SysNoteList #li_NoteSort_" + Id).addClass("On");
+        if ($("#lblCurrentSort") != undefined)
+        {
+            $("#lblCurrentSort").removeClass("On");
+        }
+        $("#txthidNoteSortId").val(Id);
+        Getdata();
+    }
+
+    function InitNoteList()
+    {
+        //$.getJSON("/SystemManage/GetNoteSortList", function (data)
+        //{
+        //    $("#ul_SysNoteList").html(setHead() + $("#noteSortListTemplate").render(data.dataList));
+        //});
+        $.getJSON("/DeptSystemManage/GetAllSystemSortTree?departId="+$("#depart").val(), function (data)
+        {
+            $("#ul_SysNoteList").html(data.popTreeHtml);
+            $("#ul_SysNoteList").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+
+            $("#ul_SysNoteList").removeClass("treeview");
+            $("#ul_SysNoteList>ul>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+    function fnAddNoteSort(flag)
+    {
+        //if (flag == 0)
+        //    $("#txthidNoteSortId").val(0);
+        var Id = $("#txthidNoteSortId").val();
+        var sortName = "";
+        if (Id == 0 && flag == 1)//选择根节点 并点击修改 
+        {
+            // art.dialog({ content: "请选择要修改的公告类别！", time: 3 });
+            art.dialog.tips("请选择要修改的公告类别！", 3);
+            return;
+        } else if (Id > 0 && flag == 1)
+        {
+            sortName = escape($("#li_NoteSort_" + Id).attr("title"));
+
+        }
+        art.dialog.load("/DeptSystemManage/EditNoteSort?Id=" + Id + "&flag=" + flag + "&departId=" + $("#depart").val(),
+        { title: '编辑公告类别', id: "pop_EditNoteSort"
+        }, false);
+
+    }
+
+    function fnDelNoteSort()
+    {
+
+        var Id = $("#txthidNoteSortId").val();
+        var sortName = "";
+        if (Id == 0)
+        {
+            art.dialog.tips("请选择要删除的公告类别！", 3);
+            return;
+        } else
+        {
+            art.dialog({
+                content: "您确认删除吗？",
+                ok: function ()
+                {
+                    $.post("/DeptSystemManage/DeleteNoteSort?Id=" + Id + "&departId=" + $("#depart").val(), function (data)
+                    {
+                        if (data.result == 1)
+                        {
+                            $("#txthidNoteSortId").val(0);
+                            InitNoteList();
+                        }
+                        art.dialog.tips(data.content, 3);
+                    });
+                },
+                cancel: true
+            });
+        }
+    }
+
+    function setHead()
+    {
+        if ("@type" == "1")
+        {
+            return "<li><a id=\"lblCurrentSort\" onclick=\"fnShowAllNote();$(this).parent().parent().parent().parent().find('a').removeClass('On');$(this).addClass('On');\">公告类别<i></i></a></li>";
+        }
+        return "";
+    }
+</script>

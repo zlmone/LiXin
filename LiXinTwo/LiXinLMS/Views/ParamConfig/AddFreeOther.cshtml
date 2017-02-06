@@ -1,0 +1,280 @@
+﻿@model LiXinModels.SystemManage.Free_OtherApplyConfig
+@{
+    ViewBag.Title = "AddFreeOther";
+    Layout = null;
+}
+<form id="form_FreeOther">
+    <table class="tab-Form">
+        <tbody>
+            <tr>
+                <td class="Tit span6">申请内容：
+                </td>
+                <td>
+                    <input id="ApplyContent" name="ApplyContent" type="text" class="span20" value="@(ViewBag.id == 0 ? "" : Model.ApplyContent)" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span8">可折算学时：</td>
+                <td>
+                    <input name="ConvertTypeScore" type="checkbox" value="0" onchange="changetd(this,0);" />CPA学时
+                    <input name="ConvertTypeScore" type="checkbox" value="1" onchange="changetd(this,1);" />所内学时
+                    <input id="ConvertType" name="ConvertType" type="hidden" />
+                </td>
+
+            </tr>
+            <tr>
+                <td class="Tit span10">学时折算方法：</td>
+                <td>
+                    <div>
+                        <input id="ConvertBase"  name="ConvertBase" type="text" class="span10 searchclass" value="@(ViewBag.id == 0 ? "" : Model.ConvertBase.ToString())"/>
+
+                        <input id="ConvertBaseInfo"  name="ConvertBaseInfo" type="text" class="span10 searchclass" value="@(ViewBag.id == 0 ? "计量单位" : Model.ConvertBaseInfo.ToString())"  info="计量单位" />
+                        =
+                    <input id="ConvertBaseTo"  name="ConvertBaseTo" type="text" class="span10 searchclass" value="@(ViewBag.id == 0 ? "" : Model.ConvertBaseTo.ToString())"  />
+                        学时
+                    </div>
+                </td>
+            </tr>
+
+            <tr class="CPAmax" style="@(Model.ConvertType != 1 ? "" : "display:none")">
+                <td class="Tit span18">可折CPA学时年度的最高限制：</td>
+                <td>
+                    <input id="ConvertMax" name="ConvertMax" type="text" class="span10 searchclass CPAScore" value="@(ViewBag.id == 0 ? "" : Model.ConvertMax.ToString())"  />
+                </td>
+            </tr>
+
+            <tr class="Togethermax" style="@(Model.ConvertType != 0 ? "" : "display:none")">
+                <td class="Tit span20">可折内部培训学时年度的最高限制：</td>
+                 <td>
+                    <div>
+                        @{
+                            int i = 0;
+                            foreach (var item in ViewBag.TrainGrade)
+                            {
+
+                                i++;
+                            <span>@(item)级别：
+                            <input id="@(item)" grade="grade" name='Grade@(i)' type="text" class="span4 TogetherScore" value="@(ViewBag.id == 0 ? "" : (Model.TrainGradeScoreList.ContainsKey(item) ? Model.TrainGradeScoreList[item] : ""))" />
+                                学时</span><br />
+                            }
+                        }
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="Tit">上传文件提示：</td>
+                <td>
+                    <textarea id="txtUploadTip" name="UploadTip" cols="20" rows="2" class="span20">@(ViewBag.id == 0 ? "" : Model.UploadTip)</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">情况说明模板：</td>
+                <td>
+                    <textarea id="txtMemo" name="Memo" cols="20" rows="2" class="span20">@(ViewBag.id == 0 ? "" : Model.Memo)</textarea>
+                </td>
+            </tr>
+             <tr>
+                <td class="Tit span13">情况说明输入提示：</td>
+                <td>
+                    <textarea id="txtMemoTip" name="MemoTip" cols="20" rows="2" class="span20" maxlength="200">@(ViewBag.id == 0 ? "" : Model.MemoTip)</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="submit" value="保存" class="btn">
+                    <input type="button" name="cancel" value="取消" class="btn" onclick="hideFreeOther()">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <input id="TrainGradeScore" name="TrainGradeScore" type="hidden" value="" />
+    <input id="ID" name="ID" type="hidden"  value="@(ViewBag.id)"/>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        
+        GetOther();
+        if("@ViewBag.id" == "0")
+        {
+            initSearch();
+            $(".CPAmax").hide();
+            $(".Togethermax").hide();
+        }
+        jQuery.validator.addMethod("checkNumber", function (value, element)
+        {
+            var reg=/^\d+[\.]?\d{0,2}$/;
+            return this.optional(element) || ((reg.test(value))&&(value>0));
+        }, $.validator.format("输入保留2位小数！"));
+
+        $.validator.addMethod("TogetherScore", function (value, element) 
+        {
+            var type=0;
+            var obj = $("input[name='ConvertTypeScore']:checked");
+            if (obj.length == 2)
+            {
+                type=2;
+            }
+            else
+            {
+                type=$(obj).val()
+            }
+            var reg = /^\d+[\.]?\d{0,2}$/;
+            if(type!=0)
+            {
+                return !this.optional(element) && (reg.test(value)) && (parseFloat(value) <= 999)&& (parseFloat(value)>0);
+            }
+            else
+            {
+                return true;
+            }
+        }, "请输入学时，规则：输入保留2位小数，且在0-999范围内（不包括0）");
+
+        $.validator.addMethod("CPAScore", function (value, element)
+        {
+            var type=0;
+            var obj = $("input[name='ConvertTypeScore']:checked");
+            if (obj.length == 2)
+            {
+                type=2;
+            }
+            else
+            {
+                type=$(obj).val();
+            }
+            var reg = /^\d+[\.]?\d{0,2}$/;
+            if(type!=1)
+            {
+                return !this.optional(element) &&  (reg.test(value)) && (parseFloat(value) <=999)&& (parseFloat(value)>0);
+            }
+            else
+            {
+                return true;
+            }
+        }, "请输入学时，规则：输入保留2位小数，且在0-999范围内（不包括0）");
+
+        $("#form_FreeOther").validate(
+           {
+               errorPlacement: function (error, element)
+               {
+                   var eid = element.attr('name');
+                 
+                   if (element.is(':radio') || element.is(':checkbox'))
+                   {
+                       $('input[name=' + eid + ']:last').next().after(error);
+                   }
+                   else if(eid=="ConvertBase"||eid=="ConvertBaseInfo"||eid=="ConvertBaseTo"||element.attr("grade")=="grade")
+                   {
+                       error.insertAfter(element.parent());
+                   }
+                  
+                   else
+                   {
+                       error.insertAfter(element);
+                   }
+               },
+               debug: true,
+               submitHandler: saveOther,
+               event: "blur",
+               rules: {
+                   ApplyContent: { required: true,maxlength: 200 },
+                   ConvertBase: { required: true,checkNumber: true,min: 0,max:999},
+                   ConvertBaseInfo: { required: true,maxlength: 30 },
+                   ConvertBaseTo: { required: true,checkNumber: true,min: 0,max:999 },
+                   UploadTip: { maxlength: 200 },
+                   Memo: { maxlength: 200 },
+                   ConvertTypeScore: { required: true }
+               },
+               messages: {
+                   ApplyContent: {required: "请输入申请内容", maxlength: "申请内容字符不能超过200个字符！" },
+                   ConvertBase: { required: "请输入折算方法的内容",min: "请输入大于等于0的数",max:"请输入小于等于999的数"},
+                   ConvertBaseInfo: { required:  "请输入折算方法的内容",maxlength: "计量单位不能超过30个字符！" },
+                   ConvertBaseTo: { required:  "请输入折算方法的内容",min: "请输入大于等于0的数",max:"请输入小于等于999的数" },
+                   UploadTip: { maxlength: "上传文件提示字符不能超过200个字符！" },
+                   Memo: { maxlength: "情况说明字符不能超过200个字符！" },
+                   ConvertTypeScore: { required: "请选择可折算学时！" }
+               },
+               highlight: function (element, errorClass)
+               { 
+                   $(element).addClass(errorClass);
+               },
+
+           });
+    });
+    function changetd(obj,type)
+    {
+        if(type==0)
+        {
+            if($(obj).attr("checked")=="checked")
+            {
+                $(".CPAmax").show();
+            }
+            else
+            {
+                $(".CPAmax").hide();
+            }
+        }
+        else
+        {
+            if($(obj).attr("checked")=="checked")
+            {
+                $(".Togethermax").show();
+            }
+            else
+            {
+                $(".Togethermax").hide();
+            }
+        }
+       
+    }
+    function GetOther()
+    {
+        if (@ViewBag.id != 0)
+        {
+            if ("@Model.ConvertType" == "2")
+            {
+                $("input[name='ConvertTypeScore']").attr("checked", true);
+                $(".CPAmax").show();
+                $(".Togethermax").show();
+            }
+            else
+            {
+                $("input[name='ConvertTypeScore'][value='" + @Model.ConvertType + "']").attr("checked", true);
+                if("@Model.ConvertType"=="0")
+                {
+                    $(".CPAmax").show();
+                }
+                else
+                {
+                    $(".Togethermax").show();
+                }
+            }
+        }
+    }
+
+    function saveOther()
+    {
+      
+        var obj = $("input[name='ConvertTypeScore']:checked");
+        if (obj.length == 2)
+        {
+            $("#ConvertType").val(2);
+        }
+        else
+        {
+            $("#ConvertType").val($(obj).val());
+        }
+        var TrainGradeScore = "";
+        $("input[name^='Grade']").each(function ()
+        {
+            var value = $(this).attr("id") + "-" + ($(this).val() == "" ? 0 : $(this).val());
+            TrainGradeScore = TrainGradeScore == "" ? value : TrainGradeScore + "," + value;
+        });
+        $("#TrainGradeScore").val(TrainGradeScore);
+        $.post("/ParamConfig/AddOther?year=@ViewBag.year", $("#form_FreeOther").formSerialize(), function (data)
+        {
+            Getdata();
+        });
+    }
+</script>

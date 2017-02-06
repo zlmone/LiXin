@@ -1,0 +1,17 @@
+﻿@{
+    Layout = null;
+}
+<select id="@ViewBag.id">
+    @foreach (var year in @ViewBag.Year)
+    {
+        if (@year == @ViewBag.nowyear)
+        {
+         <option value="@year" selected="selected">@year</option>
+        }
+        else
+        {
+         <option value="@year">@year</option>
+        }
+
+    }
+</select>

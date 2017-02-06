@@ -1,0 +1,138 @@
+﻿@model LiXinModels.SystemManage.Free_OtherFroms
+@{
+    ViewBag.Title = "OtherFromsProjectConfigurationAdd";
+    Layout = null;
+
+            //var zhi = ViewBag.From as LiXinModels.SystemManage.Free_OtherFroms;
+}
+<script src="../../Scripts/jquery-1.8.1.js"></script>
+
+<h2 class="tit-h2 mt10">
+    <i></i><span class="tit-con">其他形式、免修申请项目配置>新增其他有组织形式申请项目</span>
+</h2>
+
+<table class="tab-Form mt10">
+    <tr>
+        <td class="Tit span20">申请项目：
+        </td>
+        <td>
+            <input type="text" id="name" style="width: 400px;" />
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit span20">适用的申请：</td>
+        <td>
+            <input type="checkbox" id="other_cpa" name="othre" />
+            CPA学时
+            <input type="checkbox" id="other_sn" name="othre" />
+            所内学时
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit"></td>
+        <td>
+            <input type="button" value="保存" id="btn_add" class="btn" />
+            <input type="button" value="取消" id="btn_back" class="btn" onclick="FromCanlcel();" />
+        </td>
+    </tr>
+
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+        if ('@Model.Id' > 0)
+        {
+
+            $("#name").val('@Html.Raw(Model.FromName)');
+
+            switch ('@Model.FromType')
+            {
+                case '0': $("#other_cpa").attr("checked", "checked"); break;
+                case '1': $("#other_sn").attr("checked", "checked"); break;
+                case '2': $("#other_cpa").attr("checked", "checked"); $("#other_sn").attr("checked", "checked"); break;
+            }
+        }
+
+        $("#btn_add").click(function ()
+        {
+
+            if ($.trim($("#name").val()) == "")
+            {
+                art.dialog.tips('请填写申请项目', 3);
+                $("#name").focus();
+                return;
+            }
+            else
+            {
+                if ($("#name").val().length > 250)
+                {
+                    art.dialog.tips('填写申请项目字符过多！', 3);
+                    $("#name").focus();
+                    return;
+                }
+            }
+
+            if ($("input[name='othre']:checked").size() == 0)
+            {
+
+                art.dialog.tips('请选择适用的申请', 3);
+                return;
+            }
+
+            var type = 0;
+
+            if ($("#other_cpa").attr("checked") == "checked" && $("#other_sn").attr("checked") == "checked")
+            {
+                type = 2;
+            }
+            else
+            {
+
+                if ($("#other_cpa").attr("checked") == "checked")
+                { type = 0 }
+                else if ($("#other_sn").attr("checked") == "checked")
+                {
+                    type = 1;
+                }
+            }
+
+            if ('@Model.Id' == '0')
+            {
+                //添加
+                $.post("/ParamConfig/GetAddOther?year=@ViewBag.year&id=@Model.Id&type=" + type, { name: $("#name").val() }, function (data)
+                {
+                    if (data.result == 0)
+                    {
+                        FromCanlcel();
+                    } else
+                    {
+                        art.dialog.tips('配置失败', 3);;
+                    }
+                });
+            }
+            else
+            {
+                //修改
+                $.post("/ParamConfig/GetUpdateOther?year=@ViewBag.year&id=@Model.Id&type=" + type, { name: $("#name").val() }, function (data)
+                {
+                    if (data.result == 0)
+                    {
+                        FromCanlcel();
+                    } else
+                    {
+                        art.dialog.tips('配置失败', 3);;
+                    }
+                });
+            }
+        });
+    });
+
+    function FromCanlcel()
+    {
+        window.location.href = "/ParamConfig/ParamConfig?id=999&manType=2";
+    }
+
+   
+</script>

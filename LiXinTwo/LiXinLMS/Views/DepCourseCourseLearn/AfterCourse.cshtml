@@ -1,0 +1,272 @@
+﻿@using LiXinModels.Survey
+@{
+    ViewBag.Title = "AfterCourse";
+    Layout = null;
+    var examPaper = ViewBag.examPaper as Survey_Exampaper;
+    var TeacherexamPaper = ViewBag.TeacherexamPaper as Survey_Exampaper;
+}
+
+<div class="tab-red">
+    <ul id="ul_main">
+        @if (examPaper != null && TeacherexamPaper != null)
+        {
+            <li class="On">课程评估<i></i></li>
+            <li>讲师评估<i></i></li>
+        }
+        @if (examPaper != null && TeacherexamPaper == null)
+        {
+            <li class="On">课程评估<i></i></li>
+        }
+        @if (examPaper == null && TeacherexamPaper != null)
+        {
+            <li class="On">讲师评估<i></i></li>
+        }
+    </ul>
+</div>
+    @if (examPaper != null && TeacherexamPaper != null)
+    {
+        <div class="alert alert-info" style="margin-top:-11px;">
+            <button class="close" data-dismiss="alert">×</button>
+            <i></i>
+            <strong>提醒</strong>
+            请不要忘记填写“讲师评估”。
+        </div>
+    }
+<div id="div_list">
+    <div>
+        @if (examPaper != null)
+        { 
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span7">
+                        问卷标题：
+                    </td>
+                    <td>
+                        <strong>@examPaper.ExamTitle</strong>
+                    </td>
+                    <td class="Tit span6">
+                        问卷类型：
+                    </td>
+                    <td>
+                        <strong>@examPaper.ExamTypeShow</strong>
+                    </td>
+                    <td class="Tit span6">
+                        问卷分类：
+                    </td>
+                    <td>
+                        <strong>@examPaper.CategoryName</strong>
+                    </td>
+                </tr>
+            </table>
+            <div class="sur-do">
+                @{
+            foreach (var Question in @examPaper.Questions)
+            {
+                    <div id="QuestionID@(Question.QuestionID)" class="afterlist list">
+                        <input type="hidden" class="questionid" name="@(Question.QuestionType)" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                        <div class="tit">
+                            <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                        </div>
+                        @{
+                if (Question.QuestionType == 2)
+                {
+                            <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                }
+                        }
+                        @{  switch (Question.QuestionType)
+                            {
+                                //单选题
+                                case 0:
+                                    {
+                                        int count = 0;
+
+                                        foreach (var s in Question.Answers)
+                                        {
+                            <p>
+                                <input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                            </p>
+                                            count++;
+                                        }
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                            </div>
+                                    break;
+                                //多选题
+                                case 1:
+                                    {
+                                        int count = 0;
+
+                                        foreach (var s in Question.Answers)
+                                        {
+                            <p>
+                                <input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                            </p>
+                                            count++;
+                                        }
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                            </div>
+                                    break;
+                                //主观题
+                                case 2:
+                            <p>
+                                <textarea style="width: 338px; height: 104px;" disabled="disabled"  onkeyup="TextearaMaxlength(this)" onchange="TextearaMaxlength(this)" maxlength="500">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                            </p> 
+                                                                                                                                                                 break;
+                                case 3:
+                            <input type="hidden" class="xp" />
+                            <div id='divScore_@(Question.QuestionOrder)' class="ml35 "  >
+                            </div>
+                            <div class="why mt5">
+                                <span>理由：</span><input name="xingPReplay" type="text" disabled="disabled" maxlength="200"/>
+                            </div>
+                                          break;
+                            }
+                        }
+                    </div>
+            }   
+                }
+            </div>
+           
+        }
+     </div>
+     <div style="display: none;">
+        @if (TeacherexamPaper != null)
+        { 
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span7">
+                        问卷标题：
+                    </td>
+                    <td>
+                        <strong>@TeacherexamPaper.ExamTitle</strong>
+                    </td>
+                    <td class="Tit span6">
+                        问卷类型：
+                    </td>
+                    <td>
+                        <strong>@TeacherexamPaper.ExamTypeShow</strong>
+                    </td>
+                    <td class="Tit span6">
+                        问卷分类：
+                    </td>
+                    <td>
+                        <strong>@TeacherexamPaper.CategoryName</strong>
+                    </td>
+                </tr>
+            </table>
+            <div class="sur-do">
+                @{
+            foreach (var Question in @TeacherexamPaper.Questions)
+            {
+                    <div id="QuestionID@(Question.QuestionID)" class="Teacherlist list">
+                        <input type="hidden" class="questionid" name="@(Question.QuestionType)" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                        <div class="tit">
+                            <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                        </div>
+                        @{
+                if (Question.QuestionType == 2)
+                {
+                            <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                }
+                        }
+                        @{  switch (Question.QuestionType)
+                            {
+                                //单选题
+                                case 0:
+                                    {
+                                        int count = 0;
+
+                                        foreach (var s in Question.Answers)
+                                        {
+                            <p>
+                                <input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                            </p>
+                                            count++;
+                                        }
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                            </div>
+                                    break;
+                                //多选题
+                                case 1:
+                                    {
+                                        int count = 0;
+
+                                        foreach (var s in Question.Answers)
+                                        {
+                            <p>
+                                <input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                            </p>
+                                            count++;
+                                        }
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                            </div>
+                                    break;
+                                //主观题
+                                case 2:
+                            <p>
+                                <textarea style="width: 338px; height: 104px;" disabled="disabled" Required="on"   onkeyup="TextearaMaxlength(this)" onchange="TextearaMaxlength(this)" maxlength="500">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                            </p> 
+                                                                                                                                                                 break;
+                                case 3:
+                            <input type="hidden" class="xp" />
+                            <div id='divScore_@(Question.QuestionOrder)' class="ml35 " >
+                            </div>
+                            <div class="why mt5">
+                                <span>理由：</span><input name="xingPReplay" disabled="disabled" Required="on" type="text" maxlength="200" />
+                            </div>
+                                          break;
+                            }
+                        }
+                    </div>
+            }   
+                }
+            </div>
+            @*<center class="mt10" id="submitTeacherBtnDiv">
+                <input type="button" value="保存" id="btn_TeacherSave" class="btn" />
+                <input type="button" value="提交" id="btn_TeacherAdd" class="btn" />
+                <a href="@Url.Content(@ViewBag.backurl)" class="btn btn-cancel">返回</a>
+            </center>*@          
+        }
+    </div>
+    <div class="tc mt10">
+        <a class = "btn btn-cancel" onclick="backpath();">返回</a>
+    </div>
+    </div>
+    <script type="text/javascript">
+        function backpath() {
+            //if ($("#comefrom").val() == "1") {
+            //    window.location.href = "/Home/MyDepIndex";
+            //} else {
+            //    window.location.href = "/DepTrainMyBroadcastCourse/MyEverythingCourse?tp=0";
+            //}
+            window.location.href = "/DepCourseCourseLearn/MyCourseSubscribe";
+        }
+        $(document).ready(function () {
+            showStars(0);
+            $("#ul_main li").click(function() {
+                var index = $(this).index();
+                $("#div_list").children("div:eq(" + index + ")").css("display", "").siblings("div").css("display", "none");
+                $("#ul_main li").removeClass("On");
+                $(this).addClass("On");
+            });
+        });
+        
+        function showStars(t) {
+            if ($("div[id^='divScore_']").length > 0) {
+                $("div[id^='divScore_']").each(function () {
+                    var star = $(this).attr("title");
+                    var obj = this;
+                    $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: t }, function (value) {
+                        $(obj).parent().find(".xp").val(value);
+                    });
+                });
+            }
+        }
+    </script>

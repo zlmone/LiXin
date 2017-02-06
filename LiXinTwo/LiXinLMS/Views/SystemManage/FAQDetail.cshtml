@@ -1,0 +1,58 @@
+﻿@{
+    ViewBag.Title = ViewBag.flag == 0 ? "培训政策及FAQ详情" : "培训政策及FAQ查看";
+}
+<form id="formEditNote">
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = ViewBag.flag == 0?"培训政策及FAQ详情" : "培训政策及FAQ查看"}))
+    <p class="tc c80">
+        <label class="dis_bl f16 lh30 c33" id="txtNoteTitle">
+        </label>
+        <span>类别：@(ViewBag.NoteSort == null ? "类别已删除！" : ViewBag.NoteSort.SortName)</span>
+        <span class="ml20">发布时间：<span id="date"></span></span>
+    </p>
+    <p id="lblContent">
+    </p>
+    <p id="Sys_NoteResource">
+    
+    </p>
+
+    <input id="NoteId" name="NoteId" type="hidden" value="@ViewBag.noteID" />
+</div>
+<div class="tc">
+    <a id="btnBack" onclick="back()" class="btn btn-cancel">返回</a>
+</div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetNote();
+    });
+    function GetNote() {
+        if ("@ViewBag.noteID" > "0") {
+            $.getJSON('/SystemManage/GetSingeNote?noteID=@ViewBag.noteID' + "&t=" + new Date().valueOf(), function (data) {
+                $('#sel_SortID').attr('value', data.SortID);
+                $("#txtNoteTitle").html(data.title);
+                $("#date").text(data.date);
+                $("#lblContent").html(data.content);
+
+                $("#Sys_NoteResource").append(data.html);
+
+            });
+        }
+    }
+
+    function back() {
+        if ("@ViewBag.flag" == "1") {
+            window.location.href = '/SystemManage/FAQ_NoteManage';
+        }
+        else {
+            window.history.go(-1);
+        }
+    }
+
+    //下载文件
+    function loadPinFile(path, name, id)
+    {
+        window.location.href = "/home/LoadPrincipleFile?type=1&path=" + path + "&name=" + escape(name);
+    }
+
+</script>

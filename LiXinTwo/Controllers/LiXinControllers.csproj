@@ -1,0 +1,285 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3BCCE27F-322B-4947-9F08-89CBF98FBA8B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LiXinControllers</RootNamespace>
+    <AssemblyName>LiXinControllers</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Accessibility">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="AntiXSSLibrary, Version=4.2.0.0, Culture=neutral, PublicKeyToken=d127efab8a9c114f, processorArchitecture=MSIL">
+      <HintPath>..\Lib\AntiXSSLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml">
+      <HintPath>..\Lib\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="DocX">
+      <HintPath>..\Lib\DocX.dll</HintPath>
+    </Reference>
+    <Reference Include="GemBox.Spreadsheet, Version=37.3.30.1110, Culture=neutral, PublicKeyToken=b1b72c69714d4847, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\GemBox.Spreadsheet.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="LiXinCommon">
+      <HintPath>..\LiXinCommon\bin\Debug\LiXinCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\Lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Client">
+      <HintPath>..\Lib\RabbitMQ.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Model.KL">
+      <HintPath>..\Lib\RabbitMQ.Model.KL.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQClient">
+      <HintPath>..\Lib\RabbitMQClient.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQModel">
+      <HintPath>..\Lib\RabbitMQModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.Cache">
+      <HintPath>..\Lib\Retech.Cache.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.Core">
+      <HintPath>..\Lib\Retech.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.LearningAPI">
+      <HintPath>..\Lib\Retech.LearningAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="SpreadsheetGear">
+      <HintPath>..\Lib\SpreadsheetGear.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WordMLHelper">
+      <HintPath>..\Lib\WordMLHelper.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AllTeacherCourse\AllTeacherCourseController.cs" />
+    <Compile Include="AttendceManage\AttendceCommonController.cs" />
+    <Compile Include="AttendceManage\AttendceManageController.cs" />
+    <Compile Include="BaseController.cs" />
+    <Compile Include="ClassRoom\ClassRoomController.cs" />
+    <Compile Include="Common\CommonController.cs" />
+    <Compile Include="ConfigurableJsonResult.cs" />
+    <Compile Include="CourseLearn\CourseLearnController.cs" />
+    <Compile Include="CourseManage\CalendarTaskController.cs" />
+    <Compile Include="CourseManage\CourseAppraiseController.cs" />
+    <Compile Include="CourseManage\CourseAssignController.cs" />
+    <Compile Include="CourseManage\CourseManageController.cs" />
+    <Compile Include="CourseManage\CourseSystemTreeController.cs" />
+    <Compile Include="CourseManage\CourseManageCommonController.cs" />
+    <Compile Include="CourseManage\VideoManageController.cs" />
+    <Compile Include="CutPhotoHelp.cs" />
+    <Compile Include="DepAttendce\DepAttendceController.cs" />
+    <Compile Include="DepAttendce\DepAttendceApprovalController.cs" />
+    <Compile Include="DepClassRoom\DepClassRoomController.cs" />
+    <Compile Include="DepCourseAdvice\DepCourseAdviceController.cs" />
+    <Compile Include="DepCourseCourseLearn\DepCourseCourseLearnController.cs" />
+    <Compile Include="DepCourseCourseLearn\MyTimeAndAttendce.cs.cs" />
+    <Compile Include="DepCourseManage\DepCourseManageController.cs" />
+    <Compile Include="DepCourseOpenOthersCheck\DepCourseOpenOthersCheckController.cs" />
+    <Compile Include="DepFreeApprove\DepFreeApproveConTroller.cs" />
+    <Compile Include="DepLeaveApproval\DepLeaveApprovalController.cs" />
+    <Compile Include="DepMyAfterCourse\DepMyAfterCourse.cs" />
+    <Compile Include="DepMyAttendce\DepMyAttendceController.cs" />
+    <Compile Include="DepMyCourse\DepMyCourseController.cs" />
+    <Compile Include="DepMyExam\DepMyExamController.cs" />
+    <Compile Include="DepMyPropose\DepMyPropose.cs" />
+    <Compile Include="DepParamConfig\DepParamConfigController.cs" />
+    <Compile Include="DepSelfCourseAppointSearch\DepCourseAssignController.cs" />
+    <Compile Include="DepSelfCourseAppointSearch\DepSelfCourseAppointSearchController.cs" />
+    <Compile Include="DeptCourseCourseLearn\DeptCourseCourseLearnController.cs" />
+    <Compile Include="DeptCourseCourseLearn\MyScoreController.cs" />
+    <Compile Include="DeptCourseManage\DeptCourseManageController.cs" />
+    <Compile Include="DepTeacherCourse\DepTeacherCourseController.cs" />
+    <Compile Include="DeptPlanManage\DeptPlanCommonController.cs" />
+    <Compile Include="DeptPlanManage\MonthPlanController.cs" />
+    <Compile Include="DeptPlanManage\YearPlanController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DepTrainMyBroadcastCourse\DepTrainMyBroadcastCourseController.cs" />
+    <Compile Include="DepTranAttendce\DepTranAttendceApprovalController.cs" />
+    <Compile Include="DepTranAttendce\DepTranAttendceController.cs" />
+    <Compile Include="DepTranDepartSetting\DepTranDepartSettingController.cs" />
+    <Compile Include="DepTranMyCourse\DepTranMyCourseController.cs" />
+    <Compile Include="DepTranMyCourse\MyScoreController.cs" />
+    <Compile Include="DeptSurvey\DeptSurveyController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DeptSurvey\SurveyManageController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DeptSystemManage\DeptNoteManageControllers.cs" />
+    <Compile Include="DeptSystemManage\DeptSystemManageController.cs" />
+    <Compile Include="Dynamic.cs" />
+    <Compile Include="Filter\AjaxSessionAttribute.cs" />
+    <Compile Include="Filter\BaseAccessAttribute.cs" />
+    <Compile Include="Filter\FilterContextInfo.cs" />
+    <Compile Include="Filter\SystemLogAttribute.cs" />
+    <Compile Include="GenerateWord.cs" />
+    <Compile Include="GlobalThreading.cs" />
+    <Compile Include="Home\HomeController.cs" />
+    <Compile Include="LogHelper.cs" />
+    <Compile Include="MyAfterCourse\MyAfterCourseController.cs" />
+    <Compile Include="MyApply\Free_BatchOtherController.cs" />
+    <Compile Include="MyApply\Free_OtherController.cs" />
+    <Compile Include="MyApply\MyApplyController.cs" />
+    <Compile Include="MyApproval\FreeController.cs" />
+    <Compile Include="MyApproval\MyApprovalController.cs" />
+    <Compile Include="MyAttendce\MyAttendceController.cs" />
+    <Compile Include="MyCourse\MyCourseController.cs" />
+    <Compile Include="MyExam\MyExamController.cs" />
+    <Compile Include="MyPlan\MyPlanCommonController.cs" />
+    <Compile Include="MyPlan\MyPlanController.cs" />
+    <Compile Include="Mypropose\MyproposeController.cs" />
+    <Compile Include="NewAllScoreManager\NewAllScoreManagerController.cs" />
+    <Compile Include="NewAttendceManage\NewAttendceManageController.cs" />
+    <Compile Include="NewMyCourse\NewMyCourseController.cs" />
+    <Compile Include="NewClassManage\NewClassManageController.cs" />
+    <Compile Include="NewClassRoom\NewClassRoomController.cs" />
+    <Compile Include="NewCourseManage\NewCourseManageCommonController.cs" />
+    <Compile Include="NewCourseManage\NewCourseManageController.cs" />
+    <Compile Include="NewCourseManage\NewCourseTogetherController.cs" />
+    <Compile Include="NewMyEvaluate\BaseNewMyEvaluateController.cs" />
+    <Compile Include="NewMyEvaluate\NewEvaluateUserToTeacherController.cs" />
+    <Compile Include="NewMypropose\NewMyAttendceController.cs" />
+    <Compile Include="NewMypropose\NewMyproposeController.cs" />
+    <Compile Include="NewQueryStatistics\NewQueryStatisticsController.cs" />
+    <Compile Include="NewQueryStatistics\MyQueryStatisticsController.cs" />
+    <Compile Include="NewTeacherCourse\NewTeacherCourseController.cs" />
+    <Compile Include="NewUserManage\NewUserManageController.cs" />
+    <Compile Include="ParamConfig\FreeConfigControllers.cs" />
+    <Compile Include="PlanManage\MonthPlanController.cs" />
+    <Compile Include="PlanManage\PlanCommonController.cs" />
+    <Compile Include="PlanManage\YearPlanController.cs" />
+    <Compile Include="ReportCache.cs" />
+    <Compile Include="Report_CPA\CPACommonController.cs" />
+    <Compile Include="Report_CPA\ReportCPAController.cs" />
+    <Compile Include="Report_DepCourse\Report_DepCourseController.cs" />
+    <Compile Include="Report_Free\Report_FreeController.cs" />
+    <Compile Include="Report_Free\Report_Free_Mao.cs" />
+    <Compile Include="Report_fVedio\ReportController.cs" />
+    <Compile Include="Report_fVedio\Report_fVedioController.cs" />
+    <Compile Include="Report_Together\ReportCommonTogether.cs" />
+    <Compile Include="Report_Together\Report_TogetherController.cs" />
+    <Compile Include="Report_zAttendce\ReportallController.cs" />
+    <Compile Include="Report_zAttendce\ReportCommonController.cs" />
+    <Compile Include="Report_zAttendce\ReportController.cs" />
+    <Compile Include="Report_zAttendce\Report_zAttendceController.cs" />
+    <Compile Include="Report_zVedio\ReportController.cs" />
+    <Compile Include="Report_zVedio\Report_zVedioController.cs" />
+    <Compile Include="ReResourceManage\ReResourceManageControllers.cs" />
+    <Compile Include="ReResourceManage\ReCommonController.cs" />
+    <Compile Include="ReResourceManage\ReMyResourceManageController.cs" />
+    <Compile Include="Spreadsheet.cs" />
+    <Compile Include="Survey\SurveyCheckController.cs" />
+    <Compile Include="Survey\SurveyController.cs" />
+    <Compile Include="Survey\SurveyManageController.cs" />
+    <Compile Include="SystemManage\NoteManageControllers.cs" />
+    <Compile Include="ParamConfig\ParamConfigControllers.cs" />
+    <Compile Include="SystemManage\SystemCommonController.cs" />
+    <Compile Include="SystemManage\SystemManageController.cs" />
+    <Compile Include="SystemManage\SysLeaderController.cs" />
+    <Compile Include="TeacherCourse\TeacherCourseControllers.cs" />
+    <Compile Include="TeacherManage\TeacherManageController.cs" />
+    <Compile Include="TrainGradeManage\TrainGradeManageController.cs" />
+    <Compile Include="UserFingerInfor\UserFingerInforController.cs" />
+    <Compile Include="User\LoginController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="User\DeptManageController.cs" />
+    <Compile Include="User\PostManageController.cs" />
+    <Compile Include="User\RightManageController.cs" />
+    <Compile Include="User\RoleManageController.cs" />
+    <Compile Include="User\SysUserManageController.cs" />
+    <Compile Include="User\UserCommonController.cs" />
+    <Compile Include="User\UserManageController.cs" />
+    <Compile Include="User\UserInfoController.cs" />
+    <Compile Include="Video\VideoController.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LiXinBLL\LiXinBLL.csproj">
+      <Project>{fe9334c9-5a94-4429-8294-842234aae7be}</Project>
+      <Name>LiXinBLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinInterface\LiXinInterface.csproj">
+      <Project>{17E752C8-5549-4A84-B378-71BFEC4DCD3F}</Project>
+      <Name>LiXinInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinLanguage\LiXinLanguage.csproj">
+      <Project>{BDC752A7-873B-4D28-AE35-FD24CF8C3813}</Project>
+      <Name>LiXinLanguage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LixinModels\LiXinModels.csproj">
+      <Project>{9F7DCE1F-6769-4BED-8876-B3D118306F57}</Project>
+      <Name>LiXinModels</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinSync\LiXinSync.csproj">
+      <Project>{270BFF0B-8C14-4C6A-BC85-2DB704FAB745}</Project>
+      <Name>LiXinSync</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpZipLib\SharpZipLib.csproj">
+      <Project>{384c2a4e-5b3e-4fea-a973-b851281e0a74}</Project>
+      <Name>SharpZipLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

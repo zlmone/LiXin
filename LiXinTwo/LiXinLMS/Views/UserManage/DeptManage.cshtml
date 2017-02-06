@@ -1,0 +1,405 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.DeptManage;
+}
+@(Html.Action("SiteMapLink", "Common", new { linkName = "DeptManage" }))
+<style type="text/css">
+    .treeview {
+        width: 700px;
+    }
+</style>
+<div class="fl span21 box_white">
+    <div>
+        <a onclick="AddNewDept();">添加子部门</a> <a onclick="UpdateDept();">修改</a> <a onclick="DeleteDept();">
+            删除</a> <a onclick="AddUserToDept();">添加人员</a></div>
+    <div class="box_w_title">
+        <h1>
+            部门分类</h1>
+    </div>
+    <div id="deptTreePage" class="bbot" style="overflow-x: auto; overflow-y: auto; min-height: 500px;
+        _height: 500px;">
+    </div>
+</div>
+<div class="fr span78">
+    <div id="Search" class="search_box">
+        <div class="clb">
+            <input type="button" class="Btn Btn_blue" id="btnSearch" name="立即搜索" value="立即搜索"
+                onclick=" InitUserData(); " />
+            <p>
+                <label>
+                    工号:
+                </label>
+                <input type="text" class="Box span10" id="jobNum" />
+                <label>
+                    姓名:
+                </label>
+                <input type="text" class="Box span10" id="realName" />
+                <label>
+                    岗位:
+                </label>
+                <input type="text" class="Box span10" id="postCode" />
+                <label>
+                    邮箱:
+                </label>
+                <input type="text" class="Box span10" id="email" />
+            </p>
+        </div>
+        <a class="search_hold">收起搜索</a>
+        <ul>
+            <li class="fl">
+                <select id="sltSex" class="sel Raster_8" onchange=" InitUserData(); ">
+                    <option value="99">所有性别</option>
+                    <option value="0">男</option>
+                    <option value="1">女</option>
+                </select>
+                <select id="sltStatus" class="sel Raster_8" onchange=" InitUserData(); ">
+                    <option value="99">所有账号</option>
+                    <option value="0">正常</option>
+                    <option value="1">冻结</option>
+                </select>
+            </li>
+            <li class="fr"><a id="btnDel" onclick=" DeleteUserDept(GetChecked('deptUserList')); ">
+                批量删除</a> <a id="btnChange" onclick=" ChangeDept(GetChecked('deptUserList')); ">批量更改部门</a>
+                <a id="btnExport" onclick=" ExportUser(); ">导出数据</a> </li>
+        </ul>
+    </div>
+    <!-- 列表 -->
+    <table class="blue_table all">
+        <thead>
+            <tr>
+                <th class="tc Raster_2">
+                    <input type="checkbox" value="0" id="selectall" />
+                </th>
+                <th class="tl">
+                    姓名（工号）
+                </th>
+                <th class="tl Raster_12">
+                    部门岗位
+                </th>
+                <th class="tl Raster_12">
+                    角色
+                </th>
+                <th class="tl Raster_12">
+                    邮箱
+                </th>
+            </tr>
+        </thead>
+        <tbody id="deptUserList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <a href="#" class="Remark_hold" title="查看备注">备注</a>
+    <div class="dis" id="MemoTip">
+        <div class="tiptitle">
+            温馨提示</div>
+        <div class="tipcontent">
+            温馨提示</div>
+    </div>
+</div>
+<div class="clear">
+</div>
+<input type="hidden" id="AllUserID" value="0" />
+<input type="hidden" id="changeUserID" value="0" />
+<input type="hidden" id="hidDeptID" value="0" />
+<input type="hidden" id="hidParentDeptID" value="0" />
+<input type="hidden" id="hidDeptName" value="" />
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        resetDeptTree();
+    });
+
+    function deptNodeClick1(obj) {
+        //获取具体的分类信息
+        var ids = $(obj).attr("id");
+        var id = ids.split("_")[0];
+        var pid = ids.split("_")[1];
+        var Name = $(obj).text();
+        $("#hidDeptID").val(id);
+        $("#hidParentDeptID").val(pid);
+        $("#hidDeptName").val(Name);
+        deptNodeClickSelect1(obj);
+        try {
+            NodeDeptClick1();
+        } catch (e) {
+        }
+    }
+
+    function deptNodeClickSelect1(obj) {
+        $("#deptTreePage").find("a").each(function () {
+            $(this).css("background-color", "");
+            $(this).css("color", "");
+        });
+
+        $(obj).css("background-color", "rgb(204, 204, 204)");
+        $(obj).css("color", "#cc0000");
+    }
+
+    function NodeDeptClick1() {
+        var deptId = $("#hidDeptID").val();
+        if (deptId != 0) {
+            $.getJSON("/UserCommon/GetUserIds?deptId=" + deptId, function (data) {
+                $("#AllUserID").val(data);
+            });
+        }
+        InitUserData();
+    }
+
+    function deptManageReady() {
+        $("#navigation").treeview({
+            persist: "location",
+            collapsed: false,
+            unique: false
+        });
+        try {
+            InitDeptTree1();
+        } catch (e) {
+        }
+
+        $("#0_-1").bind("click", function () {
+            deptNodeClick1("#0_-1");
+        });
+        $("#hidDeptID").val("0");
+    }
+
+    function resetDeptTree() {
+        $.getJSON("/UserCommon/GetDeptTree?flag=0&type=&clickFunction=deptNodeClick1(this)", function (data) {
+            $("#deptTreePage").html(data);
+            deptManageReady();
+        });
+    }
+
+    function GetUserIDList() {
+        var userAdd = GetChecked('pop_userList');
+        //alert(userAdd);
+        if (userAdd == "") {
+            art.dialog({
+                content: "请选择用户！",
+                time: 3
+            });
+        } else {
+            $.post("/UserManage/AddUserToDept", { ids: userAdd, deptId: $("#hidDeptID").val() }, function (data) {
+                if (data == 1) {
+                    $("#AllUserID").val($("#AllUserID").val() + "," + data);
+                    InitUserData();
+                }
+            });
+            //closePopWindow();
+            closeDialog("art_selectUser");
+        }
+    }
+
+    function AddNewDept() {
+        var parentId = $("#hidDeptID").val();
+        window.location.href = "/UserManage/DeptEdit?id=0&parentId=" + parentId;
+    }
+
+    function UpdateDept() {
+        var id = $("#hidDeptID").val();
+        if (id == 0) {
+            art.dialog({
+                content: "请选择部门！",
+                time: 3
+            });
+        } else {
+            window.location.href = "/UserManage/DeptEdit?id=" + id;
+        }
+    }
+
+    function DeleteDept() {
+        var id = $("#hidDeptID").val();
+        if (id == 0) {
+            art.dialog({
+                content: "请选择部门！",
+                time: 3
+            });
+        } else {
+            art.dialog({
+                content: "确定删除吗？",
+                ok: function () {
+                    $.getJSON("/UserManage/DeleteDept?deptId=" + id, function (data) {
+                        if (data == 1) {
+                            art.dialog({
+                                content: "成功！",
+                                time: 3,
+                                close: function () {
+                                    resetDeptTree();
+                                    deptNodeClick1("#0_-1");
+                                }
+                            });
+                        } else {
+                            art.dialog({
+                                content: "失败！",
+                                time: 3
+                            });
+                        }
+                    });
+                },
+                cancel: true
+            });
+        }
+    }
+
+    function AddUserToDept() {
+        var id = $("#hidDeptID").val();
+        if (id == 0) {
+            art.dialog({
+                content: "请选择部门！",
+                time: 3
+            });
+        } else {
+            art.dialog.load("/UserCommon/SelectUser?NotShowHasDept=1", {
+                title: "添加人员",
+                id: "art_selectUser",
+                height: 510,
+                width: 800
+            });
+        }
+    }
+</script>
+<script id="deptUserListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td class="tc" style="vertical-align:top">
+                <input type="checkbox" id='{{:UserId}}' value='{{:UserId}}' style="margin-top:15px;" /> 
+            </td>  
+            <td class="tl">
+                <div class="clb">
+                    <div class="headPic">
+                        <img src="{{:PhotoUrlStr}}" />
+                        <span class="Icon_16 {{:Sex==1?'Icon_Girl':'Icon_Boy'}}" title="{{:SexStr}}">{{:SexStr}}</span> 
+                    </div>
+                    <p title="{{:Realname}}"><strong class="c33">{{:Realname}}</strong></p>
+                    <p>
+                        <span class="Num">({{:JobNum}}) </span>
+                        {{if Status == 1}}
+                            <span class="Icon_16 Icon_Frost mLeft_05" title="已冻结" ></span>
+                        {{/if}}
+                    </p>
+                </div>
+                <div class="do">
+                    相关操作: 
+                    <a title="更改部门"  onclick="ChangeDept('{{:UserId}}');">更改部门</a>
+                    <a title="删除"  onclick="DeleteUserDept('{{:UserId}}');">删除</a>
+                </div>
+            </td>  
+            <td class="tl">
+                <div>
+                    <span title="{{:DeptCodeStr}}">{{:DeptCodeStr.length>8?DeptCodeStr.substring(0,8)+'...':DeptCodeStr}}</span>
+                </div>
+                <div class="c_green">
+                    <span title="{{:PostCodeStr}}">{{:PostCodeStr.length>8?PostCodeStr.substring(0,8)+'...':PostCodeStr}}</span>
+                </div>                    
+            </td>  
+            <td class="tl" title="{{:RoleName}}">{{:RoleName.length>30?RoleName.substring(0,29)+'...':RoleName}}</td>  
+            <td class="tl">
+                {{:Email}}
+            </td>
+        </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //加载列表
+        InitUserData();
+    });
+
+    //初始化列表
+
+    function InitUserData() {
+        var v = "jobNum=" + escape($("#jobNum").val()) + "&realName=" + escape($("#realName").val()) + "&email=" + escape($("#email").val()) + "&deptId=" + $("#hidDeptID").val() + "&post=" + escape($("#postCode").val()) + "&sex=" + $("#sltSex").val() + "&status=" + $("#sltStatus").val() + "&dept=&flag=1";
+        $("#deptUserList").JsRenderData({
+            sourceUrl: '/UserManage/GetUserList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "deptUserListTemplate",
+            funCallback: function () {
+                SetCheckBox('selectall', 'deptUserList');
+            }
+        });
+    }
+
+    function DeleteUserDept(delUser) {
+        if (delUser == "") {
+            art.dialog({
+                content: "请选择用户！",
+                time: 3
+            });
+        } else {
+            art.dialog({
+                content: "确定删除吗？",
+                ok: function () {
+                    $.post("/UserManage/DeleteUserDept", { ids: delUser }, function (data) {
+                        if (data == 1) {
+                            var all = ',' + $("#AllUserID").val() + ',';
+                            $("#deptUserTemplateList tbody input[type='checkbox']").each(function () {
+                                all.replace(',' + $(this).attr('id') + ',', ',');
+                            });
+                            if (all != ",") {
+                                $("#AllUserID").val(all.substring(1, all.length - 1));
+                            } else {
+                                $("#AllUserID").val("0");
+                            }
+                            InitUserData();
+                        }
+                    });
+                },
+                cancel: true
+            });
+        }
+    }
+
+    function ChangeDept(userIds) {
+        if (userIds == "") {
+            art.dialog({
+                content: "请选择用户！",
+                time: 3
+            });
+        } else {
+            $("#changeUserID").val(userIds);
+            art.dialog.load("/UserCommon/DeptTree", {
+                title: "选择部门",
+                id: "art_chooseDept",
+                height: 300,
+                width: 400,
+                init: function () {
+                    $("#deptTree").css("height", "auto");
+                }
+            });
+        }
+    }
+
+    function NodeDeptClick() {
+        art.dialog({
+            content: "确定更改部门吗？",
+            ok: function () {
+                $.post("/UserManage/ChangeUserDept", { ids: $("#changeUserID").val(), deptId: $("#pop_hidDeptID").val() }, function (data) {
+                    if (data == 1) {
+                        art.dialog({
+                            content: "操作成功！",
+                            time: 3,
+                            close: function () {
+                                InitUserData();
+                                closeDialog("art_chooseDept");
+                            }
+                        });
+                    } else {
+                        art.dialog({
+                            content: "操作失败！",
+                            time: 3
+                        });
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    function ExportUser() {
+        var v = "jobNum=" + $("#jobNum").val() + "&realName=" + escape($("#realName").val()) + "&email=" + escape($("#email").val())
+        + "&deptId=" + $("#hidDeptID").val() + "&post=" + escape($("#postCode").val()) + "&sex=" + $("#sltSex").val()
+        + "&status=" + $("#sltStatus").val() + "&dept=&flag=1";
+        window.location.href = "/UserManage/ExportUserList?" + v;
+    }
+</script>

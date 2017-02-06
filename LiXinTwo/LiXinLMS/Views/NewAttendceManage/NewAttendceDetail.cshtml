@@ -1,0 +1,146 @@
+﻿@using LiXinLanguage
+@using LiXinModels.CourseManage
+@{
+    ViewBag.Title = "新员工考勤管理详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string cid = Request.QueryString["id"] == null ? "0" : Request.QueryString["id"];
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new{linkName = "新员工考勤管理详情"}))
+    <div id="Search" class="so-set mt10">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">姓名：</td>
+                <td class="span11"><input type="text" class="span10 searchclass" id="Username" value="请输入搜索内容" info="" /></td>
+                <td class="Tit span4">学号：</td>
+                <td><input type="text" class="span30 searchclass" id="number" value="请输入搜索内容" info="" /></td>
+                <td class="so-do"><input type="button" value="查询" class="btn" id="ibtnSearch" onclick="stateChange();" /></td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="Cotype" name="Cotype" onchange="stateChange();">
+            <option value="-1">课程类型</option>
+            <option value="0">集中授课</option>
+            <option value="1">分组带教</option>
+        </select>
+        <select id="Atttype" name="Atttype" onchange="stateChange();">
+            <option value="-1">考勤状态</option>
+            <option value="0">考勤未上传</option>
+            <option value="1">正常</option>
+            <option value="2">缺勤</option>
+            <option value="3">迟到</option>
+            <option value="4">早退</option>
+            <option value="5">迟到且早退</option>
+        </select>
+        <div class="list-do">
+            <a id="btninput">考勤导入</a>
+            <a id="btnend">一键考勤正常</a>
+        </div>
+    </div>
+<table class="tab-List mt10">
+    <thead>
+        <tr>
+            <th>序号</th>
+            <th>学号</th>
+            <th>姓名</th>
+            <th>所在班级/小组</th>
+            <th>课程类型</th>
+            <th>课程时间</th>
+            <th>教室</th>
+            <th>上课考勤时间</th>
+            <th>下课考勤时间</th>
+            <th>考勤状态</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody id="NewAttendceList"></tbody>
+    <tfoot></tfoot>
+</table>
+<div class="mt10 tc">
+    <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+</div>
+</div>
+<script id="NewAttendceTemplate" type="text/x-jsrender">
+   {{for #data}}
+    <tr>
+        <td class="tc">{{:#index+1}}</td>
+        <td class="tc" id="num{{:UserId}}">{{:NumberID}}</td>
+        <td class="tc" id="user{{:UserId}}">{{:Realname}}</td>
+        <td class="tc" id="class{{:UserId}}">{{:ClassAndGroup}}</td>
+        <td class="tc">{{:Type==0?"集中授课":"分组带教"}}</td>
+        <td class="tc">{{:CoTimeStr}}</td>
+        <td class="tc">{{:RoomName}}</td>
+        <td class="tc">{{:StartTimeStr}}</td>
+        <td class="tc">{{:EndTimeStr}}</td>
+        <td class="tc">{{:AttStatusStr}}</td>
+        <td class="tc">
+            <a title="考勤录入" onclick="EditNewAttendce({{:CourseId}},{{:attId}},{{:UserId}},{{:SubCourseID}},{{:IsAttFlag}});" class="icon iatt-in"></a>
+        </td>
+    </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        InitList(getUrl());
+
+        //返回
+        $("#btnback").bind("click", function () {
+            window.location.href = "/NewAttendceManage/NewAttendceList?p=1&t="+new Date();
+        });
+
+        //导入
+        $("#btninput").bind("click", function () {
+            art.dialog.load("/NewAttendceManage/ImportNewAttend?id=@cid&t="+new Date(), { title: "导入考勤", id: "Inputatt", width: 440});
+        });
+
+        //考勤正常
+        $("#btnend").bind("click", function () {
+            $.post("/NewAttendceManage/updateStatus?t=" + new Date(), { courseid: @(cid) }, function (data) {
+            if (data.result == 1) 
+            {
+                art.dialog.tips("考勤操作成功"+data.content+"条",3);
+                InitList(getUrl()); 
+            }
+            else {
+                art.dialog.tips("考勤操作失败",3);
+            }
+        });
+        });
+    });
+
+    //显示群组列表
+    function InitList(url) {
+        var templateId = 'NewAttendceTemplate';
+        $("#NewAttendceList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function (data) {
+                if (data.dataList.length == 0) {
+                    $("#btninput").hide();
+                    $("#btnend").hide();
+                }
+            }
+        });
+    }
+
+    //相关的url
+    function getUrl() {
+        var url = "/NewAttendceManage/GetNewAttendUserList?id=@(cid)&Uname=" + escape(getSearchWord("Username")) + "&number=" + escape(getSearchWord("number")) + "&isGroup=" + $("#Cotype").val()+ "&isatt=" + $("#Atttype").val() + "&t=" + new Date();
+        return url;
+    }
+
+    function stateChange() {
+        InitList(getUrl());
+    }
+
+    //考勤编辑
+    function EditNewAttendce(cid,attid,uid,sid,isatt) {
+        art.dialog.load("/NewAttendceManage/NewAttendceEdit?cid="+cid+"&aid="+attid+"&uid="+uid+"&sid="+sid+"&IsAttFlag="+isatt+"&t="+new Date(), { title: "考勤录入", id: "NewAttendEdit", width: 500 });
+    }
+</script>
+

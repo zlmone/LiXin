@@ -1,0 +1,311 @@
+﻿@{
+    ViewBag.Title = "转播考勤管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+@(Html.Action("SiteMapLink", "Common", new { linkName = "转播考勤管理" }))
+<div class="clb">
+<input type="hidden" id="seldept" value="@(ViewBag.did)" />
+<div class="fl span20">
+    <div class="menu-list">
+        <h3>分所<i class="il"></i><i class="ir"></i></h3>
+    </div>
+    <div class="treeview-box"><div id="deptList" class="tree-list"></div></div>
+</div>
+<div class="fr span79">
+    <div class="tab-bk mt10">
+        <ul id="tags">
+            <li id="tag0" class="On">考勤管理</li>
+            <li id="tag1">考勤差异表</li>
+        </ul>
+    </div>
+    <div id="differ" style="display: none;">
+        <div id="diff_Search" class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">课程名称：</td>
+                    <td class="span33"><input type="text" id="txtdiffCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+                    <td class="so-do">
+                        <input class="btn" type="button" value="搜索" id="btndiffSearch" onclick="selSearch(); " />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+             <div class="list-do">
+                <a id="OutExcel" onclick="OutData();">导出差异表</a>
+            </div>
+        </div>
+        <!-- 列表 -->
+        <div id="diffContent" class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span4">序号</th>
+                        <th>课程名称</th>
+                        <th class="span8">出席人数</th>
+                        <th class="span8">考勤人数</th>
+                        <th class="span8">正常人数</th>
+                        <th class="span8">缺勤人数</th>
+                        <th class="span8">待考勤人数</th>
+                        <th class="span8">迟到人数</th>
+                        <th class="span8">早退人数</th>
+                        <th class="span10">迟到且早退人数</th>
+                    </tr>
+                </thead>
+                <tbody id="DifferList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div id="managelist">
+        <div id="div_Search" class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">课程名称：</td>
+                    <td class="span33"><input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+                    <td class="Tit span6">选/必修：</td>
+                    <td>
+                        <div class="sel">
+                            <input type="checkbox" value="0" name="IsMust" /><label>必修</label>
+                            <input type="checkbox" value="1" name="IsMust" /><label>选修</label>
+                        </div>
+                    </td>
+                    <td class="so-do" rowspan="2">
+                        <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnSearch(); " />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">开课时间：</td>
+                    <td>
+                        <div class="time-choose">
+                            <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                                name="StartTime" id="txt_StartTime" value="" />
+                            <i></i>
+                        </div>
+                        至
+                        <div class="time-choose">
+                            <input  type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                                id="txt_EndTime" value="" />
+                            <i></i>
+                        </div>
+                    </td>
+                    <td class="Tit span6">是否开放预订：</td>
+                    <td>
+                        <div class="sel">
+                            <input type="checkbox" value="0" name="IsOpen" /><label>否</label>
+                            <input type="checkbox" value="1" name="IsOpen" /><label>是</label>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+             <select onchange="fnSearch()" id="sle_attState">
+                <option value="-1">审批状态</option>
+                <option value="0">未审批</option>
+                 <option value="1">审批通过</option>
+                 <option value="2">审批拒绝</option>
+                 <option value="3">审批中</option>
+            </select>
+            <select onchange="fnSearch()" id="sle_CoState">
+                <option value="0">课程状态</option>
+                <option value="1">未开始</option>
+                <option value="2">进行中</option>
+                <option value="3">已结束</option>
+            </select>
+        </div>
+        <!-- 列表 -->
+        <div id="Content" class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span4">序号</th>
+                        <th>课程名称</th>
+                        <th class="span8">选/必修</th>
+                        <th class="span16">课程时间段</th>
+                        <th class="span6">讲师</th>
+                        <th class="span6">开课教室</th>
+                        <th class="span6">是否开放预订</th>
+                        <th class="span8">课程状态</th>
+                        <th class="span8">审批状态</th>
+                        <th class="span6">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tbCourseList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>
+            <div class="ovh tl span20" title="{{:CourseName}}">{{:CourseName}}</div>
+            </td>
+            <td>{{:IsMustStr}}</td>
+            <td><div class="f11 tl">{{:CourseTimeStr}}</div></td>
+            <td><div class="ovh span10 tl" title="{{:TeacherName}}">{{:TeacherName}}</div></td>
+            <td><div class="ovh tl span10" title="{{:RoomName}}">{{:RoomName}}</div></td>
+            <td>{{:OpenFlag==0?"否":"是"}}</td>
+            <td>{{:StateStr}}</td>
+            <td>{{:attendStatusStr}}</td>
+            <td>
+                {{if CourseState!=1}}
+                <a onclick="DepAttend({{:CourseID}});" class="icon iatt-man" title="考勤"></a>
+                {{else}}
+                <span class="icon iatt-man idis" title="考勤"></span>
+                {{/if}}      
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<script id="DifferListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>
+            <div class="ovh tl span10" title="{{:CourseName}}">{{:CourseName}}</div>
+            </td>
+            <td>{{:CoCount}}</td>
+            <td>{{:AttCount}}</td>
+            <td>{{:AttOkCount}}</td>
+            <td>{{:AttNoCount}}</td>
+            <td>{{:NoAttCount}}</td>
+            <td>{{:chidaoCount}}</td>
+            <td>{{:zaotuiCount}}</td>
+            <td>{{:chizaoCount}}</td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    //初始化分所
+    function initdept() {
+        $.getJSON("/DepTranAttendce/GetUserdept?t=" + new Date(), function(data) {
+            $("#deptList").html(data);
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#tree@(ViewBag.did)").addClass("On");
+        });
+    }
+    //分所点击事件
+    function selectAtt(id,obj) {
+        $("#seldept").val(id);
+        postNodeClickSelect(obj);
+        $("#tag0").addClass("On");
+        $("#tag1").removeClass("On");
+        $("#managelist").show();
+        $("#differ").hide();
+        fnGetCourseList();
+    }
+    function postNodeClickSelect(obj) {
+        $("#deptList").find("a").each(function () {
+            $(this).removeClass("On");
+        });
+        $(obj).addClass("On");
+    }
+    
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        initdept();
+        fnGetCourseList();
+
+        $("#tags li").bind("click", function () {
+            var index = $(this).index();
+            $("#tags li").removeClass("On");
+            $("#tags #tag" + index).addClass("On");
+            $("#managelist,#differ").hide();
+            switch (index) {
+                case 0:
+                    $("#managelist").show();
+                    $("#differ").hide();
+                    fnGetCourseList();
+                    break;
+                case 1:
+                    $("#differ").show();
+                    $("#managelist").hide();
+                    fnGetDifferList();
+                    break;
+            }
+        });
+    });
+
+    function fnGetCourseList() {
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "courseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function fnGetDifferList() {
+        $("#DifferList").JsRenderData({
+            sourceUrl: getDiffUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "DifferListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function getParamUrl() {
+        var isMust = "";
+        $("input[name='IsMust']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                isMust = isMust == "" ? $(this).val() : isMust + "," + $(this).val();
+            }
+        });
+
+        var isOpen = "";
+        $("input[name='IsOpen']").each(function (index) {
+            if ($(this).attr("checked") == "checked") {
+                isOpen = isOpen == "" ? $(this).val() : isOpen + "," + $(this).val();
+            }
+        });
+        var url = "/DepTranAttendce/GetDeptAttendceList?t=" + new Date();
+        url +="&did="+$("#seldept").val()+"&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&attState=" + $("#sle_attState").val() + "&CoState=" + $("#sle_CoState").val()+ "&isMust=" + isMust + "&isOpen=" + isOpen;
+        return url;
+    }
+
+    function getDiffUrl() {
+        var url = "/DepTranAttendce/GetDifferenceList?t=" + new Date();
+        url += "&did="+$("#seldept").val()+"&courseName=" + escape(getSearchWord("txtdiffCourseName"));
+        return url;
+    }
+
+    function fnSearch() {
+        fnGetCourseList();
+    }
+
+    function selSearch() {
+        fnGetDifferList();
+    }
+    //考勤管理
+    function DepAttend(id) {
+        window.location.href = "/DepTranAttendce/DepTranAttendce?id=" + id + "&did=" + $("#seldept").val() + "&t=" + new Date();
+    }
+
+    //下载模板
+    function OutData() {
+        window.location.href = "/DepTranAttendce/OutDiffer?did="+$("#seldept").val()+"&courseName=" + escape(getSearchWord("txtCourseName")) + "&t=" + new Date();
+    }
+</script>

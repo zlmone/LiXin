@@ -1,0 +1,163 @@
+﻿@{
+    ViewBag.Title = "CourseCommonList";
+    Layout = null;
+}
+<div id="div_Search" class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">课程名称：</td>
+            <td class="span25"><input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="Tit">开课时间：</td>
+            <td>
+                <div class="time-choose">
+                    <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                    name="StartTime" id="txt_StartTime" value="" />
+                    <i></i>
+                </div>
+                至
+                <div class="time-choose">
+                    <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                    id="txt_EndTime" value="" />
+                    <i></i>
+                </div>
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnSearch(); " />
+                <a href="EditNewCourseVideo" class="btn btn-co">课程开设</a>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <select onchange="fnSearch()" id="sle_State">
+        <option value="0">请选择课程状态</option>
+        <option value="1">未开始</option>
+        <option value="2">进行中</option>
+        <option value="3">已结束</option>
+        <option value="4">未发布</option>
+    </select>
+</div>
+
+
+<div id="Content" class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th>开放班级</th>
+                <th class="span14">开课时间</th>
+                <th class="span7">课程状态</th>
+                <th class="span12">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbCourseVideoList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="ovh tl span12" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td><div class="ovh tl span12" title="{{:classnames}}">{{:classnames}}</div></td>
+            <td><div class="f11 tl">{{:StartTimeStr}} - {{:EndTimeStr}}</div></td>
+            <td>{{:StatusShow}}</td>
+            <td>
+                <a onclick="fnModifyCourse({{:Id}})" class="icon iedit" title="编辑"></a>
+                <a onclick="fnCourseDetial({{:Id}})" class="icon iview" title="查看详情"></a>
+                {{if PublicFlag==0}}
+                    <a onclick="fnDeleteCourse({{:Id}})" class="icon idel" title="删除"></a>
+                    <a onclick="fnPublishCourse({{:Id}})" class="icon ipub" title="发布"></a>
+                {{else}}
+                    <span class="icon idel idis" title="删除"></span>
+                    <span class="icon ipub idis" title="发布"></span>
+                {{/if}}
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        $("#txtCourseName").val('@(ViewBag.cname)');
+        
+        $("#txt_StartTime").val("@(ViewBag.nowTime)");
+
+        if("@(ViewBag.cstartTime)"!=""){
+            $("#txt_StartTime").val('@(ViewBag.cstartTime)');
+        }
+        if("@(ViewBag.cendTime)"!=""){
+            $("#txt_EndTime").val('@(ViewBag.cendTime)');
+        }
+        $("#sle_State").val('@(ViewBag.state)');
+        
+        fnGetCourseList(@(ViewBag.page));
+    });
+
+    function fnGetCourseList(page) {
+        $("#tbCourseVideoList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            templateID: "courseListTemplate",
+            funCallback: function () { }
+        });
+    }
+
+    function getParamUrl() {
+        var url = "/NewCourseManage/GetNewCourseList?t=" + new Date();
+        url += "&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&IsGroupTeach=-1&state=" + $("#sle_State").val()+"&way=2";
+        return url;
+
+    }
+    function fnSearch() {
+        fnGetCourseList(1);
+    }
+    //修改课程
+    function fnModifyCourse(Id)
+    {
+        window.location.href = '/NewCourseManage/EditNewCourseVideo?Id=' + Id;
+    }
+
+    //删除课程
+    function fnDeleteCourse(Id) {
+        art.dialog({
+            lock: false,
+            content: "确定要删除该课程吗？",
+            ok: function () {
+                $.post("/NewCourseManage/UpdateNewCourse?flag=0&way=2&courseId=" + Id, function (data) {
+                    art.dialog.tips(data.content, 3, function () {
+                        if (data.result == 1) {
+                            fnGetCourseList(data.indexpage);
+                        }
+                    });
+                });
+            },
+            cancel: function () {
+                return;
+            }
+        });
+    }
+
+    function fnCourseDetial(Id) {
+        window.location.href = '/NewCourseManage/NewCourseVideoDetial/' + Id;
+    }
+
+    //发布课程
+    function fnPublishCourse(Id) {
+        $.post("/NewCourseManage/UpdateNewCourse?flag=1&way=2&courseId=" + Id, function (data) {
+            art.dialog.tips(data.content, 3,function (){
+                        if (data.result == 1) {
+                            fnGetCourseList(data.indexpage);
+                        }
+                    });
+        });
+    }
+
+   
+</script>

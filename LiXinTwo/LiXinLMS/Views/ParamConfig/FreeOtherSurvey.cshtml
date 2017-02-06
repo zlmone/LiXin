@@ -1,0 +1,82 @@
+﻿@model LiXinModels.Sys_ParamConfig
+@{
+    ViewBag.Title = "课后评估";
+    Layout = null;
+}
+<form id="form_survey">
+    <div id="div_teacher">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit">申请内容：</td>
+                <td>集中授课及视频课程课后评估</td>
+            </tr>
+            <tr>
+                <td class="Tit">学时折算方法：</td>
+                <td>参与课后评估提交后追加<input id="surveyScore" name="surveyScore" type="text" class="span10 searchclass"  
+                    value="@(string.IsNullOrEmpty(Model.ConfigValue)  ? "" : Model.ConfigValue.Split(',')[0])" />所内学时</td>
+            </tr>
+            <tr>
+                <td class="Tit">可折所内学时年度的最高限制：</td>
+                <td>
+                    <input id="maxsurveyScore" name="maxsurveyScore" type="text" class="span20 searchclass" 
+                       value="@(string.IsNullOrEmpty(Model.ConfigValue) ? "" : Model.ConfigValue.Split(',')[1])"   />所内学时</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="submit" value="保存"  class="btn" id="saveOtherSurvey">
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        if (@ViewBag.IsEdit==0)
+        {
+            $("#surveyScore").attr("disabled",true);
+            $("#maxsurveyScore").attr("disabled",true);
+            $("#saveOtherSurvey").attr("disabled",true);
+            
+        }
+        jQuery.validator.addMethod("checkNumber", function (value, element)
+        { 
+            var reg=/^\d+[\.]?\d{0,2}$/;
+            return this.optional(element) || (reg.test(value)&&parseFloat(value)>0&&parseFloat(value)<=999);
+        }, $.validator.format("输入保留2位小数，规则：输入保留2位小数，且在0-999范围内（不包括0）"));
+
+        $("#form_survey").validate(
+            {
+                errorPlacement: function (error, element)
+                {
+                    error.insertAfter(element);
+                },
+                debug: true,
+                submitHandler: saveSurvey,
+                event: "blur",
+                rules: {
+                    surveyScore: { checkNumber: true },
+                    maxsurveyScore: { checkNumber: true}
+                }
+            });
+    });
+
+    function saveSurvey()
+    {
+        var surveyScore = $("#surveyScore").val() == "0" ? "0" : $("#surveyScore").val();
+        var maxsurveyScore = $("#maxsurveyScore").val() == "0" ? "0" : $("#maxsurveyScore").val();
+
+        var value = surveyScore + "," + maxsurveyScore;
+        $.post("/ParamConfig/AddConfig?configType=64&configValue=" + value + "&year=@ViewBag.year", function (data)
+        {
+            if (data.result == 1)
+            {
+                art.dialog({ title: '提示', content: '配置成功', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+            }
+            else
+            {
+                art.dialog({ title: '提示', content: '配置失败', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+            }
+        });
+    }
+</script>

@@ -1,0 +1,167 @@
+﻿@model LiXinModels.NewCourseManage.New_CourseOrder
+@{
+    ViewBag.Title = "SingleInput";
+    Layout = null;
+}
+<form id="formsingleInput">
+    <div>
+        <table class="tab-Form" style="width: 620px">
+            @{
+                if (@ViewBag.IsGroupTeach == 1 || @ViewBag.IsGroupTeach == 3)
+                {
+                <tr>
+                    <td class="Tit span13">集中授课现场评分：</td>
+                    <td style="vertical-align: middle">
+                        <div id='divScore_TogetherScore' title='@(Model == null ? 3 : Model.TogetherScore)'>
+                        </div>
+                        <input class="xp" name="TogetherScore" type="hidden" value="@(Model == null ? 3 : Model.TogetherScore)"/>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="Tit">分数说明：</td>
+                    <td>
+                        <input type="text" id="TogetherMemo" name="TogetherMemo" class="span15" value="@(Model == null ? "" : Model.TogetherMemo)"/></td>
+                </tr>
+                }
+                if (@ViewBag.IsGroupTeach == 2 || @ViewBag.IsGroupTeach == 3)
+                {
+                <tr>
+                    <td class="Tit span13">分组带教现场评分：</td>
+                    <td style="vertical-align: middle">
+                        <div id='divScore_GroupScore' title='@(Model == null ? 3 : Model.GroupScore)'>
+                        </div>
+                        <input class="xp" name="GroupScore" type="hidden" value="@(Model == null ? 3 : Model.GroupScore)" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">分数说明：</td>
+                    <td>
+                        <input type="text" id="GroupMemo" name="GroupMemo" class="span15" value="@(Model == null ? "" : Model.GroupMemo)" /></td>
+                </tr>
+                }   
+            }
+
+
+            <tr style="display: none">
+                <td class="Tit">课程考试得分：</td>
+                <td>
+                    <input type="text" id="CourseExamScore" name="CourseExamScore" class="span15" value="@(Model == null ? 0 : Convert.ToInt32(Model.CourseExamScore))" /></td>
+            </tr>
+            <tr style="display: none">
+                <td class="Tit">课程考试总分：</td>
+                <td>
+                    <input type="text" id="CourseExamSumScore" name="CourseExamSumScore" class="span15" value="@(Model == null ? 0 : Convert.ToInt32(Model.CourseExamSumScore))" /></td>
+            </tr>
+
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="submit" class="btn" value="确定" id="btn_OK" />
+                    <input type="button" class="btn  btn-cancel" value="取消" id="close" onclick="closeDialog('singleScore');" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <input id="Id" name="Id" type="hidden" value="@ViewBag.ids" />
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        showStars();
+        jQuery.validator.addMethod("CourseSum", function (value, element)
+        {
+            var flag = true;
+            var score = $("#CourseExamScore").val();
+            if (score != "")
+            {
+                if (value == "")
+                {
+                    flag = false;
+                }
+                else
+                {
+                    flag = (parseInt(score) > parseInt(value)) ? false : true;
+                }
+            }
+            return flag;
+        }, $.validator.format("请同时填写课程考试总分并且大于等于课程考试得分！"));
+        jQuery.validator.addMethod("ExamSum", function (value, element)
+        {
+            var flag = true;
+            var score = $("#ExamScore").val();
+            if (score != "")
+            {
+                if (value == "")
+                {
+                    flag = false;
+                }
+                else
+                {
+                    flag = (parseInt(score) > parseInt(value)) ? false : true;
+                }
+            }
+
+            return flag;
+        }, $.validator.format("请同时填写独立考试总分并且大于等于独立考试得分！"));
+
+        $("#formsingleInput").validate(
+            {
+                event: "blur",
+                rules: {
+                    TogetherMemo: { maxlength: 50 },
+                    GroupMemo: { maxlength: 50 },
+                    CourseExamScore: { digits: true, min: 0, max: 999 },
+                    CourseExamSumScore: { digits: true, min: 0, max: 999, CourseSum: true }
+                },
+                messages: {
+                    TogetherMemo: { maxlength: "分数说明不能多于50个字符" },
+                    GroupMemo: { maxlength: "分数说明不能多于50个字符" },
+                    CourseExamScore: { digits: "请输入大于等于0的正整数", min: "请输入大于等于0的正整数", max: "请输入小于3位的正整数" },
+                    CourseExamSumScore: { digits: "请输入大于等于0的正整数", min: "请输入大于等于0的正整数", max: "请输入小于3位的正整数" }
+                },
+                errorPlacement: function (error, element)
+                {
+                    error.insertAfter(element);
+                },
+                submitHandler: function ()
+                {
+                    if ($.trim($("#CourseExamScore").val()) == "")
+                    {
+                        $("#CourseExamSumScore").next().hide();
+                    }
+
+                    AddScore()
+                }
+            });
+    });
+
+
+    //加载星评题
+    function showStars()
+    {
+        if ($("div[id^='divScore_']").length > 0)
+        {
+            $("div[id^='divScore_']").each(function ()
+            {
+                var star = $(this).attr("title");
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: true }, function (value)
+                {
+                    $(obj).parent().find(".xp").val(value);
+                });
+            });
+
+        }
+    }
+    function AddScore()
+    {
+        $.post("SubmitInputScore", $("#formsingleInput").formSerialize(), function (data)
+        {
+            if (data.result == 1)
+            {
+                InitData();
+                closeDialog('singleScore');
+            }
+        });
+    }
+</script>

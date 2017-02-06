@@ -1,0 +1,166 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "我的视频课程";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "我的视频课程" }))
+       
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">课程名称：</td>
+                    <td class="span17">
+                        <input type="text" id="txt_CourseName" value="请输入搜索内容" info="" class="span16 searchclass" /></td>
+                    <td class="so-do">
+                        <input type="button" value="查询" id="btn_Select" class="btn" /></td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="sel_IsMust">
+                <option value="2">请选择选修状态</option>
+                <option value="0">必修</option>
+                <option value="1">选修</option>
+            </select>
+            <select id="sel_LearnStatus">
+                <option value="3">请选择课程状态</option>
+                <option value="0">未开始</option>
+                <option value="1">进行中</option>
+                <option value="2">已结束</option>
+            </select>
+            @* <select id="sel_PassStatus">
+                <option value="3">请选择课程状态</option>
+                <option value="0">未通过</option>
+                <option value="1">通过</option>
+            </select>*@
+        </div>
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th>课程名称
+                    </th>
+                    <th class="span7">课程学时
+                    </th>
+                    <th class="span7">获得学时
+                    </th>
+                    <th class="span7">选/必修
+                    </th>
+                    <th class="span9">讲师
+                    </th>
+                    <th class="span7">
+                        课程状态
+                    </th>
+                    <th class="span17">是否有测试和评估
+                    </th>
+                    <th class="span7">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="Courstlist">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        $("#txt_CourseName").val('@(ViewBag.Attname)');
+        $("#sel_IsMust").val('@(ViewBag.Attmust)');
+        $("#sel_LearnStatus").val('@(ViewBag.Attstate)');
+        fOnload(@(ViewBag.page));
+        $("#btn_Select").click(function () {
+            fOnload(1);
+        });
+        //必修选修下拉事件
+        $("#sel_IsMust,#sel_LearnStatus").change(function () {
+            fOnload(1);
+        });
+    });
+
+
+
+    //获取请求url
+    function getUrl() {
+        //alert("CourseName=" + encodeURIComponent(getSearchWord("txt_CourseName")) + "&IsMust=" + $("#sel_IsMust").val());
+        return "CourseName=" + encodeURIComponent(getSearchWord("txt_CourseName")) + "&IsMust=" + $("#sel_IsMust").val() + "&status=" + $("#sel_LearnStatus").val();
+    }
+
+    function fOnload(page) {
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/MyCourse/FVideoCourseList?' + getUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            templateID: "CourseListTemplate"
+        });
+    }
+    function showTags(flag) {
+        switch (flag) {
+            case 0: //在线测试
+                location.href = "/MyCourse/MyCourseList";
+                break;
+            case 1: //在线测试
+                location.href = "/MyCourse/VideoCourseList";
+                break;
+            case 2: //课后评估
+                location.href = "/MyCourse/CPACourseList";
+                break;
+            default:
+        }
+    }
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+            {{:#index+1}}
+            </td>
+            <td style="text-align:left;">
+                <div class="ovh span30" title="{{:CourseNameStr}}">{{:CourseNameStr}}</div>
+            </td>
+            <td>
+               {{:CourseLength}}
+            </td>
+            <td>
+            {{:GetLength}}
+            </td>
+            <td>
+                {{:IsMust==0?"必修":"选修"}}
+            </td>
+            <td>
+               {{:TeacherStr}}
+            </td>
+            <td>                
+                {{:CourseStatus=="预订中"?"未开始":CourseStatus}}
+            </td>  
+            <td>
+               {{:IsPingTest}}
+            </td>
+                    
+             <td>
+                <a href='/MyCourse/VideoCourseMain?id={{:Id}}' class="icon iplay" title="学习"></a>             
+            </td>            
+        </tr> 
+        {{/for}}
+</script>
+</html>
+@* <td>
+               
+                 {{if IsTest==1}}
+                    {{:Status=="1"?"通过":"未通过"}}
+                {{/if}}
+                {{if IsTest==0}}
+                --
+                {{/if}} 
+            </td> *@

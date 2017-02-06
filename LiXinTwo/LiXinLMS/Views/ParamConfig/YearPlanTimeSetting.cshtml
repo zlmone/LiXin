@@ -1,0 +1,171 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var modell = ViewBag.model as Sys_ParamConfig;
+}
+<!DOCTYPE html>
+<form id="fnSumitConfig">
+<h2 class="tit-h2 mt10">
+    <i></i><span class="tit-con">年度计划上报时间设定</span>
+</h2>
+<table class="tab-Form mt10">
+    <tr>
+        <td class="Tit span10">
+        </td>
+        <td>
+            <div>
+                <select id="sel_one">
+                    <option value="1">当年</option>
+                </select>
+                <input type="text" id="txt_StartTimeMonth" name="starttimeMonth" style="width:20px" maxlength="2" value="@modell.ConfigValue.Split(';')[1]"/>月
+                <input type="text" id="txt_StartTimeDay" name="starttimeDay" style="width:20px" maxlength="2" value="@modell.ConfigValue.Split(';')[2]"/>日
+                <i></i>
+            至
+                <select  id="sel_three">
+                    <option value="1">当年</option>
+                    <option value="2">次年</option>
+                </select>
+                <input type="text" id="txt_EndTimeMonth" name="endtimeMonth" style="width:20px" maxlength="2" value="@modell.ConfigValue.Split(';')[4]"/>月
+                <input type="text" id="txt_EndTimeDay" name="endtimeDay" style="width:20px" maxlength="2" value="@modell.ConfigValue.Split(';')[5]"/>日
+                <i></i>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+        </td>
+        <td>
+            <input type="submit" value="确定" id="btn_Add" class="btn" />
+        </td>
+    </tr>
+</table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#sel_three option[value=" +@(modell.ConfigValue.Split(';')[3]) +"]").attr("selected", "selected");
+
+
+            $("#fnSumitConfig").validate({
+                event: "blur",
+                rules: {
+                    starttimeMonth: { required: true, digits: true, min: 1, max: 12 },
+                    starttimeDay: { required: true, digits: true, min: 1, max: 31 },
+                    endtimeMonth: { required: true, digits: true, min: 1, max: 12 },
+                    endtimeDay: { required: true, digits: true, min: 1, max: 31 }
+                },
+                messages: {
+                    starttimeMonth: { required: "请输入年", digits: "请输入整数", min: "请输入大于0的正整数", max: "请输入小于等于12的数" },
+                    starttimeDay: { required: "请输入月", digits: "请输入整数", min: "请输入大于0的正整数", max: "请输入小于等于31的数" },
+                    endtimeMonth: { required: "请输入年", digits: "请输入整数", min: "请输入大于0的正整数", max: "请输入小于等于12的数" },
+                    endtimeDay: { required: "请输入月", digits: "请输入整数", min: "请输入大于0的正整数", max: "请输入小于等于31的数" }
+                },
+                submitHandler: fnSumitConfig
+            });
+        });
+
+        function fnSumitConfig() {
+            var today = new Date();
+            var year = today.getFullYear();
+            var startMonth = parseInt($("#txt_StartTimeMonth").val());
+            var startDay = parseInt($("#txt_StartTimeDay").val());
+            var endMonth = parseInt($("#txt_EndTimeMonth").val());
+            var endDay = parseInt($("#txt_EndTimeDay").val());
+            var flag = false;
+            var yearFlag = false;
+            var flagDate = false;
+            var timeLimit = false;
+            if (year / 4 == 0) {
+                yearFlag = true;
+            }
+            if (startMonth == 4 || startMonth == 6 || startMonth == 9 || startMonth == 11) {
+                if (startDay == 31) {
+                    art.dialog.tips("小月没有31天！", 3);
+                    flag = false;
+                } else {
+                    flag = true;
+                }
+            }else if (startMonth == 2) {
+                if (yearFlag == true && startDay < 30) {
+                    flag = true;
+                } else if (yearFlag == false && startDay < 29) {
+                    flag = true;
+                } else {
+                    art.dialog.tips("2月天数输入错误");
+                    flag = false;
+                }
+            } else {
+                flag = true;
+            }
+
+            if (flag == true) {
+                if (endMonth == 4 || endMonth == 6 || endMonth == 9 || endMonth == 11) {
+                    if (endDay == 31) {
+                        art.dialog.tips("小月没有31天！", 3);
+                        flag = false;
+                    } else {
+                        flag = true;
+                    }
+                } else if (endMonth == 2) {
+                    if (yearFlag == true && endDay < 30) {
+                        flag = true;
+                    } else if (yearFlag == false && endDay < 29) {
+                        flag = true;
+                    } else {
+                        flag = false;
+                        art.dialog.tips("2月天数输入错误");
+                    }
+                }
+            }
+            if (flag == true) {
+                if ($("#sel_three").val() == 2) {
+                    flagDate = true;
+                } else {
+                    if (parseInt(startMonth) < parseInt(endMonth)) {
+                        flagDate = true;
+                    } else if (parseInt(startMonth) == parseInt(endMonth)) {
+                        if (parseInt(endDay) > parseInt(startDay)) {
+                            flagDate = true;
+                        } else {
+                            flagDate = false;
+                        }
+                    } else {
+                        flagDate = false;
+                    }
+                }
+            }
+            //alert(flag + "|" + flagDate);
+            var zhi = $("#sel_one").val() + ";" + startMonth + ";" + startDay + ";" + $("#sel_three").val() + ";" + endMonth + ";" + endDay;
+            if (flag == true && flagDate==true) {
+                if ($("#sel_one").val() == 1 && $("#sel_three").val() == 2) {
+                    if (startMonth > endMonth) {
+
+                        timeLimit = true;
+                    } else if (startMonth == endMonth) {
+                        if (startDay > endDay) {
+                            timeLimit = true;
+                        } else {
+                            timeLimit = false;
+                        }
+                    } else {
+                        timeLimit = false;
+                    }
+                } else {
+                    timeLimit = true;
+                }
+                if (timeLimit) {
+                    $.post("/ParamConfig/fUpdateParamConfig?configType=49&configValue=" + zhi, function(data) {
+                        if (data.result == 1) {
+                            art.dialog.tips('配置成功', 3);
+                        } else {
+                            art.dialog.tips('配置失败', 3);
+                        }
+                    });
+                } else {
+                    art.dialog.tips("年度计划上报时间必须在一年以内！", 3);
+                }
+                
+            } else if (flag == true && flagDate == false) {
+                art.dialog.tips("开始日期必须小于结束日期", 3);
+            }
+        }
+</script>

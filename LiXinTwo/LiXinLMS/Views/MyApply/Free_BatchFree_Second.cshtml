@@ -1,0 +1,515 @@
+﻿@model LiXinModels.SystemManage.Free_UserOtherApply
+
+@{
+    ViewBag.Title = "批量免修导入";
+    var config = ViewBag.model as LiXinModels.SystemManage.Free_ApplyConfig;
+}
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" /
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "批量免修导入"
+}))
+    <div class="step-app">
+        <div class="ok"><span>1</span>选择申请内容<i></i></div>
+        <div class="on"><span>2</span>输入学时<i></i></div>
+    </div>
+    <form id="form_Freeother">
+    <table class="tab-Form mt10">
+        <tr style="font-weight: bold">
+            <td class="Tit">免修项目：</td>
+            <td>
+                <input name="ApplyName" type="hidden" value="@(config.FreeName)" />
+                @(config.FreeName)
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span20">选择人员：</td>
+            <td>
+                <input type="button" name="btnOpenPerson" id="btnOpenPerson" value="选择人员" onclick="fnChoosePerson()" class="btn btn-co" />
+                <input type="button" id="btnOpenGroup" onclick="fnChooseOpenGroup()" value="选择群组" class="btn btn-co" />
+                 <!--已添加的userID-->
+                <input type="hidden" id="txtHaveOpenPerson" name="OpenPerson" value="@ViewBag.OpenPerson" />
+                <input type="hidden" id="txtOpenPerson" name="OpenPerson" class="OpenPerson" />
+                <div id="div_showPerson">
+                    @if (ViewBag.PersonList != null && ((IEnumerable<LiXinModels.User.Sys_User>)ViewBag.PersonList).Count() > 0)
+                    {
+                        <div class="seled-list">
+                            <h4 id="sp_choosePerson">已选特殊人群：</h4>
+                            <ul>
+                                @foreach (var item in (IEnumerable<LiXinModels.User.Sys_User>)ViewBag.PersonList)
+                                {
+                                    <li id="div_UserItem_@(item.UserId)"><span title="@item.Realname">@item.Realname</span>
+                                      
+                                            <input class="btn btn-cancel"  type="button" name="btn" title="移除" value="X" onclick="fnRemoveUserItem('div_UserItem_@(item.UserId)    ',@item.UserId)" />
+                                        
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">免修情况说明：</td>
+            <td>
+                <textarea id="Memo" name="Memo" cols="20" rows="2" maxlength="200" class="span25 Memo">@(ViewBag.UserOtherApply_Id == 0 ? config.Memo : Model.Memo)</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span8"><span class="must">*</span>申请年度：</td>
+            <td>
+                 <span id="selyear" name="Year">@ViewBag.year</span>
+                @*<input id="selyear" name="Year" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy',isShowClear:false,isShowToday:false });" 
+                        value="@(ViewBag.UserOtherApply_Id == 0 ? config.year : Model.Year)" />*@
+
+            </td>
+        </tr>
+        @if (config.ApplyType != 1)
+        {
+            <tr>
+                <td class="Tit span10">所内免修学时：</td>
+                <td>
+                     @if (Model.ID == 0)
+                    {
+                        <input id="tScore" name="tScore" type="hidden" value="@(config.TogetherFreeScore)" />
+                        @(config.TogetherFreeScore)
+                    }
+                    else
+                    {
+                            <input id="tScore" name="tScore" type="hidden" value="@(Model.tScore)" />
+                        @(Model.tScore)
+                    }
+                </td>
+            </tr>
+        }
+        @*ViewBag.cpa == 1 &&*@
+        @if ( config.ApplyType != 0)
+        {
+            <tr>
+                <td class="Tit">CPA免修学时：</td>
+                <td>
+                  @if (Model.ID == 0)
+                  {
+                      <input  id="CPAScore"  name="CPAScore" type="hidden" value=" @(config.CPAFreeScore)" />
+                    @(config.CPAFreeScore)
+                  }
+                    else
+                    {
+                      <input  id="CPAScore"  name="CPAScore" type="hidden" value=" @(Model.CPAScore)" />
+                    @(Model.CPAScore)
+                  }
+                </td>
+            </tr>
+        }
+
+        <tr>
+            <td class="Tit span8">证明资料：</td>
+            <td>
+                <input id="hidFreeIDs" type="hidden" />
+                <input type="file" value="" name="uploadResource1" class="uploadResource1" id="uploadResource1" />
+                @if (Model.UserApplyFiles != null)
+                {
+                    if (Model.UserApplyFiles.Count > 0)
+                    {
+                    <div class="seled-list" id="seled-list">
+                        <ul>
+                            @foreach (var t in Model.UserApplyFiles)
+                            {
+                                <li id="div_Free_@(t.ID)"><span title="@t.ResourceName">
+                                    @t.ResourceName
+                                </span>
+                                @if (ViewBag.Status == 0)
+                                {
+                                    <input  type="button" name="btn" value="X" title="移除" class="btn btn-cancel" onclick="fnRemoveFree('div_Free_@(t.ID)    ',@t.ID)" />
+                                }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    }
+                    else
+                    {
+                        if(Model.ID >0)
+                        {
+                           @:无
+                        }
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="button" value="上一步" class="btn" id="btn_prev" />
+                <input type="submit" value="保存" class="btn" id="btn_save"  />
+                <input type="button" value="取消" class="btn" id="btn_cancel" />
+            </td>
+        </tr>
+    </table>
+    <input id="txt_id" type="hidden" />
+    <input id="removeUserIDs" type="hidden" value="" />
+    <input id="AllUserID" type="hidden" />
+        </form>
+</div>
+<script type="text/javascript">
+    var fileCount=0;
+    var currNum=0;
+    var interval = null;
+    $(document).ready(function () {
+        
+        if('@ViewBag.Status'=='1')
+        {
+            $("#Memo").attr("disabled","disabled");
+            $("#selyear").attr("disabled","disabled");
+            $("#uploadResource1").remove();
+          
+        }
+       
+        $.validator.addMethod("OpenPerson", function (value, element)
+        {
+            return $("#div_showPerson div ul li").length!=0;
+        }, "请选择人员");
+
+
+
+        $("#form_Freeother").validate({
+            errorPlacement: function (error, element)
+            {
+
+                    error.insertAfter(element);
+                
+            },
+            highlight: function (element, errorClass)
+            {
+                $(element).addClass(errorClass);
+            },
+            submitHandler:fsave
+        });
+
+
+        //  $("#AllUserID").val($("#txtHaveOpenPerson").val());
+        $('.uploadResource1').uploadify({
+            'formData': { 'folder': "@(System.Configuration.ConfigurationManager.AppSettings["FreeUplpadUrl"])" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',//此处因需要增加了detailFlag字段 其他地方使用请自行移除
+            'auto': false,
+            'multi': true,
+            'fileTypeExts': '*.doc; *.docx; *.xls; *.xlsx;*.ppt;*.pptx;*.txt;*.pdf;*.bmp;*.png;*.png;*.jpeg;*.gif;*.tiff;*.jpg;',
+            'onCancel': function (file) {
+            },
+            'onSelect': function (file) {
+                $("#hidFreeIDs").val(file.id);
+            },
+            'onUploadStart': function (file) {
+            },
+            'onUploadError': function (file, errorCode, errorMsg, errorString) {
+                if (errorCode != -280) {
+                    art.dialog.tips('上传过程中发送异常，请重新选择文件！', 1.5);
+                }
+            },
+            'onUploadSuccess': function (file, data, response) {
+                     
+                var a = data.split('|');
+                if (a.length > 0) {
+                    var ResourceName = a[0];
+                    var RealName = a[1];
+                    if($("#txt_id").val()!="")
+                    {
+                        $.post("/MyApply/SubmitAddResource?userApplyID=" + $("#txt_id").val() + "&ResourceName=" + escape(ResourceName) + "&RealName=" + RealName +
+                            "&IsDelete=0&type=2", function (data) {
+                                currNum++;
+                            });  
+                    }
+                    else
+                    {
+                        art.dialog.tips('上传发生错误！', 3);
+                    }
+                }
+            },
+            'onAllComplete': function () {
+
+            }
+        });
+
+        $("#btn_prev").click(function(){
+            //if($("#UserOtherApply_Id").val()=="0")
+            if('@ViewBag.UserOtherApply_Id'=='0')
+            {
+                location.href='/MyApply/Free_ExemptionAdd?type=1';               
+            }
+            else
+            {
+                location.href = '/MyApply/Free_BatchOtherFrom?flag=0';
+            }
+        })
+
+        $("#btn_cancel").click(function(){
+            location.href = '/MyApply/Free_BatchOtherFrom?flag=0';
+        })
+    });
+
+
+    function fnChoosePerson() {
+        art.dialog.load("/UserCommon/SelectUserByDept?Type=checkbox&AllUserID=", {
+            title: "选择人员",
+            id: "pop_SelPerson",
+            init: function () {
+                $("#pop_btnSure").attr("onclick", "GetChoosePersonIDList()");
+            },
+            width: 960,
+            close: function () {
+                if ($("#txtOpenPerson").val() == ""&&$("#txtHaveOpenPerson").val()=="") {
+                    $("#div_showPerson").hide();
+                } else {
+                   
+                    $("#txtOpenPerson").next().hide();
+                    $("#div_showPerson").show();
+                }
+            }
+        }, false);
+
+    }
+
+
+    //选择特殊人员
+    function fnChooseOpenGroup() {
+        art.dialog.load("/UserCommon/SelectUserByGroup?ids=0&TokenPublishflag=1" + "&tempGroupIds=" + $("#txtTempOpenGroupObject").val(), {
+            title: '选择群组', id: "pop_openchooseGroup",
+            close: function () {
+                if ($("#txtOpenPerson").val() == ""&&$("#txtHaveOpenPerson").val()=="") {
+                    $("#div_showPerson").hide();
+                } else {
+                    
+                    $("#txtOpenPerson").next().hide();
+                    $("#div_showPerson").show();
+                }
+            }
+        }, false);
+    }
+
+    //选择特殊人群确定按钮事件
+    function GetChoosePersonIDList() {
+        var ids = $("#commonSelectedIdStr").val();
+        if (ids==null || ids=="") {
+            art.dialog.tips("请选择人员！",1.5);
+            return;
+        }
+       
+        var html = "";
+        var flag = 0;
+        if ($("#sp_choosePerson").length==0) {
+            html += "<div class='seled-list'><h4 id='sp_choosePerson'>已选特殊人群：</h4><ul>";
+            flag=1;
+        }
+        var nameStr=$("#commonSelectedNameStr").val().split(";");
+        for (var i = 0; i < nameStr.length; i++) {
+            var idAndName = nameStr[i].split(",");
+            html += "<li id='div_UserItem_" + idAndName[0]+ "'><span title='" +   idAndName[1] + "'>" +   idAndName[1] + '</span>';
+            html+="<input  type='button' name='btn' class='btn btn-cancel' value='X' title='移除' onclick=fnRemoveUserItem(\'div_UserItem_" + idAndName[0] + "\'," + idAndName[0] + ",1) /></li>";
+
+        }
+        if (ids.length > 0) {
+          
+            $("#txtOpenPerson").next().hide();
+            $("#div_showPerson").show();
+            if (flag == 1) {
+                html += "</ul></div>";
+                $("#div_showPerson").append(html);
+              
+            }
+            else {
+                $("#div_showPerson").find("ul").eq(0).append(html);
+            }
+        }
+        else {
+            html="";
+        }
+        var per= $("#txtOpenPerson").val();
+        if(per!="" || per!=null){
+            $("#txtOpenPerson").val(per+","+ids);
+        }else{
+            $("#txtOpenPerson").val(ids);
+        }
+       //  $("#AllUserID").val($("#AllUserID").val()+","+$("#txtOpenPerson").val());
+        art.dialog.list["pop_SelPerson"].close();
+    }
+
+    ///选择群组
+    function fnOpenChooseGroup() {
+        var lth = "";
+        if ($("input[name=pop_checkgroup]:checked").length == 0) {
+            art.dialog.tips("请选择群组！", 3);
+            return;
+        }
+        $("input[name=pop_checkgroup]:checked").each(function () {
+            var s = $(this).attr("value");
+            if ($(this).attr("disabled") == "disabled") {
+                return;
+            }
+            lth = lth + s + ",";
+        });
+       
+        $.post("/SystemManage/GetOpenGroupUserList",
+                 {
+                     groupids:lth.substring(0,lth.length-1),
+                     ids:$("#txtOpenPerson").val()+","+$("#txtHaveOpenPerson").val()
+                 }, function (data) {
+            var html = "";
+            var flag = 0;
+            var ids="";
+            if ($("#sp_choosePerson").length == 0) {
+                html += "<div class='seled-list'><h4 id='sp_choosePerson'>已选特殊人群：</h4><ul>";
+                flag = 1;
+            }
+            
+            for (var i = 0; i < data.dataList.length; i++) {
+                html += "<li id='div_UserItem_" + data.dataList[i].UserId + "'><span title='" + data.dataList[i].Realname + "'>" + data.dataList[i].Realname + '</span>';
+                ids+=data.dataList[i].UserId+",";
+                html += "<input  type='button' name='btn' class='btn btn-cancel' value='X' title='移除' onclick=fnRemoveUserItem(\'div_UserItem_" + data.dataList[i].UserId + "\'," + data.dataList[i].UserId + ",1) /></li>";
+            }
+                       
+            if (data.dataList.length > 0) {
+               
+                $("#txtOpenPerson").next().hide();
+                $("#div_showPerson").show();
+                if (flag == 1) {
+                    html += "</ul></div>";
+                    //alert(html);
+                    $("#div_showPerson").append(html);                    
+                }
+                else {
+                    $("#div_showPerson").find("ul").eq(0).append(html);
+                    //alert("22");
+                }
+            }
+            else {
+                html = "";
+            }
+            ids=ids.substring(0,ids.lastIndexOf(','));
+            var per= $("#txtOpenPerson").val();
+            if(per!="" || per!=null){
+                $("#txtOpenPerson").val(per+","+ids);
+            }else{
+                $("#txtOpenPerson").val(ids);
+            }
+            //   $("#AllUserID").val($("#AllUserID").val()+","+$("#txtOpenPerson").val());
+            art.dialog.list["pop_openchooseGroup"].close();
+        });
+    }
+
+
+    //0 保存 1提交
+    function fsave()
+    {
+        var type='@ViewBag.Status';
+        if($("#div_showPerson ul li").length==0&&$("#txtOpenPerson").val()=="")
+        {
+            art.dialog.tips('请至少选择一个人员', 3);
+            return false;
+        }
+  
+        fileCount=$("#uploadResource1-queue").find(".uploadify-queue-item").length;
+       
+        $.post("/MyApply/SaveBatchFree", 
+            {
+                ConvetType:@config.ApplyType,
+                userIDs:$("#txtOpenPerson").val(),
+                Memo:$("#Memo").val(),
+                tScore:$("#tScore").val()==undefined?0:$("#tScore").val(), 
+                CPAScore:$("#CPAScore").val()==undefined?0:$("#CPAScore").val(),
+                Year:$("#selyear").html(),
+                haveAddUser:$("#txtHaveOpenPerson").val(),
+                ID:@ViewBag.ID,
+                UserOtherApplyId:@ViewBag.UserOtherApply_Id,
+                removeUserIDs:$("#removeUserIDs").val(),
+                type:type
+            },function(data){
+                // location.href = '/MyApply/Free_BatchOtherFrom?flag=0';             
+                $("#txt_id").val(data.ID);
+                if(data.result==1)
+                {
+                
+                    if(fileCount==0)
+                    {
+                        window.location.href='/MyApply/Free_BatchOtherFrom';
+                    }
+                    if (fileCount > 0) {             
+                        $("#uploadResource1").uploadify('upload', '*');  
+                        if(interval==null || interval==undefined) {
+                            interval=setInterval("CheckBack()", 1000);
+                        }
+                    }
+                }
+            });
+    }
+
+    function fnCallBackInvokeByRichter()
+    {
+        var ids=$("#txtOpenPerson").val()+","+$("#txtHaveOpenPerson").val();
+        if (ids!="") {
+            var checkboxArray3 = $('#pop_deptUserTemplateList tbody input[type=checkbox]');
+            var IsOrderList = ids.split(',');
+            for (key in IsOrderList) {
+                $.each(checkboxArray3, function (index, value) {
+                    if (IsOrderList[key] == $(value).val().split("_")[0]) {
+                        //$(this).attr('checked', true);
+                        $(this).attr('disabled', "disabled");
+                    }
+                });
+            }
+        }
+    }
+
+    function CheckBack()
+    {
+        if(currNum==fileCount) {
+            clearInterval(interval);
+            art.dialog.tips("保存成功！", 1);
+            window.location.href = '/MyApply/Free_BatchOtherFrom?flag=0';
+        }
+    }
+    //删除人员
+    function fnRemoveUserItem(id,relid,type)
+    {
+
+        $("#"+id).remove();
+        if(type!=1)
+        {
+            var ids= $("#removeUserIDs").val();
+            if (ids=="") {
+                ids=relid;
+            }
+            else if (ids!="") {
+                ids += "," + relid;
+            }
+            $("#removeUserIDs").val(ids);
+            ReomveArray("txtHaveOpenPerson",relid);
+        }
+      
+        ReomveArray("txtHaveOpenPerson",relid);
+        ReomveArray("txtOpenPerson",relid);
+    }
+
+    //删除资料
+    function fnRemoveFree(id,relid)
+    {
+        $("#"+id).remove();
+        if(@ViewBag.UserOtherApply_Id>0)
+        {
+            var ids= $("#hidFreeIDs").val();
+            if (ids=="") {
+                ids=relid;
+            }
+            else if (ids!="") {
+                ids += "," + relid;
+            }
+            $("#hidFreeIDs").val(ids);
+        }
+    }
+
+</script>

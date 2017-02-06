@@ -1,0 +1,105 @@
+﻿@{
+    Layout = null;
+}
+<div  class="menu-list">
+<h3>
+    <i class="il"></i><i class="ir"></i>知识类别</h3>
+<div class="list-con">
+    @if (ViewBag.showManage == 1)
+    {
+        <div class="list-do">
+            <input class="btn btn-co" type="button" value="新增" onclick="fnAddNoteSort(0);$('#ul_SysNoteList a').removeClass('On');" />
+            <input class="btn btn-co" type="button" value="修改" onclick="fnAddNoteSort(1);" />
+            <input class="btn btn-cancel" type="button" value="删除" onclick="fnDelNoteSort();" />
+        </div>
+    }
+    <input type="hidden" id="txthidNoteSortId" value="0" />
+    <input type="hidden" id="txthidNoteSortParentId" value="0" />
+</div>
+</div>
+    <div class="treeview-box">
+    <div id="ul_SysNoteList" class="tree-list"></div>
+    </div>
+
+<script type="text/javascript">
+    //加载知识分类树
+    function InitNoteList() {
+        $.getJSON("/ReResourceManage/GetAllResourceTypeTree", function (data) {
+            $("#ul_SysNoteList").html(data.popTreeHtml);
+            $("#ul_SysNoteList").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+
+            $("#ul_SysNoteList").removeClass("treeview");
+            $("#ul_SysNoteList>ul>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+    //初始化
+    $(document).ready(function () {
+        InitNoteList();
+    });
+    
+    //选择树节点事件
+    function fnChooseNote(Id,parentId)
+    {
+        //加上选中class
+        $("#ul_SysNoteList a").removeClass("On");
+        $("#ul_SysNoteList #li_NoteSort_" + Id).addClass("On");
+        if ($("#lblCurrentSort") != undefined)
+        {
+            $("#lblCurrentSort").removeClass("On");
+        }
+        $("#txthidNoteSortId").val(Id);
+        $("#txthidNoteSortParentId").val(parentId);
+        InitData();
+    }
+
+    //添加树节点
+    function fnAddNoteSort(flag)
+    {
+        var typeId = $("#txthidNoteSortId").val();
+        if (typeId == 0 && flag == 1)//选择根节点 并点击修改 
+        {
+            art.dialog.tips("请选择要修改的知识类别！", 3);
+            return;
+        }
+        art.dialog.load("/ReResourceManage/EditNoteSort?Id=" + typeId + "&flag=" + flag,
+            { title: '编辑知识类别', id: "pop_EditNoteSort"
+            }, false);
+
+    }
+    //删除树节点
+    function fnDelNoteSort()
+    {
+        var typeId = $("#txthidNoteSortId").val();
+        if (typeId == 0)
+        {
+            art.dialog.tips("请选择要删除的知识类别！", 3);
+            return;
+        } else
+        {
+            art.dialog({
+                content: "您确认删除吗？",
+                ok: function ()
+                {
+                    $.post("/ReResourceManage/DeleteNoteSort?typeId=" + typeId, function (data)
+                    {
+                        if (data.result == 1)
+                        {
+                            $("#txthidNoteSortId").val(0);
+                            InitNoteList();
+                        }
+                        art.dialog.tips(data.content, 3);
+                    });
+                },
+                cancel: true
+            });
+        }
+    }
+
+    
+</script>

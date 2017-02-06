@@ -1,0 +1,162 @@
+﻿@{
+    Layout = null;
+    var modell = ViewBag.model as LiXinModels.Sys_ParamConfig;
+    var zhi = modell.ConfigValue;
+}
+@*<script src="../../Scripts/jquery-1.8.1.js"></script>*@
+<h2 class="tit-h2 mt10">
+    <i></i><span class="tit-con">其他形式考核级别配置</span>
+</h2>
+<table class="tab-Form mt10">
+    <tr>
+        <td class="Tit span20">其他形式考核级别配置：
+        </td>
+        <td>
+            <div id="div_one">
+                @{
+                    foreach (var item in @ViewBag.trainGrade)
+                    {
+                    <input type="checkbox" value="@item" name="OpenLevel_one"  /><label class="mr10">@item 级别</label>
+                    
+                    }      
+                }
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit span20">免修考核级别配置：</td>
+        <td>
+            <div id="div_two">
+                @{
+                    foreach (var item in @ViewBag.trainGrade)
+                    {
+                    <input type="checkbox" value="@item" name="OpenLevel_two" /><label class="mr10">@item 级别</label>
+                    
+                    }      
+                }
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit span20">其他有组织形式考核级别配置：</td>
+        <td>
+            <div id="div_three">
+                @{
+                    foreach (var item in @ViewBag.trainGrade)
+                    {
+                    <input type="checkbox" value="@item" name="OpenLevel_three" /><label class="mr10">@item 级别</label>
+                    
+                    }      
+                }
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit"></td>
+        <td>
+            <input type="submit" value="确定" id="btn_Add" class="btn" />
+        </td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+
+        if ('@zhi' != "")
+        {
+            var checkedone = '@zhi.Split(';')[0]';
+            if (checkedone != "")
+            {
+                for (key in checkedone)
+                {
+                    $("input[name='OpenLevel_one']").each(function (index, value)
+                    {
+                        if (checkedone[key] == $(value).val())
+                        {
+                            $(this).attr('checked', true);
+                        }
+                    })
+                }
+            }
+
+            var checkedtwo = '@zhi.Split(';')[1]';
+            if (checkedtwo != "")
+            {
+                for (key in checkedtwo)
+                {
+                    $("input[name='OpenLevel_two']").each(function (index, value)
+                    {
+                        if (checkedtwo[key] == $(value).val())
+                        {
+                            $(this).attr('checked', true);
+                        }
+                    })
+                }
+            }
+
+            var checkedthree = '@zhi.Split(';')[2]';
+
+            if (checkedthree != "")
+            {
+                for (key in checkedthree)
+                {
+                    $("input[name='OpenLevel_three']").each(function (index, value)
+                    {
+                        if (checkedthree[key] == $(value).val())
+                        {
+                            $(this).attr('checked', true);
+                        }
+                    })
+                }
+            }
+
+        }
+
+        var one = "";
+        var two = "";
+        var three = "";
+        var zhi = "";
+
+        $("#btn_Add").click(function ()
+        {
+
+            $("input[name='OpenLevel_one']:checked").each(function ()
+            {
+                one += $(this).attr("value") + ",";
+            })
+
+            $("input[name='OpenLevel_two']:checked").each(function ()
+            {
+                two += $(this).attr("value") + ",";
+            })
+
+            $("input[name='OpenLevel_three']:checked").each(function ()
+            {
+                three += $(this).attr("value") + ",";
+            })
+
+            one = one.substring(0, one.lastIndexOf(','));
+            two = two.substring(0, two.lastIndexOf(','));
+            three = three.substring(0, three.lastIndexOf(','));
+
+            zhi = one + ";" + two + ";" + three;
+           // debugger;
+            $.post("/ParamConfig/fUpdateParamConfig?configType=62&configValue=" + zhi, function (data) {
+                if (data.result == 1) {
+                    art.dialog.tips('配置成功', 3);
+                    one = "";
+                    two = "";
+                    three = "";
+                    zhi = "";
+                } else {
+                    art.dialog.tips('配置失败', 3);
+                }
+            });
+
+        })
+
+    });
+
+</script>

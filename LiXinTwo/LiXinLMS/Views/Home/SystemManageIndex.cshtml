@@ -1,0 +1,79 @@
+﻿@using LiXinModels.User
+@{
+    ViewBag.Title = "系统管理首页";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var currUser = Session["currentUser"] as Sys_User;
+    if (currUser == null)
+    {
+        currUser = new Sys_User
+        {
+            Realname = ""
+        };
+    }
+    var rightList = (List<Sys_Right>)ViewBag.UserRight;
+}
+<div class="main-l">
+    @(Html.Action("UserInfoComm", "UserManage"))
+</div>
+<div class="main-r">
+    <div class="menu-sm">
+        @{
+            if (rightList.Any(p => p.RightName == "账号管理"))
+            {
+                <div class="list list-user">
+                    <a href="/UserManage/UserManage"><i></i>账号管理</a>
+                    <p>
+                        在这里你可以进行用户查询，手动同步用户、指纹，并可以分配角色等。</p>
+                </div>
+            }
+            if (rightList.Any(p => p.RightName == "角色管理"))
+            {
+                <div class="list list-role">
+                    <a href="/UserManage/RoleManage"><i></i>角色管理</a>
+                    <p>
+                        主要包括角色的创建、分配、冻结（解冻）以及角色权限集的分配 。</p>
+                </div>
+            }
+            if (rightList.Any(p => p.RightName == "公告管理"))
+            {
+                <div class="list list-note">
+                    <a href="/SystemManage/NoteManage"><i></i>公告管理</a>
+                    <p>
+                        主要可完成通知公告类别的创建，公告内容的创建、发布及修改。</p>
+                </div>
+            }
+            if (rightList.Any(p => p.RightName == "ParamConfig"))
+            {
+                <div class="list list-pc">
+                    <a href="/ParamConfig/ParamConfig"><i></i>参数配置</a>
+                    <p>
+                        主要包括短信、邮件等的配置，以及平台内所有统一属性的配置。</p>
+                </div>
+            }
+            if (rightList.Any(p => p.RightName == "FAQManage"))
+            {
+                <div class="list list-pol">
+                    <a href="/SystemManage/FAQ_NoteManage"><i></i>政策管理</a>
+                    <p>
+                        主要可完成政策类别的创建，政策内容的创建、发布及修改。</p>
+                </div>
+            }
+            if (rightList.Any(p => p.RightName == "GroupManage"))
+            {
+                <div class="list list-group">
+                    <a href="/SystemManage/GroupIndex"><i></i>群组管理</a>
+                    <p>
+                        主要包括群组的创建，组员的增删改，以及人员的复制及粘贴。</p>
+                </div>
+            }
+            if (rightList.Any(p => p.RightName == "LogManage"))
+            {
+                <div class="list list-daily">
+                    <a href="/SystemManage/SystemLogList"><i></i>日志管理</a>
+                    <p>
+                        主要包括系统（操作、登录、错误）日志及培训（通知、请假等）日志。</p>
+                </div>
+            }
+        }
+    </div>
+</div>

@@ -1,0 +1,138 @@
+﻿@*
+在调本页面时，要注意，页面载入方法中有一个参数，可传可不传都有默认值
+type            ''：啥不带；'checkbox'：带checkbox；'radio'带radio；默认为''，
+model   'teacher'为添加讲师专用，---by 浩浩
+
+    加入方法，形如：
+    获取选择到的userID
+	方法名不要改
+	function GetUserIDList()
+	{
+		var userIds = GetChecked('pop_userList');
+		...
+        ...
+        ...
+		closePopWindow();
+	}
+	AllUserID 已经存在的userID，放置这个之后，在其中保存已经添加的userID,在弹出框中会将其置灰
+hidtype : 0 默认使用 AllUserID 已经存在的userID  1 使用pop_teacherID
+IsNew:0所有人  1不是新进员工 2新进员工
+*@
+@{
+    ViewBag.Title = "SelectUser";
+    Layout = null;
+}
+<div id="Search" class="so-set">
+    <table class="tab-Form" id="pop_searchuser">
+        <tr>
+            <td class="Tit span4">姓名：
+            </td>
+            <td class="span9">
+                <input type="text" class="span10 searchclass" id="pop_realName" value="请输入搜索内容" info="" />
+            </td>
+            <td class="Tit span4">部门：
+            </td>
+            <td class="span13">
+                <input type="text" class="searchclass span12" id="pop_deptCode" value="请输入搜索内容" info="" />
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" pop_InitData(); " />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <select id="pop_sltSex" class="span8" onchange="pop_InitData(); ">
+        <option value="99">性别</option>
+        <option value="0">男</option>
+        <option value="1">女</option>
+    </select>
+</div>
+<div style=height:400px; overflow:auto">
+    <!-- 列表 -->
+    <div id="pop_userTemplateList" class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        @{
+                            if (ViewBag.type == "checkbox")
+                            {
+                            <input type="checkbox" value="0" id="pop_selectAllUser" />
+                            }
+                        }
+                    <input type="hidden" id="commonSelectedIdStr" value=""/>
+                    </th>
+                    <th class="span4">序号</th>
+                    <th class="span8">姓名</th>
+                    <th class="span6">性别</th>
+                    <th>部门</th>
+                </tr>
+            </thead>
+            <tbody id="pop_userList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <div class="tc mt2">
+        <input type="button" id="pop_btnSure" class="btn" value="确定" onclick=" GetUserIDList(); " />
+    </div>
+</div>
+<script id="pop_userTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>
+        {{if '@ViewBag.type'=='radio'}}
+            <input type='radio' id='{{:UserId}}_{{:DeptId}}' value='{{:UserId}}' username='{{:Realname}}' name='radioUser' />
+        {{else}}
+            <input type='checkbox' id='{{:UserId}}_{{:DeptId}}' value='{{:UserId}}' username='{{:Realname}}' />
+        {{/if}}
+        </td>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh span10" title="{{:Realname==""?"——":Realname}}">{{:Realname==""?"——":Realname}}<div></td>
+        <td>{{:SexStr==""?"——":SexStr}}</td>
+        <td title="{{:DeptName}}" style="text-align:left;"><div class="ovh span24 ml10 title="{{:DeptName}}">{{:DeptName}}</div></td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch("pop_searchuser");
+        //加载列表
+        pop_InitData();
+        $("#pop_selectAllUser").removeAttr("checked");
+    });
+
+    //初始化列表
+
+    function pop_InitData() {
+        var v = "id=@(@ViewBag.id)&did=@(ViewBag.did)&deptName=" + escape(getSearchWord("pop_deptCode")) + "&sex=" + $("#pop_sltSex").val()
+        + "&realName=" + escape(getSearchWord("pop_realName"));
+        $("#pop_userList").JsRenderData({
+            sourceUrl: '/DepAttendce/GetUserInfoList?' + v,
+            isPage: true,
+            pageSize: @ViewBag.pageSize,
+            pageIndex: 1,
+            templateID: 'pop_userTemplate',
+            funCallback: function () {
+                SetCheckBox('pop_selectAllUser', 'pop_userList');
+                HiddenSelectUser("@ViewBag.type",'AllUserID');
+            }
+        });
+    }
+
+    function HiddenSelectUser(obj,ID) {
+        if ($("#"+ID) != undefined && $("#"+ID) != null) {
+            $("#pop_userTemplateList tbody input[type='" + obj + "']").each(function () {
+                if ((',' + $("#"+ID).val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('disabled', 'disabled');
+                }
+                if((',' +$("#commonSelectedIdStr").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('checked', true);
+                }
+            });
+        }
+    }
+
+</script>

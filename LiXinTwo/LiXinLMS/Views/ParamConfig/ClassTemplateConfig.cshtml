@@ -1,0 +1,82 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var model = ViewBag.model as Sys_ParamConfig;
+}
+<div>
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">请假条模板</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span15">
+                请假条模板：
+            </td>
+            <td>
+                <textarea id="level_A" style="width: 300px; height: 150px;">@(model.ConfigValue)</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+            </td>
+            <td>
+                <strong style="color: Red;">
+                    <p>
+                        1、要插入<input type="text" disabled="disabled" class="span4" readonly="readonly" />
+                        的地方，请写入“{0}”（括弧中的数字可为0 - 99999）；
+                    </p>
+                    <p>
+                        2、要插入领导的地方，请写入“{Leader}”；
+                    </p>
+                    <p>
+                        3、要插入请假人的地方，请写入“{Myself}”；
+                    </p>
+                    <p>
+                        4、要插入请假日期的地方，请写入“{LeaveDate}”（格式为“@(DateTime.Now.ToString("yyyy年MM月dd日"))”）；
+                    </p>
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+            </td>
+            <td>
+                <input type="button" value="确定" id="btn_Add" class="btn" />
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btn_Add").click(function () {
+            var t = $("#level_A").val();
+            $.post("/ParamConfig/fUpdateParamConfig?configType=31&configValue=" + escape(t), function (data) {
+                if (data.result == 1) {
+                    art.dialog({
+                        title: '提示',
+                        content: '配置成功',
+                        width: 200,
+                        height: 50,
+                        fixed: true,
+                        lock: true,
+                        time: 3,
+                        close: function () {
+                        }
+                    });
+                } else {
+                    art.dialog({
+                        title: '提示',
+                        content: '配置失败',
+                        width: 200,
+                        height: 50,
+                        fixed: true,
+                        lock: true,
+                        time: 3,
+                        close: function () {
+                        }
+                    });
+                }
+            });
+        });
+    })
+</script>

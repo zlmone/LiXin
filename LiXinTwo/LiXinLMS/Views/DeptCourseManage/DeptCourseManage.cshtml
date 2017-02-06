@@ -1,0 +1,484 @@
+﻿@using LiXinLanguage
+@model LiXinModels.DeptCourseManage.Dept_Course
+@{
+    ViewBag.Title = "转播课程列表";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "转播课程列表" }))
+</div>
+<div class="clb">
+    <div class="fl span20">
+        <div class="menu-list">
+            <h3>分所<i class="il"></i><i class="ir"></i></h3>
+        </div>
+        <div class="treeview-box">
+            <div id="deptList" class="tree-list"></div>
+        </div>
+    </div>
+    <div class="fr span79">
+        <div id="div_Search" class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">课程名称：</td>
+                    <td class="span33">
+                        <input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+                    <td class="Tit span8">选/必修：</td>
+                    <td>
+                        <div class="sel">
+                            <input type="checkbox" name="popIsMust" id="chbIsMust0" value="1" /><label>选修</label>
+                            <input type="checkbox" name="popIsMust" id="chbIsMust1" value="0" /><label>必修</label>
+                        </div>
+                    </td>
+                    <td class="">是否开放预订：</td>
+                    <td>
+                        <div class="sel">
+                            <input type="checkbox" name="popIsOrder" value="1" /><label>是</label>
+                            <input type="checkbox" name="popIsOrder" value="0" /><label>否</label>
+                        </div>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td class="Tit">开课时间：</td>
+                    <td>
+                        <div class="time-choose">
+                            <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                                name="StartTime" id="txt_StartTime" value="" />
+                            <i></i>
+                        </div>
+                        至
+                        <div class="time-choose">
+                            <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                                id="txt_EndTime" value="" />
+                            <i></i>
+                        </div>
+                    </td>
+                    <td class="Tit">计划内/外：</td>
+                    <td>
+                        <div class="sel">
+                            <input type="checkbox" name="popIsYear" value="1" /><label>内</label>
+                            <input type="checkbox" name="popIsYear" value="0" /><label>外</label>
+                        </div>
+                    </td>
+                    <td class="so-do" rowspan="2">
+                        <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnSearch(); " />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select onchange="fnSearch()" id="sle_Sort">
+                <option value="-1">查看全部</option>
+                <option value="1">内部培训</option>
+                <option value="2">社会招聘</option>
+                <option value="3">新进员工</option>
+                <option value="4">实习生</option>
+            </select>
+            <div class="course-tysel">
+                <span class="c-it">内部培训<i></i></span>
+                <span class="c-sr">社会招聘<i></i></span>
+                <span class="c-ne">新进员工<i></i></span>
+                <span class="c-tr">实习生<i></i></span>
+            </div>
+        </div>
+        <div id="Content" class="mt10">
+            <div align="right">
+                <input type="button" class="btn" value="批量开放" onclick="AllAdd()" />
+                <input type="button" class="btn" value="批量不开放" onclick="AllDelete()" />
+            </div>
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span4">
+                            <input type="checkbox" onclick="SelectedItems()" id="Selected" name="Selected" /></th>
+                        <th class="span3">序号</th>
+                        <th>课程名称</th>
+                        <th class="span3">学时</th>
+                        <th class="span6" jsrendersortfield="IsMust" sort="desc">选/必修</th>
+                        <th class="span12" jsrendersortfield="StartTime" sort="desc">开课时间</th>
+                        <th class="span6">开设课次/总课次</th>
+                        <th class="span6">讲师</th>
+                        <th class="span8">授课地点</th>
+                        <th class="span4">计划内/外</th>
+                        <th class="span5">是否开放预订</th>
+                        <th class="span8">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tbCourseList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+        <script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+        <td>
+        {{if StatusShow=="未开始"}}
+            <input type="checkbox" id="SelectedAllItems" name="SelectedAllItems" value="{{:Id}}㉿{{:StartTime}}㉿{{:EndTime}}㉿{{:CourseName}}㉿{{:NumberLimited}}"/>
+        {{else}}
+            <input type="checkbox" class="disable" disabled="disabled"/>
+        {{/if}}
+        </td>
+            <td>{{:#index+1}}</td>
+             <td>
+             <div class="course-type" title="课程类型：{{:SortStr==""?"无":SortStr}}">
+                 <i class="c-it {{:SortStr.indexOf('内部培训')>=0?"":"c-no"}}">内部培训</i>
+                 <i class="c-sr {{:SortStr.indexOf('社会招聘')>=0?"":"c-no"}}" title="">社会招聘</i>
+                 <i class="c-ne {{:SortStr.indexOf('新进员工')>=0?"":"c-no"}}">新进员工</i>
+                 <i class="c-tr {{:SortStr.indexOf('实习生')>=0?"":"c-no"}}">实习生</i>
+             </div>
+             <div class="ovh tl span8" title="{{:CourseName}}">{{:CourseName}}</div>
+             </td>
+             <td>{{:CourseLength}}</td>
+             <td>{{:IsMust}}</td>
+             <td><div class="f11 tl">{{:StartTime}} - {{:EndTime}}</div></td>
+             <td>{{:CourseTimesOrder}}/{{:CourseTimes}}</td>
+             <td><div class="ovh tl span6" title="{{:TeacherName}}">{{:TeacherName}}</div></td>
+             <td><div class="ovh tl span8" title="{{>ClassroomAddress}}">{{>ClassroomAddress}}</div></td>
+             <td>{{:IsYearPlan}}</td>
+             <td>{{:IsOpenOrderStr}}</td>
+            <td> 
+            {{if StatusShow=="未开始"}}
+                <a onclick="fnModifyCourse('{{:Way}}','{{:Id}}','{{:StartTime}}','{{:EndTime}}','{{:IsOpenOrderStr}}',{{:NumberLimited}})" class="icon iatt-in" title="{{:IsOpenOrder>0?'取消开放':'开放'}}"></a>        
+            {{else}}
+                <a class="icon iatt-in" title="开放" disabled="disabled"></a> 
+            {{/if}}
+            {{if IsOpenOrder>0}}
+            <a onclick="fnSetMaxNumber('{{:Way}}','{{:Id}}','{{:StartTime}}','{{:EndTime}}','{{:IsOpenOrderStr}}',{{:NumberLimited}})" class="icon iass-per" title="设置最大报名人数"></a>
+            {{else}}
+            <a class="icon iass-per idis" title="设置最大报名人数"></a>
+            {{/if}}
+            <a onclick="fnCourseDetial({{:Id}},'{{:StatusShow}}')" class="icon iview" title="查看详情"></a>
+            </td>
+        </tr>
+   {{/for}}
+        </script>
+    </div>
+</div>
+<input type="hidden" id="seldept" value="@(ViewBag.did)" />
+<input type="hidden" id="AllUserID" name="AllUserID" />
+<script type="text/javascript">
+    //初始化分所
+    function initdept()
+    {
+        $.getJSON("/DepTranAttendce/GetUserdept?t=" + new Date(), function (data)
+        {
+            $("#deptList").html(data);
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#tree@(ViewBag.did)").addClass("On");
+        });
+    }
+
+    //分所点击事件
+    function selectAtt(id, obj)
+    {
+        $("#seldept").val(id);
+        postNodeClickSelect(obj);
+        fnGetCourseList(@(ViewBag.page));
+    }
+    function postNodeClickSelect(obj)
+    {
+        $("#deptList").find("a").each(function ()
+        {
+            $(this).removeClass("On");
+        });
+        $(obj).addClass("On");
+    }
+
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        initdept();
+
+        $("#txtCourseName").val('@(ViewBag.Attname)');
+        if ("@(ViewBag.Attmust)" != "")
+        {
+            if ('@(ViewBag.Attmust)'.indexOf(",") > -1)
+            {
+                var strmust = '@(ViewBag.Attmust)'.split(",");
+                $.each(strmust, function (index, callback) { $('input[name="popIsMust"][value="' + strmust[index] + '"]').attr('checked', true); });
+            } else
+            {
+                $('input[name="popIsMust"][value="@(ViewBag.Attmust)"]').attr('checked', true);
+            }
+        }
+
+        if ("@(ViewBag.AttisYear)" != "")
+        {
+            if ('@(ViewBag.AttisYear)'.indexOf(",") > -1)
+            {
+                var stryear = '@(ViewBag.AttisYear)'.split(",");
+                $.each(stryear, function (index, callback) { $('input[name="popIsYear"][value="' + stryear[index] + '"]').attr('checked', true); });
+            } else
+            {
+                $('input[name="popIsYear"][value="@(ViewBag.AttisYear)"]').attr('checked', true);
+            }
+        }
+
+
+        if ("@(ViewBag.AttstartTime)" != "")
+        {
+            $("#txt_StartTime").val('@(ViewBag.AttstartTime)');
+        }
+        if ("@(ViewBag.AttendTime)" != "")
+        {
+            $("#txt_EndTime").val('@(ViewBag.AttendTime)');
+        }
+        //$("#sle_Sort").val('@(ViewBag.AttSort)');
+        fnGetCourseList(@(ViewBag.page));
+    });
+
+    function fnGetCourseList(page)
+    {
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "LastUpdateTime",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox('pop_selectall', 'tbCourseList');
+            }
+        });
+    }
+
+    function GetUrl()
+    {
+        var url = GetPopParameters();
+    }
+
+    function GetPopParameters()
+    {
+
+        var isYear = "";
+        $("input[name='popIsYear']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                isYear = isYear == "" ? $(this).val() : isYear + "," + $(this).val();
+            }
+        });
+
+        var isMust = "";
+        $("input[name='popIsMust']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                isMust = isMust == "" ? $(this).val() : isMust + "," + $(this).val();
+            }
+        });
+
+        var isOrder = "";
+        $("input[name='popIsOrder']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                isOrder = isOrder == "" ? $(this).val() : isOrder + "," + $(this).val();
+            }
+        });
+
+        var url = "/DeptCourseManage/GetCourseTogetherList?t=" + new Date();
+        url += "&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&Sort=" + $("#sle_Sort").val() + "&isYear=" + isYear + "&IsMust=" + isMust + "&IsOrder=" + isOrder + "&departId=" + $("#seldept").val();
+        if ($("#pop_txtchooseId").val() != 0)
+        {
+            url += "&systemId=" + $("#pop_txtchooseId").val();
+        }
+        return url;
+
+    }
+    function fnSearch()
+    {
+        fnGetCourseList(1);
+    }
+    
+    //设置最大人数
+    function fnSetMaxNumber(way, Id, StartTime, EndTime, IsInsert,num) {
+        art.dialog.load("OpenOrder?t=" + new Date() + "&courseId=" + Id + "&StartTime=" + StartTime + "&EndTime=" + EndTime + "&departId=" + $("#seldept").val() + "&num=" + num + "&type=0",{ title: "设置最大报名人数", id: "pop_OpenOrder", width: 400 });
+    }
+
+    function fnModifyCourse(way, Id, StartTime, EndTime, IsInsert,num)
+    {
+        if (IsInsert == "否") {
+            art.dialog({
+                title: "提示",
+                content: "是否确定开放本所员工预订？",
+                okValue: '@CommonLanguage.Common_Sure',
+                cancelValue: '@CommonLanguage.Common_Cancel',
+                fixed: true,
+                lock: true,
+                ok: function() {
+                    $.post("/DeptCourseManage/GetOpenOrder?t=" + new Date() + "&courseId=" + Id + "&StartTime=" + StartTime + "&EndTime=" + EndTime + "&departId=" + $("#seldept").val()+ "&num=" + num, function(data) {
+                        if (data == 1) {
+                            art.dialog.tips("开放预订成功！", 3);
+                        } else if (data == 2) {
+                            art.dialog.tips("开放预订失败！", 3);
+                        } else {
+                            art.dialog.tips("不在预订时间内！", 3);
+                        } 
+                        fnSearch();
+                    });
+
+                },
+                cancel: function() {
+                },
+                close:function() {   
+                    
+                }
+            });
+        } else {
+            art.dialog({
+                title: "提示",
+                content: "是否确定取消开放本所员工预订？",
+                okValue: '@CommonLanguage.Common_Sure',
+                cancelValue: '@CommonLanguage.Common_Cancel',
+                fixed: true,
+                lock: true,
+                ok: function() {
+                    $.post("/DeptCourseManage/DeleteOpenOrder?t=" + new Date() + "&courseId=" + Id + "&StartTime=" + StartTime + "&EndTime=" + EndTime + "&departId=" + $("#seldept").val()+ "&num=" + num, function(data) {
+                        if (data == 1) {
+                            art.dialog.tips("取消开放预订成功！", 3);
+                        } else if (data == 2) {
+                            art.dialog.tips("取消开放预订失败！", 3);
+                        } else {
+                            art.dialog.tips("不在取消预订时间内！", 3);
+                        }
+                        fnSearch();
+                    });
+
+                },
+                cancel: function() {
+                },
+                close: function() {
+
+                }
+            });
+        }  
+    }
+
+    function fnCourseDetial(Id, statusShow)
+    {
+        var status = 1;
+        if (statusShow == "未开始")
+        {
+            status = 0;
+        }
+        window.location.href = '/DeptCourseManage/DeptCourseDetail/?id=' + Id + "&deptId=" + $("#seldept").val() + "&status=" + status;
+    }
+
+    function SelectedItems()
+    {
+        if ($("#Selected").attr("checked") == "checked")
+        {
+            $("input[name='SelectedAllItems']").attr("checked", true);
+        } else
+        {
+            $("input[name='SelectedAllItems']").attr("checked", false);
+        }
+    }
+
+    function AllAdd()
+    {
+        var i;
+        var tempItems;
+        var flag = true;
+        var isChecked = false;
+        var countNum = 0;
+        var temp = $("input[name='SelectedAllItems']");
+        for (i = 0; i < temp.length; i++)
+        {
+            if (temp[i].checked)
+            {
+                isChecked = true;
+                tempItems = temp[i].value.split('㉿');
+                $.post("/DeptCourseManage/GetOpenOrder?t=" + new Date() + "&courseId=" + tempItems[0] + "&StartTime=" + tempItems[1] + "&EndTime=" + tempItems[2] + "&departId=" + $("#seldept").val() + "&num=" + tempItems[4], function (data)
+                {
+                    if (data == 1)
+                    {
+                        //                            art.dialog.tips("开放预订成功！", 3);
+                    } else if (data == 2)
+                    {
+                        //                            art.dialog.tips("开放预订失败！", 3);
+                        countNum++;
+                        flag = false;
+                    } else
+                    {
+                        //                            art.dialog.tips("不在预订时间内！", 3);
+                        countNum++;
+                        flag = false;
+                    }
+                    if (flag == false)
+                    {
+                        art.dialog.tips("有" + countNum + "门课开放预订失败！", 3);
+                    } else
+                    {
+                        art.dialog.tips("开放预订成功！", 3);
+                    }
+                    fnSearch();
+                });
+            }
+        }
+        if (isChecked == false)
+        {
+            art.dialog.tips("未选择课程！", 3);
+        }
+    }
+
+    function AllDelete()
+    {
+        var i;
+        var tempItems;
+        var flag = true;
+        var isChecked = false;
+        var countNum = 0;
+        var temp = $("input[name='SelectedAllItems']");
+        for (i = 0; i < temp.length; i++)
+        {
+            if (temp[i].checked)
+            {
+                isChecked = true;
+                tempItems = temp[i].value.split('㉿');
+                $.post("/DeptCourseManage/DeleteOpenOrder?t=" + new Date() + "&courseId=" + tempItems[0] + "&StartTime=" + tempItems[1] + "&EndTime=" + tempItems[2] + "&departId=" + $("#seldept").val() + "&num=" + tempItems[4], function (data)
+                {
+                    if (data == 1)
+                    {
+                        //                            art.dialog.tips("取消开放预订成功！", 3);
+                    } else if (data == 2)
+                    {
+                        //                            art.dialog.tips("取消开放预订失败！", 3);
+                        countNum++;
+                        flag = false;
+                    } else
+                    {
+                        //                            art.dialog.tips("不在取消预订时间内！", 3);
+                        countNum++;
+                        flag = false;
+                    }
+                    if (flag == false)
+                    {
+                        art.dialog.tips("有" + countNum + "门课取消开放预订失败！", 3);
+                    } else
+                    {
+                        art.dialog.tips("取消开放预订成功！", 3);
+                    }
+                    fnSearch();
+                });
+            }
+        }
+        if (isChecked == false)
+        {
+            art.dialog.tips("未选择课程！", 3);
+        }
+    }
+
+</script>

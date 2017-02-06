@@ -1,0 +1,104 @@
+﻿@using LiXinLanguage
+@{
+    Layout = null;
+    var sortID = Request.QueryString["id"];
+    var deptId = Request.QueryString["deptId"]??"0";
+}
+<div class="centerbody">
+    <form id="formQuestion" method="post" enctype="multipart/form-data" action="">
+    <div class="ma">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span8">
+                    <span class="red">*</span>知识点：
+                </td>
+                <td>
+                    <select id="keylist" class="sel span20">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="red">*</span>@Question.Question_QuestionManage_Sort：
+                </td>
+                <td>
+                    <input id="selQuestionSort" name="selQuestionSort" type="hidden" value="@sortID"/>
+                    <input id="sortName" type="text" readonly="readonly" class="span20" disabled="disabled" value="@ViewData["fatherModel"]" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="red">*</span>@Question.Question_QuestionManage_QuestionTemplete：
+                </td>
+                <td>
+                    <input type="file" id="questionExcel" name="questionExcel" class="Raster_20" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <a id="submitExcel" class="btn" flag="0">@CommonLanguage.Common_Save</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $("#submitExcel").bind("click", function ()
+    {
+        if ($(this).attr("flag") == "0")
+        {
+
+            if ($("#questionExcel").val() == "")
+            {
+                art.dialog.tips("请选择试题模板", 3);
+                return;
+            }
+            $(this).attr("flag", "1");
+            $(this).text("导入中…");
+            $("#formQuestion").submitForm({
+                url: '/Question/SubmitImportQuestion?sortID=@(sortID)&deptId=@(deptId)&key=' + $("#keylist").val(),
+                callback: function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        art.dialog.tips(data.content, 3);
+                        //初始化问题
+                        InitlQUestion();
+                        art.dialog.list['ImportQue'].close();
+                    } else
+                    {
+                        $("#submitExcel").attr("flag", "0");
+                        $("#submitExcel").text("保存");
+                        art.dialog.tips(data.content, 3);
+                        $(this).attr("flag", "0").text("@CommonLanguage.Common_Save");
+
+                    }
+                }
+            }).submit();
+        }
+    });
+
+    $.getJSON("/KnowledgeKey/GetKnowledgeKey?deptId=@(deptId)&t=" + new Date(), function (data)
+    {
+        var html = "";
+        for (var i = 0; i < data.length; i++)
+        {
+            html += '<option value="' + data[i].id + '">' + data[i].name + '</option>';
+        }
+        $("#keylist").append(html);
+        $("#hiddenSelQuestionKey").val($("#keylist").val());
+        $("#keylist").bind("change", function ()
+        {
+            $("#hiddenSelQuestionKey").val($("#keylist").val());
+        });
+    });
+
+    function cancel()
+    {
+        //初始化问题
+        InitlQUestion();
+        art.dialog.list['ImportQue'].close();
+    }
+
+</script>

@@ -1,0 +1,190 @@
+﻿@using LiXinLanguage
+@{
+
+    ViewBag.Title = "我的考试";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+   
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的考试"
+}))
+    <div class="tab-bk">
+        <ul id="ul_id">
+            <li class="On">全部</li>
+            <li>未通过考试</li>
+            <li>已通过考试</li>
+        </ul>
+    </div>
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">
+                    课程名称：
+                </td>
+                <td>
+                    <input type="text" id="txt_ExamName" value="请输入搜索内容" info="" class="span30 searchclass" />
+                </td>
+                <td class="Tit span6">
+                    课程时间：
+                </td>
+                <td>
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" />
+                        <i></i>
+                    </div>
+                </td>
+                <td class="so-do">
+                    <input type="button" class="btn" id="btn_add" value="查询" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    @*<div class="so-seq">
+        <select id="sel_PassStatus">
+            <option value="2">是否已通过</option>
+            <option value="0">通过</option>
+            <option value="1">未通过</option>
+        </select>
+        <select id="sel_sort">
+            <option value="-1">所有培训类型</option>
+            <option value="1">内部培训</option>
+            <option value="2">社会招聘</option>
+            <option value="3">新进员工</option>
+            <option value="4">实习生</option>
+        </select>
+        <select id="sel_way">
+            <option value="-1">所有培训形式</option>
+            <option value="1">集中授课</option>
+            <option value="2">视频课程</option>
+        </select>
+    </div>*@
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th>
+                    课程名称
+                </th>
+               @* <th class="span8">
+                    培训形式
+                </th>*@
+                <th class="span8">
+                    培训类型
+                </th>
+                <th class="span13">
+                    课程时间
+                </th>
+                <th class="span8">
+                    是否已通过
+                </th>
+                <th class="span8">
+                    操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询
+        initSearch();
+        InitData();
+
+        $("#btn_add").click(function () {
+            InitData();
+        });
+        $("#sel_PassStatus,#sel_sort,#sel_way").change(function () {
+            InitData();
+        });
+        $("#ul_id>li").click(function () {
+            var index = $(this).index();
+            switch (index) {
+                case 0: location.href = "/DepMyExam/AllExamList"; break;
+                case 1: location.href = "/DepMyExam/NotPassExamList"; break;
+                case 2: location.href = "/DepMyExam/PassExamList"; break;
+            }
+        })
+    });
+
+    function InitData()
+    {
+        var v = "ExamName=" + encodeURIComponent(getSearchWord("txt_ExamName")) +
+            "&start=" + $("#start").val() + "&end=" + $("#end").val();
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/DepMyExam/GetAllExamList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    function fGoIn(courseid, id, SourceType)
+    {
+        $.post("/DepMyExam/FGetInto?courseid=" + courseid + "&ExamPaperId=" + id + "&SourceType=" + SourceType, function (data)
+        {
+            if (data.result == 1)
+            {
+                location.href = "/ExamTest/ExamTestOnline?euID=" + data.euId + "&SourceType=5&backurl=/DepMyExam/AllExamList?";
+            } else if (data.result == 0)
+            {
+//                art.dialog({ title: '温馨提示', content: data.message, width: 200, height: 50, fixed: true, lock: true, time: 3, close: function ()
+//                {
+
+//                }
+//                });
+            art.dialog.tips(data.message, 3);
+            } else {
+            art.dialog.tips(data.message, 3);
+               // art.dialog({ title: '温馨提示', content: data.message, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+            }
+        });
+    }
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+                <div class="ovh span50 tl"><strong>{{:CourseNameStr}}</strong></div>
+                <div class="Info tl">
+                考试时长(min)：{{:Length}}
+                <i>|</i>
+                考试/允许次数：{{:ExamTestTimes}}/{{if ExamALLTestTimes==-1}}无限次{{else}}{{:ExamALLTestTimes}}{{/if}}
+                <i>|</i>
+                所得成绩/通过分数/考试总分：{{:GetexamScore}}/{{:LevelScoreStr}}/{{:ExampaperScore}}
+                </div>
+            </td>
+           @*<td>{{:WayStr}}</td>*@
+           <td>{{:SortStr}}</td>
+           <td class="f11" style="text-align:left;">{{:CourseTime}}</td>           
+           <td>
+              
+            {{if Way==1||Way==3}}
+                {{:PassStatus=="1"?"通过":"未通过"}}
+             {{/if}}
+             {{if Way==2}}
+                {{:IsPass==0?"未通过":"通过"}}
+             {{/if}}           
+           </td>
+           <td>
+           
+           
+            <a onclick='fGoIn({{:Id}},{{:PaperId}},5)' class="icon iexam" title="考试"></a>
+      
+            
+           </td>
+        </tr> 
+        {{/for}}
+</script>

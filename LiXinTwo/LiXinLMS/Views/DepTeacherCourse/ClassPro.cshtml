@@ -1,0 +1,77 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "我的授课课程详情";
+}
+
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "DepTeacherCourseDetail" }))
+        @Html.Action("TeacherCourse", "DepTeacherCourse", new { id = @ViewBag.id, showFlag = 1 })
+        <input type="hidden" id="txt_CourseId" value="@ViewBag.Id"/><!--存放课程id-->
+        <div id="CourseAdviceList" class="course-pro">
+        </div>
+        @*<input type="text" id="txt_Content" class="Box Raster_8"/>
+        <input type="button" value="提交" id="txt_Add"/>*@
+        <center class="mt10">
+             <a  href="/DepTeacherCourse/TeacherCourseList" class = "btn btn-cancel">返回</a>
+        </center>
+    </div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+       
+        Onload();
+    });
+
+    function FReply(a) {
+        var t = $(a).attr("type");
+        if (t == 1) {
+            $(a).parent("div").siblings("#Reply_div").show();
+            $(a).attr("type", 2);
+        } else {
+            $(a).parent("div").siblings("#Reply_div").hide();
+            $(a).attr("type", 1);
+        }
+    }
+
+    function FAnswer(a) {
+        var t = $(a).parents(".list").attr("id"); //当前编号
+        var b = $(a).parents("#Reply_div").siblings("div").children(".p_Reply");
+        var txt = $(a).parents("tr").siblings("tr:eq(1)").children("td:eq(1)").children("#txt_AnswerContent");
+        //var content = $(a).prev("#txt_AnswerContent").val();
+        var content = $(a).parents("tr").siblings("tr:eq(1)").children("td:eq(1)").children("#txt_AnswerContent").val();
+        //var tt = $(a).prev("p").children("input[name='tt']:checked");
+        var tt = $(a).parents("tr").siblings("tr:eq(0)").children("td:eq(1)").children(".sel").children("input[name='tt']:checked");
+
+       
+        if ($.trim(content) == "") {
+            art.dialog.tips('请输入反馈内容', 3);
+            return;
+        }
+//        if (content.length > 200) {
+//            art.dialog.tips('输入的内容不能大于200', 3);
+//            return false;
+//        }
+        if (tt.val() == undefined) {
+            art.dialog.tips('请选择分享范围', 3);
+            return;
+        }
+        $.post("/DepTeacherCourse/ReplyCl_CourseAdvice?id=" + t + "&AnserContent=" + encodeURIComponent(content) + "&CourseId=" + $("#txt_CourseId").val() + "&VisibleFlag=" + tt.val(), function (data)
+        {
+            b.remove();
+            txt.remove();
+            $(a).parents(".list-info").append(data.innerhtml);
+            $(a).parents(".pro-back").remove();
+            //$(a).parents(".list-info")
+            $(a).remove();
+        });
+    }
+
+    function Onload() {
+        $.post("/DepTeacherCourse/OnLoadCl_CourseAdvice?id=" + $("#txt_CourseId").val(), function (data)
+        {
+            $("#CourseAdviceList").append(data.content);
+        });
+
+    }
+
+</script>

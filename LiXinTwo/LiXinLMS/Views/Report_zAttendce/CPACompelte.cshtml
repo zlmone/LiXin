@@ -1,0 +1,320 @@
+﻿@{
+    ViewBag.Title = "执业CPA继续教育目标完成情况";
+    Layout = null;
+}
+
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">部门/分所：</td>
+            <td>
+                <input type="button" id="btn_deptid" value="选择部门/分所" class="btn  btn-co" />
+            </td>
+            <td class="Tit span6">培训级别：
+            </td>
+            <td>
+                @{
+                    foreach (var item in @ViewBag.allTrainGrade)
+                    {
+                    <input type="checkbox" value="@item" name="OpenLevel" /><label class="mr10">@item</label>     
+                    }      
+                }
+            </td>
+            <td class="Tit span6">选择年度：
+            </td>
+            <td>
+                @Html.Action("ReportYear", "Common", new { id = "sel_cpayear" })
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitAllData(); " />
+                <input type="button" class="btn btn-co" value="导出EXCEL" id="btnout" onclick="outCPAScore()" />
+
+            </td>
+        </tr>
+
+        <tr>
+            @if (ViewBag.type == 0)
+            {
+                <td class="Tit">薪酬级别：</td>
+                <td>
+                    <input type="button" class="btn btn-co" value="选择薪酬级别" id="selPayGrade" /></td>
+            }
+            <td class="Tit">CPA注册关系所在地：</td>
+            <td>
+                <input type="button" class="btn btn-co" value="选择CPA注册关系所在地" id="selCPARelationship" /></td>
+        </tr>
+    </table>
+    <div class="mt10">
+        <table class="tab-List" id="tbdeptScore">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>对象名称</th>
+                    <th>参与考核人数/免修人数</th>
+                    <th jsrendersortfield="yearNoComplete" sort="desc">年度目标学时完成人数/未完成人数</th>
+                    <th class="IsLast">本培训周期学时目标完成人数/未完成人数</th>
+                    <th>职业道德课程完成人数/未完成人数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="deptScoreList" data-status="0">
+                <tr>
+                    <td colspan="10">
+                        <div class="tc c38 line_h30">正在努力加载....</div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <input id="cpa_PayGrade" type="hidden" value="" />
+    <input id="txt_deptid_list" type="hidden" />
+    <input id="CPARelationship" type="hidden" value="" />
+</div>
+<script>
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        InitCPA();
+
+        MyTablesort("tbdeptScore", InitAllData);
+
+        $("#selPayGrade").bind("click", function ()
+        {
+            art.dialog.load("/Common/ReportPayGrade?type=0", {
+                title: '选择薪酬级别', id: "pop_CPAPayGrade", width: 600, height: 200
+            }, false);
+        });
+
+        $("#selCPARelationship").bind("click", function ()
+        {
+            art.dialog.load("/Common/ReportCPARelationship", {
+                title: '选择CPA注册关系所在地', id: "pop_CPARelationship", width: 600, height: 200
+            }, false);
+        });
+
+     
+
+        $("#btn_deptid").bind("click", function ()
+        {
+            var naru = "";
+            if(@ViewBag.type==0)
+            {
+                naru="0";
+            }
+            art.dialog.load("/Report_zAttendce/SelectDept?deptid=0&ReportType=@(ViewBag.type)&naru=&cpa=1", { title: '选择部门/分所', id: "win_deptmanage" }, false);
+        });
+    });
+    //合计
+    function InitAllData(jsRenderSortField)
+    {
+        var type = 0;
+        if (jsRenderSortField == undefined)
+        {
+            jsRenderSortField = " yearNoComplete desc";
+        }
+        else
+        {
+            jsRenderSortField = jsRenderSortField;
+        }
+
+        var openLevel = "";
+        $("input[name='OpenLevel']:checked").each(function ()
+        {
+            openLevel = openLevel + "," + $(this).val();
+        });
+
+        //赋给隐藏域 不要问我为什么
+        $("#hidOpenLevel").val(openLevel);
+        $("#hidPayGrade").val($("#cpa_PayGrade").val());
+        $("#hidyear").val($("#sel_cpayear").val());
+        $("#hidCPARelationship").val($("#CPARelationship").val());
+        var html = "";
+        //zhezaowait(); //等待提示
+        $.post('/Report_zAttendce/GetUserCpaScoreList?&type=@ViewBag.type&deptids=' + $("#txt_deptid_list").val() + "&openLevel=" + openLevel
+            + "&jsRenderSortField=" + jsRenderSortField + "&start=" + $("#sel_cpayear").val(), { payGrade: $("#cpa_PayGrade").val(),CPARelationship:$("#CPARelationship").val() }, function (data)
+            {
+                if (data.result == 1)
+                {
+                    var IsLast = data.IsLast;
+                    if (IsLast)
+                    {
+                        $(".IsLast").show();
+                    }
+                    else
+                    {
+                        $(".IsLast").hide();
+                    }
+                    html = html + $("#AllListTemplate").render(data.all);
+                    var flength = data.fengList.length;
+                    var zlength = data.sumList.length;
+                    if (zlength > 0)
+                    {
+                        html = html + $("#AllListTemplate").render(data.sum);
+                        html = html + $("#deptListTemplate").render(data.sumList);
+                    }
+                    if (flength > 0)
+                    {
+                        html = html + $("#AllListTemplate").render(data.feng);
+                        html = html + $("#deptListTemplate").render(data.fengList);
+                    }
+
+                    if (flength == 0 && zlength == 0)
+                    {
+                        html = html + "<tr class='7'><td colspan='10'><div class='tc c38 line_h30'>暂无数据</div></td></tr>";
+                    }
+                }
+                $("#deptScoreList").html(html);
+                
+                if ($("#deptScoreList").attr("data-status") == '0')
+                {
+                    $("#deptScoreList").attr("data-status", 1);
+
+                } else
+                {
+                    $("#deptScoreList tr").show();
+                    $("#deptScoreList tr .btnshow").attr("class", "buttonshow btnshow");
+                }
+                
+                //closewait();
+            });
+    }
+
+    //显示隐藏  2分所  1总所
+    function showHide(type, obj)
+    {
+
+        var ismian = type == 2 ? 0 : 1;
+        if ($(obj).hasClass("buttonshow"))
+        {
+
+            $(".report_" + ismian).hide();
+            $(obj).removeClass('buttonshow').addClass('buttonhide');
+        }
+        else
+        {
+            $(".report_" + ismian).show();
+            $(obj).removeClass('buttonhide').addClass('buttonshow');
+        }
+
+    }
+
+    function outCPAScore()
+    {
+        window.location.href = "outCPAScore?IsLast=";
+    }
+
+    function GetPayGradeList()
+    {
+        var pays = "";
+        $("#pop_cpaPayGradeList input[type='checkbox']:checked").each(function ()
+        {
+            pays =pays==""?"'" + $(this).val()+"'": pays + ",'" + $(this).val()+"'";
+        });
+        if (pays == "")
+        {
+            art.dialog.tips("请选择薪酬级别！", 3);
+            return;
+        }
+        $("#cpa_PayGrade").val(pays);
+        InitAllData();
+        art.dialog.list["pop_CPAPayGrade"].close();
+    }
+
+    function GetCPARelationshipList()
+    {
+        var ship = "";
+        $("#pop_CPARelationshipList input[type='checkbox']:checked").each(function ()
+        {
+            ship =ship==""?"'" + $(this).val()+"'": ship + ",'" + $(this).val()+"'";
+        });
+        if (ship == "")
+        {
+            art.dialog.tips("请选择CPA注册关系所在地！", 3);
+            return;
+        }
+        $("#CPARelationship").val(ship);
+        InitAllData();
+        art.dialog.list["pop_CPARelationship"].close();
+    }
+    
+    function searchByDept()
+    {
+        art.dialog.list['win_deptmanage'].close();
+        InitAllData();
+    }
+
+
+    //初始化条件
+    function InitCPA()
+    {
+      
+        var openLevel="@ViewBag.TrainGrade";
+        $("#txt_deptid_list").val("@ViewBag.Deptids");
+        if ("@ViewBag.type" =="0")
+        {
+            $("#cpa_PayGrade").val("@Html.Raw(ViewBag.PayGrade)")
+        }
+        if(openLevel!="")
+        {
+            $("input[name='OpenLevel']").each(function(){
+                var value=$(this).val();
+                if($.inArray(value,openLevel.split(','))>=0)
+                {
+                    $(this).attr("checked",true);
+                }
+            });
+        }
+        var CPARelationship="@ViewBag.CPARelationship";
+        if(CPARelationship!="")
+        {
+            $("#CPARelationship").val("@Html.Raw(ViewBag.CPARelationship)");
+        }
+        $("#sel_cpayear option[value='@ViewBag.year']").attr("selected",true)
+               
+        InitAllData(" yearNoComplete desc");
+    }
+    
+
+</script>
+
+<!--完成情况-->
+<script id="deptListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr class="report_{{:IsMain}}" style="display:none">
+        <td>{{:#index+1}}</td>
+        <td>{{:deptName}}</td>
+        <td>{{:joinCheckNumber}}/{{:freeCheckNumber}}</td>
+        <td>{{:yearComplete}}/{{:yearNoComplete}}</td>
+         {{if IsLast==1}}
+           <td>{{:zhouqiComplete}}/{{:zhouqiNoComplete}}</td>
+         {{/if}}
+        <td>{{:JoinDaodeNumber}}/{{:NoJoinDaodeNumber}}</td>
+        <td><a  class="icon iview" title="查看报表" onclick="ToCompletionDetails('{{:DeptIDs}}',@ViewBag.type,0,1,1)"></a></td>
+        <td></td>
+     </tr>
+  {{/for}}
+</script>
+<!--合计-->
+<script id="AllListTemplate" type="text/x-jsrender">
+    {{for #data}}
+      <tr>
+        <td></td>
+        <td>{{:allNumer}}</td>
+        <td>{{:alljoinCheckNumber}}/{{:allfreeCheckNumber}}</td>
+        <td>{{:allyearComplete}}/{{:allyearNoComplete}}</td>
+        {{if IsLast==1}}
+           <td class="IsLast">{{:allzhouqiComplete}}/{{:allzhouqiNoComplete}}</td>
+        {{/if}}
+        <td>{{:allJoinDaodeNumber}}/{{:allNoJoinDaodeNumber}}</td>
+        <td>
+          {{if type>0}}
+             <a class="buttonhide btnshow" id="btn_{{:type}}"  onclick="showHide({{:type}},this)"><a>
+          {{/if}}
+     </tr>
+     {{/for}}
+</script>
+

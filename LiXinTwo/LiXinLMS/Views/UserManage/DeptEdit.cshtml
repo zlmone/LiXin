@@ -1,0 +1,181 @@
+﻿@using LiXinLanguage
+@using LiXinModels.User
+@{
+    var dept = ViewBag.model as Sys_Department;
+    ViewBag.Title = NavigateMenuLanguage.DeptEdit;
+}
+@(Html.Action("SiteMapLink", "Common", new { linkName = "DeptEdit" }))
+<div id="EditMainbg" class="mBottom_2">
+    <div class="ma Raster_50">
+        <div class="editbody topleft fl">
+            &nbsp;</div>
+        <div class="editbody topcenter fl" style="width: 484px;">
+            &nbsp;</div>
+        <div class="editbody topright fl">
+            &nbsp;</div>
+        <div class="clear">
+        </div>
+        <div class="editbody left fl">
+            &nbsp;</div>
+        <div class="center fl" style="width: 484px;">
+            <div class="centerbody">
+                <table>
+                    <tr>
+                        <td class="Raster_9 tr">
+                            <span class="redstar"  title="必填项">必填</span>部门代码:
+                        </td>
+                        <td>
+                            <input type="text" id="deptCode" maxlength="50" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_9 tr">
+                            <span class="redstar"  title="必填项">必填</span>部门名称:
+                        </td>
+                        <td>
+                            <input type="text" id="deptName" maxlength="30" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_9 tr">
+                            <span class="redstar"  title="必填项">必填</span>上级部门:
+                        </td>
+                        <td>
+                            <input type="text" id="deptParent" onclick=" changeParent(); " readonly="readonly" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_9 tr">
+                            部门描述:
+                        </td>
+                        <td>
+                            <textarea id="txtDesc" cols="20" rows="2"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="tc">
+                            <a id="btnSave" class="Button_24 Button70" onclick=" Save(); ">确&nbsp;&nbsp;定</a>
+                            <a id="btnBack" class="Button_24 Button70 Btn_white" onclick=" window.location.href = '/UserManage/DeptManage'; ">
+                                返回</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="editbody right fl">
+            &nbsp;</div>
+        <div class="clear">
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hidId" value="0" />
+<input type="hidden" id="hidParentId" value="-1" />
+<script language="javascript" type="text/javascript">
+    $(document).ready(function() {
+        if (@dept.DepartmentId > 0) {
+            $("#deptCode").val("@Html.Raw(dept.DeptCode.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#deptName").val("@Html.Raw(dept.DeptName.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#deptParent").val("@Html.Raw(dept.parentDeptName.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#hidParentId").val("@dept.ParentDeptId");
+            $("#txtDesc").val("@Html.Raw(dept.Remark.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#hidId").val("@dept.DepartmentId");
+        } else {
+            $("#deptParent").val("@Html.Raw(dept.parentDeptName.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#hidParentId").val("@dept.ParentDeptId");
+        }
+
+        $("#txtDesc").textareaCount({maxCharacterSize:200});
+    });
+
+    function Save() {
+        var id = $("#hidId").val();
+        var deptCode = $("#deptCode").val();
+        if ($.trim(deptCode) == "") {
+            //alert("部门代码不能为空！");
+            art.dialog({
+                content: '部门代码不能为空！',
+                time: 3
+            });
+            return;
+        }
+        var deptName = $("#deptName").val();
+        if ($.trim(deptName) == "") {
+            art.dialog({
+                content: '部门名称不能为空！',
+                time: 3
+            });
+            return;
+        }
+        var parentId = $("#hidParentId").val();
+        if (parentId < 0) {
+            art.dialog({
+                content: '上级部门不能为空！',
+                time: 3
+            });
+            return;
+        }
+
+        var desc = $("#txtDesc").val();
+        if (desc.length > 200) {
+            art.dialog({
+                content: '部门描述不能超过200个字符！',
+                time: 3
+            });
+            return;
+        }
+
+        $.post("/UserManage/SaveDept",
+            {
+                deptId: id,
+                deptCode: deptCode,
+                deptName: deptName,
+                parentId: parentId,
+                deptDesc: desc
+            },
+            function(data) {
+                if (data.result == 1) {
+                    art.dialog({
+                        content: data.content,
+                        time: 3,
+                        close: function() { window.location.href = "/UserManage/DeptManage"; }
+                    });
+                } else {
+                    art.dialog({
+                        content: data.content,
+                        time: 3
+                    });
+                }
+            }
+        );
+    }
+
+    function changeParent() {
+        art.dialog.load("/UserCommon/DeptTree",{
+            title: "选择部门",
+            id: "art_chooseDept",
+            height: 300,
+            width: 400
+        });
+    }
+
+    function NodeDeptClick() {
+        $("#hidParentId").val($("#pop_hidDeptID").val());
+        $("#deptParent").val($("#pop_hidDeptName").val());
+        closeDialog("art_chooseDept");
+    }
+
+    function InitDeptTree() {
+        if ($("#hidParentId").val() != "0") {
+            $("#0_-1").bind("click", function() {
+                deptNodeClick("#0_-1");
+            });
+        }
+        $(".pNote").each(function() {
+            var ids = $(this).attr("id").split('_');
+            if (ids[0] == $("#hidId").val() || (",@ViewBag.childs").indexOf("," + ids[0] + ",") >= 0) {
+                $(this).attr("disabled", "disabled");
+                $(this).removeAttr("onclick");
+            }
+        });
+    }
+</script>

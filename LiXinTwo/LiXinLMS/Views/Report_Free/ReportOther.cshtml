@@ -1,0 +1,242 @@
+﻿@{
+    ViewBag.Title = "ReportOther";
+    Layout = null;
+}
+
+<div id="div_content">
+    <div class="tab-bk mt10">
+        <ul id="tagTCPA">
+            <li class="On" id="tCPA0">CPA</li>
+            <li id="tCPA1">非CPA</li>
+        </ul>
+    </div>
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">姓名：</td>
+                <td class="span18">
+                    <input id="txtrealName" type="text" class="span16  searchclass" value="请输入搜索内容"
+                        info="请输入搜索内容" />
+                </td>
+                <td class="Tit span10">申请内容：
+                </td>
+                <td class="span17">
+                    <input id="txtOther_ID" type="hidden" />
+                    <input type="button" class="btn  btn-co" value="选择申请内容" id="btn_selectContent" />
+                </td>
+                <td colspan="2" class="tc">
+                    <select id="typeForm" class="span20" onchange="InitData();">
+                        <option value="-1">获取方式</option>
+                        <option value="-1">全部</option>
+                        <option value="0">自行申报</option>
+                        <option value="1">批量导入</option>
+                        <option value="2">自动折算</option>
+                    </select>
+                </td>
+                <td colspan="2">
+                    <select id="sel_year" onchange="InitData();">
+                        <option value="0">申请年度</option>
+                        @foreach (var item in ViewBag.yearList)
+                        {
+                            <option value="@item" @(item == DateTime.Now.Year ? "selected='selected'" : "")>@item</option>
+                        }
+                    </select>
+                </td>
+                <td class="so-do" colspan="2" style="text-align: left">
+                    <input class="btn" type="button" value="搜索" onclick="InitData();" />
+                    <input type="button" class="btn btn-co" value="导出EXCEL" onclick="OutOtherCPAList();" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">培训级别：
+                </td>
+                <td class="span18">
+                    <div id="TrainGrade">
+                        @{
+                            foreach (var item in ViewBag.allTrainGrade)
+                            {
+                            <input type="checkbox" value="@item" name="OpenLevel" /><label>@item</label>
+                            } 
+                        }
+                    </div>
+                </td>
+                <td class="Tit span10">部门/分所：
+                </td>
+                <td class="span17">
+                    <input id="txt_deptid_list" type="hidden" />
+                    <input type="button" class="btn  btn-co" value="选择部门/分所" id="btn_selectdeptid" />
+                </td>
+                <td class="Tit span10 CPANO">CPA编号：</td>
+                <td class="span18 CPANO">
+                    <input id="txtCPANO" type="text" class="span16  searchclass" value="请输入搜索内容"
+                        info="请输入搜索内容" />
+                </td>
+
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th>姓名</th>
+                    <th>部门</th>
+                    <th>培训级别</th>
+                    <th class="CPANO">CPA编号</th>
+                    <th>申请内容</th>
+                    <th id="CPAScore" jsrendersortfield="GetCPAScore" sort="desc">申请CPA学时</th>
+                    <th id="tScore" jsrendersortfield="GettScore" sort="desc">申请所内学时</th>
+                </tr>
+            </thead>
+            <tbody id="OtherCPAList">
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <div class="divpage listPage" id="listPage" style="">
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <input id="hidjsRenderSortField" type="hidden" value="ConvertScore asc" />
+    <input id="hidCPA" type="hidden" value="0" />
+</div>
+<script>
+    $(document).ready(function ()
+    {
+      
+        //初始化查询条件
+        initSearch();
+
+        showHideCPA();
+
+        $("#tagTCPA li").click(function ()
+        {
+            var index = $(this).index();
+            $("#tagTCPA li").removeClass("On");
+            $("#tCPA" + index).addClass("On");
+
+            $("#hidCPA").val(index);
+            $("#txtrealName").val("请输入搜索内容");
+            $("#typeForm").val(-1);
+            $("input[name='OpenLevel']").attr("checked", false);
+            $("#txtCPANO").val("请输入搜索内容");
+            $("#txtOther_ID").val("");
+            $("#txt_deptid_list").val("");
+            InitData();
+            showHideCPA();
+        });
+
+        //培训班
+        $("#btn_selectContent").bind("click", function ()
+        {
+            art.dialog.load("/Report_Free/SelectOtherItem", { title: ' 选择申请内容', id: "win_othetmanage" }, false);
+
+        });
+
+        //部门/分所
+        $("#btn_selectdeptid").bind("click", function ()
+        {
+            var naru = "";
+            art.dialog.load("/Report_zAttendce/SelectDept?deptid=0&ReportType=0&naru=" + naru, { title: '选择部门/分所', id: "win_deptmanage" }, false);
+        });
+        InitData();
+
+    });
+
+    function OutOtherCPAList()
+    {
+        window.location.href = "OutOtherCPAList?cpa=" + $("#hidCPA").val();
+    }
+    function searchByDept()
+    {
+        art.dialog.list['win_deptmanage'].close();
+        InitData();
+    }
+
+    function searchByOther()
+    {
+        art.dialog.list['win_othetmanage'].close();
+        InitData();
+    }
+
+    function showHideCPA()
+    {
+       // debugger;
+        if ($("#hidCPA").val() == 0)
+        {
+            $("#tScore").hide();
+            $("#CPAScore").show();
+            $(".CPANO").show();
+        }
+        else
+        {
+            $("#tScore").show();
+            $("#CPAScore").hide();
+            $(".CPANO").hide();
+        }
+    }
+
+
+    function InitData()
+    {
+        var TrainGrade = "";
+        $("input[name='OpenLevel']:checked").each(function ()
+        {
+            TrainGrade = TrainGrade == "" ? $(this).val() : TrainGrade + "," + $(this).val();
+        });
+        var v = "realName=" + escape($.trim(getSearchWord("txtrealName"))) + "&Class=" + $("#txtOther_ID").val() + "&CPANO=" + escape($.trim(getSearchWord("txtCPANO")))
+            + "&TrainGrade=" + TrainGrade + "&deptids=" + $("#txt_deptid_list").val() + "&typeForm=" + $("#typeForm").val() + "&year=" + $("#sel_year").val()
+            +"&cpa=" + $("#hidCPA").val();
+        var templateID = "";
+        var jsRenderASC = "";
+
+        if ($("#hidCPA").val() == 0)
+        {
+
+            templateID = "CPAScoreTemplate";
+        }
+        else
+        {
+            templateID = "NoCPAScoreTemplate";
+        }
+        $("#OtherCPAList").JsRenderData({
+            sourceUrl: "/Report_Free/GetOtherCPAList?" + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "DeptId",
+            jsRenderASC: " ASC",
+            templateID: templateID
+        });
+    }
+
+</script>
+<script id="CPAScoreTemplate" type="text/x-jsrender">
+    {{for #data}}
+       <tr>
+         <td>{{:#index+1}}</td>
+         <td>{{:Realname}}</td>
+         <td>{{:DeptName}}</td>
+         <td>{{:TrainGrade}}</td>
+         <td>{{:CPANo}}</td>
+         <td style='text-align:left;'>{{:ClassNameStr}}</td>
+         <td>{{:GetCPAScore}}</td>
+       </tr>
+    {{/for}}
+</script>
+<script id="NoCPAScoreTemplate" type="text/x-jsrender">
+    {{for #data}}
+       <tr>
+         <td>{{:#index+1}}</td>
+         <td>{{:Realname}}</td>
+         <td>{{:DeptName}}</td>
+         <td>{{:TrainGrade}}</td>
+         <td style='text-align:left;'>{{:ClassNameStr}}</td>
+         <td>{{:GettScore}}</td>
+       </tr>
+    {{/for}}
+</script>

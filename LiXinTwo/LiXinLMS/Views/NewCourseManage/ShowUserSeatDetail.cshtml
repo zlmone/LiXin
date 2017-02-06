@@ -1,0 +1,185 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var id = Request.QueryString["id"] ?? "0";
+    var roomRule = ViewBag.roomRule;
+    var room = (New_ClassRoom) ViewBag.room;
+    var printFlag = Request.QueryString["print"] ?? "0";//查看并打印 1:仅查看；2：打印且讲台在下；3：打印且讲台在上
+    //ViewBag.Title = "座位打印预览";
+}
+<link href="../../Content/type.css" rel="stylesheet" type="text/css" />
+<link href="../../Content/base.css" rel="stylesheet" type="text/css" />
+<link href="../../Content/Raster.css" rel="stylesheet" type="text/css" />
+<link href="../../Content/roomseat.css" rel="stylesheet" type="text/css" />
+<script src="../../Scripts/jquery-1.8.1.min.js" type="text/javascript"></script>
+<script src="../../Scripts/jsrender.js" type="text/javascript"></script>
+<script src="../../Scripts/createSeat.js" type="text/javascript"></script>
+<style type="text/css">
+    .signf{position:absolute;top:1px;right:1px;width:10px;height:10px;display:block;background-color:#FFF;text-decoration:none;cursor: pointer;}
+    .signt{position:absolute;top:1px;right:1px;width:10px;height:10px;display:block;background-color:red;text-decoration: none;cursor: pointer;}
+    .print{ width: 935px;padding-right: 20px;text-align: right;height: 30px;margin: 5px auto;}
+    
+    
+    
+    #seatShowList{ text-align: center;}
+    #seatShowList thead,#seatShowList tfoot{ height: 30px;line-height: 30px;text-align: center;}
+    #seatShowList tbody tr td{ width: 100px;padding: 5px;height: 30px;}
+    #seatShowList tbody tr td div.name{ width: 76px;border: 1px solid silver;float: left;text-align: center;line-height: 30px;display: block;}
+    #seatShowList tbody tr td div.sex{ width: 18px;border: 1px solid silver;float: right;text-align: center;line-height: 30px;display: block;}
+    #seatShowList tbody tr td.freeze div{ background-color: #ddd;}
+    #seatShowList tbody tr td.kong div{ background-color:wheat;}
+    #seatShowList tbody tr td.have div{ background-color:sandybrown;}
+    #seatShowList tbody tr td.xuhao{ background-color:#eee;margin: 0px;}
+    .tai{ width: 60px;text-align: center;margin: auto;background-color: blue;color: #fff;}
+</style>
+@{
+    if (printFlag != "0" && printFlag != "1")
+    {
+        <div class="tl">
+            <table id="seatShowList" style="margin-left: 0px;">
+                <thead>
+                    <tr>
+                        <td colspan="0">
+                            @{
+                                if (printFlag == "3")
+                                {
+                                    <div class="tai">讲台</div>
+                                }
+                            }
+                        </td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="0">
+                            @{
+                                if (printFlag == "2")
+                                {
+                                    <div class="tai">讲台</div>
+                                }
+                            }
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }else
+    {
+        <div class="tc">
+            @{
+                if (printFlag == "0" && room.SeatType==0)
+                {
+                    <div class="print">
+                        <input class="btn" type="button" name="print" value="讲台在下打印" onclick="window.open('/NewCourseManage/ShowUserSeatDetail?id=@(id)&print=2');" />
+                        <input class="ml10 btn" type="button" name="print" value="讲台在上打印" onclick="window.open('/NewCourseManage/ShowUserSeatDetail?id=@(id)&print=3');" />
+                        <input class="btn ml10" type="button" name="print" value="讲台在下导出" onclick="window.open('/NewCourseManage/ExportSeat?id=@(id)&flag=2');" />
+                        <input class="ml10 btn" type="button" name="print" value="讲台在上导出" onclick="window.open('/NewCourseManage/ExportSeat?id=@(id)&flag=3');" />
+                    </div>
+                }
+            }
+            <div class="bg">
+                <div id="room" class="room">
+                    <div id="zhuoziMain" style="position: relative;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+<!--单个座位的模板-->
+<script id="singleSeatTemplate" type="text/x-jsrender">
+    <div class="{{:divclass}}" freeze="{{:freeze}}" data-position="{{:row}},{{:col}}" order="{{:order}}" ishave="0" type="zuowei" status="0" id="dengzi{{:order}}" style="left:{{:left}}px; top:{{:top}}px; width:{{:width}}px;" userID="0">
+        <div class="name"></div>
+        <div class="gender"></div>
+        <div class="zuoweiposition">{{:row+1}}行,{{:col+1}}列</div>
+    </div>
+</script>
+<!--圆桌单个桌子的模板-->
+<script id="singleDeskSeatTemplate" type="text/x-jsrender">
+   <div class='circle yz1' style="left:{{:left}}px;top:{{:top}}px;" order={{:number}}"">
+        {{for orderlist}}
+        <div type='zuowei' status='0' id="dengzi_{{:row}}_{{:col}}_{{:order}}" data-position="{{:row}},{{:col}},{{:order}}" order="{{:order}}" class="yizi1" ishave="0" freeze="{{:freeze}}" userID="0">
+            <div class="name" style="line-height:12px;text-align:left;"></div>
+            <div class="gender"></div>
+        </div>
+        {{/for}}
+        <a class="deskNumber">{{:number}}</a>
+   </div>
+</script>
+<script type="text/javascript">
+    var seatDetail = '@(roomRule)';
+    $(document).ready(function() {
+        if('@(printFlag)' == '2' || '@(printFlag)' == '3') {
+            $(document).attr("title", "座位打印预览");
+        }
+        if ('@(printFlag)' == '0' || '@(printFlag)' == '1' ) {
+            createuserSeat();
+        } else {
+            //打印
+            exportPrintSeat(@(room.RoomNumber), @(room.RowNumber), @(room.ColumnNumber), @(printFlag=="2"?1:2)); //生成表格
+            var seatarr = seatDetail.split(':');
+            for (var k = 0; k < seatarr.length; k++) {
+                var subseat = seatarr[k].split(',');
+                var x = subseat[0];
+                var y = subseat[1];
+                var userid = subseat[2];
+                var name = subseat[3];
+                var sex = subseat[4];
+                var obj = $("td[data-position='" + x + "," + y + "']");
+                if (userid != '-1') {
+                    obj.attr('userid', userid).removeClass('have').removeClass('kong').removeClass('freeze').addClass('have');
+                    obj.find('.name').html(name);
+                    obj.find('.sex').html(sex);
+                    if(userid=='0') {
+                        obj.attr('userid', 0).removeClass('have').removeClass('kong').removeClass('freeze').addClass('kong');
+                        obj.find('.name').html('&nbsp;');
+                        obj.find('.sex').html('&nbsp;');
+                    }
+                } else {
+                    obj.attr('userid', 0).removeClass('have').removeClass('kong').removeClass('freeze').addClass('freeze');
+                    obj.find('.name').html('&nbsp;');
+                    obj.find('.sex').html('&nbsp;');
+                }
+            }
+        }
+    });
+    //生成座位
+    function createuserSeat() {
+        fnChange($(".bg"),@(room.SeatType),@(room.RowNumber), @(room.ColumnNumber),seatDetail,@(room.PrePersonCount),@(printFlag));
+        @*exportcreateSeat($(".bg"), @(room.RoomNumber), @(room.RowNumber), @(room.ColumnNumber), '','@(printFlag=="0"?1:2)');
+        var seatarr = seatDetail.split(':');
+        for (var k = 0; k < seatarr.length; k++) {
+            var subseat = seatarr[k].split(',');
+            var x = subseat[0];
+            var y = subseat[1];
+            var userid = subseat[2];
+            var name = subseat[3];
+            var sex = subseat[4];
+            var obj = $("div[type='zuowei'][data-position='" + x + "," + y + "']");
+            if (userid != '-1') {
+                obj.attr('userid', userid);
+                obj.find('.name').text(name);
+                obj.find('.gender').text(sex);
+                if('@ViewBag.UserID'==userid && '@(printFlag)' == '1') {
+                    obj.attr("class", 'dengzi2');
+                }
+            } else {
+                obj.attr('userid', 0).removeClass('dengzi1').removeClass('dengzi0').addClass('dengzi0').attr('freeze', '1');
+                obj.find('.name').text('');
+                obj.find('.gender').text('');
+            }
+        }*@
+    }
+    
+    //排座显示
+    function fnChange(obj,type,row,col,seat,ppc,printf) {
+        if (type == 0) {
+            //方桌
+            exportcreateSeat(obj,row * col,row,col,seat,(printf==0?1:2),printf,@(ViewBag.UserID));
+        } else {
+            //圆桌
+            exportcreateRoundSeat(obj, row* col * ppc, row,col,ppc,seat,(printf==0?1:2),printf,@(ViewBag.UserID));
+        }
+    }
+</script>

@@ -1,0 +1,140 @@
+﻿@using LiXinModels.CourseLearn
+@using LiXinModels.CourseManage
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var course = ViewBag.course as Co_Course;
+    var courseOrder = ViewBag.CourseOrder as Cl_CourseOrder;
+    ViewBag.Title = "我的课前建议";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "我的课前建议" }))
+    @if (course != null)
+    { 
+        <div class="course-top">
+            <div class="pic">
+                <img src="../../Images/course-pic.jpg"/>
+            </div>
+            <div class="info">
+                <h3 class="ovh">@course.CourseName</h3>
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span9">授课讲师：</td>
+                        <td>@course.TeacherName</td>
+                        <td class="Tit span6">开课时间：</td>
+                        <td colspan="3">@course.CourseTime</td>
+                    </tr>
+                    <tr>
+                        <td class="Tit">课程开放级别：</td>
+                        <td>@course.OpenLevel</td>
+                        <td class="Tit">课程学时：</td>
+                        <td>@course.CourseLength</td>
+                        <td class="Tit span6">开课地点：</td>
+                        <td>@course.RoomName</td>
+                    </tr>
+                    <tr>
+                        <td class="Tit">课程状态：</td>
+                        <td colspan="5">@course.CourseStatus
+                        @* @if (@courseOrder!= null)
+                        {
+                            @(courseOrder.LearnStatus == 0 ? "未开始" : courseOrder.LearnStatus == 1 ? "进行中" : "已完成")
+                                
+                        }*@
+                        </td>
+                       @* <td class="Tit">通过状态：</td>
+                        <td colspan="3">
+                        @if (@courseOrder != null)
+                        { 
+                            @(courseOrder.PassStatus == 1 ? "通过" : "不通过")
+                        }
+                        </td>*@
+                    </tr>
+                </table>
+            </div>
+        </div>
+    }
+        <div id="CourseAdviceList" class="course-pro">
+            <div id="myattendce"><h5 class="tit-h5"><span>我的课前建议</span></h5></div>
+            <div id="otherattendce"><h5 class="tit-h5"><span>他人分享的课前建议</span></h5></div>
+            <div class="pro-do">
+                <textarea id="txt_Content" class="all60"></textarea>
+                <p>
+                    <input type="button" value="提交" id="txt_Add" class="btn"/>
+                    @* @Html.ActionLink("返回", "Main", "MyAfterCourse", new { @class = "btn btn-cancel" })*@
+                    <a href="@ViewBag.backurl" class = "btn btn-cancel" >返回</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+    <script type="text/javascript">
+        $(document).ready(function() {
+           $("#txt_Content").textareaCount({maxCharacterSize:1000,displayFormat:"#input/#max"});
+            Onload();
+            
+            $("#txt_Add").click(function (e) {
+                var content = $("#txt_Content").val().trim();
+                
+                if ($("#txt_Content").val().length > 1000) {
+                     art.dialog.tips("输入的内容太多", 3);
+                     $("#txt_Content").focus();
+                     return false;
+                }
+                
+                var html = "";
+                if (content != "") {
+                    $.post("/MyCourse/SubmitCl_CourseAdvice",
+                    {
+                        CourseId: @(course.Id),
+                        AdviceContent: content
+                    }
+                    , function (data) {
+                        if (data.result == 0) {
+                          //  art.dialog({title: '提示',content: '提交成功',width: 200,height: 50,fixed: true,lock: true,time: 3,close: function () {$("#txt_Content").focus();}});
+
+                            html += "<div id=" + data.id + " class='list'>";
+                            html += "   <div class='list-head'><span>" + data.username + "</span><img src='" + data.photourl + "' /></div>";
+                            html += "   <div class='list-info'>";
+                            html += "       <i></i>";
+                            html += "       <div class='list-type'><strong>课前建议</strong>" + data.adviceTime + "</div>";
+                            html += "       <div class='list-con'>" + content + "</div>";
+                            html += "   </div>";
+                            html += "</div>";
+                            $("#myattendce").append(html);
+                            $("#txt_Content").val("");
+                        } else {
+                            art.dialog.tips(data.content, 3);
+                        }
+                    });
+                } else {
+                    art.dialog.tips("请填写课前建议内容", 3);
+                    $("#txt_Content").focus();
+                }
+            });
+        });
+        function Onload() {
+            $.post("/MyCourse/OnLoadCl_CourseAdvice?id=" + @(course.Id), function (data) {
+                $("#myattendce").append(data.content);
+                $("#otherattendce").append(data.other);
+            });
+        }
+        function FReply(a) {
+            var t = $(a).attr("type");
+            if (t == 1) {
+                $(a).parent("div").siblings("#Reply_div").show();
+                $(a).attr("type", 2);
+            } else {
+                $(a).parent("div").siblings("#Reply_div").hide();
+                $(a).attr("type", 1);
+            }
+        }
+
+    </script>
+</html>

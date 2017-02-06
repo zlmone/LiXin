@@ -1,0 +1,262 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "集中课程预订查询";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "集中课程预订查询" }))
+    <input type="hidden" id="txtcourseid" />
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">
+                    课程名称：
+                </td>
+                <td class="span31">
+                    <input type="text" class="span30 searchclass" id="course" value="请输入搜索内容" info="" />
+                </td>
+                <td class="Tit span4">
+                    讲师：
+                </td>
+                <td>
+                    <input type="text" class="span10 searchclass" id="teaName" value="请输入搜索内容" info="" />
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(1); " />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="sltCourseOrder" onchange=" InitData(1); ">
+            <option value="99">课程性质</option>
+            <option value="2">指定</option>
+            <option value="1">预订</option>
+            <option value="3">兼有</option>
+        </select>
+        <select id="sltOrder" onchange=" InitData(1); ">
+            <option value="99">是否可预订</option>
+            <option value="1">可预订</option>
+            <option value="0">不可预订</option>
+        </select>
+        <select id="sltStatus" onchange=" InitData(1); ">
+            <option value="99">课程状态</option>
+            <option value="0">未开始</option>
+            <option value="1">进行中</option>
+            <option value="2">已结束</option>
+        </select>
+    </div>
+    <!-- 列表 -->
+    <div id="Content" class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        序号
+                    </th>
+                    <th>
+                        课程名称
+                    </th>
+                    <th class="span10" jsrendersortfield="IsMust" sort="desc">
+                        选/必修
+                    </th>
+                    <th class="span10">
+                        讲师
+                    </th>
+                    <th class="span14" jsrendersortfield="StartTime" sort="desc">
+                        开课时间
+                    </th>
+                    <th class="span24">
+                        集中报名人数/报名总数/最大容纳人数
+                    </th>
+                    <th class="span10">
+                        指定/预订/兼有
+                    </th>
+                    <th class="span10">
+                        课程状态
+                    </th>
+                    <th class="span10">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="courseList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh tl span15" title="{{:CourseName}}">{{:CourseName}}</div></td>   
+        <td>{{:IsMustStr}}</td> 
+        <td><div class="ovh tl span10" title="{{:TeacherName}}">{{:TeacherName}}</div></td> 
+        <td><div class="f11 tl">{{:CourseTime}}</div></td> 
+        <td>{{:DeptHasEntered}}/{{:HasEntered}}/{{:NumberLimited}}</td>
+        <td>{{:OrderStr}}</td> 
+        <td>{{:StatusShow}}</td> 
+        <td>
+            <a class="icon iview" title="查看详情" onclick="View({{:Id}});"></a>
+            {{if ((IsOrder==2)||(IsOrder==3))&&CourseState==1}}
+                <a onclick="fnAsssign({{:Id}});" class="icon iaddassign" title="指定人员"></a>
+            {{else}}
+                <a class="icon iaddassign idis" title="指定人员"></a>
+            {{/if}}
+            {{if ((IsOrder==2)||(IsOrder==3)) &&CourseState==1 && AssignUserCount>0}}
+                <a onclick="fnDropAsssign({{:Id}});" class="icon idropassign" title="撤销指定人员"></a>
+            {{else}}
+                <a class="icon idropassign idis" title="撤销指定人员"></a>
+            {{/if}}
+        </td> 
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        //加载列表
+        $("#course").val('@(ViewBag.course)');
+        $("#teaName").val('@(ViewBag.teaname)');
+        $("#sltCourseOrder").val('@(ViewBag.cOrder)');
+        $("#sltOrder").val('@(ViewBag.isOrder)');
+        $("#sltStatus").val('@(ViewBag.sltStatus)');
+        InitData(@(ViewBag.page));
+    });
+
+    //初始化列表
+
+    function InitData(page) {
+        var v = "course=" + escape(getSearchWord("course")) + "&teaName=" + escape(getSearchWord("teaName")) + "&courseOrder=" + $("#sltCourseOrder").val() + "&isorder=" + $("#sltOrder").val()+"&sltStatus="+$("#sltStatus").val();
+        $("#courseList").JsRenderData({
+            sourceUrl: '/CourseLearn/GetCourseDeptSubscribeList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "Id",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function View(id) {//详情
+        window.location.href = "/CourseLearn/CourseDeptSubscribeDetail/" + id;
+    }
+
+    function fnAsssign(id) {
+        $("#txtcourseid").val(id);
+        art.dialog.load("/CourseManage/CourseAssignUserList?courseId=" + id, {
+            title: "指定人员",
+            id: "pop_assignUser"
+        });
+        
+    }
+    
+    function fnDropAsssign(id) {
+        $("#txtcourseid").val(id);
+        art.dialog.load("/CourseManage/CourseDropAssignUserList?courseId=" + id, {
+            title: "撤销指定人员",
+            id: "pop_dropassignUser",
+            width:1000
+        });
+        
+    }
+
+
+    function fnAddAssignUser() {
+        var ids = $("#commonSelectedIdStr").val();
+        //由于@ViewBag.CourseId后面有值 到前面没值 固把courseid放到当前页面影藏域中               
+        if (ids.length > 0) {
+            //ids = ids.substring(0, ids.length - 1);
+            var d = {
+                //courseId: "@ViewBag.CourseId",
+                courseId:$("#txtcourseid").val(),
+                strUserIds: ids,
+                type:1
+            }
+            //alert(d.strUserIds);
+            $.post("/CourseManage/SubmitAssignUser", d, function (data) {
+                if (data.result == 1) {
+                    //art.dialog.tips("操作成功！", 3);
+                    art.dialog.list["pop_assignUser"].close();
+                    InitData(data.indexpage);
+
+                    art.dialog({
+                        width: 500,
+                        content: "操作成功，是否发送邮件/短信吗？",
+                        ok: function () {
+                            $.post("/CourseManage/SubmitAssignUserSendMessage", d, function (data) {
+                                if (data.result == 1) {
+                                    art.dialog.tips("发送成功！", 3);
+                                    //InitData(da.indexpage);
+                                } else {
+                                    art.dialog.tips("发送失败！", 3);
+                                }
+                            });
+                        },
+                        cancel: function () {                            
+                            //InitData(da.indexpage);
+                        }
+                    });
+
+
+                }
+                else {
+                    art.dialog.tips("操作失败！", 3);
+                }
+            });
+
+        }
+        else {
+            art.dialog.tips("请选择要指定的人员！", 3);
+        }
+    }
+   
+   //撤销指定的人员
+   function fnDropAssignUser() {
+        var ids = $("#commonSelectedIdStr").val();
+        if (ids.length > 0) {
+            var d = {
+                courseId: $("#txtcourseid").val(),
+                strUserIds: ids,
+                type:$("#reasontype").val(),
+                reason: $("#reasoncontent").val()
+            };
+            $.post("/CourseManage/SubmitDropAssignUser", d, function (data) {
+                if (data.result == 1) {
+                    //art.dialog.tips("操作成功！", 3);
+                    art.dialog.list["pop_dropassignUser"].close();
+                    InitData(data.indexpage);
+                    art.dialog({
+                        width: 500,
+                        content: "操作成功，是否发送邮件/短信吗？",
+                        ok: function () {
+                            $.post("/CourseManage/SubmitDropAssignUserSendMessage", d, function (data) {
+                                if (data.result == 1) {
+                                    art.dialog.tips("发送成功！", 3);
+                                    //InitData(da.indexpage);
+                                } else {
+                                    art.dialog.tips("发送失败！", 3);
+                                }
+                            });
+                        },
+                        cancel: function () {
+                            //InitData(da.indexpage);
+                        }
+                    });
+                }
+                else {
+                    art.dialog.tips("操作失败！", 3);
+                }
+            });
+
+        }
+        else {
+            art.dialog.tips("请选择要撤销的人员！", 3);
+        }
+    }
+</script>

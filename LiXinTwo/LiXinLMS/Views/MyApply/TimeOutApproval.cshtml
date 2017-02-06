@@ -1,0 +1,61 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.TimeOutApproval;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var type = Request.QueryString["type"] ?? "0";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "TimeOutApproval" }))
+    <div class="tab-bk mt10">
+        <ul id="tagorder">
+            <li class="On" id="order0">补预订</li>
+            <li id="order1">请假</li>
+        </ul>
+    </div>
+    <div id="Order">
+    </div>
+    <div id="MyOrder" style="display: none">
+    </div>
+     <input id="type" type="hidden" value="@type" />
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+       
+        show();
+        if ($("#type").val() == "0")
+        {
+            $("#Order").load("TimeApproval");
+        }
+        else
+        {
+            $("#order1").click();
+        }
+        
+    });
+    function show()
+    {
+        $("#tagorder li").click(function ()
+        {
+            $("#tagorder li").removeClass("On");
+            $(this).addClass("On");
+
+            var index = $(this).index();
+            if (index == 0)
+            {
+                $("#type").val("0");
+                $("#Order").show();
+                $("#MyOrder").hide();
+                $("#Order").load("TimeApproval");
+            }
+            else if (index == 1)
+            {
+                $("#type").val("1");
+                $("#Order").hide();
+                $("#MyOrder").show();
+                $("#MyOrder").load("MyTimeOutApproval");
+            }
+
+        });
+    }
+</script>

@@ -1,0 +1,156 @@
+﻿@*
+在调本页面时，要注意，页面载入方法中有一个参数，可传可不传都有默认值
+type            ''：啥不带；'checkbox'：带checkbox；'radio'带radio；默认为''
+
+    加入方法，形如：
+    获取选择到的trainExaminationID
+	方法名不要改
+	function GetTrainExaminationIDList()
+	{
+		var trainExaminationIds = GetChecked('trainExaminationList');
+		...
+        ...
+        ...
+		closeDialog("art_selTrainExamination");
+	}
+	AllTrainExaminationID 获取选择到的trainExaminationID，放置这个之后，在其中保存已经添加的获取选择到的trainExaminationID,在弹出框中会将其置灰
+*@
+@{
+    Layout = null; 
+}
+<div id="Search" class="so-set">
+    <table class="tab-Form">
+        <tbody>
+            <tr>
+                <td class="Tit span6">姓名：
+                </td>
+                <td>
+                    <input type="text" class="span30  searchclass" value="请输入姓名" id="realName1" info="" />
+                </td>
+                <td class="so-do">
+                    <input type="button" class="btn" id="btnSearch" name="搜索" value="搜索" onclick=" InitUserList(); " />
+                    <a onclick="GetUserIDList();" class="btn btn-co">确定</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="newClassManageListTemplateList">
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">
+                    @if (ViewBag.type == "radio")
+                    {
+                        <input type="@ViewBag.type"  value="0"   id="selectUser_selectAllUser" disabled="disabled"/>
+                           
+                    }
+                    else
+                    {
+                        <input type="@ViewBag.type"  value="0"   id="selectUser_selectAllUser"/>
+                    }
+                    <input type="hidden" id="commonSelectedIdStr" value=""/>
+                </th>
+                <th class="span4">序号</th>
+                <th class="span4">学号
+                </th>
+                <th class="span4">姓名
+                </th>
+                <th class="span8">所在部门
+                </th>
+                <th class="span18">毕业院校
+                </th>
+                <th class="span8">毕业专业
+                </th>
+                <th class="span8">是否有事务<br />
+                    所实习经验
+                </th>
+                <th class="span8">是否在我<br />
+                    所进行实习
+                </th>
+                <th class="span18">实习部门
+                </th>
+            </tr>
+        </thead>
+        <tbody id="newClassManageList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="newClassManageListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td class="tc">
+                <input type="checkbox" id='{{:UserId}}' value='{{:UserId}}' />
+            </td>
+            <td>{{:#index+1}}</td>
+            <td class="tl span10">
+                {{:NumberIDStr}}
+            </td>
+            <td  class="tl span10">
+                <div class="ovh span10" title="{{>Realname}}">
+                    {{if Sex==0}}
+                      <span style="color:blue">♂</span>
+                    {{else}}
+                        <span style="color:red">♀</span>      
+                    {{/if}}
+                    <strong>{{>Realname}}</strong>
+                </div>
+            </td>
+            </td>
+             <td>
+                <div class="tl ovh span16" title="{{>DeptName}}">{{>DeptName}}</div>
+            </td>
+            <td>{{>GraduateSchoolStr}}</td>
+            <td>{{>MajorStr}}</td>
+            <td>{{>IsInternExpStr}}</td>
+            <td>{{>IsOurInternStr}}</td>
+            <td>  <div class="tl ovh span10" title="{{:InternDeptStr}}">{{:InternDeptStr}}</div></td>
+        </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        InitUserList();
+        $("#selectUser_selectAllUser").removeAttr("checked");
+    });
+
+    //加载数据
+    function InitUserList()
+    {
+        var v = "realName=" + escape(getSearchWord("realName1"));
+        $("#newClassManageList").JsRenderData({
+            sourceUrl: '/NewClassManage/GetUserNotInNewClassList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "newClassManageListTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox('selectUser_selectAllUser', 'newClassManageList');
+                HiddenSelectUser("@ViewBag.type", 'personids');
+            }
+        });
+    }
+
+    function HiddenSelectUser(obj, ID)
+    {
+        
+        if ($("#" + ID) != undefined && $("#" + ID) != null)
+        {
+            $("#newClassManageList  input[type='" + obj + "']").each(function ()
+            {
+                if ((',' + $("#commonSelectedIdStr").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0)
+                {
+                    $(this).attr('checked', true);
+                }
+            });
+        }
+    }
+
+
+</script>

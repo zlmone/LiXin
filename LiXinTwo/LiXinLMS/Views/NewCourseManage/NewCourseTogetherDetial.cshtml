@@ -1,0 +1,248 @@
+﻿@model LiXinModels.NewCourseManage.New_Course
+@using LiXinModels.NewCourseManage
+@{  
+    ViewBag.Title = "新进员工混合培训课程详情";
+    var CourseVideoResourse = ViewBag.CourseResourceList as List<New_CourseFiles>;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "新进员工混合培训课程详情" }))
+    <div class="course-top">
+        <div class="pic">
+            <img src="../../Images/course-pic.jpg">
+        </div>
+        <div class="info">
+            <h3 class="ovh" title="@Model.CourseName">@Model.CourseName</h3>
+            <table class="tab-Form tab-now">
+                <tr>
+                    <td class="Tit">
+                        授课讲师：
+                    </td>
+                    <td>
+                        <strong>@Model.teacher</strong>
+                    </td>
+                    @*<td class="Tit">
+                        课程开放班级：
+                    </td>
+                    <td>
+                        <strong>@Model.classnames</strong>
+                    </td>*@
+                    <td class="Tit">
+                        课程状态：
+                    </td>
+                    <td class="c_col">
+                        <strong>@(Model.StatusShow)</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        开课教室：
+                    </td>
+                    <td>
+                        <strong>@Model.roomnames</strong>
+                    </td>
+                    <td class="Tit">
+                        开课时间：
+                    </td>
+                    <td class="c_col" colspan="3">
+                        <strong>@Model.StartTimeStr - @Model.EndTimeStr</strong>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="tab-bk mt10">
+        <ul id="tags">
+            <li id="tag0" class="On">课程详情</li>
+            <li id="tag1">人员调整</li>
+            <li id="tag2">课后评估</li>
+            <li id="tag3">在线测试</li>
+        </ul>
+    </div>
+    <div id="div_course_courseInfor">
+        <div class="oth">
+            <h4>课程大纲：</h4>
+            @if (!string.IsNullOrEmpty(Model.Memo))
+            {
+                <div class="co-memo do_warp">@Html.Raw(Model.Memo)</div>	
+            }
+            else
+            {
+                <div>暂无内容</div>
+            }
+            <h4>课程资源：</h4>
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th>
+                            资源名称
+                        </th>
+                        <th>
+                            资源大小
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.CourseResourceList != null && ((IEnumerable<New_CourseFiles>)ViewBag.CourseResourceList).Count() > 0)
+                    {
+
+                        foreach (var item in (IEnumerable<New_CourseFiles>)ViewBag.CourseResourceList)
+                        {
+                            <tr id="div_courseRes_@(item.Id)">
+                                <td>@item.Name</td>
+                                <td>@item.ResourceSize K</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2">
+                                <div class="tc">暂无资源</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @{
+            if (Model.IsGroupTeach>0)
+            {
+                <div class="tab-bk mt10">
+                    <ul id="Cotags">
+                        @{
+                            if (Model.IsGroupTeach==1 ||Model.IsGroupTeach==3)
+                            {
+                                <li id="Cotag0" class="On" onclick="showmian(0);$(this).parent().find('li').removeClass('On');$(this).addClass('On');">集中授课</li>
+                            }
+                            if (Model.IsGroupTeach == 2 || Model.IsGroupTeach == 3)
+                            {
+                                <li id="Cotag1" onclick="showmian(1);$(this).parent().find('li').removeClass('On');$(this).addClass('On');">分组带教</li>
+                            }
+                        }
+                    </ul>
+                </div>
+                <div id="div_courseroom"></div>
+            }
+        }
+    </div>
+    <div id="div_course_user" style="display:none;">
+    </div>
+    <div id="div_course_survey" style="display: none;">
+        @{
+        if (Model.IsGroupTeach>0)
+        {
+        <div class="tab-bk mt10">
+            <ul id="Patags">
+            @{
+                if (Model.IsGroupTeach==1 ||Model.IsGroupTeach==3)
+                {
+                    <li id="Patag0" class="On" onclick="showping(0);$(this).parent().find('li').removeClass('On');$(this).addClass('On');">集中授课</li>
+                }
+                if (Model.IsGroupTeach == 2 || Model.IsGroupTeach == 3)
+                {
+                    <li id="Patag1" onclick="showping(1);$(this).parent().find('li').removeClass('On');$(this).addClass('On');">分组带教</li>
+                }
+            }
+            </ul>
+        </div>
+        <div id="div_courseSurvey"></div>
+        }
+        }
+    </div>
+    <div id="div_course_paper" style="display: none;">
+        @if (Model.IsTest == 1)
+        {
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th>试卷名称</th>
+                        <th>考试时长</th>
+                        <th>考试时间</th>
+                        <th>通过线</th>
+                        <th>试卷总分</th>
+                        <th>最大考试次数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@(ViewBag.PaperName)</td>
+                        <td>@(ViewBag.CoursePaper.Length)</td>
+                        <td>课程结束后@(ViewBag.CoursePaper.Hour)小时</td>
+                        <td>@(ViewBag.CoursePaper.LevelScore)%</td>
+                        <td>@(ViewBag.PaperTotalScore)</td>
+                        <td>@(ViewBag.CoursePaper.TestTimes)</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+    <center class="mt20">
+        <a href="/NewCourseManage/NewCourseManageList?way=1&p=1" class="btn btn-cancel">返回</a>
+    </center>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (@Model.IsGroupTeach == 1 || @Model.IsGroupTeach == 3) {
+            showmian(0);
+        }else if(@Model.IsGroupTeach== 2){
+            showmian(1);
+        }
+        $("#tags li").bind("click", function () {
+            var index = $(this).index();
+            $("#tags li").removeClass("On");
+            $("#tags #tag" + index).addClass("On");
+            $("#div_course_courseInfor,#div_course_user,#div_course_survey,#div_course_paper").hide();
+            switch (index) {
+                case 0:
+                    $("#div_course_courseInfor").show();
+                    $("#Cotags").find('li').removeClass('On');$("#Cotags li:first").addClass('On');
+                    if (@Model.IsGroupTeach == 1 || @Model.IsGroupTeach == 3) {
+                        showmian(0);
+                    }else if(@Model.IsGroupTeach== 2){
+                        showmian(1);
+                    }
+                    break;
+                case 1:
+                    $("#div_course_user").show();
+                    $.get('/NewCourseManage/CourseSubCourseList?courseID=@(Model.Id)&t=' + new Date(), function(data) {
+                        $("#div_course_user").html(data);
+                    });
+                    break;
+                case 2:
+                    $("#div_course_survey").show();
+                    $("#Patags").find('li').removeClass('On');$("#Patags li:first").addClass('On');
+                    if (@Model.IsGroupTeach == 1 || @Model.IsGroupTeach == 3) {
+                        showping(0);
+                    }else if(@Model.IsGroupTeach== 2){
+                        showping(1);
+                    }
+                    break;
+                case 3:
+                    $("#div_course_paper").show();
+                    break;
+            }
+        });
+    });
+
+    function showmian(type) {
+        switch (type) {
+            case 0:
+                $("#div_courseroom").load("/NewCourseManage/NewCourseRoom?id=@(@Model.Id)&type=0&t=" + (new Date()).getUTCMilliseconds());
+                break;
+            case 1:
+                $("#div_courseroom").load("/NewCourseManage/NewCourseRoom?id=@(@Model.Id)&type=1&t=" + (new Date()).getUTCMilliseconds());
+                break;
+        }
+    }
+
+    function showping(type) {
+        switch (type) {
+            case 0:
+                $("#div_courseSurvey").load("/NewCourseManage/NewCourseSurvey?id=@(@Model.Id)&type=0&t=" + (new Date()).getUTCMilliseconds());
+                break;
+            case 1:
+                $("#div_courseSurvey").load("/NewCourseManage/NewCourseSurvey?id=@(@Model.Id)&type=1&t=" + (new Date()).getUTCMilliseconds());
+                break;
+        }
+    }
+</script>

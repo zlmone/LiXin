@@ -1,0 +1,270 @@
+﻿@{
+    ViewBag.Title = "SelectOtherItem";
+    Layout = null;
+}
+<style type="text/css">
+    #mainDept {
+        width: 740px;
+        height: 100%;
+        line-height: 24px;
+        border: 1px solid silver;
+    }
+
+        #mainDept legend {
+            font-weight: bold;
+        }
+
+        #mainDept ul {
+            display: block;
+        }
+
+            #mainDept ul li {
+                float: left;
+                width: 180px;
+                margin: 0px 5px 0px 0px;
+            }
+
+                #mainDept ul li input {
+                    margin: 0px 2px;
+                }
+</style>
+
+<div class="main-c">
+
+    @*@(Html.Action("SiteMapLink", "Common", new { linkName = "我的已预订课程" }))*@
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="span15">
+                    <input type="button" value="全选" class="btn btn-cancel " onclick="pop_selectall(0)" />
+                    <input type="button" value="反选" class="btn btn-cancel" onclick="pop_selectall(1)" />
+                </td>
+                <td class="Tit span6">申请内容：
+                </td>
+                <td class="span20">
+                    <input type="text" id="pop_othername" class="span16  searchclass" />
+                </td>
+                <td>
+                    <input type="button" id="btn_Find" value="搜索" class="btn" />
+                    <input type="button" class="btn btn-co" value="确定" id="btncancell" />
+                </td>
+        </table>
+        <div id="trainGradeList">
+            <fieldset id="mainDept">
+                <legend></legend>
+                <table class="tab-List" id="tbOtherList" style="line-height: 30px">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <ul id="OtherList">
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="11">
+                                <div class="divpage listPage" id="listPage" style="">
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+    <br />
+    <input id="selOtherIDs" type="hidden" />
+    <input id="selAllOtherIDs" type="hidden" />
+</div>
+
+<script id="deptTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <li><span class="span20 mt10">
+            <label class="ovh tl span15" title="{{:ApplyContent}}" ><input type="checkbox" id="{{:ID}}" name="check_deptid" onclick="pop_selectOtherIDs(this)"/>{{:ApplyContent}}</label></span></li>
+    {{/for}}
+</script>
+<script type="text/javascript">
+
+    var flag = 0;
+    $(document).ready(function ()
+    {
+        flag = 1;
+        $("#selAllOtherIDs").val($("#txtOther_ID").val());
+        Getdata();
+        $("#btn_Find").click(function ()
+        {
+            //$("#selAllOtherIDs").val("");
+            Getdata();
+        })
+        $("#btncancell").click(function ()
+        {
+            $("#txtOther_ID").val("");
+            $("#txtOther_ID").val($("#selAllOtherIDs").val());
+            searchByOther();
+        });
+
+    })
+
+    function Getdata(recordCount, pageCount, pageSize, pageIndex)
+    {
+        var ids = $("#selAllOtherIDs").val();
+        var selids = "";
+        $("input[name=check_deptid]:checked").each(function ()
+        {
+            if ($.inArray($(this).attr("id"), $("#selAllOtherIDs").val().split(',')) < 0)
+            {
+                selids = selids == "" ? $(this).attr("id") : selids + "," + $(this).attr("id");
+            }
+        });
+        if (selids != "")
+        {
+            $("#selAllOtherIDs").val(ids == "" ? selids : ids + "," + selids);
+        }
+
+        $.post("/Report_Free/Free_OtherFromAddList?othername=" + escape($("#pop_othername").val()) + "&year=" + $("#sel_year").val()
+            + '&pageSize=' + (pageSize || 16) + '&pageIndex=' + (pageIndex || 1) + "&type=1", function (data)
+            {
+                var html = "";
+                for (var i = 0; i < data.dataList.length; i++)
+                {
+                    var value = data.dataList[i].ID.toString();
+                    var checked = " ";
+                    if ($.inArray(value, $("#selAllOtherIDs").val().split(',')) >= 0)
+                    {
+                        checked = "checked='checked'";
+                    }
+
+                    html += "<li><span class='span20 mt10'>";
+                    html += "<label class='ovh tl span15'><input type='checkbox' " + checked + " id='" + data.dataList[i].ID + "' name='check_deptid' onclick='pop_selectOtherIDs(this)'/>" + data.dataList[i].ApplyContent + "</label></span></li>";
+                }
+                $("#OtherList").html(html);
+                //}
+                $("#tbOtherList tfoot").find('#listPage').html(pageHtml(data.recordCount, Math.ceil(data.recordCount / 16), 16, pageIndex || 1));
+
+            });
+    }
+
+
+    //分页
+    function pageHtml(recordCount, pageCount, pageSize, pageIndex)
+    {
+        var html = '';
+        pageCount = pageCount == 0 ? 1 : pageCount;
+        if (parseInt(pageIndex) > pageCount)
+            pageIndex = pageCount;
+
+        html += '<span class="c38">第' + pageIndex + '页/共' + pageCount + '页(共' + recordCount + '条)</span>';
+        if (parseInt(pageIndex) == 1)
+        {
+            html += "<span class='first status_disabled'>首页</span>";
+            html += "<span class='previous status_disabled'>&nbsp;</span>";
+        } else
+        {
+            html += "<a index='first' class='first status-default' onclick='Getdata(0,0,0,1);'>首页</a>";
+            html += "<a index='previous' class='previous status-default' onclick='Getdata(0,0,0," + (pageIndex - i) + ");'>&nbsp;</a>";
+        }
+        if (true)
+        {
+            var maxIndex = 1; //当前要显示的最大索引
+            if (pageCount <= 5)
+                maxIndex = pageCount;
+            else if (parseInt(pageIndex) + 2 <= 5)
+                maxIndex = 5;
+            else if (parseInt(pageIndex) + 2 >= pageCount)
+                maxIndex = pageCount;
+            else
+                maxIndex = parseInt(pageIndex) + 2;
+
+            for (var i = 4; i >= 0; i--)
+            {
+                if (maxIndex - i == parseInt(pageIndex))
+                    html += "<span class='status_disabled status-on'>&nbsp;" + (maxIndex - i) + "&nbsp;</span>";
+                else if (maxIndex - i > 0)
+                    html += "<a index='" + (maxIndex - i) + "' class='status-default' onclick='Getdata(0,0,0," + (maxIndex - i) + ");'>&nbsp;" + (maxIndex - i) + "&nbsp;</a>";
+            }
+        }
+        if (pageCount == parseInt(pageIndex))
+        {
+            html += "<span class='next status_disabled'>&nbsp;</span>";
+            html += "<span class='last status_disabled'>末页</span>";
+        } else
+        {
+            html += "<a index='next' class='next status-default' onclick='Getdata(0,0,0," + (parseInt(pageIndex, 16) + 1) + ");'>&nbsp;</a>";
+            html += "<a index='last' class='last status-default' onclick='Getdata(0,0,0," + pageCount + ");'>末页</a>";
+        }
+        // html += '<span class="c38">转到&nbsp;<a class="curp c2934f3" id="btnpagegoto" onclick="goindex(this);">GO</a><input type="text" id="txtpagegoto" class="w24 h16 line_h16" maxlength="3" /></span>';
+        return html;
+    };
+
+    //0 全选 1反选
+    function pop_selectall(type)
+    {
+        var ids = $("#selAllOtherIDs").val();
+        var reomve = "";
+        $("#OtherList input[type='checkbox']").each(function ()
+        {
+            var valueID = $(this).attr("id");
+            if (type == 0)
+            {
+                $(this).attr("checked", true);
+                if ($.inArray(valueID, $("#selAllOtherIDs").val().split(',')) < 0)
+                {
+                    ids = ids == "" ? valueID : ids + "," + valueID;
+                }
+            }
+            else
+            {
+                if ($(this).attr("checked") == "checked")
+                {
+                    $(this).attr("checked", false);
+                    if ($.inArray(valueID, $("#selAllOtherIDs").val().split(',')) >= 0)
+                    {
+                        reomve = reomve == "" ? valueID : reomve + "," + valueID;
+                    }
+                }
+                else
+                {
+                    $(this).attr("checked", true);
+                    if ($.inArray(valueID, $("#selAllOtherIDs").val().split(',')) < 0)
+                    {
+                        ids = ids == "" ? valueID : ids + "," + valueID;
+                    }
+                }
+            }
+        });
+
+        $("#selAllOtherIDs").val(ids);
+
+        if (reomve != "")
+        {
+            $.each(reomve.split(','), function (index, value)
+            {
+                ReomveArray("selAllOtherIDs", value);
+            });
+        }
+    }
+
+    function pop_selectOtherIDs(obj)
+    {
+        // input[name = check_deptid]
+        var ids = $("#selAllOtherIDs").val();
+
+        var valueID = $(obj).attr("id");
+        if ($(obj).attr("checked") == "checked")
+        {
+            if ($.inArray(valueID, ids.split(',')) < 0)
+            {
+                ids = ids == "" ? valueID : ids + "," + valueID;
+            }
+            $("#selAllOtherIDs").val(ids);
+        }
+        else
+        {
+            if ($.inArray(valueID, ids.split(',')) >= 0)
+            {
+                ReomveArray("selAllOtherIDs", valueID);
+            }
+        }
+    }
+</script>

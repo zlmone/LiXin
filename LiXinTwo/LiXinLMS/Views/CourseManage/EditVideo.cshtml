@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "EditVideo";
+    Layout = null;
+}
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+
+<div class="span36">
+    <table class="tab-Form all">
+        <tr>
+            <td class="Tit span6">视频名称：</td>
+            <td><input type="text" class="span15" name="videoName" id="txtvideoName" value="@ViewBag.Name" /></td>
+        </tr>
+        @{
+            if (ViewBag.Id == 0)
+            {
+                <tr>
+                    <td class="Tit">视频文件：</td>
+                    <td><input type="file" name="txtFileVideo" id="txtFileVideo" value="" /></td>
+                </tr>
+            }
+        }
+        <tr>
+            <td colspan="2" class="tc"><input type="button" name="btnSubUpload" onclick="fnSubmitVideo()" value="确定" class="btn" /></td>
+        </tr>
+    </table>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        fnInitUploadifyVideo();
+    });
+    var uploader_video = "";
+    function fnInitUploadifyVideo() {
+        $('#txtFileVideo').uploadify({
+            //'formData': { 'videoName': $("#txtvideoName").val() },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '../../Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': uploader_video,
+            'successTimeout':10000,
+            'auto': false,
+            'method': 'post', 
+            'multi': false,
+            'onCancel': function (file) { },
+            'onSelect': function (file) {
+                var scromLength = $("#txtFileVideo-queue").find(".uploadify-queue-item").length;
+                if (scromLength > 1) {
+                    $("#txtFileVideo-queue").find(".uploadify-queue-item:last").remove();
+                    art.dialog.tips("只能选择一个视频", 3);
+                    return;
+                }
+            },
+            'sizeLimit': 2147483647,
+            'onUploadStart': function (file) {
+
+            },
+            'onUploadSuccess': function (file, data, response) {
+                if (Number(data) && data != "0" && data != "-1") {
+                    art.dialog.tips("操作成功！", 3);
+                    art.dialog.list['pop_EditVideo'].close();
+                    fnGetVideoList();
+                } else {
+                    $("#txtFileVideo-queue").find(".uploadify-queue-item").remove();
+                    art.dialog.tips("视频格式错误，请重新选择视频！", 3);
+                }
+            },
+            'fileTypeExts': "*.zip"
+        });
+
+    }
+
+    function fnSubmitVideo() {
+        if ($.trim($("#txtvideoName").val()) == "") {
+            art.dialog.tips("请输入视频名称！", 3);
+            return;
+        }
+        if ($("#txtvideoName").val().length > 30) {
+            art.dialog.tips("视频名称不能大于30个字符！", 3);
+            return;
+        }
+        if ("@ViewBag.Id" == "0") {
+            var scromLength = $("#txtFileVideo-queue").find(".uploadify-queue-item").length;
+            if (scromLength > 0) {
+                uploader_video = '@(System.Configuration.ConfigurationManager.AppSettings["uploadServiceUrl"])CourseManage/SubmitVideo?t='+new Date();
+                $("#txtFileVideo").uploadify("settings", "uploader", uploader_video);
+                $('#txtFileVideo').uploadify('settings', 'formData', { 'videoName': $("#txtvideoName").val().replace(/\</g, '%3C').replace(/\>/g, '%3E') });
+                $('#txtFileVideo').uploadify('upload', '*');
+            } else {
+                art.dialog.tips("请选择文件！", 3);
+            }
+
+        } else {
+            $.post("/CourseManage/SubmitModify?flag=0&Id=@ViewBag.Id&Name=" + escape($("#txtvideoName").val()), function(data) {
+                //if (data.result==1) {
+                art.dialog.tips(data.content, 3);
+                art.dialog.list['pop_EditVideo'].close();
+                fnGetVideoList();
+                //}
+            });
+        }
+    }
+
+</script>

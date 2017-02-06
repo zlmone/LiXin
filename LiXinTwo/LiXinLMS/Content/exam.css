@@ -1,0 +1,145 @@
+@charset "utf-8";
+/* CSS Document */
+
+.exam-list{overflow-y:auto;}
+.exam-box{padding:10px;border:1px dotted #ccc;}
+.QSingle{padding:10px 0;border-bottom:1px dotted #ccc;}
+.exam-list .QSingle:last-child{border-bottom:none 0;}
+.QSingle .info{display:inline;text-align:right;}
+.QSingle .info strong{width:50px;display:inline-block;}
+.QSingle .title input[type="text"],.QSingle .info span{margin-top:-3px;padding:0;background:none;border:0 none;color:#333;line-height:20px;width:28px;text-align:center;display:inline-block;}
+.QSingle .title .fen{width:20px;}
+.QSingle .title .sortpayGrade{color:#999;margin:5px 0 5px 35px;}
+.QSingle .title .sortpayGrade a{margin-left:10px;color:#999;border-bottom:2px solid #ddd;text-decoration:none;cursor:pointer;}
+.QSingle .title .sortpayGrade a:hover{color:#666;border-bottom:2px solid #666;}
+
+.QSingle h5{margin-top:-20px;padding:0 50px 0 100px; position:relative;}
+.QSingle h5 .do{position:absolute;right:5px;top:0;}
+.QSingle .title .type{padding:3px 0 3px 95px;color:#999;}
+.QSingle .title .type span{padding:0 5px;}
+
+.QSingle .content{margin-top:5px;padding:0 0 0 100px;color:#555;}
+.QSingle .content div{padding:2px 0; vertical-align:middle;}
+.QSingle .content input[type="radio"],.QSingle .content input[type="checkbox"]{margin-right:5px;margin-top:-3px;}
+.QSingle .content textarea{width:60%;}
+.QSingle .content .jud label{margin-right:20px;}
+.QSingle center{height:350px;}
+.QSingle center div{position:relative;display:inline-block;height:350px;}
+.QSingle center a{position:absolute;top:0;width:40px;height:350px;background:url(../images/exam-point.png) no-repeat #eaeaea;border:2px solid #eaeaea;border-top:none 0;border-bottom:none 0;cursor:pointer;overflow:hidden;display:block;}
+.QSingle center a:hover{background-color:#b4b4b4;border-color:#b4b4b4;}
+.QSingle center a.pl{left:-45px;background-position:-40px 130px;}
+.QSingle center a.pl:hover{background-position:0 130px;}
+.QSingle center a.pr{right:-45px;background-position:-80px 130px;}
+.QSingle center a.pr:hover{background-position:-120px 130px;}
+.QSingle center img{width:400px;height:350px;overflow:hidden;}
+
+.QSingle .content .ans{margin-left:-100px;margin-top:2px;padding:0 0 0 100px;}
+.QSingle .content .ans:first-child{margin-top:10px;}
+.QSingle .content .ans div{margin-top:0px;}
+
+.QSingle .ans{margin-top:10px;padding:0 0 0 100px;}
+.QSingle .ans .ans-stu,.QSingle .ans .ans-ok,.QSingle .ans .ans-res{margin-top:10px;}
+.QSingle .ans p{padding:5px 10px;min-height:20px;}
+.QSingle .ans .tit{display:block;margin-left:-85px;width:80px;line-height:30px;text-align:center;color:#fff;font-weight:bold;float:left;}
+.QSingle .ans .tit i{display:block;margin:10px -5px 0 0;width:5px;height:9px;background:url(../images/other-bg.png);overflow:hidden;float:right;}
+.QSingle .ans .ans-ok p{background:#ebfbf0;border:1px solid #c4dfcc;color:#1c833c;}
+.QSingle .ans p span{margin-right:10px;}
+.QSingle .ans .ans-ok .tit{background:#1c833c;}
+.QSingle .ans .ans-ok .tit i{background-position:-40px -70px;}
+.QSingle .ans .ans-stu p{background:#fffaec;border:1px solid #ede2c6;color:#b18100;}
+.QSingle .ans .ans-stu .tit{background:#eaab00;}
+.QSingle .ans .ans-stu .tit i{background-position:-50px -70px;}
+.QSingle .ans .ans-res p{background:#e9f4ff;border:1px solid #cddbe9;color:#034a92;}
+.QSingle .ans .ans-res .tit{background:#2d81d6;}
+.QSingle .ans .ans-res .tit i{background-position:-60px -70px;}
+
+
+/* ExamTestOnline.cshtml -- */
+.exam-info:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.exam-info{zoom:1;padding:20px 40px;background:#fff;border-bottom:1px dotted #aaa;}
+.exam-info .pic{width:120px;height:140px;background:url(../images/exam-pic.jpg) no-repeat;float:left;}
+.exam-info .tab-Form{float:left;margin-left:20px;width:200px;}
+.exam-info .tab-Form td{border-bottom:1px dotted #c8c8c8;}
+.exam-info .tab-Form .Tit{width:80px;}
+.exam-info .tab-Form .Tit i{margin-right:10px;width:3px;height:5px;background:url(../images/other-bg.png) -94px -20px no-repeat;display:inline-block;}
+.exam-info .time{float:left;margin-left:80px;}
+.exam-info .time p{margin:10px 0;padding:10px;font-size:14px;background:#f5f5f5;}
+.exam-info strong{margin:0 3px;color:#c7000d;}
+
+.examrule{padding:20px 40px;background:#e5e5e5;}
+.examrule h5{line-height:30px;}
+.examrule li{padding:3px 0;}
+
+
+.examTit{padding:10px 20px;background:#e5e5e5;}
+.examTit h2{font:14px/22px "Î¢ÈíÑÅºÚ";font-weight:bold;}
+.examTit dl:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.examTit dl{zoom:1;}
+.examTit dl dd{margin-right:10px;line-height:26px;float:left;}
+.examTit dl strong{margin:0 3px;color:#c7000d;}
+.examTit dl dt{float:right;}
+.examTit dl dt span{margin-right:10px;padding:0 10px;background:#fff;display:inline-block;line-height:26px;float:left;}
+
+.exam-main{margin-top:10px;}
+.exam-main .tab-topic{margin-bottom:10px;}
+.exam-main .tab-topic ul:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.exam-main .tab-topic ul{zoom:1;}
+.exam-main .tab-topic li{position:relative;margin-right:1px;width:54px;height:45px;background:#dfdfdf;color:#333;text-align:center;line-height:20px;float:left;cursor:pointer;}
+.exam-main .tab-topic li:hover{background:#b3b3b3;}
+.exam-main .tab-topic li.On{background:#333;color:#fff;}
+.exam-main .tab-topic li i{position:absolute;bottom:-6px;left:40%;width:11px;height:6px;overflow:hidden;background:url(../images/other-bg.png) -100px -20px no-repeat;}
+.exam-main .tab-topic li:hover i{background-position:-120px -20px;}
+.exam-main .tab-topic li.On i{background-position:-80px -20px;}
+.exam-main .tab-topic div{display:block;}
+.exam-main .fr h4{line-height:30px;border-bottom:1px dotted #aaa;text-indent:10px;}
+.exam-main .Numlist:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.exam-main .Numlist{padding:10px 0;zoom:1;}
+.exam-main .Numlist .singlequ{margin:5px;width:33px;height:20px;background:#dfdfdf;float:left;text-align:center;line-height:20px;cursor:pointer;}
+.exam-main .Numlist .done{background:#ff8830;color:#fff;}
+.exam-main .Numlist .sign{background:#64a3d8;color:#fff;}
+
+.exam-main .exam-con{margin:10px 0;padding:10px;border:1px solid #cacaca;min-height:100%;}
+.singleQuestion{padding:10px 0;}
+.singleQuestion dl dt{width:10%;text-align:right;float:left;position:relative;}
+.singleQuestion dl dt a{display:inline-block;width:10px;height:10px;background:#ddd;position:absolute;top:4px;left:-6px;cursor:pointer;}
+.singleQuestion dl dt a.signt{background:#64a3d8;}
+.singleQuestion dl dt span{margin-right:5px;}
+.singleQuestion dl dd:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.singleQuestion dl dd{width:90%;float:right;zoom:1;}
+.singleQuestion dl dd h5{width:80%;float:left;}
+.singleQuestion dl dd a{float:right;}
+.singleQuestion dl dd.questionAnswer{margin-top:10px;}
+.singleQuestion dl dd.questionAnswer p{padding:3px 0;}
+.singleQuestion dl dd.questionAnswer input{margin-right:5px;}
+
+
+/* ExampaperEdit.cshtml -- */
+.qView{padding:8px 0;background:#e5e5e5;border:1px solid #ccc;box-shadow:0 2px 0 #ddd;color:#666;}
+.qView div{margin:0 auto;width:98%;}
+.qView div p{width:100px;text-align:right;line-height:22px;float:left;}
+.qView div p.Tit{width:auto;}
+.qView div p .inpbor,.qView div p font{margin:0 3px;width:20px;text-align:center;display:inline-block;}
+.qView div p .inpbor{}
+.qView div p font{color:#333;}
+.qView div p .inpbor{margin-left:5px;height:18px;background:#fff;border:1px solid #ccc;border-radius:2px;line-height:18px;}
+.qView div p .inpbor:hover,.qView div p .inpbor:focus{background:#fff;border:1px solid #aaa;}
+
+.qView .info span{width:16%;line-height:20px;display:inline-block;}
+
+.qorder ul{ display: block; }
+.qorder ul li{margin-right:5px;padding:3px 20px;background:#fff;border:1px solid silver;border-radius:3px;line-height: 20px;float:left;}
+
+/* ExampaperEdit.cshtml & ExampaperRule.cshtml -- */
+.exam-rule:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.exam-rule{zoom:1;margin-top:-1px;padding:5px 0;background:#E5E5E5;border:1px solid #ccc;}
+.exam-rule a{margin-right:15px;float:right;}
+.exam-rule p{display:inline-block;float:left;}
+.exam-rule .tit{margin-left:30px;font-weight:bold;}
+.exam-rule span{display:inline-block;margin-right:10px;width:20px;text-align:center;}
+
+/* ExampaperRandom.cshtml -- */
+.exam-sel{background:#e1e1e1;position:relative;border-top:1px solid #fff;}
+.exam-sel .num{width:20px;text-align:center;}
+.exam-sel .num.total{border:none 0;background:none;}
+.exam-sel .idel{position:absolute;top:10px;right:10px;}
+.exam-sel .Tit{width:50px;}

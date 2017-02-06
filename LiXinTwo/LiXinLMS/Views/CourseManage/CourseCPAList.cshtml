@@ -1,0 +1,262 @@
+﻿@{
+    ViewBag.Title = "CourseCommonList";
+    Layout = null;
+
+}
+<div id="div_Search" class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">课程名称：</td>
+            <td class="span33">
+                <input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="Tit span6">开课时间：</td>
+            <td>
+                <div class="time-choose">
+                    <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                        name="StartTime" id="txt_StartTime" value="" />
+                    <i></i>
+                </div>
+                至
+                <div class="time-choose">
+                    <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                        id="txt_EndTime" value="" />
+                    <i></i>
+                </div>
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnSearch(); " />
+                <a href="EditCourseCPA" class="btn btn-co">课程开设</a>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="Content" class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th>学时</th>
+                <th>开放级别</th>
+                <th>授课讲师</th>
+                <th class="span14" jsrendersortfield="StartTime" sort="desc">开课时间</th>
+                <th class="span6">培训天数</th>
+                <th>授课地点</th>
+                <th class="span10">培训对象</th>
+                <th class="span12">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbCourseCPAList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="courseCPAListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+             <td>{{:#index+1}}</td>
+             <td>
+                 <div class="ovh tl span20" title="{{:CourseName}}">{{:CourseName}}</div>
+                 <div class="ovh tl span20" title="{{:Memo}}">课程大纲：{{:Memo}}</div>
+             </td>
+             <td>{{:CourseLength}}</td>
+             <td>{{:OpenLevel}}</td>
+             <td><div class="ovh tl span10" title="{{:CpaTeacher}}">{{:CpaTeacher}}</div></td>
+             <td><div class="f11 tl">{{:StartTime}} - {{:EndTime}}</div></td>
+             <td>{{:TrainDays}}</td>
+             <td><div class="ovh tl span9" title="{{:CourseAddress}}">{{:CourseAddress}}</div></td>
+             <td><div class="ovh tl span10" title="{{:CourseObjectMemo}}">{{:CourseObjectMemo}}</div></td>
+                <td>
+                 {{if CourseState!=3||Publishflag==0}} 
+                        <a onclick="fnModifyCourse({{:Id}},{{:Publishflag}})" class="icon iedit" title="编辑"></a>
+                    {{/if}}
+                    {{if CourseState==3&&Publishflag==1}}
+                         <span class="icon iedit idis" title="编辑"></span>
+                    {{/if}}
+
+                  <a onclick="fnCourseDetial({{:Id}})" class="icon iview" title="查看详情"></a>                
+
+                 {{if Publishflag==0 }}
+                    <a onclick="fnDeleteCourse({{:Id}})" class="icon idel" title="删除"></a>
+                    <a onclick="fnPublishCourse({{:Id}})" class="icon ipub" title="发布"></a>
+                 {{/if}}
+
+                 {{if Publishflag==1}}                        
+                        {{if datetime<StartTime}}
+                            <span class="icon idel" title="删除" onclick="fMessageUsers({{:Id}})"></span>
+                        {{else}}                      
+                            <a class="icon idel idis" title="删除"></a>
+                        {{/if}}
+                        <span class="icon ipub idis" title="发布"></span>
+                 {{/if}} 
+                </td>
+            
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+             
+        //初始化查询条件
+        initSearch();
+        $("#txtCourseName").val('@(ViewBag.Attname)');
+        if ("@(ViewBag.AttstartTime)" != "")
+        {
+            $("#txt_StartTime").val('@(ViewBag.AttstartTime)');
+        }
+        if ("@(ViewBag.AttendTime)" != "")
+        {
+            $("#txt_EndTime").val('@(ViewBag.AttendTime)');
+        }
+        fnGetCourseList(@(ViewBag.page));
+    });
+
+    function fnGetCourseList(page)
+    {
+        $("#tbCourseCPAList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "LastUpdateTime",
+            jsRenderASC: "desc",
+            templateID: "courseCPAListTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox('pop_selectall', 'tbCourseCPAList');
+            }
+        });
+    }
+
+    function GetPopParameters()
+    {
+        var url = "/CourseManage/GetCourseCPAList?t=" + new Date();
+        url += "&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val();
+        return url;
+
+    }
+    function fnSearch()
+    {
+        fnGetCourseList(1);
+    }
+
+    function fnModifyCourse(Id, Publishflag)
+    {
+        //        if (way==1) {
+        window.location.href = '/CourseManage/EditCourseCPA?Id=' + Id + "&Publishflag=" + Publishflag;
+        //        }
+    }
+
+    
+    function fnPublishflagUpdateCourse(Id)
+    {
+        window.location.href = '/CourseManage/EditCourseCPA?Id=' + Id+'&Publishflag=1';
+    }
+
+    
+    function fnDeleteCourse(Id) {
+        art.dialog({
+            lock: false,
+            content: "确定要删除该课程吗？",
+            ok: function ()
+            {
+                $.post("/CourseManage/SubmitModifySingleCourse?flag=0&cl=c&courseId=" + Id, function (data)
+                {
+                    art.dialog.tips(data.content, 3, function ()
+                    {
+                        //                        alert(1);
+                        if (data.result == 1)
+                        {
+                            fnGetCourseList(data.indexpage);
+                        }
+                    });
+
+
+                });
+            },
+            cancel: function ()
+            {
+                return;
+            }
+        });
+    }
+
+    function fnCourseDetial(Id)
+    {
+        //        if (way == 2) {
+        window.location.href = '/CourseManage/CourseCPADetial/' + Id;
+        //        } 
+    }
+    function fnPublishCourse(Id)
+    {
+        $.post("/CourseManage/SubmitModifySingleCourse?flag=1&cl=c&courseId=" + Id, function (data)
+        {
+            art.dialog.tips(data.content, 3);
+            if (data.result == 1)
+            {
+                fnGetCourseList(data.indexpage);
+            }
+
+        });
+    }
+    function fnImportCPACourseScore(id)
+    {
+        art.dialog.load("/CourseManage/ImportCourseCPATemplate/" + id, { title: "导入成绩", id: "pop_ImportCourseCPATemplate", init: function () { fnInitUploadifyCPAScore(); } }, false);
+    }
+
+    function fMessageUsers(id)
+    {
+        
+        art.dialog({
+            lock: false,
+            content: "确定要删除该课程吗？",
+            ok: function () {
+                $.post("/CourseManage/GetCpaNoStart?CourseId="+id, function (data) {
+
+                        fnGetCourseList(1);
+                         art.dialog({
+                                lock: false,
+                                content: data.content+"是否通知学员？",
+                                ok: function () {
+                                    art.dialog.load("/CourseManage/CourseCPASendMessage?courseid=" + id + "&t=" + new Date(), {
+                                        title: "消息编辑", id: "CourseCPASendMessage", width: 800, close: function () {
+                                            $.post("/CourseManage/FdeleteCpalearnStatus?courseid=" + id + "&t=" + new Date())
+                                        }
+                                    });
+                        },
+                        cancel: function () {      
+                            $.post("/CourseManage/FdeleteCpalearnStatus?courseid=" + id + "&t=" + new Date());                           
+                            return;
+                        }
+                    });
+
+                });
+            },
+            cancel: function () {
+                return;
+            }
+            //fnGetCourseList(data.page);
+        });		
+    }
+
+    function Send(id) {
+        var ids = $("#commonSelectedIdStr").val();;
+        if (ids == "") {
+            art.dialog.tips( "请选择用户！", 3);
+            return;
+        }
+        $.post("/CourseManage/FunCourseCpaSendMessage", { courseId: id, userIds: ids ,}, function (data) {
+            if (data == 1) {
+                art.dialog.tips("提醒成功！", 3, function () { fnGetCourseList(1); closeDialog("CourseCPASendMessage"); });
+                           
+							
+                            
+            } else {
+                art.dialog.tips("提醒失败！", 3, function () { fnGetCourseList(1); closeDialog("CourseCPASendMessage"); });
+                           
+            }
+        });
+    }
+</script>

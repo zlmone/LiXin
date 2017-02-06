@@ -1,0 +1,135 @@
+﻿@{
+    ViewBag.Title = "AddTrainGrade";
+    Layout = null;
+    var status = Request.QueryString["status"];
+}
+<form id="formAddTrainGrade">
+<table class="tab-Form"  style="width:500px">
+    <tr>
+        <td class="Tit span8">
+            姓名：
+        </td>
+        <td>
+            <span id="pop_RealName"></span>
+        </td>
+    </tr>
+    @*<tr>
+        <td class="Tit">
+            薪酬级别：
+        </td>
+        <td>
+            <span id="pop_payGrade"></span>
+        </td>
+    </tr>*@
+    <tr>
+        <td class="Tit">
+            原培训级别：
+        </td>
+        <td>
+            <span id="pop_oldGrade"></span>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            新培训级别：
+        </td>
+        <td>
+            <select id="pop_trainGrade" name="grade">
+                @{
+                    foreach (var item in @ViewBag.trainGrade)
+                    {
+                    <option value="@item">@item</option>
+                    }   
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            变更理由：
+        </td>
+        <td>
+            <textarea id="txtReason" name="Reason" cols="20" rows="2" class="span20" maxlength="200"></textarea>
+        </td>
+    </tr>
+</table>
+<div class="mt10 tc">
+    <input type="submit" value="保存" class="btn" />
+    <a onclick=" closeDialog('art_AddSingle')" class="btn btn-cancel">取消</a></div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        ShowData();
+        jQuery.validator.addMethod("IsUpdate", function (value, element)
+        {
+            var old = $("#pop_oldGrade").html();
+            return this.optional(element) || old != value;
+        }, "请选择不一样的级别！");
+        $("#formAddTrainGrade").validate(
+        {
+            event: "blur",
+            rules: {
+                Reason: {
+                    required: true,
+                    maxlength: 200
+                },
+                grade: {
+                    IsUpdate: true
+                }
+            },
+            messages: {
+                Reason: {
+                    required: "请输入变更理由",
+                    maxlength: "理由不能多于200个字符！"
+                }
+            },
+            errorPlacement: function (error, element)
+            {
+                if (element.is(':radio') || element.is(':checkbox'))
+                {
+                    var eid = element.attr('name');
+                    error.appendTo(element.parent());
+                } else
+                {
+                    error.insertAfter(element);
+                }
+            },
+            submitHandler: Save
+        });
+    });
+
+    function ShowData()
+    {
+        var userID = $("#hiduserID").val();
+        var obj = $("#" + userID).parent().parent().find("td");
+        $("#pop_RealName").html($(obj).eq(2).text());
+        //$("#pop_payGrade").html($(obj).eq(4).text());
+        $("#pop_oldGrade").html($(obj).eq(4).text());
+    }
+
+
+    function Save()
+    {
+        $.post("/TrainGradeManage/InsertTrainGrade",
+                {
+                    userID: $("#hiduserID").val(),
+                    oldgrade: $("#pop_oldGrade").html(),
+                    newgrade: $("#pop_trainGrade").val(),
+                    reason: $("#txtReason").val(),
+                    status: '@status'
+                }, function (data)
+                {
+
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                        closeDialog('art_AddSingle');
+
+                    }
+
+                });
+    }
+
+    
+</script>

@@ -1,0 +1,262 @@
+﻿@using LiXinLanguage
+@using LiXinModels.User
+@{
+    var currUser = Session["currentUser"] as Sys_User;
+    if (currUser == null)
+    {
+        currUser = new Sys_User
+            {
+                Realname = ""
+            };
+    }
+    var cssmodule = "perCenter";
+    if (Session["moduleName"] != null)
+    {
+        switch (Session["moduleName"].ToString())
+        {
+            case "MyTrain":
+            case "NewMyTrain":
+                cssmodule = "myTrain";
+                break;
+            case "MyDepTrain":
+                cssmodule = "myDepTrain";
+                break;
+            case "TrainManage":
+                cssmodule = "trainManage";
+                break;
+            case "DepManage":
+                cssmodule = "depManage";
+                break;
+            case "SystemManage":
+                cssmodule = "systemManage";
+                break;
+            case "FAQ":
+                cssmodule = "trainPol";
+                break;
+            case "Person":
+                cssmodule = "perCenter";
+                break;
+            case "Knowledge":
+                cssmodule = "knowledge";
+                break;
+            default:
+                cssmodule = "perCenter";
+                break;
+        }
+    }
+}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+@*<!--[if lt IE 7 ]> <html xmlns="http://www.w3.org/1999/xhtml" class="ie ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html xmlns="http://www.w3.org/1999/xhtml" class="ie ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html xmlns="http://www.w3.org/1999/xhtml" class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html xmlns="http://www.w3.org/1999/xhtml" class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->*@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!--<![endif]-->
+<head>
+    @* <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />*@
+    <meta http-equiv="X-UA-Compatible" content="IE=9;IE=8;IE=7;IE=EDGE;IE=edge" />
+    <title></title>
+    <link href="@Url.Content("~/Content/Raster.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/base.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/iframe.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/type.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/table.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/datepicker.css")" rel="stylesheet" type="text/css" />
+
+    <link href="@Url.Content("~/Content/imagecropper.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/calendar.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/treeview.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/exam.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/" + cssmodule + ".css")" rel="stylesheet" type="text/css" />
+
+    <script src="@Url.Content("~/Scripts/jquery-1.8.1.min.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/jquery.form.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/jquery.validate-1.10.0.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/retech.tools.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/jsrender.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/extend.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/global.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/artDialog4.1.6/jquery.artDialog.js?skin=twitter")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/artDialog4.1.6/plugins/iframeTools.source.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/treeview/jquery.treeview.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/jquery.contextmenu.r2.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/RTDatePicker/WdatePicker.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/customstar.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/Base64.js")" type="text/javascript"> </script>
+
+
+    <script language="javascript" type="text/javascript">
+        $(document).ready(function ()
+        {
+
+            artDialog.defaults.title = "@LiXinLanguage.CommonLanguage.Common_Tip";
+            artDialog.defaults.okVal = "@LiXinLanguage.CommonLanguage.Common_Sure";
+            artDialog.defaults.cancelVal = "@LiXinLanguage.CommonLanguage.Common_Cancel";
+            //artDialog.defaults.time = 3;
+            artDialog.defaults.lock = true;
+
+            artDialog.defaults.close = function () { $('#popIframe').hide(); };
+
+            $(document).attr("title", "@ViewBag.Title");
+        });
+
+        function LogOut()
+        {
+            //弹出iframe遮罩
+            //$("embed").hide();
+            art.dialog({
+                content: "确定退出系统吗？",
+                ok: function ()
+                {
+                    $.getJSON("/Login/LoginOut", function (data)
+                    {
+                        window.location.href = "/Login/";
+                    });
+                },
+                cancel: function ()
+                {
+                    //$("embed").show();
+                }
+            });
+        }
+
+        function closeDialog(id)
+        {
+            art.dialog.list[id].close();
+        }
+
+
+    </script>
+</head>
+<body>
+    <div id="head">
+        <center class="clb">
+            <div class="fl">@(currUser.Realname.Length > 5 ? currUser.Realname.Substring(0, 5) + "..." : currUser.Realname)，您好！欢迎进入立信培训管理系统！</div>
+            <div class="fr">
+                <a href="/Home/Index" class="back"><i></i>返回系统首页</a>
+                <a href="/Common/RedirectUrl?blockName=Person">个人中心</a>
+                @*<a href="#">通知（5）</a>*@
+                @*<a onclick="window.open('/Log/立信培训管理系统学员操作手册.pdf');" href="#" class="pointer">帮助</a>*@
+                <a onclick="fdownload()" class="pointer" title="帮助">帮助</a>
+                <a href="#" onclick="LogOut();">退出</a>
+            </div>
+        </center>
+        <div id="menu" class="menu">
+            <center>
+                @(Html.Action("MenuHtml", "Common"))
+            </center>
+
+        </div>
+    </div>
+    <div id="main">
+        @RenderBody()
+    </div>
+    <div class="clear">
+    </div>
+    <div id="footer">
+        <center>
+            <p>地址：上海市南京东路61号4楼 邮编：200002 电话：021-63391166 (沪)ICP备案号：0592182</p>
+            <p>立信会计师事务所(特殊普通合伙) 版权所有</p>
+        </center>
+    </div>
+    <script type="text/javascript">
+        //显示个人中心
+        function showPersonCenter(obj)
+        {
+            if ($('.Icon_percen_ul').find("a").length > 0)
+            {
+                if ($('.Icon_percen_ul').css('display') == 'none')
+                {
+                    $('.Icon_percen_ul').show();
+                } else
+                {
+                    $('.Icon_percen_ul').hide();
+                }
+            } else
+            {
+                $(obj).parent().hide();
+            }
+        }
+
+        $(document).ready(function ()
+        {
+
+
+            //弹出框个人中心
+            $(".Icon_perCen").toggle(
+                function ()
+                {
+                    $(".Icon_percen_ul").show("slow");
+                }, function ()
+                {
+                    $(".Icon_percen_ul").hide("slow");
+                });
+
+            //搜索
+            $(".search_hold").bind("click", searchScorpe);
+
+            //备注
+            $(".Remark_hold").bind("mouseover", function ()
+            {
+                if ($("#MemoTip").css("display") == "none")
+                    $("#MemoTip").css({ "top": $(this).css("top"), "right": "20px" }).show("slow");
+            }).bind("mouseleave", function ()
+            {
+                $("#MemoTip").hide('slow');
+            });
+
+            //菜单
+            $("#main-nav a").bind("click", function ()
+            {
+                if ($(this).next().length > 0)
+                {
+                    $("#main-nav a").removeClass("current");
+                    $("#main-nav li ul").hide();
+                    $(this).next().show();
+                    $(this).addClass("current");
+                }
+            });
+
+            $("#main-nav a.current").next().show();
+
+            $("#main").css("min-height", document.documentElement.clientHeight - 11 - $("#footer").height() - $("#head").height() + "px");
+        });
+
+        function searchScorpe(obj)
+        {
+            var t = arguments[0];
+            if (t.tagName == "A")
+            {
+                if ($(t).prev().css("display") == "block")
+                {
+                    $(t).prev().slideUp('slow');
+                    $(t).html("展开搜索");
+                } else
+                {
+                    $(t).prev().slideDown('slow');
+                    $(t).html("收起搜索");
+                }
+            }
+            else
+            {
+                if ($(this).prev().css("display") == "block")
+                {
+                    $(this).prev().slideUp('slow');
+                    $(this).html("展开搜索");
+                } else
+                {
+                    $(this).prev().slideDown('slow');
+                    $(this).html("收起搜索");
+                }
+            }
+
+        }
+
+        function fdownload() {
+
+            art.dialog.load("/Home/ResourceMain", { title: '下载文档', id: "pop_ResourceMain" }, false);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+﻿
+@{
+    ViewBag.Title = "AfterCourse";
+    Layout = null;
+    var afterquestion = ViewBag.afterquestion as List<LiXinModels.Survey.Survey_Question>;
+    var firsthtml = ViewBag.firsthtml as string;
+    var tt= ViewBag.list as List<LiXinModels.NewCourseManage.New_CourseRoomRule>;
+    int courseid = Convert.ToInt32(ViewBag.courseid);
+
+    //var fenzuafterquestion = ViewBag.fenzuafterquestion as List<LiXinModels.Survey.Survey_Question>;
+    //var fenzufirsthtml = ViewBag.fenzufirsthtml as string;
+}
+
+ <div id="div_list">
+     <div style="float: left; width: 250px;">
+           @if (tt != null && tt.Where(p => p.Type == 0).Count() > 0)
+            {
+                <h2 class="tit-h2">
+                     <span class="tit-con">集中授课</span>
+                </h2>
+                <ul class="coursetype">
+                @foreach (var item in tt.Where(p => p.Type == 0))
+                {
+                     <li class="tab-ass-td" type="type_@(item.Type)" sub="@item.Id" isping="@(item.PingId)">开课时间：@item.ShortCourseTimeStr 讲师： @item.teachername</li>
+        
+                }
+                    </ul>
+            }
+
+            @if (tt != null && tt.Where(p => p.Type == 1).Count() > 0)
+            {
+                <h2 class="tit-h2">
+                     <span class="tit-con">分组带教</span>
+                </h2>
+                <ul class="coursetype">
+                @foreach (var item in tt.Where(p => p.Type == 1))
+                {
+                     <li class="tab-ass-td" type="type_@(item.Type)" sub="@item.Id" isping="@(item.PingId)">开课时间：@item.ShortCourseTimeStr 讲师： @item.teachername</li>
+        
+                }
+               </ul>
+            }
+     
+     </div>
+     <div id="exampaperlist" style="width: 700px; float: left">
+     
+     </div>
+
+       
+     <center class="mt10">@Html.ActionLink("返回", "CourseList", "NewTeacherCourse", new { p = "1" }, new { @class = "btn btn-cancel" })</center>
+</div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $.get("/NewTeacherCourse/AfterCourseNew?courseid="+@(ViewBag.courseid)+"&pingid="+@(ViewBag.pingid)+"&sub="+@(ViewBag.sub), function (data) { $("#exampaperlist").html(data); });
+           
+                //$(".question_div:eq(0)").addClass("On");
+            //$(".teacherquestion_div:eq(0)").addClass("On");
+
+                //if($("#ul_main").children("li").size()==2)
+                //{
+                //    //alert($("#ul_main").children("li").size());
+                //    var index=$(".ul_main_li").index();
+                //    //$(".ul_main_li:eq("+index+")").css("display","").siblings("li").css("display","none");
+                //    $(".tab-ass:eq(1)").css("display","none");
+
+                //    $(".ul_main_li").bind("click",function () {
+                //        var index = $(this).index();                
+                //        $(".tab-ass:eq("+index+")").css("display","").siblings(".tab-ass").css("display", "none");
+                //    })
+                //}
+
+
+                //$("#ul_main li").click(function () {
+                //    if ($("#ul_main li").size() > 1) {
+                //        var index = $(this).index();
+                //        $("#div_list").children("table:eq(" + index + ")").css("display", "").siblings("table").css("display", "none");
+                //        $("#ul_main li").removeClass("On");
+                //        $(this).addClass("On");
+                //    }
+
+                //});
+
+                //$(".question_div").click(function () {
+                   
+                //    var questiontype = $(this).attr("questiontype");
+                //    var ExampaperID = $(this).attr("ExampaperID");
+                //    var QuestionID = $(this).attr("QuestionId");
+                //    $(this).addClass("On").siblings(".question_div").removeClass("On");
+                //    $.post("/NewTeacherCourse/FindAnswer?courseid=" +@(courseid) +"&ExampaperID=" + ExampaperID + "&questiontype=" + questiontype + "&QuestionID=" + QuestionID, function (data) {
+                //        $("#first_right").children("p").remove();
+                //        $("#first_right").append(data.List);
+                 //   });
+                //});
+                
+                $(".tab-ass-td").click(function () {
+                    var pingid = $(this).attr("isping");
+                    var sub=$(this).attr("sub");
+                    $.get("/NewTeacherCourse/AfterCourseNew?courseid="+@(ViewBag.courseid)+"&pingid="+pingid+"&sub="+sub, function (data) {
+                        $("#exampaperlist").html(data); 
+                    });
+
+
+
+                    @*$.post("/NewTeacherCourse/GetPingList?pingid=" + pingid + "&courseid=" + @(courseid), function (data) {
+                        $(".question_div").remove();
+                        $("#first_right").children("p").remove();
+
+                        $(".question_div").remove();
+                        $("#first_left").append(data.html);
+                        $("#first_right").append(data.firsthtml);
+
+                    })*@
+
+                })
+        });
+        function fliclick(t)
+        {           
+            var questiontype = $(t).attr("questiontype");
+            var ExampaperID = $(t).attr("ExampaperID");
+            var QuestionID = $(t).attr("QuestionId");
+            $(t).addClass("On").siblings(".question_div").removeClass("On");
+            $.post("/NewTeacherCourse/FindAnswer?courseid=" +@(courseid) +"&ExampaperID=" + ExampaperID + "&questiontype=" + questiontype + "&QuestionID=" + QuestionID, function (data) {
+                $("#first_right").children("p").remove();
+                $("#first_right").append(data.List);
+                    });
+        }
+       
+    </script>
+

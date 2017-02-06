@@ -1,0 +1,100 @@
+﻿@{
+    ViewBag.Title = "User_OtherPassForm";
+    Layout = null;
+}
+<div style="width: 620px">
+    <div id="Search" class="so-set">
+        <table class="tab-Form" id="pop_searchForm">
+            <tr>
+                <td class="Tit span6">课程名称</td>
+                <td>
+                    <input type="text" class="span10 searchclass" id="pop_CourseName" value="请输入搜索内容" info="请输入搜索内容" /></td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" onclick=" pop_InitData(); " />
+                    <input class="btn" type="button" value="确定" onclick="SaveNewOrgan();" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table class="tab-List" id="pop_tbotherFormList">
+        <thead>
+            <tr>
+                <th class="span4">
+                    <input type="checkbox" value="0" id="pop_selectAll" />
+                </th>
+                <th>课程名称</th>
+                <th>培训地点</th>
+                <th>培训时间</th>
+                <th>申请所内学时</th>
+                <th>申请CPA学时</th>
+            </tr>
+        </thead>
+        <tbody id="pop_otherFormList"></tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+<script id="pop_otherOrgTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr >
+        <td><input type="checkbox" class="pop{{:ID}}" id="{{:ID}}" value="{{:ID}}" CourseName="{{:CourseName}}" Address="{{:Address}}" 
+            StartTime="{{:StartTimeStr}}" EndTime="{{:EndTimeStr}}" TogetherScore="{{:TogetherScore}}" CPAScore="{{:CPAScore}}"  /></td>
+        <td title="{{:CourseName}}"  data-type="1" style="text-align:left;">
+             <div class="ovh span15">{{:CourseName}}</div></td>
+         </td>
+         <td title="{{:Address}}" style="text-align:left;">
+            <div class="ovh span10">{{:Address}}</div>
+         </td>
+         <td>{{:TrainTimeStr}}</td>
+        {{if OtherFromID!=0}}      
+             <td>{{:TogetherScore}}</td> 
+        {{else}}
+            <td>N/A</td>      
+        {{/if}}
+        {{if OtherFromID!=1}}          
+            <td>{{:CPAScore}}</td>
+        {{else}}
+            <td>N/A</td>      
+        {{/if}}
+        
+    <tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch("pop_searchForm");
+        //加载列表
+        pop_InitData();
+    });
+
+    function pop_InitData()
+    {
+        $("#pop_otherFormList").JsRenderData({
+            sourceUrl: '/MyApply/GetOtherPassForm?courseName=' + encodeURI(getSearchWord("pop_CourseName")),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'pop_otherOrgTemplate',
+            funCallback: function ()
+            {
+                SetCheckBox('pop_selectAll', 'pop_otherOrgFormList');
+                HiddenSelectUser('pop_otherOrgID');
+            }
+        });
+    }
+
+    function HiddenSelectUser(ID)
+    {
+        if ($("#" + ID) != undefined && $("#" + ID) != null)
+        {
+            $("#pop_tbotherFormList tbody input[type='checkbox']").each(function ()
+            {
+                if ((',' + $("#" + ID).val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0)
+                {
+                    $(this).attr('disabled', 'disabled');
+                }
+
+            });
+        }
+    }
+</script>

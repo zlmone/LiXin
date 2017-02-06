@@ -1,0 +1,166 @@
+﻿@{
+    ViewBag.Title = "考勤管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DepAttendceList" }))
+    <div class="tab-bk mt10 mb10">
+        <ul>
+            <li onclick="javascript:window.location.href='/DepAttendce/DepAttendceList';">部门分所课程考勤管理</li>
+            <li class="On" onclick="javascript:window.location.href='/DepAttendce/DepAttendceListByU';">联合上报课程考勤管理</li>
+        </ul>
+    </div>
+    <div class="clb">
+        <div id="managelist">
+            <div id="div_Search" class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span6">
+                            课程名称：
+                        </td>
+                        <td class="span33">
+                            <input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容"
+                                info="" />
+                        </td>
+                        <td class="Tit span6">
+                            选/必修：
+                        </td>
+                        <td>
+                            <div class="sel">
+                                <input type="checkbox" value="0" name="IsMust" /><label>必修</label>
+                                <input type="checkbox" value="1" name="IsMust" /><label>选修</label>
+                            </div>
+                        </td>
+                        <td class="so-do" rowspan="2">
+                            <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnSearch(); " />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Tit">
+                            开课时间：
+                        </td>
+                        <td>
+                            <div class="time-choose">
+                                <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                                    name="StartTime" id="txt_StartTime" value="" />
+                                <i></i>
+                            </div>
+                            至
+                            <div class="time-choose">
+                                <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                                    id="txt_EndTime" value="" />
+                                <i></i>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="so-seq">
+                <select onchange="fnSearch()" id="sle_CoState">
+                    <option value="0">课程状态</option>
+                    <option value="1">未开始</option>
+                    <option value="2">进行中</option>
+                    <option value="3">已结束</option>
+                </select>
+            </div>
+            <!-- 列表 -->
+            <div id="Content" class="mt10">
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th class="span4">
+                                序号
+                            </th>
+                            <th>
+                                课程名称
+                            </th>
+                            <th class="span8">
+                                选/必修
+                            </th>
+                            <th class="span16">
+                                课程时间段
+                            </th>
+                            <th class="span6">
+                                讲师
+                            </th>
+                            <th class="span6">
+                                开课教室
+                            </th>
+                            <th class="span8">
+                                课程状态
+                            </th>
+                            <th class="span6">
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbCourseList">
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>
+            <div class="ovh tl span20" title="{{:CourseName}}">{{:CourseName}}</div>
+            </td>
+            <td>{{:IsMustStr}}</td>
+            <td><div class="f11 tl">{{:CourseTimeStr}}</div></td>
+            <td><div class="ovh span10 tl" title="{{:TeacherName}}">{{:TeacherName}}</div></td>
+            <td><div class="ovh tl span10" title="{{:RoomName}}">{{:RoomName}}</div></td>
+            <td>{{:StateStr}}</td>
+            <td>
+                {{if CourseState!=1}}
+                <a onclick="DepAttend({{:CourseID}},{{:Way}});" class="icon iatt-man" title="考勤"></a>
+                {{else}}
+                <span class="icon iatt-man idis" title="考勤"></span>
+                {{/if}}         
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        fnGetCourseList();
+    });
+
+    function fnGetCourseList() {
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "courseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function getParamUrl() {
+        var isMust = "";
+        $("input[name='IsMust']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                isMust = isMust == "" ? $(this).val() : isMust + "," + $(this).val();
+            }
+        });
+        var url = "/DepAttendce/GetDepAttendceListByU?t=" + new Date();
+        url += "&did=" + $("#seldept").val() + "&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&CoState=" + $("#sle_CoState").val() + "&isMust=" + isMust;
+        return url;
+    }
+
+    function fnSearch() {
+        fnGetCourseList();
+    }
+    //考勤管理
+    function DepAttend(id, way) {
+        window.location.href = "/DepAttendce/DepAttendceByU?cid=" + id + "&way=" + way + "&t=" + new Date();
+    }
+</script>

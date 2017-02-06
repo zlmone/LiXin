@@ -1,0 +1,75 @@
+﻿@using LiXinLanguage
+@model LiXinModels.DepAttendce.Dep_CourseAttFile
+@{
+    Layout = null;
+}
+
+<div>
+    <form method="post" action="" id="isAllowed">
+        <table class="tab-Form">           
+            <tr>
+                <td colspan="2" class="tc">附件：
+                </td>
+                <td>
+                    @if (ViewBag.resource != null && ((IEnumerable<LiXinModels.DepAttendce.Dep_CourseAttFile>)ViewBag.resource).Count() > 0)
+                    {
+
+                        foreach (var item in (IEnumerable<LiXinModels.DepAttendce.Dep_CourseAttFile>)ViewBag.resource)
+                        {
+                            <tr>
+                                <td>
+                                    <div>
+                                        @item.CreateTime
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="ovh tl span8" title="@item.RealName">@item.RealName
+                                    </div>    
+                                </td>
+                                <td>
+                                    <div class="ovh tl span8">
+                                      <a onclick="loadPinFile('@(item.Name)','@(item.RealName)');" class="icon idown" title="我要下载"></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2">
+                                <div class="tc">
+                                    暂无资源</div>
+                            </td>
+                        </tr>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="button" value="关闭"  onclick="dialogClose()" class="btn"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script type="text/javascript">
+    function dialogClose() {
+        art.dialog.list['resourceView'].close();
+    }
+</script>
+<script type="text/javascript">
+    //下载文件
+    function loadPinFile(path, name) {
+        $.post("/DepAttendce/IsExistFile", { path: path }, function (data) {
+            if (data.result == 1) {
+                 window.location.href = "/DepAttendce/LoadPrincipleFile?path=" + path + "&name=" + escape(name);
+
+            }
+            else {
+                art.dialog.tips("此文件不存在！", 3);
+            }
+        });
+    }
+</script>
+

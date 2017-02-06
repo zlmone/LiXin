@@ -1,0 +1,289 @@
+﻿@using LiXinLanguage
+@{
+    Layout = null;
+    var deptId = Request.QueryString["deptId"] ?? "0";
+}
+@*试题库导入*@
+<style type="text/css">
+    .subTreeChild {
+        height: 20px;
+        line-height: 20px;
+    }
+
+    .treeBanch { margin-left: 24px; }
+</style>
+<script src="@Url.Content("~/Scripts/jquery.contextmenu.r2.js")" type="text/javascript"> </script>
+<div class="clb">
+    <input id="selQuestionSort" type="hidden" value="0" />
+    <div class="fl span20 treeview-box">
+        <div id="sortList" class="tree-list"></div>
+    </div>     
+    <div class="fr span65 ml10">
+        <div id="Search" class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span4">@Exampaper.QuestionContent：</td>
+                    <td><input type="text" class="span30" id="txtQuestionContent" /></td>
+                    <td class="so-do"><input type="button" id="btnSearch" value="@Exampaper.Search" class="btn" /></td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="selQuestionType">
+                <option value="0">@Exampaper.All</option>
+                <option value="1">@Exampaper.Subject</option>
+                <option value="2">@Exampaper.Single</option>
+                <option value="3">@Exampaper.Multi</option>
+                <option value="4">@Exampaper.Judge</option>
+                <option value="5">@Exampaper.Fill</option>
+                <option value="6">@Exampaper.Scene</option>
+            </select>
+            <select id="selQuestionLevel">
+                <option value="0">@CommonLanguage.Common_All</option>
+                <option value="1">@Question.Question_QuestionManage_EasyLevel</option>
+                <option value="2">@Question.Question_QuestionManage_CommonLevel</option>
+                <option value="3">@Question.Question_QuestionManage_HardLevel</option>
+            </select>
+        </div>
+        <div id="question">
+            <table class="tab-List mt10">
+                <thead>
+                    <tr>
+                        <th class="span4">
+                            <input id="selectQueall" type="checkbox" />
+                        </th>
+                        <th>
+                            @Question.Question_QuestionManage_QuestionContent
+                        </th>
+                        <th>
+                            @Question.Question_QuestionManage_Type
+                        </th>
+                        <th>
+                            @Question.Question_QuestionManage_Level
+                        </th>
+                        <th>
+                            @Question.Question_QuestionManage_VoidTimes
+                        </th>
+                        <th>
+                            @CommonLanguage.Common_Do
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="questionList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<center class="mt10"><input type="button" id="btnAdd" class="btn" value="@Exampaper.Add" /></center>
+<script id="QuestionKeyTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td><input name="checkquestion" type="checkbox" value="{{:id}}" /></td>
+        <td><div class="tl" title="{{:QuestionContent}}">{{:QuestionContent.length>20?(QuestionContent.substring(0,20)+"…"):QuestionContent}}</div></td>
+        <td>{{:QuestionTypeStr}}</td>
+        <td>{{:QuestionLevelStr}}</td>
+        <td><strong>{{:VoidTimes}}</strong> 次</td>
+        <td><a target="_blank" onclick="window.open('/Question/BrowseQuestion?ids=[{{:id}}]&back=noback');" title="查看" class="icon iview"></a></td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $.ajaxSetup({
+        cache: false //关闭AJAX相应的缓存
+    });
+
+    function QuestionIDs() {
+        var tmp = $('#divExamQuestions').find('input[type=hidden]');
+        var eqids = "";
+        for (var i = 0; i < tmp.length; i++) {
+            if (tmp[i].value != "") {
+                var msg = tmp[i].value.split("|");
+                eqids += msg[0] + ",";
+            }
+        }
+        var qidhtml = '<input type="hidden" id="QuestionIDs" value="' + eqids + '"/>';
+        $("#hiddExamQuestions").html(qidhtml);
+    }
+
+    $(document).ready(function() {
+        QuestionIDs();
+        //初始化题库
+        initQuestionSort();
+        //初始化列表
+        InitializeTargetList(getUrlParms());
+
+        //****下拉框
+        //问题类别
+        $("#selQuestionType").change(function() {
+            InitializeTargetList(getUrlParms());
+
+        });
+
+        //问题难度
+        $("#selQuestionLevel").change(function() {
+            InitializeTargetList(getUrlParms());
+        });
+
+        //****按钮事件
+        //查询
+        $("#btnSearch").bind("click", function() {
+            InitializeTargetList(getUrlParms());
+        });
+
+        //添加
+        $("#btnAdd").bind("click", function() {
+            var flag = false;
+            var check = document.getElementsByName("checkquestion");
+            var checkList = "";
+            for (var i = 0; i < check.length; i++) {
+                if (check[i].checked) {
+                    checkList = checkList + check[i].value + ",";
+                    flag = true;
+                }
+            }
+            if (!flag) {
+                art.dialog.tips('@Question.Question_QuestionManage_Tip_SelectQuestion', 3);
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '@Question.Question_QuestionManage_Tip_SelectQuestion', width: 200, height: 50, fixed: true, lock: true, time: 1000 });
+                return false;
+            } else {
+                if (checkList != "") {
+                    $.ajax({
+                        type: "post",
+                        url: "/Exampaper/GetQuestion?id=" + checkList,
+                        dataType: "json",
+                        success: function(data) {
+                            var strhtml = '';
+                            for (var i = 1; i <= data.length; i++) {
+                                var Juid = "QuestionID" + data[i - 1]._id;
+                                //判断题库是否存在
+                                if (document.getElementById(Juid) == null) {
+                                    strhtml += '<div class="QSingle" id="QuestionID' + data[i - 1]._id + '">';
+                                    strhtml += '<input type="hidden" name="' + data[i - 1].QuestionType + '" value="' + data[i - 1]._id + '|' + data[i - 1].QuestionType + '"/>';
+                                    strhtml += '<div class="title"><div class="info"><input id="Order' + data[i - 1]._id + '" readonly="readonly" type="text" name="Order' + data[i - 1]._id + '"  value="' + i + '" maxlength="3" />.';
+                                    strhtml += '[ <input id="Score' + data[i - 1]._id + '" type="text" name="Score' + data[i - 1]._id + '" readonly="readonly" value="1" onkeyup="verifyInput(this)" maxlength="3" /> @Exampaper.Fen ]</div>';
+                                    strhtml += '<h5>' + data[i - 1].QuestionContent + '<div class="do"><a href="#@@" onclick="Delete(' + data[i - 1]._id + ')" title="@CommonLanguage.Common_Delete" class="icon idel"></a></div></h5></div>';
+                                    strhtml += '<div class="content">';
+                                    switch (data[i - 1].QuestionType) {
+                                    case 1:
+                                        strhtml += '<textarea class="Boxarea" disabled="disabled" ></textarea>';
+                                        break;
+                                    case 2:
+                                        for (var j = 0; j < data[i - 1].QuestionAnswer.length; j++) {
+                                            strhtml += '<div><input type="radio"  disabled="disabled" />' + String.fromCharCode((65 + j)) + '.' + data[i - 1].QuestionAnswer[j].Answer + '</div>';
+                                        }
+                                        break;
+                                    case 3:
+                                        for (var k = 0; k < data[i - 1].QuestionAnswer.length; k++) {
+                                            strhtml += '<div><input type="checkbox" disabled="disabled" />' + String.fromCharCode((65 + k)) + '.' + data[i - 1].QuestionAnswer[k].Answer + '</div>';
+                                        }
+                                        break;
+                                    case 4:
+                                        strhtml += '<div><input type="radio" disabled="disabled" /><label>@Exampaper.eTrue</label></div>';
+                                        strhtml += '<div><input type="radio" disabled="disabled" /><label>@Exampaper.eFalse</label></div>';
+                                        break;
+                                    case 6:
+                                        if (data[i - 1].QuestionAnswer[0].AnswerType == 0) {
+                                            strhtml += '<textarea class="Boxarea" disabled="disabled" ></textarea>';
+                                        } else if (data[i - 1].QuestionAnswer[0].AnswerType == 1) {
+                                            for (var q = 0; q < data[i - 1].QuestionAnswer.length; q++) {
+                                                strhtml += '<div><input type="radio" disabled="disabled" />' + String.fromCharCode((65 + q)) + '.' + data[i - 1].QuestionAnswer[q].Answer + '</div>';
+                                            }
+                                        } else {
+                                            for (var y = 0; y < data[i - 1].QuestionAnswer.length; y++) {
+                                                strhtml += '<div><input type="checkbox" disabled="disabled" />' + String.fromCharCode((65 + y)) + '.' + data[i - 1].QuestionAnswer[y].Answer + '</div>';
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    strhtml += '</div></div>';
+                                }
+                            }
+                            $("#divExamQuestions").append(strhtml);
+                            order();
+                            StatType();
+                            Score();
+                            statID();
+                            qtype();
+                            upScore();
+                            art.dialog.list['QueList'].close();
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            art.dialog.tips(errorThrown, 3);
+                            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: errorThrown, width: 200, height: 50, fixed: true, lock: true, time: 1000 });
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    //初始化题库
+
+    function initQuestionSort() {
+        $.getJSON("/Question/GetAllQuestionSortTree?deptId=@(deptId)&t=" + new Date(), function (data) {
+            $("#sortList").html(data);
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            threeBackground('0');
+            $("#navigation>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+
+//显示所有试题
+
+    function InitializeTargetList(url) {
+        $("#questionList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'QuestionKeyTemplate',
+            funCallback: function() {
+                SetCheckBox("selectQueall", "questionList");
+                HiddenSelect();
+            }
+        });
+
+
+    }
+
+    function HiddenSelect() {
+        if ($("#QuestionIDs") != undefined && $("#QuestionIDs") != null && $("#QuestionIDs") != "") {
+            $("#questionList td input[type='checkbox']").each(function() {
+                if ((',' + $("#QuestionIDs").val() + ',').indexOf(',' + $(this).attr('value') + ',') >= 0) {
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+        }
+    }
+
+//问题分类树点击事件
+
+    function selectSort(id, obj) {
+        $("#selQuestionSort").val(id);
+        $("#selQuestionType").val("0");
+        $("#selQuestionLevel").val("0");
+        $("#txtQuestionContent").val("");
+        InitializeTargetList(getUrlParms());
+
+    }
+
+    //生成url参数字符串
+
+    function getUrlParms() {
+        return '/Question/GetAllQuestion?sortID=' + $("#selQuestionSort").val() +
+            '&type=' + $("#selQuestionType").val() +
+            '&level=' + $("#selQuestionLevel").val() +
+            '&deptId=@(deptId)' +
+            '&content=' + escape($("#txtQuestionContent").val()) + '&t=' + new Date();
+    }
+</script>

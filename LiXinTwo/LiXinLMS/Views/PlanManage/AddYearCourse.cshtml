@@ -1,0 +1,338 @@
+﻿@using LiXinModels.PlanManage
+@{
+    ViewBag.Title = "编辑课程";
+    Layout = null;
+    var model = ViewData["model"] as Tr_YearPlanCourse;
+    string tid = Request.QueryString["tid"] == null ? "" : Request.QueryString["tid"];
+}
+<form id="formAddCourse">
+<div id="ycinfo" style="padding-bottom:20px;">
+    <table class="tab-Form" style="width:620px">
+        <tr>
+            <td class="Tit span9">
+                课程编号：
+            </td>
+            <td>
+                <input id="Code" name="Code" type="text" class="span20" maxlength="15"  value="@(model.Code)" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                课程名称：
+            </td>
+            <td>
+                <input id="CourseName" name="CourseName" type="text" class="span20" maxlength="30" value="@(model.CourseName)" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                课程学时：
+            </td>
+            <td>
+                <input id="CourseLength" name="CourseLength" type="text" class="span20" value="@(model.CourseLength)" />
+            </td>
+        </tr>
+        <tr id="timeid0" class="chtime">
+            <td class="Tit">
+                预计开课时间：
+            </td>
+            <td>
+               @Html.Action("YearPlanMonthSelect", new { viewType = 1, dataType = 0 })
+                <a id="addDefault" class="btn btn-co ml10">添加</a>
+                <span generated="true" id="Tierr0" class="error" style="display: none;"></span>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                课程开放级别：
+            </td>
+            <td>
+                <div>
+                @{
+                    foreach (var item in @ViewBag.trainGrade)
+                    {
+                    <input type="checkbox" value="@item" name="pop_OpenLevel" /><label>@item</label>
+                    }      
+                }
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                必修/选修：
+            </td>
+            <td>
+                <div class="sel">
+                    <input type="radio" value="0" name="IsMust" text="必修" checked="checked" /><label>必修</label>
+                    <input type="radio" value="1" name="IsMust" text="选修" /><label>选修</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                是否折算CPA：
+            </td>
+            <td>
+                <div class="sel">
+                    <input type="radio" value="0" name="IsCPA" text="否" checked="checked" /><label>否</label>
+                    <input type="radio" value="1" name="IsCPA" text="是" /><label>是</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                培训形式：
+            </td>
+            <td>
+                <select id="Way" name="Way" onchange="WayChange();">
+                    <option value="-1">请选择培训形式</option>
+                    <option value="1">集中授课</option>
+                    <option value="2">视频课程</option>
+                    <option value="4">部门自学</option>
+                </select>
+            </td>
+        </tr>
+        <tr id="teach">
+            <td class="Tit">
+                授课讲师：
+            </td>
+            <td>
+                <span id="Realname" class="mr10"><font>@(model.Realname)</font></span>
+                <input type="button" value="请选择授课讲师" onclick="AddTeacher()" class="btn btn-co" />
+                <input id="teaNmae" name="teaNmae" type="hidden" value="@(model.Realname)" />
+                <span generated="true" id="Teacherr" class="error" style="display: none;"></span>
+            </td>
+        </tr>
+    </table>
+    <div class="mt10 tc"><input type="button" value="保存" class="btn" onclick="$(this).submit();" /></div>
+    <input id="hidSystem" type="hidden" value="@(model.IsSystem)" /> 
+    <input id="hidCoID" type="hidden" value="@(model.CourseId)" />
+    <input id="hidmonth" type="hidden" />
+    <input id="hidtr" type="hidden" />
+    <input id="teacherID" type="hidden" value="@(model.Teacher)" />
+    <input id="newPayGrade" type="hidden" value="@(model.PayGrade)" />
+</div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+    
+        if (@(model.Year) > 0) {
+            $("#addDefault").hide();
+            $("input[name='IsMust']").eq(@(model.IsMust)).attr("checked",true);
+            $("input[name='IsCPA']").eq(@(model.IsCPA)).attr("checked",true);
+            $("#Way").val('@(model.Way)');
+            $("#year0").append("<option value='@(model.Year)'>@(model.Year)</option>");
+            $("#year0").val('@(model.Year)');
+            $("#hidmonth").val('@(model.Month)');
+            GetMonth();
+            $("#year0").attr("disabled",true);     
+            $("#Day0").val('@(model.Day)');
+            if('@(model.OpenLevel)'.indexOf(",")>-1){
+                var strs='@(model.OpenLevel)'.split(",");
+                $.each(strs, function(index,callback){$('input[name="pop_OpenLevel"][value="'+strs[index]+'"]').attr('checked',true);});
+            }else{
+                $('input[name="pop_OpenLevel"][value="@(model.OpenLevel)"]').attr('checked',true);
+            }
+            $("#hidtr").val('@(tid)');
+        }else{
+            $("#year0").append("<option value='"+$("#selyear").val()+"'>"+$("#selyear").val()+"</option>");
+            $("#year0").val($("#selyear").val());
+            GetMonth();
+            $("#year0").attr("disabled",true);
+            if ($("#hidCona").val()!=""&&$("#hidCona").val()!=null){
+                $("#CourseName").val($("#hidCona").val());
+            }
+        }
+
+       
+
+        jQuery.validator.addMethod("charNum", function (value, element)
+        {
+            var decimal = /^[0-9a-zA-Z-]*$/;
+            return this.optional(element) || (decimal.test(value));
+        }, $.validator.format("课程编号只能以字母+数字的组合且不能超过15字符"));
+        jQuery.validator.addMethod("decimal_1", function(value, element) {
+             var decimal = /^-?\d+(\.\d{1})?$/;
+             return this.optional(element) || (decimal.test(value));
+         }, $.validator.format("课程学时在0~999.9之间，且最多保留一位小数"));
+
+        $("#formAddCourse").validate(
+            {
+                event: "blur",
+                rules: {
+                    Code: {
+                        required: true,
+                        maxlength: 15,
+                        charNum:true
+                    },
+                    CourseName: {
+                        required: true,
+                        maxlength: 30
+                    },
+                    CourseLength: {
+                        required: true,
+                        min:0,
+                        max:999.9,
+                        decimal_1: true
+                    },
+                    pop_OpenLevel: { required: true },
+                    IsMust: { required: true },
+                    Way: { min: 1 }
+                },
+                messages: {
+                    Code: {
+                        required: "课程编号不能为空",
+                        maxlength: "课程编号不能多于15个字符",
+                        stringCheck:"课程编号不能为空"
+                    },
+                    CourseName: {
+                        required: "课程名称不能为空",
+                        maxlength: "课程名称不能多于30个字符",
+                        stringCheck:"课程名称不能为空"
+                    },
+                    CourseLength: {
+                        required: "课程学时不能为空",
+                        min:"课程学时在0~999.9之间，且最多保留一位小数",
+                        max:"课程学时在0~999.9之间，且最多保留一位小数"
+                    },
+                    pop_OpenLevel: { required: "请选择开放级别" },
+                    IsMust: { required: "请选择必修/选修" },
+                    Way: { min: "请选择培训形式" }
+                },
+                errorPlacement: function (error, element) {
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        var eid = element.attr('name');
+                        error.appendTo(element.parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                submitHandler: function () {
+                    if (CkMonth()) {
+                        if($("#Way").val()=="2"){
+                            NewCourseToMonthPlan();
+                        }else if($("#Way").val()=="1" || $("#Way").val()=="4"){
+                            if($("#teaNmae").val()!=null && $("#teaNmae").val()!="" && $("#teaNmae").val()!=undefined){
+                                NewCourseToMonthPlan();
+                            }else{
+                                $("#Teacherr").html("<span class='Validform_checktip Validform_wrong'>请选择授课讲师</span>");
+                                $("#Teacherr").show();
+                                return;
+                            }
+                        }else{
+                            $("#Teacherr").html("<span class='Validform_checktip Validform_wrong'>请选择授课讲师</span>");
+                            $("#Teacherr").show();
+                            return;
+                        }
+                    }
+                }
+            });
+
+        $("#addDefault").bind("click", function() {
+            insert();
+            $("#EditCourse").focus();
+        });
+    });
+    function AddTeacher()
+    {
+        art.dialog.load("/UserCommon/SelectTeacher", { title: '添加讲师', id: "AddTeacher",width:780, height: 500 });
+    }
+
+    function GetUserIDList()
+    {
+        $("#teacherList [type='radio']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                $("#teacherID").val($(this).attr("id"));
+                $("#newPayGrade").val($(this).attr("paygrade"));
+                $("#Realname").html("<font>"+replaceMsg($(this).attr("username"))+"</font>");
+                $("#teaNmae").val($(this).attr("username"));
+                $("#Teacherr").hide();
+            }
+
+        });
+        closeDialog("AddTeacher");
+    }
+
+    function insert() {
+        var temp=$("#ycinfo").find("tr.chtime");
+        var htmlstr=$("#timeid0").html();
+        var sumtr=temp.length;
+        if(sumtr<5){
+            var strhtml='<tr id="timeid'+sumtr+'" class="chtime">';
+            strhtml+=htmlstr+'</tr>';
+            strhtml=strhtml.replace('添加','删除');
+            $("#timeid"+(sumtr-1)).after(strhtml);
+            $('select[name="year"]').each(function(){
+                $(this).val($("#selyear").val());
+             });
+             TimeNumber();
+         }else{
+            art.dialog.tips("预计开课时间不能超过5个",3);
+         }
+    }
+
+    //删除
+    function delListener() {
+        $("a[name=timrmlikn]").unbind().click(function () {
+            $(this).parent().parent().remove();
+            TimeNumber();
+        });
+    }
+
+    //tr编号
+    function TimeNumber() {
+        var tmp = $("#ycinfo").find("tr.chtime");
+        for (var i = 0; i < tmp.length; i++) {
+            tmp[i].id = "timeid" + i;
+            $(tmp[i]).find("select[name='year']")[0].id= "year" + i;
+            $(tmp[i]).find("select[name='month']")[0].id= "month" + i;
+            $(tmp[i]).find("select[name='Day']")[0].id= "Day" + i;
+            $(tmp[i]).find("span")[0].id= "Tierr" + i;
+            if(i>0)
+            {
+                $(tmp[i]).find("a")[0].id= "timrmlikn" + i;
+                $(tmp[i]).find("a").eq(0).attr("name","timrmlikn");
+                delListener();
+            }
+        }
+    }
+
+    //验证开课日期
+    function CkMonth(){
+        var tmp = $("#ycinfo").find("tr.chtime");
+        var aa=0;
+        var mainStr="";
+        for (var i = 0; i < tmp.length; i++) {
+            if ($("#year"+i).val() == "-1" || $("#month"+i).val() == "-1") {
+                $("#Tierr"+i).html("<span class='Validform_checktip Validform_wrong'>请选择预计开课时间</span>");
+                $("#Tierr"+i).show();
+                aa=aa+1;
+            }else{
+                var substr=$("#month"+i).val()+"-"+$("#Day"+i).val();
+                if (mainStr.indexOf(substr) > -1){
+                    $("#Tierr"+i).html("<span class='Validform_checktip Validform_wrong'>预计开课时间重复</span>");
+                    $("#Tierr"+i).show();
+                    aa=aa+1;
+                }else{
+                    $("#Tierr"+i).html("");
+                    $("#Tierr"+i).hide();
+                }
+                mainStr+=$("#month"+i).val()+"-"+$("#Day"+i).val()+",";
+            }  
+        }
+        if(aa>0){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    function WayChange() {
+        $("#teacherID").val("");
+        $("#newPayGrade").val("");
+        $("#Realname").html("");
+        $("#teaNmae").val("");
+    }
+</script>

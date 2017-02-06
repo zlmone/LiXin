@@ -1,0 +1,31 @@
+﻿@{
+    ViewBag.Title = "Free_ApprovePop";
+    Layout = null;
+}
+
+<table class="tab-Form">
+    <tbody>
+        <tr>
+            <td class="Tit span17">审批结果：
+            </td>
+            <td>
+                <input type="radio" name="DepTrainApprove" value="1" checked="checked">审批通过
+                    <input type="radio" name="DepTrainApprove" value="2">审批退回
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">审批理由：
+            </td>
+            <td>
+                <textarea id="DepTrainReason" name="DepTrainReason" class="span26" maxlength="200"></textarea>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="button" value="保存" onclick="saveApprove()" class="btn">
+                <input type="button" value="取消" onclick="closeApprovePop();" class="btn  btn-cancel" />
+            </td>
+        </tr>
+    </tbody>
+</table>

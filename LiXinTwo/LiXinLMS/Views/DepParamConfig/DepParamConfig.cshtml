@@ -1,0 +1,111 @@
+﻿@using LiXinLanguage
+@model LiXinModels.User.Sys_Department
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = NavigateMenuLanguage.DepParamConfig;
+}
+@(Html.Action("SiteMapLink", "Common", new { linkName = "DepParamConfig" }))
+<div class="main-c">
+    部门：
+    <select id="depart" class="span10">
+        @{
+            foreach (var item in (IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.departMent)
+            {
+            <option value="@item.DepartmentId">@item.DeptName</option>
+            }
+        }
+    </select>
+    <input type="hidden" value="" id="departId" name="departId" />
+    <div style="width: 290px; float: left;">
+        <div class="tab-red">
+            <ul>
+                <li class="On" title="部门/分所学习模块参数配置" onclick="$('#canshu').show();$(this).parent().find('li').removeClass('On');$(this).addClass('On');">部门/分所学习模块参数配置<i></i></li>
+            </ul>
+        </div>
+        <div class="main-l" style="width: 290px;">
+            <div class="menu-list" id="canshu">
+                <ul>
+                    <li><a class="url_a On" title="培训需求上报时间设定" configtyp="1">培训需求上报时间设定<i></i></a> </li>
+                    <li><a class="url_a" title="课前建议、课后评估的开放时间" configtyp="2">课前建议、课后评估的开放时间<i></i></a> </li>
+                    <li><a class="url_a" title="在线测试允许答题时间" configtyp="3">在线测试允许答题时间<i></i></a> </li>
+                    <li><a class="url_a" title="在线测试允许最大次数" configtyp="4">在线测试允许最大次数<i></i></a> </li>
+                    <li><a class="url_a" title="全年在线测试完成次数" configtyp="5">全年在线测试完成次数<i></i></a> </li>
+                    <li><a class="url_a" title="全年课程退订次数" configtyp="6">全年课程退订次数<i></i></a> </li>
+                    <li><a class="url_a" title="请假审核时限" configtyp="7">请假审核时限<i></i></a> </li>
+                    <li><a class="url_a" title="过时课程课后评估的开放时间" configtyp="8">过时课程课后评估的开放时间<i></i></a> </li>
+                    <li><a class="url_a" title="过时课程在线测试允许答题时间" configtyp="9">过时课程在线测试允许答题时间<i></i></a> </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="main-r right_div" style="width: 700px;">
+        @*@Html.Action("TrainReportingTimeConfig")*@<!--默认页面-->
+    </div>
+    <input id="hidtype" type="hidden" />
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("#departId").val($("#depart").val());
+        $("#depart").bind("change", function ()
+        {
+            $("#departId").val($("#depart").val());
+            var departId = $("#depart").val();
+            show($("#hidtype").val());
+            // $(".right_div").load("/DepParamConfig/TrainReportingTimeConfig?DepartId=" + departId + "&type=1");
+        });
+        $(".right_div").load("/DepParamConfig/TrainReportingTimeConfig?DepartId=" + $("#depart").val() + "&type=1");
+        $(".url_a").click(function ()
+        {
+            var departId = $("#depart").val();
+            var tt = $(this).attr("configtyp");
+            $(".menu-list li a").removeClass("On");
+            $(".menu-list li a[configtyp='" + tt + "']").addClass("On");
+            $("#hidtype").val(tt);
+            show(tt);
+        });
+        $.ajaxSetup({
+            cache: false //关闭AJAX相应的缓存
+        });
+
+    })
+
+
+    function show(type)
+    {
+        var departId = $("#depart").val();
+        switch (type)
+        {
+
+            case "1":
+
+                $(".right_div").load("/DepParamConfig/TrainReportingTimeConfig?DepartId=" + departId + "&type=1");
+                break;
+            case "2":
+                $(".right_div").load("/DepParamConfig/ClassOpingTimeConfig?DepartId=" + departId + "&type=2");
+                break;
+            case "3":
+                $(".right_div").load("/DepParamConfig/TestAnswerTimeConfig?DepartId=" + departId + "&type=3");
+                break;
+            case "4":
+                $(".right_div").load("/DepParamConfig/TestMaxNumberConfig?DepartId=" + departId + "&type=4");
+                break;
+            case "5":
+                $(".right_div").load("/DepParamConfig/CompletionOnlineTestTimes?DepartId=" + departId + "&type=5");
+                break;
+            case "6":
+                $(".right_div").load("/DepParamConfig/YearCourseRescindNumberConfig?DepartId=" + departId + "&type=6");
+                break;
+            case "7":
+                $(".right_div").load("/DepParamConfig/AttendceTimeLimited?DepartId=" + departId + "&type=7");
+                break;
+            case "8":
+                $(".right_div").load("/DepParamConfig/TimeOutClassOpingTimeConfig?DepartId=" + departId + "&type=8");
+                break;
+            case "9":
+                $(".right_div").load("/DepParamConfig/TimeOutTestAnswerTimeConfig?DepartId=" + departId + "&type=9");
+                break;
+        }
+    }
+
+</script>

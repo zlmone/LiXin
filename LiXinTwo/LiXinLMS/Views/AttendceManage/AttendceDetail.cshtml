@@ -1,0 +1,246 @@
+﻿@using LiXinLanguage
+@using LiXinModels.CourseManage
+@{
+    ViewBag.Title = "考勤管理详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string cid = Request.QueryString["id"] == null ? "0" : Request.QueryString["id"];
+    string stat = Request.QueryString["stat"] == null ? "0" : Request.QueryString["stat"];
+        //string attstat = ViewData["attstat"] as String;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "考勤管理详情"
+}))
+    <table id="attdetail" class="tab-Form">
+        <tr>
+            <td class="Tit span10">出勤人数：</td>
+            <td><strong id="actual">0</strong></td>
+            <td class="Tit span10">报名人数：</td>
+            <td><strong id="Ordersum">0</strong></td>
+            <td class="Tit span10">补预订人数：</td>
+            <td><strong id="OrderOut">0</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">迟到率：</td>
+            <td colspan="3"><strong><span id="agosum">0</span>/<span id="actual1">0</span>*100%=<span id="agoRate">0%</span></strong></td>
+            <td class="Tit">早退率：</td>
+            <td><strong><span id="lastsum">0</span>/<span id="actual2">0</span>*100%=<span id="lastRate">0%</span></strong></td>
+        </tr>
+    </table>
+    <div id="Search" class="so-set mt10">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">姓名：</td>
+                <td class="span11">
+                    <input type="text" class="span10 searchclass" id="Username"
+                        value="请输入搜索内容" info="" /></td>
+                <td class="Tit span4">部门：</td>
+                <td>
+                    <input type="text" class="span30 searchclass" id="Depname" value="请输入搜索内容" info="" /></td>
+                <td class="so-do">
+                    <input type="button" value="查询" class="btn" id="ibtnSearch" onclick="stateChange();" /></td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="CPAState" name="CPAState" onchange="stateChange();">
+            <option value="0">是否CPA</option>
+            <option value="1">是</option>
+            <option value="2">否</option>
+        </select>
+        <select id="OrderState" name="OrderState" onchange="stateChange();">
+            <option value="0">是否已预订</option>
+            <option value="1">已预订</option>
+            <option value="2">未预订</option>
+        </select>
+        <select id="OrderTime" name="OrderTime" onchange="stateChange();">
+            <option value="0">是否超过补预订次数</option>
+            <option value="1">超过</option>
+            <option value="2">未超过</option>
+        </select>
+        <div class="list-do">
+            @{
+                if (stat != "1")
+                {
+                <a id="btnOrder">批量补预订</a>
+                <a id="btninput">签到表导入</a>
+                <a id="btnend">考勤结束</a>
+                <a id="btn_execl">导出EXCEL</a>
+                }
+            }
+        </div>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                @{
+                    if (stat != "1")
+                    {
+                    <th>
+                        <input id="selAll" type="checkbox" /></th>
+                    }
+                }
+                <th>序号</th>
+                <th>姓名</th>
+                <th>是否CPA</th>
+                <th>部门/分所</th>
+                <th>是否已预订</th>
+                <th>上课考勤时间</th>
+                <th>下课考勤时间</th>
+                @{
+                    if (stat != "1")
+                    {
+                    <th>操作</th>
+                    }
+                }
+            </tr>
+        </thead>
+        <tbody id="AttendceList"></tbody>
+        <tfoot></tfoot>
+    </table>
+    <div class="mt10 tc">
+        <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+    </div>
+</div>
+<script id="AttendceTemplate" type="text/x-jsrender">
+   {{for #data}}
+    <tr>
+        {{if @stat!=1}}
+        <td class="tl">
+        {{if OrderStr=="否" && MakeOrederId==0}}
+            <input id="{{:UserId}}" type="checkbox" name="checkyear" value="{{:UserId}}" />
+        {{/if}}
+        </td>
+        {{/if}}
+        <td class="tc">{{:#index+1}}</td>
+        <td class="tc" id="user{{:UserId}}">{{:Realname}}</td>
+        <td class="tc">{{:CPA}}</td>
+        <td class="tc" id="dep{{:UserId}}">{{:DeptName}}</td>
+        <td class="tc">{{:OrderStr}}</td>
+        <td class="tc">{{:StartTimeM==""?"——":StartTimeM}}</td>
+        <td class="tc">{{:EndTimeM==""?"——":EndTimeM}}</td>
+        {{if @stat!=1}}
+        <td class="tc">
+        {{if OrderStr=="否" && MakeOrederId==0}}
+            <a title="补预订" onclick="UpOrder({{:UserId}});" class="icon ibook-re"></a>
+        {{/if}}
+        <a title="考勤录入" onclick="EditAtt({{:UserId}});" class="icon iatt-in"></a>
+        </td>
+        {{/if}}
+    </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        InitList(getyearUrl());
+
+        $("#btn_execl").click(function(){               
+            art.dialog({
+                content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+                ok: function() {
+                    var v = "id=@(cid)&uname=" + escape(getSearchWord("Username")) + "&dname=" + escape(getSearchWord("Depname")) + "&CState=" + $("#CPAState").val() + "&OState=" + $("#OrderState").val() + "&t=" + new Date();
+                    window.location.href = "/AttendceManage/ExportAttendceList?" + v;
+                },
+                cancel: true
+            });
+        });
+
+        //返回
+        $("#btnback").bind("click", function () {
+            window.location.href = "/AttendceManage/AttendceIndex?p=1&t="+new Date();
+        });
+
+        //导入
+        $("#btninput").bind("click", function () {
+            art.dialog.load("/AttendceManage/ImportAttend?id=@cid&t="+new Date(), { title: "导入签到表", id: "Inputatt", width: 440});
+        });
+
+        //批量补预订
+        $("#btnOrder").bind("click", function () {
+            var userids=GetChecked('AttendceList');
+            if(userids!=null&&userids!=""&&userids!=undefined){
+                UpOrder(userids);
+            }else{
+                art.dialog.tips("请选择考勤信息",3);
+            }
+        });
+
+        //考勤结束
+        $("#btnend").bind("click", function () {
+            zhezaowait(); //等待提示
+            $("#btnend").hide();
+            $.post("/AttendceManage/GetScore?t=" + new Date(), { courseid: @(cid) }, function (data) {
+                closewait();
+                if (data.result == 1) {
+                    art.dialog.tips("考勤结束成功",3);
+                    window.location.reload(); 
+                } else {
+                    art.dialog.tips("考勤结束失败",3);
+                }
+            });
+        });
+    });
+
+    //显示群组列表
+    function InitList(url) {
+        var templateId = 'AttendceTemplate';
+        $("#AttendceList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function (data) {
+                SetCheckBox("selAll", "AttendceList");
+                $("#selAll").removeAttr("checked");
+                if (data.dataList.length != 0) {
+                    $("#actual").html(data.dataList[0].actual);
+                    $("#Ordersum").html(data.dataList[0].Ordersum);
+                    $("#OrderOut").html(data.dataList[0].OrderOut);
+                    if(data.dataList[0].AttFlag=="1" || data.dataList[0].AttFlag=="3")
+                    {
+                        $("#agosum").html(data.dataList[0].agosum);
+                        $("#actual1").html(data.dataList[0].actual);
+                        $("#agoRate").html(data.dataList[0].agoRate);
+                    }
+                    if(data.dataList[0].AttFlag=="2" || data.dataList[0].AttFlag=="3")
+                    {
+                        $("#lastsum").html(data.dataList[0].lastsum);
+                        $("#actual2").html(data.dataList[0].actual);
+                        $("#lastRate").html(data.dataList[0].lastRate);
+                    }
+                }
+            }
+        });
+    }
+
+    //相关的url
+    function getyearUrl() {
+        var url = "/AttendceManage/GetAttendUserList?id=@(cid)&uname=" + escape(getSearchWord("Username")) + "&dname=" + escape(getSearchWord("Depname")) + "&CState=" + $("#CPAState").val() + "&OState=" + $("#OrderState").val() +"&OrderTime="+$("#OrderTime").val()+ "&t=" + new Date();
+        return url;
+    }
+
+    function stateChange() {
+        InitList(getyearUrl());
+    }
+
+    //补预订
+    function UpOrder(id) {
+        $.post("/AttendceManage/UpOrder?t=" + new Date(), { cid: @(cid), uids:id }, function (data) {
+            if (data.result == 1) {
+                InitList(getyearUrl());
+                art.dialog.tips(data.content,3);
+            } else {
+                art.dialog.tips(data.content,3);
+            }
+        });
+    }
+
+    //考勤录入
+    function EditAtt(id) {
+        art.dialog.load("/AttendceManage/AttendceEdit?id=@cid&uid="+id+"&t="+new Date(), { title: "考勤录入", id: "AttendEdit", width: 500 });
+    }
+</script>
+

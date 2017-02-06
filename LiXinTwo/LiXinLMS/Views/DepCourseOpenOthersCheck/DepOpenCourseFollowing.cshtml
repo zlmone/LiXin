@@ -1,0 +1,149 @@
+﻿
+@{
+    ViewBag.Title = "部门开课跟踪";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DepOpenCourseFollowing" }))
+    <div class="tab-bk mt10">
+        <input type="hidden" id="hidDeptFlag" value="0"/>
+        <ul id="tagDeptFlag">
+            <li class="On" id="tagDeptFlag_0" onclick="DeptFlagOn(0);">部门</li>
+            <li id="tagDeptFlag_1"  onclick="DeptFlagOn(1);">分所</li>
+        </ul>
+    </div>
+    
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span8">部门：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_DeptName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="so-do">
+                    <input type="button" value="搜索" id="btn_Select" class="btn" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th class="span8" jsrendersortfield="YearPlan" sort="desc" >年度</th>
+                <th class="span12" >部门</th>
+                <th class="span8" jsrendersortfield="PlanOpenCourseCount" sort="desc">计划开课</th>
+                <th class="span12" jsrendersortfield="NowOpenCourseCount" sort="desc" >实际已开课(计划内/外)</th>
+                <th class="span10" jsrendersortfield="HasAttendceCourseCount" sort="desc">已审批考勤数量</th>
+                <th class="span10" jsrendersortfield="PlanCourseLengthSum" sort="desc">计划课程总学时</th>
+                <th class="span10" jsrendersortfield="NowCourseLengthSum" sort="desc">实际课程总学时</th>
+                <th class="span8">操作</th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+            {{:#index+1}}
+            </td>
+            <td>
+            {{:YearPlan}}
+            </td>
+            <td class="tl">
+                <div class="ovh span10" title="{{>DeptName}}">{{>DeptName}}</div>
+            </td>
+            <td>
+                {{:PlanOpenCourseCount}}
+            </td>
+            <td>
+                {{:NowOpenCourseCount}}
+                (
+                    {{:NowOpenCourseCountnei}}
+                    /
+                    {{:NowOpenCourseCountwai}}
+                )
+
+            </td>
+            <td>
+                {{:HasAttendceCourseCount}} 
+            </td>
+            <td>
+               {{:PlanCourseLengthSum}}
+             </td>
+            <td>
+                {{:NowCourseLengthSum}}
+            </td>   
+            <td>      
+              <a onclick="ViewDetail('{{:YearPlan}}','{{:DeptId}}')" title="查看详情" class="icon iview"></a>                     
+            </td>
+        </tr> 
+        {{/for}}
+</script>
+
+<script type="text/javascript">
+    //部门/分所tag标签事件
+    function DeptFlagOn(id) {
+        $("#tagDeptFlag li").removeClass("On");
+        $("#tagDeptFlag_" + id).addClass("On");
+        $("#hidDeptFlag").val(id);
+        InitData(1);
+    }
+
+    //加载页面时初始化
+    function ReadyInitHiddenValue() {
+        //部门分所tab
+        var hidDeptFlag = parseInt($("#hidDeptFlag").val());
+        $("#tagDeptFlag li").removeClass("On");
+        $("#tagDeptFlag_" + hidDeptFlag).addClass("On");
+        $("#hidDeptFlag").val(hidDeptFlag);
+    }
+</script>
+
+<script type="text/javascript">    
+    
+    $(document).ready(function(e) {
+        initSearch();
+        $("#txt_DeptName").val('@(ViewBag.Attdeptname)');
+        $("#hidDeptFlag").val('@(ViewBag.Attdeptflag)');
+        ReadyInitHiddenValue();
+        InitData(@(ViewBag.page)); //加载
+        $("#btn_Select").click(function() {
+            InitData(1);
+        });
+    });
+
+
+    function geturl()
+    {
+
+        return '/DepCourseOpenOthersCheck/GetDepOpenCourseFollowingList?'
+            + "deptName=" + escape(getSearchWord("txt_DeptName"))
+                + "&deptFlag=" + $("#hidDeptFlag").val();
+    }
+
+    function InitData(page)
+    {
+        $("#Courstlist").JsRenderData({
+            sourceUrl: geturl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: " YearPlan",
+            jsRenderASC: " Desc",
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    function ViewDetail(yearPlan,deptId) {
+       window.location.href  = '/DepCourseOpenOthersCheck/DepCourseLearnSelfList?yearPlan='+yearPlan+'&deptId='+deptId+'&isDeptFlag='+$("#hidDeptFlag").val();
+    }
+</script>
+

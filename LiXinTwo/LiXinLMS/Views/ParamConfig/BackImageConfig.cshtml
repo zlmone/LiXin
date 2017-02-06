@@ -1,0 +1,130 @@
+﻿@{
+    ViewBag.Title = "BackImageConfig";
+    Layout = null;
+}
+
+<h2 class="tit-h2 mt10">
+    <i></i>
+    <span class="tit-con">背景图片配置</span>
+</h2>
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="so-do">
+                <input type="button" value="新增图片" class="btn btn-co" onclick="AddImage()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<table id="div_list" class="tab-List mt10">
+    <thead>
+        <tr>
+            @* <th class="span4">
+                <input type="checkbox" value="0" id="selectAll" />
+            </th>*@
+            <th class="span4">序号</th>
+            <th class="span10">图片缩略图</th>
+            <th class="span8">状态</th>
+            <th class="span8">操作</th>
+        </tr>
+    </thead>
+    <tbody id="BackImageList" class="tc">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+<div>
+    <table class="tab-List mt10">
+        <tbody id="DivBackImageList" class="tc">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="BackImageListTemplate" type="text/x-jsrender">
+   {{for #data}}
+         <tr>
+          
+            <td class="span4">{{:#index+1}}</td>
+            <td><img alt="" src="../../UploadFiles/NoteBackImage/{{:RealName}}" width="112px" height="77.6px"  /></td>
+            <td>{{:defalutTypeStr}}</td>
+            <td>
+             <a class="icon iedit" title="编辑" onclick="EditImage({{:ID}})">编辑</a>
+             <a class="icon view" title="查看详情" onclick="ViewImage({{:ID}})">查看详情</a>
+             {{if defalutType>0}}
+                 <a class="icon idel idis" title="删除">删除</a>
+             {{else}}
+                 <a class="icon idel" title="删除" onclick="DeleteImage({{:ID}})">删除</a>
+             {{/if}}
+            
+            </td>
+    </tr>
+   {{/for}}
+</script>
+
+<script>
+    $(document).ready(function ()
+    {
+        InitData();
+    });
+
+    function InitData()
+    {
+        $("#BackImageList").JsRenderData({
+            sourceUrl: "/SystemManage/GetImageList",
+            isPage: true,
+            pageSize: 5,
+            pageIndex: 1,
+            templateID: "BackImageListTemplate"
+        });
+    }
+
+    function AddImage()
+    {
+        art.dialog.load("/ParamConfig/BackImageUpload", {
+            title: '上传图片', id: "pop_ImageUpload", width: 500, height: 300,
+            close: function (frame)
+            {
+                var flash = frame.document.getElementsByTagName('object');
+                for (var i = 0; i < flash.length; i++)
+                {
+                    flash[i].parentNode.removeChild(flash[i]);
+                }
+            }
+        }, false);
+    }
+
+    function EditImage(id)
+    {
+        art.dialog.load("/ParamConfig/BackImageEdit?id=" + id, {
+            title: '修改图片用途', id: "pop_ImageEdit", width: 600, height: 500,
+            close: function () { }
+        }, false);
+    }
+
+    function ViewImage(id)
+    {
+        art.dialog.load("/ParamConfig/BackImageEdit?id=" + id + "&show=1", {
+            title: '查看图片', id: "pop_ImageEdit", width: 600, height: 500,
+            close: function () { }
+        }, false);
+    }
+    function DeleteImage(id)
+    {
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function ()
+            {
+                $.get("/SystemManage/DeteteImage?id=" + id, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        InitData();
+                    }
+                });
+            },
+            cancel: true
+        });
+
+    }
+</script>

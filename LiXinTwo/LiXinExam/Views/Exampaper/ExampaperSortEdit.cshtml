@@ -1,0 +1,88 @@
+﻿@using LiXinLanguage
+@using LiXinModels.Examination.DBModel
+@{
+    Layout = null;
+    var model = ViewData["model"] as tbExampaperSort;
+    var fsort = Request.QueryString["fatherID"] ?? "0";
+    var deptId = Request.QueryString["deptId"] ?? "0";
+}
+<div class="centerbody">
+    <form id="ExampaperSortForm" method="post" action="">
+        <input id="hidfatherID" name="hidfatherID" type="hidden" value="@ViewData["fatherID"]" />
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span10"><span class="red">*</span>@Exampaper.FatherSort：</td>
+                <td class="span30">
+                    <input type="hidden" id="fatherSort" class="span20" name="fatherSort" value="@fsort"/>
+                    <div title="@ViewData["fatherModel"]">@ViewData["fatherModel"]</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit"><span class="red">*</span>@Exampaper.SortName：</td>
+                <td>
+                    <input type="text" id="txtSortName" class="span20" name="txtSortName" value="@(model.Title)" maxlength="30"  />
+                    <div id="nameTip"></div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">@Exampaper.SortDescription：</td>
+                <td>
+                    <textarea class="span20" id="txtMemo" name="txtMemo" maxlength="200" onkeyup=" TextearaMaxlength(this); " >@(model.Description)</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <a id="btnSaveSort" class="btn" onclick=" $(this).submit(); ">@Exampaper.Save</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#ExampaperSortForm").validate({
+            rules: {
+                txtSortName: {
+                    required: true,
+                    maxlength: 30,
+                    remote: {
+                        type: "POST",
+                        dataType: "json",
+                        url: "/Exampaper/CheckExampaperSort",
+                        data: { etitle: function() { return $.trim($("#txtSortName").val()); }, eid: function() { return @(model._id); }, fid: function() { return $("#hidfatherID").val();},deptId:@(deptId) }
+                    }
+                },
+                txtMemo: {
+                    maxlength: 200
+                }
+            },
+            messages: {
+                txtSortName: {
+                    required: "请填写名称",
+                    maxlength: "长度必须小于30个字符",
+                    remote: "试卷库已经存在"
+                },
+                txtMemo: {
+                    maxlength: "长度必须小于200个字符"
+                }
+            },
+            submitHandler: function(form) {
+                jQuery(form).ajaxSubmit({
+                    url: '/Exampaper/SubmitExampaperSort?id=@(model._id)&deptId=@deptId',
+                    type: "post",
+                    dataType: "json",
+                    success: function(data) {
+                        if (data.result == 1) {
+                            art.dialog.tips(data.content, 3);
+                            initExampaperSort();
+                            InitializeTargetList(getUrlParms());
+                            art.dialog.list['SortEdit'].close();
+                        } else {
+                            art.dialog.tips(data.content, 3);
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>

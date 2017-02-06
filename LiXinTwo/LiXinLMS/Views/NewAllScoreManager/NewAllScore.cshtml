@@ -1,0 +1,220 @@
+﻿@{
+    ViewBag.Title = "综合评分";
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "综合评分" }))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">学号：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_NumberID" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">姓名：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_Realname" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">所在班级：
+                    <select id="sel_ClassName" onchange="InitData()">
+                        <option value="-1">请选择班级</option>
+                        @{
+                            foreach (var item in ViewBag.AllClass)
+                            {
+                            <option value="@(item.Id)">@(item.ClassName)</option>
+                            }   
+                        }
+                    </select>
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" class="btn" onclick="InitData();" />
+                    <input type="button" value="一键评分" class="btn btn-co" onclick="InputAll()" />
+                    <input type="button" value="批量录入" class="btn btn-co" onclick="Input()" />
+                    <input type="button" value="未评分" class="btn btn-co" onclick="NoSoce()" />
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">
+                    <input type="checkbox" value="0" id="selectall" />
+                </th>
+                <th class="span4">序号
+                </th>
+                <th>学号
+                </th>
+                <th class="span6">姓名
+                </th>
+                <th class="span12">所在班级
+                </th>
+                <th class="span12">集中授课现场评分
+                </th>
+                <th class="span12">分组带教现场评分
+                </th>
+                <th class="span8">课程考试分数
+                </th>
+                <th class="span8">总分
+                </th>
+                <th class="span4">操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<div class="lh30 tc">
+    <input type="button" class="btn  btn-cancel" value="返回" onclick="black()" />
+    <input id="ids" type="hidden" />
+</div>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+                <input id="{{:Id}}"   type="checkbox" />
+            </td>
+            <td>
+            {{:#index+1}}
+            </td>
+            <td>{{:NumberIDStr}}</td>  
+            <td>{{:Realname}}</td>
+            <td>{{:ClassName}}</td>
+            <td>
+               {{if @ViewBag.IsGroupTeach==2}}
+                    --
+                {{else}}
+                    {{:TogetherScore}}
+                {{/if}}  
+            </td>
+            <td>
+                {{if @ViewBag.IsGroupTeach==1}}
+                    --
+                {{else}}
+                    {{:GroupScore}}
+                {{/if}}
+             </td>
+             <td>{{:CourseExamScore}}/{{:CourseExamSumScore}}</td>
+             <td>{{:sumScore}}</td>
+            <td><a class="icon ieva-re" onclick="singleInput({{:Id}})" title="分数录入"></a></td>  
+        </tr> 
+        {{/for}}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化搜索条件
+        initSearch();
+
+        //加载列表
+        InitData();
+    });
+
+    function InitData()
+    {
+        var v = "courseid=@ViewBag.courseid&NumberID=" + escape(getSearchWord('txt_NumberID')) + "&Realname=" + escape(getSearchWord('txt_Realname')) + "&ClassID=" + $("#sel_ClassName").val()+"&IsGroupTeach=@ViewBag.IsGroupTeach";
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/NewAllScoreManager/GetNewAllScoreList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox('selectall', 'Courstlist');
+            }
+        });
+    }
+
+
+    function Input()
+    {
+        var ids = GetChecked('Courstlist');
+        if (ids == "")
+        {
+            art.dialog.tips("请选择人员", 3);
+            return;
+        }
+        $("#ids").val(ids);
+        art.dialog.load("AllInput?IsGroupTeach=@ViewBag.IsGroupTeach", { title: "批量打分", id: "AllScore", width: 300 });
+    }
+
+
+    function singleInput(id)
+    {
+        art.dialog.load("SingleInput?id=" + id + "&IsGroupTeach=@ViewBag.IsGroupTeach", { title: "打分", id: "singleScore", width: 600 });
+    }
+    function black()
+    {
+        window.location.href = "NewAllScoreManagerList";
+    }
+
+    function InputScore()
+    {
+        art.dialog.load("ImportScore?courseid=@ViewBag.courseid", { title: "成绩导入", id: "pop_InputScoreList", width: 400 });
+    }
+
+    //下载模板
+    function DownLoadFile()
+    {
+        window.location.href = "/Common/DownLoadFile?url=~/TemplateFile/NewUserScoreTemplate.xls"
+    }
+
+    //未评分
+    function NoSoce()
+    {
+        var ids = GetChecked('Courstlist');
+        if (ids == "")
+        {
+            art.dialog.tips("请选择人员", 3);
+            return;
+        }
+        art.dialog({
+            content: "您确认全部重置为0么？",
+            ok: function ()
+            {
+                $.post("SubmitAllInputScore",
+                       {
+                           TogetherScore: 0,
+                           GroupScore: 0,
+                           ids: ids
+                       }, function (data)
+                       {
+                           if (data.result == 1)
+                           {
+                               InitData();
+
+                           }
+                       });
+            },
+            cancel: true
+        });
+    }
+
+    //一键评分
+    function InputAll()
+    {
+        art.dialog({
+            content: "一键评分，会将分数评分置为3分，是否继续？",
+            ok: function ()
+            {
+                $.post("InputAllScore?courseid=@ViewBag.courseid&IsGroupTeach=@ViewBag.IsGroupTeach", function (data)
+                       {
+                           if (data.result == 1)
+                           {
+                               InitData();
+                           }
+                       });
+            },
+            cancel: true
+        });
+    }
+
+</script>

@@ -1,0 +1,21 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+.menu{background:#af177c;border-bottom:1px solid #89005a; color:chocolate}
+.menu .menu-con li a{border-bottom:6px solid #e6e6e6;}
+.menu .menu-con li a:hover,.menu .menu-con li:hover a{background:#a20e70;border-bottom:6px solid #e623a3;}
+.menu .menu-con li a.On,.menu .menu-con li a.On:hover{background:#90005f;border-bottom:6px solid #e623a3;}
+.menu .menu-con li ul li a,.menu .menu-con li:hover li a,.menu .menu-con li:hover ul{background:#af177c;}
+#menu .menu-con li ul li a{border-bottom:1px dotted #e623a3;}
+.menu .menu-con li ul li a:hover{background:#90005f;}
+
+/* input & select & button & textarea ------ */
+.btn-co{background:#af177c;}
+.btn-co:hover{background:#c74c9d;}
+.btn-co.disabled,.btn-co[disabled]{background:#c798b8;cursor:default;}
+
+
+.tab-red .progress-stats{margin-top:5px;}
+.tab-red .progress-stats .progress{margin-bottom:-4px;}
+
+.c_col{color:#1c833c;}

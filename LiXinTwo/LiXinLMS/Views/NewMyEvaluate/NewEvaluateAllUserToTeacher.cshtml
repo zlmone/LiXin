@@ -1,0 +1,155 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "课后评估统计";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "课后评估统计" }))
+
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tbody>
+                <tr>
+                    <td class="Tit span6">课程形式：
+                    </td>
+                    <td>
+                        <select id="selType" onchange=" InitData();">
+                            <option value="-1" selected="selected">请选择课程形式</option>
+                            <option value="0">集中课程</option>
+                            <option value="1">分组带教</option>
+                        </select>
+                    </td>
+                    <td class="Tit span6">课程名称：
+                    </td>
+                    <td>
+                        <input type="text" class="span30  searchclass" value="请输入课程名称" id="courseName" info="" />
+                    </td>
+                    <td rowspan="2" class="so-do">
+                        <input type="button" class="btn" id="btnSearch" name="搜索" value="搜索" onclick=" InitData(); " />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit span6">课程开始时间：
+                    </td>
+                    <td colspan="3">
+                        <div class="data-choose">
+                            <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" value="@ViewBag.AttstartTime" />
+                            <i></i>
+                        </div>
+                        至
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" value="@ViewBag.AttendTime"/>
+                        <i></i>
+                    </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="Content">
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th>序号
+                    </th>
+                    <th>课程名称
+                    </th>
+                    <th jsrendersortfield="StartTime" sort="desc">课程时间
+                    </th>
+                    <th>课程平均分
+                    </th>
+                    <th>授课讲师
+                    </th>
+                    <th>讲师平均分
+                    </th>
+                    <th jsrendersortfield="TotalCourseAvgStr" sort="desc">综合平均分
+                    </th>
+                    <th>已评/应评
+                    </th>
+                    <th>操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="newEvaluateUserToTeacherList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="newEvaluateUserToTeacherListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td class="span4">
+                {{:#index+1}}
+            </td>
+            <td  style="text-align:left;" class="span30">
+                <div class="ovh span30" title="{{>CourseName}}({{:TypeStr}})">
+                    <strong>{{>CourseName}}({{:TypeStr}})</strong>
+                </div>
+            </td>
+            <td  class="span14">
+               {{:CourseTimeStr}}
+            </td>
+            <td>
+                {{:CourseAvgStr}}
+            </td>
+            <td>
+                {{>teachername}}
+            </td>
+            <td>
+                {{:CourseTeacherAvgStr}}
+            </td>
+            <td>
+                {{:TotalCourseAvgStr}}
+            </td>
+            <td>
+                {{:HasPingUserCount}}/{{:PersonCount}}
+            </td>
+            <td class="tc span8">
+               <div class="tc ovh span8">
+                 <a  title="详情"  class="icon iview"  onclick="NewEvaluateUserToTeacherDetail({{:Id}});"></a>
+               </div>
+            </td>
+        </tr>
+    {{/for}}
+</script>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        $("#start").val("@(ViewBag.nowTime)");
+        $("#courseName").val('@(ViewBag.Attname)');
+        $("#selType  option[value='@ViewBag.Atttype']").attr("selected",true);
+        InitData(); //初始列表
+        
+    });
+    //初始列表
+    function InitData() {
+        //alert(escape(getSearchWord("courseName")));
+        var v = "courseName=" + escape(getSearchWord("courseName"))
+            + "&type=" + $("#selType").val()
+                + "&startTime=" + $("#start").val()
+                    + "&endTime=" + $("#end").val()
+                        + "&listFlag=@ViewBag.AttlistFlag"+"&t=" + new Date();
+        //alert(v);
+        $("#newEvaluateUserToTeacherList").JsRenderData({
+            sourceUrl: '/NewMyEvaluate/GetNewEvaluateUserToTeacherList?' + v,
+            isPage: true,
+            pageSize: 10, 
+            pageIndex: @ViewBag.page,
+            jsRenderSortField: "StartTime",
+            jsRenderASC: "desc",
+            templateID: "newEvaluateUserToTeacherListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+    //详情
+    function NewEvaluateUserToTeacherDetail(courseRoomRuleId) {
+        window.location.href = '/NewMyEvaluate/NewEvaluateAllUserToTeacherDetail?courseRoomRuleId=' + courseRoomRuleId;
+    }
+
+    
+</script>
+

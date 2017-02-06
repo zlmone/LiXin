@@ -1,0 +1,232 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var tt = ViewBag.model as Sys_ParamConfig;
+ 
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+    <style type="text/css">
+        #id_Late div span{ margin-right: 10px;  }
+    </style>
+</head>
+    <body>
+        <input type="hidden" id="txt_chidao" value="@(tt.ConfigValue == "" ? "" : @tt.ConfigValue+";")"/>
+     
+        <h2 class="tit-h2 mt10">
+            <i></i>
+            
+            <span class="tit-con">计划开设课程学时数图表区间配置</span>
+        </h2>
+            
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td colspan="6" class="red">要求输入0- -1的数字。最多保留小数点后一位。默认大于等于前面的数值，小于等于后面的数值。</td>
+                </tr>
+                <tr>                    
+                    <td class="Tit span3">区间配置：</td>
+                    <td>
+                        <input type="text" id="txt_one" class="span4"  />
+                        -
+                        <input type="text" id="txt_two" class="span4"  />
+                    </td>                 
+                    <td class="so-do"><input type="button" id="btn_add" value="添加" class="btn btn-co"/></td>
+                </tr>
+            </table>            
+        </div>
+        <table id="div_list" class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th>
+                        开始范围
+                    </th>
+                    <th>
+                        结束范围
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="id_Late">
+                @if (@tt != null)
+                {
+                    @Html.Raw(@ViewBag.chidao)   
+                }             
+            </tbody>
+            @*<tbody id="id_Leave">
+                    @if (@tt.ConfigValue != "")
+                    {
+                       @Html.Raw(@ViewBag.zaotui)
+                    }
+                </tbody>*@
+        </table>
+            <div class="mt10 tc" >
+                <input type="button" value="保存" id="btn_Save" class="btn"/>
+                @*<input type="button" value="取消" id="btn_Can" class="btn btn-cancel"/>*@
+            </div>
+
+    </body>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#btn_add").click(function () {
+
+                  
+
+                   // var a = new Regex("/^(?:\d+(?:\.\d)?)|-1$");
+                    //onkeyup="value=value.replace(/[^\d\.]/g,'')"
+                    
+                   // var a = new RegExp('/^([\d]+[.]\d)|(-1)|([\d]+)$/g', '').test($("#txt_one").val());
+                    //var a = new RegExp('/((-1)|[^\d\.])/g', '').test($("#txt_one").val());
+                    var reg_a = /^\d+|(\d+\.\d{1})$/;
+                    var reg_b = /^(\d+|(\d+\.\d{1})|(-1))$/;
+
+                    if ($("#txt_one").val() == "" || $("#txt_two").val() == "") {
+                        art.dialog.tips('请输入区间数', 3);
+                        return;
+                    }
+                    else {
+                        if (!reg_a.test($("#txt_one").val())) {//&& !reg_b.test($("#txt_two").val())
+                            art.dialog.tips('请输入正确的区间数', 3);
+                            $("#txt_one").focus();
+                            return;
+                        }
+                        if (!reg_b.test($("#txt_two").val()))
+                        {
+                            art.dialog.tips('请输入正确的区间数', 3);
+                            $("#txt_two").focus();
+                            return;
+                        }
+                    }
+                    //else
+                    //{
+                    //    alert("不可以");
+                    //}
+                    var tr_two_bool = false;
+                    $("#id_Late tr").each(function (d, i) {
+                        var tr_two = $(this).children("td:eq(1)").html();
+                        if (tr_two == -1)
+                        {
+                            art.dialog.tips('已经有最大区间，无法添加最大区间', 3);
+                            tr_two_bool = true;
+                            return;
+                        }
+
+                    })
+                    if (tr_two_bool)
+                        return;
+                   
+                    
+
+                    var num = $("#id_Late").children("tr").size();
+                    var a = parseFloat($("#txt_one").val());
+                    var b = parseFloat($("#txt_two").val());
+                   
+                   
+                   
+                    
+                   
+                    if (num == 0) {
+                        fadd(a,b);
+                    }
+                    else {
+
+                        var a_max = 0;
+                        var b_min = $("#id_Late tr:eq(0)").children("td:eq(0)").html();//先获取一个值
+                        var a_num = 0;
+                        var b_num = 0;
+                        var a_same = 0;
+                        var b_same = 0;
+                        $("#id_Late tr").each(function (d, i) {
+                            var one = $(this).children("td:eq(0)").html();
+                            var two = $(this).children("td:eq(1)").html();
+
+                            if (parseFloat(two) > a_max) {
+                                a_max = two;
+                            }
+                            if (parseFloat(one) < b_min) {
+                                b_min = one;
+                            }
+                            if (a > two)
+                                a_num++;
+                            if (b < one)
+                                b_num++;
+                            if (a == two || a == one)
+                                a_same++;
+                            if (b == one || b == two)
+                                b_same++;
+                        });
+                        
+                        if (a > a_max || (a > a_max && b < b_min)) {
+                            //alert("添加1111"+a+"+"+b);
+                            fadd(a, b);
+                            //alert("1----"+a+b);
+                        }
+                        else {
+                            if (a_num != 0 && b_num != 0 && a_same == 0 && b_same == 0) {
+                                //alert("添加2222" + a + "+" + b);
+                                fadd(a, b);
+                                // alert(a_same+"+"+b_same);
+                                // alert("2----"+a+b);
+                            }
+                            else {
+                                //alert("添加不了");
+                            }
+                        }
+                    }
+                })
+
+
+                $("#btn_Save").click(function () {
+                    var num = $("#id_Late").children("tr").size();
+                    var list = "";
+                    if (num == 0) {
+                        art.dialog.tips('请添加区间', 3);
+                        return;
+                    }
+                    else {
+                        $("#id_Late tr").each(function (d, i) {
+                            list += $(this).children("td:eq(0)").html() + ":" + $(this).children("td:eq(1)").html()+",";
+
+                        })
+                    }
+                    list = list.substring(0, list.lastIndexOf(','));
+
+                    
+
+                    $.post("/ParamConfig/fUpdateParamConfig?configType=56&configValue=" + list, function (data) {
+                        if (data.result == 1) {
+                            art.dialog.tips('配置成功', 3);
+                            
+                        } else {
+                            art.dialog.tips('配置失败', 3);
+                        }
+                    });
+                });
+            });
+
+            function fadd(a, b)
+            {
+                var html = "";
+                html += "<tr>";                
+                html += "<td>" + a + "</td>";
+                html += "<td>" + b + "</td>";             
+                html += "<td><a class='icon idel' title='删除' onclick='fdelete(this)'></a></td>";
+                html += "</tr>";
+
+                $("#id_Late").append(html);
+            }
+
+
+            function fdelete(e) {
+                var index = $(e).parents("tr").index();
+                $("#id_Late").children("tr:eq("+index+")").remove();
+
+            }
+            </script>

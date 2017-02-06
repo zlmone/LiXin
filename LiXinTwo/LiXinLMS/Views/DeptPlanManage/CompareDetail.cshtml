@@ -1,0 +1,93 @@
+﻿@{
+    ViewBag.Title = "差异对比详情";
+}
+
+<div class="main-c">
+    <h2 class="tit-h2 navigation">
+        <i></i>
+        <span class="tit-con"><span>首页 > 培训计划管理 > 月度大纲 > </span>@ViewBag.head</span>
+    </h2>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th>课程名称
+                </th>
+                <th class="span16">预计开课时间
+                </th>
+                <th class="span12">开放级别
+                </th>
+                <th class="span8">学时</th>
+                <th class="span8">地点</th>
+                <th class="span7">讲师姓名
+                </th>
+                <th class="span8">必修/选修
+                </th>
+                <th class="span4">框架内/外
+                </th>
+            </tr>
+        </thead>
+        <tbody id="monthCourseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <div class="tc mt10">
+        <input type="button" class="btn  btn-cancel" value="返回" onclick="black()" />
+    </div>
+</div>
+<script id="monthCourseTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>
+              {{if DeleteOrNew=="1"}}
+                {{:OpenTime}}
+             {{else}}
+                {{:PreCourseTimeStr}}
+             {{/if}}
+            </td>
+            <td>{{:OpenLevel}}</td>
+            <td>{{:CourseLength}}</td>
+            <td>
+                <div class="ovh span8 tl" title=" {{:RoomNamestr}}"> {{:RoomNamestr}}</div>
+            </td>
+            <td>
+               <div class="ovh span8 tl" title="{{:Realname}}">{{:Realname}}</div>
+            </td>
+            <td>{{:IsMustStr}} </td>
+            <td>{{:IsSystemStr}} </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        Getdata();
+    });
+
+    //月度课程
+    function Getdata()
+    {
+        $("#monthCourseList").JsRenderData({
+            sourceUrl: getmonthUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "monthCourseTemplate"
+        });
+    }
+
+    function getmonthUrl()
+    {
+        return "/DeptPlanManage/GetCompareDetail?year=@ViewBag.year&month=@ViewBag.month&type=@ViewBag.type&deptID=@ViewBag.DeptID";
+    }
+
+    function black()
+    {
+        window.location.href = "MonthPlanCompare?year=@ViewBag.year&month=@ViewBag.month&id=@ViewBag.id&deptID=@ViewBag.DeptID";
+    }
+
+</script>

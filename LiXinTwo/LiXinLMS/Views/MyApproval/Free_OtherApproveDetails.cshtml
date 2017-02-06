@@ -1,0 +1,333 @@
+﻿@model LiXinModels.MyApproval.ShowFreeDetails
+@{
+    ViewBag.Title = "其他形式审批详情";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "其他形式审批详情"
+}))
+    <div id="Approvehead">
+    </div>
+
+    @if (ViewBag.ApproveStatus == 0)
+    {
+        <input class="btn" type="button" id="SaveApprove" value="审批" />
+        <span id="Approve_tip" style="color: red"></span>
+    }
+    else if (ViewBag.ApproveStatus == 1 && ViewBag.DepApproveStatus == 2)
+    {
+        <input class="btn" type="button" value="退回发起人" onclick="RejectPop()" />
+    }
+
+    <div>
+        <h3 class="tit-h3-app">
+            <input class="btn btn-co" type="button" value="导出所内学时的Word" onclick="otherWord(0)" />
+            @if (Model.CPA == "是")
+            { 
+                <input class="btn btn-co" type="button" value="导出CPA学时的Word" onclick="otherWord(1)" />
+            }
+
+            申请内容：@(Model.ApplyContent)</h3>
+        <table class="tab-Form lh30 pl20">
+            <tbody>
+                <tr>
+                    <td colspan="2">
+                        @if (ViewBag.type == 3 && Model.ApplyType == 3)
+                        {
+                            foreach (var item in Model.teacherDetails)
+                            {
+                            <table class="tab-Form app-item">
+                                <tr>
+                                    <td class="Tit span8">培训班名称：</td>
+                                    <td>@item.ClassName</td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">授课学时：</td>
+                                    <td>@item.ConvertScore<span style="color: gray" class="ml10">按实际授课、主持或演讲时间的@(Model.ConvertBaseTo)倍折算学时</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">所内学时：</td>
+                                    <td>@item.tScore</td>
+                                </tr>
+                                @if (Model.CPA == "是")
+                                {
+                                    <tr>
+                                        <td class="Tit">CPA学时：</td>
+                                        <td>@item.CPAScore</td>
+                                    </tr>
+                                }
+                            </table>
+                            }
+                        }
+                    </td>
+                </tr>
+                <tr style="display: none">
+                    <td class="Tit">审批理由：</td>
+                    <td>
+                        <p class="span28" id="rejectReason"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit span8">姓名：</td>
+                    <td id="ApproveName">@(Model.Realname)</td>
+                </tr>
+                <tr>
+                    <td class="Tit">培训级别：</td>
+                    <td>@(Model.TrainGrade)</td>
+                </tr>
+                @{
+                    if (Model.CPA == "是")
+                    {  
+                    <tr>
+                        <td class="Tit">CPA编号：</td>
+                        <td>@(Model.CPANo)</td>
+                    </tr>
+                    }
+                }
+                <tr>
+                    <td class="Tit">申请年度：</td>
+                    <td>@(Model.Year)</td>
+                </tr>
+                @if (ViewBag.type == 1 && Model.ApplyType == 1)
+                {
+                    <tr>
+                        <td class="Tit">计量单位：</td>
+                        <td>@(Model.ConvertScore)@(Model.ConvertBaseInfo)
+                            <span style="color: gray">@(Model.ConvertBaseTo)学时/@(Model.ConvertBase)@(Model.ConvertBaseInfo)
+                                @if (Model.ConvertType != 0)
+                                {
+                                    @:最高可折算所内学时：@(Model.ApproveTScore)
+                                 }
+
+                                @if (Model.CPA == "是" && Model.ConvertType != 1)
+                                {
+                                    @:最高可折算CPA学时:@(Model.ConvertMax)
+                                }
+
+                            </span>
+                        </td>
+                    </tr>
+                                if (Model.ConvertType != 0)
+                                {
+                    <tr>
+                        <td class="Tit span10">申请所内学时：</td>
+                        <td>@(Model.tScore)</td>
+                    </tr>
+                                }
+                                if (Model.CPA == "是" && Model.ConvertType != 1)
+                                { 
+                    <tr>
+                        <td class="Tit">申请CPA学时：</td>
+                        <td>@(Model.CPAScore)</td>
+                    </tr>
+                                }
+                }
+
+                <tr>
+                    <td class="Tit">证明资料：</td>
+                    <td>
+                        @foreach (var item in Model.ApplyFileList)
+                        {
+                            <p class="span50" style="border-bottom: 1px solid #ccc">
+                                @item.ResourceName
+                                <a class="icon iview fr mt5" title="查看" id="other_view" onclick="ViewFile('@item.ResourceName','@item.ConvertName','@item.RealName')"></a>
+                            </p>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">申请时间：</td>
+                    <td>
+                        @(Model.ApplyTimeStr)
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <center class="mt10">
+        <input type="button" class="btn  btn-cancel" value="返回" onclick="back()">
+    </center>
+    <input id="ID" type="hidden" value="0" />
+    <input id="hidLookFile" type="hidden" />
+</div>
+<script type="text/ecmascript">
+    var time1;
+    $(document).ready(function ()
+    {
+        if("@ViewBag.ApproveStatus" == "0")
+        {
+            GetnewID();
+        }
+        else
+        {
+            $("#hidLookFile").val(1);//此处是为了隐藏倒计时按钮
+        }
+        load();
+        //other_view
+    });
+
+    function load()
+    {
+        $.get("/MyApproval/Free_ApproveHead?ID=@ViewBag.ID&Realname="+escape('@Model.Realname')+"&ApplyTimeStr=@(Model.ApplyTimeStr)", 
+            function (data) 
+            { 
+                $("#Approvehead").html(data); 
+                //var title = $("#DepReason").attr("title");
+                //$("#rejectReason").html(title);
+                //if (title != "" && title != undefined)
+                //{
+                //    $("#rejectReason").parent().parent().show();
+                //} 
+            });
+    }
+    
+    function GetnewID()
+    {
+        $.getJSON("GetNewApprove?ApproveID=@Model.ID&type=1&ApproveStatus=@ViewBag.ApproveStatus&DepApproveStatus=@ViewBag.DepApproveStatus",function(data){
+            $("#ID").val(data.ID)
+            if(data.ID==0)
+            {
+                $("#Approve_tip").html("请先查看申请的证明资料，方可激活审批按钮");
+                $("#SaveApprove").attr("disabled",true).removeAttr("onclick");
+            }
+            else
+            {
+                $("#hidLookFile").val(1);
+                $("#Approve_tip").html("申请的证明资料已经查看，可以审批");
+                $("#SaveApprove").removeAttr("disabled");
+                BindAdd();
+            }  
+        });
+    }
+    function back()
+    {
+        window.location.href = "MyApprovalIndex?flag=2_0"
+    }
+
+    function BindAdd()
+    {
+        $("#SaveApprove").bind("click",function(){
+            AddApprovePop();
+        });
+    }
+
+
+    function AddApprovePop()
+    {
+        art.dialog.load('/MyApproval/Free_ApprovePop', { title: '审批', id: 'atr_ApprovePop', height: 320, width: 550 });
+    }
+
+
+    function closeApprovePop()
+    {
+        closeDialog("atr_ApprovePop");
+    }
+
+    function saveApprove()
+    {
+        if($("input[name='DepTrainApprove']:checked").length==0)
+        {
+            //alert("请选择一种审批状态！")
+            art.dialog.tips('请选择一种审批状态', 3);
+            return false;
+        }
+        if ($.trim($("#DepTrainReason").val()) == "" && $("input[name='DepTrainApprove']:checked").val()=="2")
+        {
+            //alert("请选择一种审批状态！")
+            art.dialog.tips('审批退回，请输入理由！', 3);
+            return false;
+        }
+        $.post("/MyApproval/SaveDepTrainApprove", 
+            { ID: $("#ID").val() ,ApproveID:@Model.ID,DepTrainApprove:$("input[name='DepTrainApprove']:checked").val()
+                ,DepTrainReason:$("#DepTrainReason").val(),MaxBatch:@ViewBag.MaxBatch,ApproveType:1,type:0}, 
+            function (data)
+            {
+                if(data.result==1)
+                {
+                    back();
+                }
+                else
+                {
+                    //alert("审批失败");
+                    art.dialog.tips('审批失败', 3);
+                }
+            });
+    }
+
+    //退回
+    function RejectPop()
+    {
+        art.dialog.load('/MyApproval/Free_ApproveRejectPop', { title: '退回发起人', id: 'atr_ApproveRejectPop', height: 200, width: 500 });
+    }
+
+    //关闭退回
+    function closeApproveRejectPop()
+    {
+        closeDialog("atr_ApproveRejectPop");
+    }
+
+    function saveRejectApprove()
+    {
+        $.post("/MyApproval/ApproveReject", 
+           { ApproveID:@Model.ID}, 
+            function (data)
+            {
+                if(data.result==1)
+                {
+                    back();
+                }
+                else
+                {
+                    //alert("退回失败");
+                    art.dialog.tips('退回失败', 3);
+                }
+            });
+        }
+
+        function otherWord(CPA)
+        {
+            window.location.href="/MyApproval/OtherToWord?ID=@Model.ID&type=@Model.ApplyType&CPA="+CPA;
+            //window.location.href="Free_OtherWord?ID=@Model.ID&type=@Model.ApplyType";
+        }
+
+
+    function ViewFile(ResourceName,name,RealName)
+    {
+        var ID=$("#ID").val();
+        art.dialog.load("/MyApproval/Free_FilesView?ResourceName="+escape(ResourceName)+"&name="+name+ "&RealName=" +RealName, { title: '文件查看', id: 'atr_ViewFile', height: 320, width: 550
+            ,close:function(){
+                // clearInterval(timer1);
+                window.location.href=window.location.href;
+            }
+        });
+    }
+
+    //查看
+    function CanLookFile()
+    {
+        var ID=$("#ID").val();
+        if(ID=="0")// 大于0，被查看或者下载过 直接下载即可
+        {
+            $.getJSON("/MyApproval/SaveDepTrainApprove", { ID: ID ,ApproveID:@Model.ID,MaxBatch:@ViewBag.MaxBatch,ApproveType:1}, function (data)
+            {
+                if (data.ID > 0)
+                {
+                    $("#ID").val(data.ID);
+
+                    $("#Approve_tip").html("申请的证明资料已经查看，可以审批");
+                    $("#SaveApprove").removeAttr("disabled");
+                    BindAdd();
+                    load();
+                }
+                else
+                {
+                    //alert("查看证明文件失败请通知管理员！")
+                    art.dialog.tips('查看证明文件失败请通知管理员', 3);
+                       
+                }
+            });
+        }
+    }
+</script>

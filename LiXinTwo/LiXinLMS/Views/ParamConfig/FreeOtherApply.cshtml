@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "其他形式申请项目配置";
+    Layout = null;
+}
+<div class="tab-bk" style="border-bottom: 0px;">
+    <ul id="tagFreeOtherApply">
+        <li class="On" id="tagFreeOther0">授课人</li>
+        <li id="tagFreeOther1">其他项目</li>
+        <li id="tagFreeOther2">课后评估</li>
+    </ul>
+</div>
+<div id="OtherApplyList">
+    正在加载......
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        ShowFreeOther();
+        showOtherIndex($("#partType").val());
+    });
+
+    function ShowFreeOther()
+    {
+        $("#tagFreeOtherApply li").click(function ()
+        {
+            var index = $(this).index();
+            showOtherIndex(index);
+        });
+    }
+
+    function showOtherIndex(index)
+    {
+        $("#tagFreeOtherApply li").removeClass("On");
+        $("#tagFreeOther" + index).addClass("On");
+        switch (parseInt(index))
+        {
+            case 0:
+                $("#partType").val(0);
+                $("#OtherApplyList").load("FreeOtherTeacher?year=@ViewBag.year");
+                break;
+            case 1:
+                $("#partType").val(1);
+                $("#OtherApplyList").load("FreeOther?year=@ViewBag.year");
+                break;
+            case 2:
+                $("#partType").val(2);
+                $("#OtherApplyList").load("FreeOtherSurvey?year=@ViewBag.year");
+                break;
+            }
+        }
+</script>

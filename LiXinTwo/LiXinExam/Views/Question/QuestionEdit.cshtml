@@ -1,0 +1,367 @@
+﻿@using System.Web.Mvc.Html
+@using LiXinLanguage
+@using LiXinModels.Examination.DBModel
+@{
+    var id = Request.QueryString["id"] ?? "0";
+    var baseInfor = ViewData["BaseInfor"] as tbQuestion;
+    var sortID = Request.QueryString["sortID"] ?? baseInfor.QuestionSortID.ToString();
+    var backSortID = Request.QueryString["sortID"] ?? "0";
+    var timestr = DateTime.Now.ToString("yyyyMMddHHmmss");
+    ViewBag.Title = NavigateMenuLanguage.QuestionEdit;
+    var deptId = Request.QueryString["deptId"] ?? "0";
+}
+<link href="@Url.Content("~/Scripts/ueditor/themes/default/ueditor.css")" rel="stylesheet" type="text/css" />
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+    {
+        linkName = ViewBag.Flag == 0 ? "QuestionEdit" : "DepQuestionEdit"
+    }))
+    <div>
+        <form method="post" action="" id="submitQuestionForm">
+        <!-- 隐藏域 enctype="multipart/form-data"-->
+        <input type="hidden" id="hiddenSelQuestionKey" name="hiddenSelQuestionKey" value="0" /><!-- 选择知识点 -->
+        <input type="hidden" id="hiddenSelQuestionSort" name="hiddenSelQuestionSort" /><!-- 选择题库 -->
+        <input type="hidden" id="hiddenSelQuestionType" name="hiddenSelQuestionType" /><!-- 试题类型 -->
+        <input type="hidden" id="hiddenSelQuestionLevel" name="hiddenSelQuestionLevel" /><!-- 试题难度 -->
+        <input type="hidden" id="hiddenQuestionAnswer" name="hiddenQuestionAnswer" /><!-- 主观、单选、多选试题的选项或答案 -->
+        <input type="hidden" id="hiddenQuestionContent" name="hiddenQuestionContent" /><!-- 题干 -->
+        <h3 class="tit-h3">@Question.Question_QuestionManage_QuestionBaseInformation</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit all15">
+                    <span title="必填项" class="must">*</span>知识点：
+                </td>
+                <td>
+                    <select id="keylist"></select>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span title="必填项" class="must">*</span>@Question.Question_QuestionManage_Sort：
+                </td>
+                <td>
+                    <input id="selQuestionSort" name="selQuestionSort" type="hidden" value="@sortID"/>
+                    <input id="sortName" type="text" readonly="readonly" disabled="disabled" value="@ViewData["fatherModel"]" class="Box Raster_20"/>
+                    <input type="button" class="btn btn-co" value="选择题库"
+                        onclick=" selectQuestionSort(); " />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span title="必填项" class="must">*</span>@Question.Question_QuestionManage_Type：
+                </td>
+                <td>
+                    <select id="selQuestionType">
+                        <option value="1">@Question.Question_QuestionManage_Subject</option>
+                        <option value="2">@Question.Question_QuestionManage_Single</option>
+                        <option value="3">@Question.Question_QuestionManage_Mulitple</option>
+                        <option value="5">@Question.Question_QuestionManage_FillBlank</option>
+                        <option value="4">@Question.Question_QuestionManage_Judge</option>
+                        <option value="6">@Question.Question_QuestionManage_Mediea</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span title="必填项" class="must">*</span>@Question.Question_QuestionManage_Level：
+                </td>
+                <td>
+                    <select id="selQuestionLevel">
+                        <option value="1">@Question.Question_QuestionManage_EasyLevel</option>
+                        <option value="2" selected="selected">@Question.Question_QuestionManage_CommonLevel</option>
+                        <option value="3">@Question.Question_QuestionManage_HardLevel</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <h3 class="tit-h3 mt20">试题信息</h3>
+        <div id="questionInfor" class="mt10"></div>
+        <center class="mt10">
+            <a class="btn" id="btnSave">@CommonLanguage.Common_Save</a>
+            <a class="btn" id="btnSaveAndAdd">@CommonLanguage.Common_SaveAndAdd</a>
+            <a id="btnBack" class="btn btn-cancel">@CommonLanguage.Common_Back</a>
+        </center>
+        </form>
+    </div>
+    <div style="display: none;" id="tempContent"></div>
+</div>
+<script src="@Url.Content("~/Scripts/ueditor/editor_all.js")" type="text/javascript"> </script>
+<script src="@Url.Content("~/Scripts/ueditor/editor_config.js")" type="text/javascript"> </script>
+<script type="text/javascript">
+    var editor;
+
+    //选择题库
+
+    function selectQuestionSort() {
+        $.getJSON("/Question/GetAllQuestionSortTree?t=" + new Date(), function(data) {
+            art.dialog({ content: "<div class='treeview-box span30'><div class='tree-list'>" + data + "</div></div>", title: "@Question.Question_QuestionManage_SelectSort", id:"SortTree"});
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#navigation>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+
+    function selectSort(sortID, obj) {
+        if (parseInt(sortID) > 0) {
+            $("#selQuestionSort").val(sortID);
+            $("#sortName").val($(obj).text());
+            art.dialog.list['SortTree'].close();
+        } else {
+            art.dialog({
+                title: '@CommonLanguage.Common_Tip',
+                content: '@Question.Question_QuestionManage_Tip_SelectSort',
+                width: 200,
+                height: 50,
+                fixed: true,
+                lock: true,
+                time: 3
+            });
+        }
+    }
+
+    //选择哪种题型信息
+
+    function selectQuestionType() {
+        switch ($("#selQuestionType").val()) {
+        case "1":
+//问答题
+            $("#questionInfor").load("/Question/QuestionSubjectEdit?id=@id&t=@timestr", function() {
+                editor = new baidu.editor.ui.Editor({
+                    toolbars: [['Bold', 'ForeColor', 'BackColor', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+                        'JustifyCenter']],
+                    focus: true,
+                    elementPathEnabled: false
+                });
+                editor.render("txtQuestionContent");
+            });
+            break;
+        case "2":
+//单选题
+            $("#questionInfor").load("/Question/QuestionSingleEdit?id=@id&t=@timestr", function() {
+                editor = new baidu.editor.ui.Editor({
+                    toolbars: [['Bold', 'ForeColor', 'BackColor', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+                        'JustifyCenter']],
+                    focus: true,
+                    elementPathEnabled: false
+                });
+                editor.render("txtQuestionContent");
+            });
+            break;
+        case "3":
+//多选题
+            $("#questionInfor").load("/Question/QuestionMultipleEdit?id=@id&t=@timestr", function() {
+                editor = new baidu.editor.ui.Editor({
+                    toolbars: [['Bold', 'ForeColor', 'BackColor', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+                        'JustifyCenter']],
+                    focus: true,
+                    elementPathEnabled: false
+                });
+                editor.render("txtQuestionContent");
+            });
+            break;
+        case "5":
+//填空题
+            $("#questionInfor").load("/Question/QuestionFillblankEdit?id=@id&t=@timestr", function() {
+                editor = new baidu.editor.ui.Editor({
+                    toolbars: [['Bold', 'ForeColor', 'BackColor', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+                        'JustifyCenter']],
+                    focus: true,
+                    elementPathEnabled: false
+                });
+                editor.render("txtQuestionContent");
+            });
+            break;
+        case "4":
+//判断题
+            $("#questionInfor").load("/Question/QuestionJudgeEdit?id=@id&t=@timestr", function() {
+                editor = new baidu.editor.ui.Editor({
+                    toolbars: [['Bold', 'ForeColor', 'BackColor', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+                        'JustifyCenter']],
+                    focus: true,
+                    elementPathEnabled: false
+                });
+                editor.render("txtQuestionContent");
+            });
+            break;
+        case "6":
+//情景题
+            $("#questionInfor").load("/Question/QuestionMultimediaEdit?id=@id&t=@timestr", function() {
+                editor = new baidu.editor.ui.Editor({
+                    toolbars: [['Bold', 'ForeColor', 'BackColor', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+                        'JustifyCenter']],
+                    focus: true,
+                    elementPathEnabled: false
+                });
+                editor.render("txtQuestionContent");
+            });
+            break;
+        }
+    }
+
+
+    //提交时的隐藏域保存
+
+    function hiddenSave() {
+        $("#hiddenSelQuestionSort").val($("#selQuestionSort").val());
+        $("#hiddenSelQuestionType").val($("#selQuestionType").val());
+        $("#hiddenSelQuestionLevel").val($("#selQuestionLevel").val());
+        $("#hiddenQuestionScope").val(1);
+        return true;
+    }
+
+    $(document).ready(function() {
+        $.getJSON("/KnowledgeKey/GetKnowledgeKey?deptId=@(deptId)&t=" + new Date(), function(data) {
+            for (var i = 0; i < data.length; i++) {
+                $("#keylist").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+            }
+            if (@(id) > 0) {
+                $("#keylist").val('@(baseInfor.QuestionKey)');
+                $("#hiddenSelQuestionKey").val('@(baseInfor.QuestionKey)');
+            } else {
+                $("#hiddenSelQuestionKey").val($("#keylist").val());
+            }
+            $("#keylist").bind("change", function() {
+                $("#hiddenSelQuestionKey").val($("#keylist").val());
+            });
+        });
+
+        //题型切换事件
+        $("#selQuestionType").bind("change", function() {
+            selectQuestionType();
+        });
+
+        if (@(id) > 0) {
+            $("#selQuestionSort").val('@(baseInfor.QuestionSortID)');
+            $("#selQuestionType").val('@(baseInfor.QuestionType)');
+            $("#selQuestionLevel").val('@(baseInfor.QuestionLevel)');
+
+            $("#txtQuestionKeys").val('');
+            $("#selQuestionType").change();
+            $("#selQuestionType").attr("disabled", "disabled");
+            $("#btnSaveAndAdd").hide();
+        } else {
+            //初始化时默认题型信息
+            selectQuestionType();
+        }
+
+        //返回
+        $("#btnBack").bind("click", function() {
+            var redirturl = "QuestionList";
+            if ('@(ViewBag.Flag)' == '1') {
+                redirturl = "DepQuestionList";
+            }
+            window.location.href = "/Question/"+redirturl+"?sortID=@(backSortID)&deptId=@(deptId)";
+        });
+
+        //保存、保存并新增事件
+        $("#btnSave,#btnSaveAndAdd").bind("click", function() {
+            var obj = this;
+            var type = -1;
+            if ($("#keylist option").length == 0) {
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '还没有知识点，请先添加知识点', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                art.dialog.tips("还没有知识点，请先添加知识点", 3);
+                return;
+            }
+
+            if ($("#selQuestionSort").val() == "" || $("#selQuestionSort").val() == "0") {
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '请选择题库', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                art.dialog.tips("请选择题库", 3);
+                return;
+            }
+
+            $("#tempContent").html(editor.getContent());
+            if ($("#tempContent").text().trim().length == 0) {
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '请输入试题题干', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                art.dialog.tips("请输入试题题干", 3);
+                return;
+            }
+
+            if ($("#selQuestionType").val() == "6") {
+                type = $("#fileType").val();
+            }
+            if ($("#submitQuestionForm").CheckForm() && isCheck() && hiddenSave()) {
+                if (FileCheck()) {
+                    $("#hiddenQuestionContent").val(editor.getContent());
+                    $("#submitQuestionForm").submitForm({
+                        url: '/Question/SubmitQuestion?id=@(id)&deptId=@(deptId)&type=' + type,
+                        callback: function(data) {
+                            if (data.result == 1) {
+                                switch ($(obj).attr("id")) {
+                                case "btnSave":
+                                    {
+                                        var redirturl = "QuestionList";
+                                        if('@(ViewBag.Flag)'=='1') {
+                                            redirturl = "DepQuestionList";
+                                        }
+                                        window.location.href = "/Question/"+redirturl+"?sortID=@(backSortID)&deptId=@(deptId)";
+                                    }
+                                    break;
+                                case "btnSaveAndAdd":
+                                    {
+                                        var redirturl = "QuestionEdit";
+                                        if ('@(ViewBag.Flag)' == '1') {
+                                            redirturl = "DepQuestionEdit";
+                                        }
+                                        window.location.href = "/Question/"+redirturl+"?id=0&sortID=@(sortID)&deptId=@(deptId)&it=" + new Date();
+                                    }
+                                    break;
+                                }
+                            } else {
+                                art.dialog.tips(data.content, 3);
+                            }
+                        }
+                    }).submit();
+                }
+            }
+        });
+    });
+
+    //检查文件类型及其大小
+
+    function FileCheck() {
+        var flag = true;
+        if ($("#selQuestionType").val() == "6") {
+            if ($("input[name='fileName']").length > 0) {
+                $("input[name='fileName']").each(function() {
+                    var fileName = $(this).val();
+                    var extStart = fileName.lastIndexOf(".");
+                    var ext = fileName.substring(extStart, fileName.length).toLowerCase();
+                    switch ($("#fileType").val()) {
+                    case "0":
+                        if (ext != ".jpg" && ext != ".png") {
+                            flag = false;
+                        }
+                        break;
+                    case "1":
+                        if (ext != ".mp3") {
+                            flag = false;
+                        }
+                        break;
+                    case "2":
+                        if (!(ext == ".wmv"||ext == ".rmvb"||ext == ".avi"||ext == ".flv")) {
+                            flag = false;
+                        }
+                        break;
+                    }
+                });
+                if (!flag)
+                    art.dialog.tips('@Question.Question_QuestionManage_Tip_FileFormat', 3);
+                return flag;
+            } else {
+                if ($("#fileCollection div").length == 0) {
+                    art.dialog.tips('@Question.Question_QuestionManage_MediaFileLimit', 3);
+                    return false;
+                } else
+                    return true;
+            }
+        } else {
+            return flag;
+        }
+    }
+</script>

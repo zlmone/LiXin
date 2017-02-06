@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "我的审批记录";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var flag = Request.QueryString["flag"] ?? "0_0";
+    var subflag1 = flag.Split('_')[0];
+    var subflag2 = flag.Split('_')[1];
+    var c_flag = Request.QueryString["c_flag"] ?? "0";
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "我的审批记录" }))
+    <div class="tab-bk mt10">
+        <ul id="tagorder">
+            <li class="On" id="order0">总所审批记录</li>
+            <li id="order1">部门/分所审批记录</li>
+            <li id="order2">其他形式免修审批记录</li>
+        </ul>
+    </div>
+    <div id="Order">
+    </div>
+    <div id="MyOrder" style="display: none">
+    </div>
+    <div id="Approve" style="display: none">
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#tagorder li").click(function () {
+            $("#tagorder li").removeClass("On");
+            $(this).addClass("On");
+            var index = $(this).index();
+            switch(index)
+            {
+                case 0:
+                    $("#Order").show();
+                    $("#MyOrder").hide();
+                    $("#Approve").hide();
+                    $("#Order").load("/MyApproval/MyApprovalMain?flag=@(subflag2)&c_flag=@(c_flag)");
+                    break;
+                case 1:
+                    $("#Order").hide();
+                    $("#MyOrder").show();
+                    $("#Approve").hide();
+                    $("#MyOrder").load("/DepLeaveApproval/DepLeaveApprovalManage?flag=@(subflag2)");
+                    break;
+                case 2:
+                    $("#Order").hide();
+                    $("#MyOrder").hide();
+                    $("#Approve").show();
+                    $("#Approve").load("/MyApproval/Free_Approve?flag=@(subflag2)");
+                    break;
+            }
+        });
+        $("#order@(subflag1)").click();
+    });
+</script>

@@ -1,0 +1,90 @@
+﻿.title
+{
+    margin-bottom:10px;
+    border-bottom:solid 1px #ccc;	
+}
+.photocontainer{padding:2px;width:130px;height:130px;background:#ddd;border:2px solid #E6E6E6;overflow:hidden;}
+.photocontainer img{width:100%;height:100%;overflow:hidden;} 
+.uploadtooltip
+{
+	color: #555;	
+	line-height:150%;
+}
+.uploaddiv
+{
+	margin-top:10px;
+}
+.image-cropper-wrapper
+{
+    position: relative;
+    clear: both;
+}
+.crop-work-area
+{
+    border: 1px solid #555555;
+    background-color: #BBBBBB;
+    overflow: hidden;
+    left: 0px;
+    top: 0px;
+    width: 320px;
+    height: 320px;
+}
+.crop-background
+{
+    background-color: #BBBBBB;
+}
+.crop-frame
+{
+    border: 1px solid #555555;
+    position: absolute;
+    overflow: hidden;
+    left: 50px;
+    top: 50px;
+    width: 100px;
+    height: 100px;
+}
+.foreground-img
+{
+    position: absolute;
+}
+.drag-containment
+{
+    position: absolute;
+    z-index: -1;
+}
+.zoom-wrapper
+{
+    cursor: pointer;
+}
+.zoom-out-button
+{
+    background-image: url("../Images/ZoomOut.gif" );
+    float: left;
+    width: 19px;
+    height: 19px;
+}
+.zoom-in-button
+{
+    background-image: url("../Images/ZoomIn.gif" );
+    float: left;
+    width: 19px;
+    height: 19px;
+}
+.zoom-scrollbar
+{
+    background-image: url("../Images/Scrollbar.gif" );
+    background-repeat: no-repeat;
+    float: left;
+    width: 211px;
+    height: 18px;
+}
+.zoom-scroller
+{
+    background-image: url("../Images/Scroller.png" );
+    background-repeat: no-repeat;
+    position: relative;
+    left: 100px;
+    top: 2px;
+    width: 11px;
+    height: 20px;
+}

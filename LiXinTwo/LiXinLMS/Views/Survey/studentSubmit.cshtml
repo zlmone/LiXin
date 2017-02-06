@@ -1,0 +1,274 @@
+﻿@{
+    ViewBag.Title = "studentSubmit";
+    Layout = null;
+}
+<div class="mt10">
+    <!--结构-->
+    <div class="fl span20">
+        <div class="treeview-box span20 fl">
+            <div id="UserDeptTree" class="tree-list">
+            </div>
+        </div>
+    </div>
+    <!--员工明细-->
+    <div class="fr span75 pl10" style="border-left: 1px dotted #aaa;">
+        <div class="so-set">
+            <table class="tab-Form fl ml30" style="width: 60%">
+                <tbody>
+                    <tr>
+                        <td class="span6">应参加人数：</td>
+                        <td class="span4">@ViewBag.sumCount</td>
+                        <td class="span6">已提交人数：</td>
+                        <td class="span4">@ViewBag.answerCount</td>
+                        <td class="span6">未提交人数：</td>
+                        <td class="span4">@ViewBag.noanswerCount</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-bk mt10">
+            <ul id="ul_usermenu">
+                <li class="On" id="usertag0">已提交人员</li>
+                <li id="usertag1">未提交人员</li>
+            </ul>
+        </div>
+        <div>
+            <div class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span4">姓名：
+                        </td>
+                        <td class="span9">
+                            <input type="text" class="span20 searchclass" id="realName" value="请输入搜索内容" info="" />
+                        </td>
+                        <td class="Tit span4">部门：
+                        </td>
+                        <td class="span13">
+                            <input type="text" class="searchclass span12" id="deptCode" value="请输入搜索内容" info="" />
+                        </td>
+                      
+                        <td class="so-do">
+                            <input type="button" class="btn btn-co" value="短信/邮件提醒" onclick="Remind(GetChecked('userSubmitList'));">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Tit span6">培训级别：
+                        </td>
+                        <td >
+                            <div class="sel span28">
+                                @{
+                                    foreach (var item in @ViewBag.trainGrade)
+                                    {
+                                    <input type="checkbox" value="@item" name="OpenLevel" /><label>@item</label>
+                                    }      
+                                }
+                            </div>
+                        </td>
+                          <td class="span4">性别：
+                        </td>
+                        <td>
+                            <div class="sel span10">
+                                <input type="checkbox" name="Sex" value="0" /><label>男</label>
+                                <input type="checkbox" name="Sex" value="1" /><label>女</label>
+                            </div>
+                        </td>
+                        <td class="so-do">
+                            <input class="btn" type="button" value="搜索" id="btnSearch" onclick="InitUserData(); " />
+                            <input type="button" class="btn btn-co" value="导出EXCEL" id="btnout" onclick="OutData()" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="so-seq">
+                <select id="sltCPA" onchange="InitUserData();">
+                    <option value="99">是否CPA</option>
+                    <option value="1">是</option>
+                    <option value="0">否</option>
+                </select>
+            </div>
+            <div class="mt10">
+                <table class="tab-List" id="tbuserSubmitList">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" value="0" id="selectAllUser" /></th>
+                            <th>序号</th>
+                            <th>姓名</th>
+                            <th class="colsumbittime"  jsrendersortfield="SubmitTime" sort="desc">提交时间</th>
+                            <th jsrendersortfield="Sex" sort="desc">性别</th>
+                            <th>部门/分所</th>
+                            <th jsrendersortfield="TrainGrade" sort="desc" >培训级别</th>
+                            <th>是否CPA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userSubmitList">
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <input id="hidIndex" type="hidden" value="0" />
+    <input id="hidSelUserIds" type="hidden" />
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        InitUserData();
+        showUserDept();
+        $("#ul_usermenu li").click(function ()
+        {
+            $("[id^='usertag']").removeClass("On");
+            var index = $(this).index();
+
+            $("#usertag" + index).addClass("On");
+
+
+            //if (index == 0)
+            //{
+            //    InitUserData();
+            //}
+            //else
+            //{
+            //    InitUserNOData();
+            //}
+            if ($("#hidIndex").val() != index)
+            {
+                $("#realName").val("请输入搜索内容");
+                $("#deptCode").val("请输入搜索内容");
+                $("input[name='Sex']").attr("checked", false);
+                $("input[name='OpenLevel']").attr("checked", false);
+                $("#sltCPA option[value=99]").attr("selected", false);
+            }
+            $("#hidIndex").val(index);
+            InitUserData();
+        });
+    });
+
+    //初始化分类 
+    function showUserDept()
+    {
+        $.getJSON("DeptTree?surveyID=@ViewBag.surveyID&paperID=@ViewBag.paperID&type=1", function (data)
+        {
+            $("#deptID").val(data.depID);
+            showQuestion(data.depID);
+            $("#UserDeptTree").html(data.dataList);
+            $("#UserDeptTree").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+
+            $("#UserDeptTree").removeClass("treeview");
+        })
+    }
+
+
+    function InitUserData(index)
+    {
+        //  ,string realName="",string deptName="",string ISCPA="",int Sex=-1,string TrainGrade=""
+        var TrainGrade = ""
+        $("input[name='OpenLevel']:checked").each(function (index)
+        {
+            TrainGrade = TrainGrade == "" ? $(this).val() : TrainGrade + "," + $(this).val();
+        });
+        var v = "realName=" + escape($.trim(getSearchWord("realName"))) + "&deptName=" + escape($.trim(getSearchWord("deptCode")))
+                + "&ISCPA=" + $("#sltCPA").val() + "&TrainGrade=" + TrainGrade
+                 + "&Sex=    " + $("input[name='Sex']:checked").val()
+                + "&type=" + $("#hidIndex").val() + "&surveyID=@ViewBag.surveyID";
+            $("#userSubmitList").JsRenderData({
+                sourceUrl: '/Survey/GetStudentSubmit?' + v,
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: 'userSubmitListTemplate',
+                jsRenderSortField: "SubmitTime",
+                jsRenderASC: "desc",
+                funCallback: function ()
+                {
+                    SetCheckBox('selectAllUser', 'tbuserSubmitList');
+                    $(".colsumbittime").show();
+                }
+            });
+        }
+
+        function OutData()
+        {
+            var TrainGrade = ""
+            $("input[name='OpenLevel']:checked").each(function (index)
+            {
+                TrainGrade = TrainGrade == "" ? $(this).val() : TrainGrade + "," + $(this).val();
+            });
+            var v = "realName=" + escape($.trim(getSearchWord("realName"))) + "&deptName=" + escape($.trim(getSearchWord("deptCode")))
+                   + "&ISCPA=" + $("#sltCPA").val() + "&TrainGrade=" + TrainGrade
+                    + "&Sex" + $("input[name='Sex']:checked").val()
+                   + "&type=" + $("#hidIndex").val() + "&surveyID=@ViewBag.surveyID";
+                window.location.href = "OutData?" + v;
+            }
+
+            function Remind(ids)
+            {
+                $("#hidSelUserIds").val(ids);
+                if (ids == "")
+                {
+                    art.dialog.tips("请选择用户！", 3);
+                    return;
+                }
+
+                $("#hidSelUserIds").val(ids);
+                art.dialog.load("/SystemManage/MessageEdit?t=" + new Date(), { title: "消息编辑", id: "EditMessage", width: 600 });
+
+            }
+
+            function Send()
+            {
+                var ismust = 0;
+                $("input[name='mMust']").each(function (index)
+                {
+                    if ($(this).attr("checked") == "checked")
+                    {
+                        ismust += parseInt($(this).val());
+                    }
+                });
+                $.post("/SystemManage/SendMessageByGroup",
+                    {
+                        Uids: $("#hidSelUserIds").val(),
+                        Title: $.trim(getSearchWord("mTitle")),
+                        Content: $.trim(getSearchWord("mContent")),
+                        Must: ismust
+                    },
+                    function (data)
+                    {
+                        if (data.result == 1)
+                        {
+                            art.dialog.tips("提醒成功", 3);
+                            art.dialog.list['EditMessage'].close();
+                        } else
+                        {
+                            art.dialog.tips("提醒失败", 3);
+                        }
+                    }
+                );
+            }
+
+</script>
+<!--视频课程汇总统计-->
+<script id="userSubmitListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+         <td><input type='checkbox' id='{{:UserId}}' value='{{:UserId}}'/></td>
+         <td>{{:#index+1}}</td>
+         <td>{{:Realname}}</td>
+         <td class="colsumbittime">{{:SubmitTimeStr}}</td>
+         <td>{{:SexStr}}</td>
+         <td>{{:DeptPath}}</td>
+         <td>{{:TrainGrade}}</td>
+         <td>{{:CPA}}</td>
+     </tr>
+  {{/for}}
+</script>
+
+

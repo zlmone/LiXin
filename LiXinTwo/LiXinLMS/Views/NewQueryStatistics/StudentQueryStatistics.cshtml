@@ -1,0 +1,146 @@
+﻿@{
+    ViewBag.Title = "个人综合评定";
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "个人综合评定" }))
+    <table class="tab-Form">
+        <tbody>
+            <tr>
+                <td class="Tit span4">姓名：</td>
+                <td><strong>@ViewBag.name</strong></td>
+                <td class="Tit span10">综合平均分：</td>
+                <td><strong>@ViewBag.sum</strong></td>
+                <td class="Tit span6">排名：</td>
+                <td><strong>@ViewBag.index</strong></td>
+                <td class="Tit span6">考试成绩：</td>
+                <td><strong>@ViewBag.Exam</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="so-seq">
+        <select id="Way" onchange="InitData(); ">
+            <option value="-1">请选择课程类型</option>
+            <option value="1">混合式培训课程</option>
+            <option value="2">视频课程</option>
+        </select>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th>课程名称
+                </th>
+                <th>课程类型
+                </th>
+                <th class="span14">课程时间段
+                </th>
+                <th class="span12">实际考勤/应考勤
+                </th>
+                <th class="span12">集中授课现场评分
+                </th>
+                <th class="span12">分组带教现场评分
+                </th>
+                <th class="span8">奖励
+                </th>
+                <th class="span8">课程考试分数
+                </th>
+                <th class="span4">操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <div class="mt10 tc">
+        <a id="btnBack" class="btn btn-cancel" onclick=" window.location.href = 'StudentQueryStatisticsList'; ">返回</a>
+    </div>
+</div>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="ovh span15 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>{{:WayStr}}</td>
+            <td>{{:CourseTimeStr}}</td>
+            <td>
+                <span id="Attend_{{:Id}}">
+                 {{if Way==2}}
+                    --
+                 {{else}}
+                    {{:HaveAttend}}/{{:AttendCount}}
+                {{/if}} 
+                </span>
+            </td>
+            <td>
+                {{if Way==2}}
+                    --
+                 {{else}}
+                   <div id='Score_Together_{{:Id}}' memo="{{:TogetherMemo}}" scorememo="{{:togetherScoreLevel}}" title='{{:TogetherScore}}'> {{:TogetherScore}}
+                    </div>
+                {{/if}} 
+            </td> 
+            <td> 
+                 {{if Way==2}}
+                    --
+                 {{else}}
+                   <div id='Score_Group_{{:Id}}' memo="{{:GroupMemo}}" title='{{:GroupScore}}' scorememo="{{:groupScoreLevel}}">{{:GroupScore}}
+                   </div>
+                {{/if}}  
+           </td> 
+            <td><span id="Reward_{{:Id}}">
+                    {{:RewardStr}}
+           </span></td>
+           <td>{{:CourseExamScore}}/{{:CourseExamSumScore}}</td>
+            <td>
+               <a class="icon idet" onclick="Memo({{:Id}},{{:PaperId}},{{:CourseId}},{{:CoPaperID}},{{:Way}},{{:IsGroupTeach}})" title="分数说明">分数说明</a>
+            </td>
+        </tr> 
+        {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        InitData();
+    });
+
+    function InitTogether(id)
+    {
+        if ($("div[id^='" + id + "']").length > 0)
+        {
+            $("div[id^='" + id + "']").each(function ()
+            {
+                var obj = this;
+                var title = $(this).attr("title");
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: title, Enabled: false }, function (value)
+                {
+                });
+            });
+        }
+    }
+
+    function InitData()
+    {
+        $("#Courstlist").JsRenderData({
+            sourceUrl: 'GetPersonalStatistics?userID=@ViewBag.UserID&Way=' + $("#Way").val(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate",
+            funCallback: function ()
+            {
+                //  InitTogether("Score_");
+            }
+        });
+    }
+
+    function Memo(id, paperId, courseID, coPaperID, Way, IsGroupTeach)
+    {
+        art.dialog.load("ScoreMemo?id=" + id + "&paperId=" + paperId + "&courseID=" + courseID + "&userID=@ViewBag.UserID" + "&coPaperID=" + coPaperID + "&Way=" + Way + "&IsGroupTeach=" + IsGroupTeach, { title: "分数", id: "pop_ScoreMemo", width: 400 });
+    }
+
+
+</script>

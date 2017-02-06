@@ -1,0 +1,316 @@
+﻿@{
+    ViewBag.Title = "BindExampaper";
+    Layout = null;
+
+    var Survey_Exampaperlist = ViewBag.Survey_Exampaperlist as LiXinModels.Survey.Survey_Exampaper;
+}
+@if (Survey_Exampaperlist != null)
+{
+    <div class="Survey_QuestionList mt10 ml10">
+        @if (Survey_Exampaperlist.Questions.Where(p => p.ObjectType == 1).Count() > 0)
+        { 
+            <h5 class="tit-h5">
+                <span>讲师评估</span>
+            </h5>
+            <div class="sur-do" id="teacher">
+                @{
+            int torder = 0;
+            foreach (var Question in Survey_Exampaperlist.Questions.Where(p => p.ObjectType == 1))
+            {
+                    <div id="QuestionID@(Question.QuestionID)" class="list">
+                        <input type="hidden" name="@(Question.QuestionType)" class="questionid" value="@(Question.QuestionID)"  ExampaperID="@(Question.ExampaperID)"/>
+                        <div class="tit">
+                            <span>@(++torder). </span>@(Question.QuestionContentNoHtml)
+                        </div>
+                        @{
+                if (Question.QuestionType == 2)
+                {
+                            <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                }
+                        }
+                        @{  switch (Question.QuestionType)
+                            {
+                                //单选题
+                                case 0:
+                                    {
+                                        int count = 0;
+                            <div class="type_radio">
+                                @foreach (var s in Question.Answers)
+                                {
+                                        
+                                    <p>
+                                        <input type="radio" name="radio@(Question.QuestionID)"  value="@s.AnswerId" />@((char)(65 + count)).
+                                        @s.AnswerContentNohtml
+                                    </p>
+                                    count++;
+                                }
+                            </div>
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="singReplay" type="text" />
+                            </div>
+                                    break;
+                                //多选题
+                                case 1:
+                                    {
+                                        int count = 0;
+                            <div class="type_checked">
+                                @foreach (var s in Question.Answers)
+                                {
+                                    <p>
+                                        <input type="checkbox" value="@s.AnswerId"  />@((char)(65 + count)). @s.AnswerContentNohtml
+                                    </p>
+                                    count++;
+                                }
+                            </div>
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="muiltReplay" type="text" />
+                            </div>
+                                    break;
+                                //主观题
+                                case 2:
+                            <p>
+                                <textarea style="width: 338px; height: 104px;" onkeyup="TextearaMaxlength(this)"
+                                    onchange="TextearaMaxlength(this)" maxlength="500">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                            </p> 
+                                                                                   break;
+                                case 3:
+                            <input type="hidden" class="xp" />
+                            <div id='divScore_@(Question.QuestionOrder)' class="ml35 ">
+                            </div>
+                            <div class="why mt5">
+                                <span>理由：</span><input name="xingPReplay" type="text" maxlength="200" />
+                            </div>
+                                          break;
+                            }
+                        }
+                    </div>
+            }   
+                }
+            </div>
+        }
+        @if (Survey_Exampaperlist.Questions.Where(p => p.ObjectType == 0).Count() > 0)
+        { 
+            <h5 class="tit-h5 mt20">
+                <span>课程评估</span>
+            </h5>
+            <div class="sur-do" id="course">
+                @{
+            int corder = 0;
+            foreach (var Question in Survey_Exampaperlist.Questions.Where(p => p.ObjectType == 0))
+            {
+                   
+                    <div id="QuestionID@(Question.QuestionID)" class="list">
+                        <input type="hidden" name="@(Question.QuestionType)" class="questionid" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                        <div class="tit">
+                            <span>@(++corder). </span>@(Question.QuestionContentNoHtml)
+                        </div>
+                        @{
+                if (Question.QuestionType == 2)
+                {
+                            <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                }
+                        }
+                        @{  switch (Question.QuestionType)
+                            {
+                                //单选题
+                                case 0:
+                                    {
+                                        int count = 0;
+                            <div class="type_radio">
+                                @foreach (var s in Question.Answers)
+                                {
+                                    <p>
+                                        <input type="radio"  name="radio@(Question.QuestionID)"/>@((char)(65 + count)).
+                                        @s.AnswerContentNohtml
+                                    </p>
+                                    count++;
+                                }
+                            </div>
+
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="singReplay" type="text" />
+                            </div>
+                                    break;
+                                //多选题
+                                case 1:
+                                    {
+                                        int count = 0;
+                            <div class="type_checked">
+                                @foreach (var s in Question.Answers)
+                                {
+                                    <p>
+                                        <input type="checkbox" />@((char)(65 + count)). @s.AnswerContentNohtml
+                                    </p>
+                                    count++;
+                                }
+                            </div>
+
+                                    }
+                            <div class="why">
+                                <span>理由：</span><input name="muiltReplay" type="text" />
+                            </div>
+                                    break;
+                                //主观题
+                                case 2:
+                            <p>
+                                <textarea style="width: 338px; height: 104px;" onkeyup="TextearaMaxlength(this)"
+                                    onchange="TextearaMaxlength(this)" maxlength="500">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                            </p> 
+                                                                                   break;
+                                case 3:
+                            <input type="hidden" class="xp" />
+                            <div id='divScore_@(Question.QuestionOrder)' class="ml35 ">
+                            </div>
+                            <div class="why mt5">
+                                <span>理由：</span><input name="xingPReplay" type="text" maxlength="200" />
+                            </div>
+                                          break;
+                            }
+                        }
+                    </div>
+            }   
+                }
+            </div>
+        }
+        <center class="mt10 mb10" id="submitTeacherBtnDiv">
+            <input type="button" value="提交" class="btn" attr="add" />
+            <a class="btn btn-cancel" onclick="Back();">返回</a>
+        </center>
+    </div>
+}
+<script type="text/javascript">
+    //返回
+    function Back() {
+        if('@(ViewBag.backurl)'=='') {
+            window.location.href = '/NewMyCourse/CourseList?p=1';
+        } else {
+            window.location.href = '@(ViewBag.backurl)';
+        }
+    }
+    $(document).ready(function() {
+        showStars(1);
+        fOnload();
+        $(".btn[attr='add']").click(function() {
+            var obj = this;
+            var qiehuan = $("#qiehuan").val();
+            $(".list").each(function(i, d) {
+                var afterlist = false;
+                $(d).find("textarea").each(function() {
+                    if ($.trim($(this).val()) == "") {
+                        $(this).focus();
+                        afterlist = true;
+                        return false;
+                    }
+                });
+                $(d).find(".xp").each(function(d, i) {
+                    if ($(this).val() == "" || $(this).val() == 0) {
+                        afterlist = true;
+                        return false;
+                    }
+                });
+                if (afterlist) {
+                    art.dialog.tips("请填写课程评估", 3);
+                    a = false;
+                    return false;
+                } else {
+                    a = true;
+                }
+            });
+
+            if (!a) {
+                return;
+            }
+
+            var t = "";
+
+            var ExampaperID = "";
+            ExampaperID = $(".list").children(".questionid").attr("ExampaperID");
+
+            $(".list").each(function() {
+                t += $(this).children(".questionid").attr("ExampaperID") + "♣" + $(this).children(".questionid").val() + "♣";
+                var type = $(this).children(".questionid").attr("name");
+                switch (type) {
+                case "2":
+                    t += $(this).children("p").children("textarea").val() + "♣♥";
+                    break;
+                case "3":
+                    if ($(this).children(".xp").val() == 0) {
+                        t += "0♣";
+                    } else {
+                        t += $(this).children(".xp").val() + "♣";
+                    }
+                    t += $(this).children(".why").children("input[name='xingPReplay']").val() + "♥";
+                    break;
+                }
+            });
+            t = t.substring(0, t.lastIndexOf('♥'));
+            var courseroomrunleid = $("#courseroomrunleid").val();
+
+            if (courseroomrunleid == "0") {
+                return;
+            }
+            $.post("/NewMyCourse/FInsertSurvey_ReplyAnswer?courseId=" + $("#txt_CourseId").val() + "&ExampaperID=" + ExampaperID + "&courseroomrunleid=" + @(ViewBag.subid),
+                { tt: t },
+                function(data) {
+                    if (data.result == 0) {
+                        art.dialog.tips(data.content, 3);
+                        $(obj).attr("disabled", "true");
+
+                        $(".list").children(".why").children("input[name='xingPReplay']").attr("disabled", "true");
+                        $(".list").children("p").children("textarea").attr("disabled", "true");
+
+                        $(".list").each(function(d, i) {
+                            if ($(this).children(".questionid").attr("name") == 3) {
+                                $(this).children(".ml35").attr("title", $(this).children(".xp").val());
+                            }
+                        });
+                        showStars(0);
+                    } else {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+        });
+    });
+
+
+
+    function fOnload() {
+        var CourseId = $("#txt_CourseId").val();
+        $.post("/NewMyCourse/FBindAllSurvey_ReplyAnswer?CourseId=" + CourseId + "&SurveyPaperId=" + @(ViewBag.pingid) + "&courseroomrunleid=" + @(ViewBag.subid), function(data) {
+            if (data.content != "") {
+                var arr = data.content.split('♥');
+                for (var i = 0; i < arr.length; i++) {
+                    $("#QuestionID" + arr[i].split('♣')[0]).children(".xp").val(arr[i].split('♣')[1]);
+                    $("#QuestionID" + arr[i].split('♣')[0]).children(".ml35").attr("title", arr[i].split('♣')[1]);
+                    showStars(0);
+                    if (arr[i].split('♣')[2] == "") {
+                        var h = "#QuestionID" + arr[i].split('♣')[0];
+                        $("#QuestionID" + arr[i].split('♣')[0]).children("p").children("textarea").val(arr[i].split('♣')[1]);
+                    } else {
+                        $("#QuestionID" + arr[i].split('♣')[0]).children(".why").children("input[name='xingPReplay']").val(arr[i].split('♣')[2]);
+                    }
+                }
+                $(".list").children(".why").children("input[name='xingPReplay']").attr("disabled", "true");
+                $(".list").children("p").children("textarea").attr("disabled", "true");
+                $(".btn[attr='add']").attr("disabled", "true");
+
+            } else {
+            }
+        });
+    }
+
+    function showStars(t) {
+        if ($("div[id^='divScore_']").length > 0) {
+            $("div[id^='divScore_']").each(function() {
+                var star = $(this).attr("title");
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: t }, function(value) {
+                    $(obj).parent().find(".xp").val(value);
+                });
+            });
+        }
+    }
+</script>

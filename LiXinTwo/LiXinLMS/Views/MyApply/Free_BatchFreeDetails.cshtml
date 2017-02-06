@@ -1,0 +1,197 @@
+﻿@model LiXinModels.MyApproval.ShowFreeDetails
+@{
+    ViewBag.Title = "批量免修详情";
+    var config = ViewBag.model as LiXinModels.SystemManage.Free_ApplyConfig;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "批量免修详情"
+}))
+    <input class="btn btn-co" type="button" value="导出人员名单" onclick="ExportUser()" />
+    <input class="btn btn-co" type="button" value="导出申请表格" onclick="ExportUserAll()" />
+    <div>
+        <table class="tab-Form lh30 pl20">
+            <tbody>
+                <tr>
+                    <td class="Tit span7">免修：</td>
+                    <td>@(Model.FreeName)</td>
+                </tr>
+                <tr>
+                    <td class="Tit">说明情况：</td>
+                    <td>
+                        <label>@(Model.Memo)</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">申请年度：</td>
+                    <td>@(Model.Year)</td>
+                </tr>
+                @if (config.ApplyType != 1)
+                {
+                    <tr>
+                        <td class="Tit span12">申请所内免修学时：</td>
+                        <td>@(Model.tScore)</td>
+                    </tr>
+                }
+                @if (config.ApplyType != 0)
+                {
+                    <tr>
+                        <td class="Tit">申请CPA免修学时：</td>
+                        <td>@(Model.CPAScore)</td>
+                    </tr>
+                }
+                <tr>
+                    <td class="Tit">导入时间：</td>
+                    <td>
+                        @(Model.CreateTimeStr)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">证明资料：</td>
+                    <td>
+                        @if (Model.ApplyFileList.Count > 0)
+                        {
+                            foreach (var item in Model.ApplyFileList)
+                            {
+                            <p class="span50" style="border-bottom: 1px solid #ccc">
+                                @item.ResourceName
+                                <a class="icon idown fr ml10 mt5" title="下载" onclick="DownFile(this,'@item.RealName','@item.ResourceName')"></a>
+                                <a class="icon iview fr mt5" title="查看" id="other_view" onclick="ViewFile('@item.ResourceName','@item.ConvertName')"></a>
+                            </p>
+                            }
+                        }
+                        else
+                        {
+                            @:无
+                        }
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="Tit span12">批量申请人员：</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table id="userall" class="tab-List mt10">
+                            <thead>
+                                <tr>
+                                    <th class="span4">序号
+                                    </th>
+                                    <th class="span6">姓名
+                                    </th>
+                                    <th class="span8">部门
+                                    </th>
+                                    <th class="span4">培训级别
+                                    </th>
+                                    <th class="span8">CPA编号
+                                    </th>
+                                    <th class="span8">获得所内学时
+                                    </th>
+                                    <th class="span8">获得CPA学时
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="userList">
+                            </tbody>
+                            <tfoot>
+                            </tfoot>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <center class="mt10">
+        <input type="button" class="btn  btn-cancel" value="返回" onclick="back()">
+    </center>
+</div>
+<script type="text/ecmascript">
+    var path = "@(System.Configuration.ConfigurationManager.AppSettings["FreeUplpadUrl"])";
+    $(document).ready(function ()
+    {
+        InitData();
+    });
+
+
+    function InitData()
+    {
+
+        var v = "id=@ViewBag.ID";
+        $("#userList").JsRenderData({
+            sourceUrl: '/MyApply/GetApplyUsers?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            //jsRenderSortField: "OrderTime",
+            jsRenderASC: "desc",
+            templateID: "userListTemplate",
+            funCallback: function ()
+            {
+
+            }
+        });
+    }
+
+    function DownFile(obj, Rname, name)
+    {
+        $.getJSON("/home/IsExistFile?path=" + path + "/" + Rname, function (data)
+        {
+            if (data.result == 1)
+            {
+                window.location.href = "/home/LoadPrincipleFile?type=1&path=" + path + "/" + Rname + "&name=" + escape(name);
+            }
+            else
+            {
+                art.dialog.tips('文件不存在', 3);
+            }
+        });
+    }
+
+
+
+    function back()
+    {
+        location.href = '/MyApply/Free_BatchOtherFrom?flag=0';
+    }
+
+    function ViewFile(ResourceName, name)
+    {
+        art.dialog.load("/MyApproval/Free_FilesView?type=1&ResourceName=" + ResourceName + "&name=" + name, { title: '文件查看', id: 'atr_ViewFile', height: 320, width: 550 });
+    }
+
+    //导出人员名单
+    function ExportUser()
+    {
+        window.location.href = "ExportUser?ID=@ViewBag.ID&&CreateTimeStr=@(Model.CreateTimeStr)&&type=1&ConvertType=@ViewBag.ConvertType";
+    }
+
+    //导出申请表格
+    function ExportUserAll()
+    {
+        window.location.href = "ExportUserAllForFree?ID=@ViewBag.ID&&CreateTimeStr=@(Model.CreateTimeStr)&&type=1";
+    }
+</script>
+<script id="userListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr> 
+        <td>{{:#index+1}}</td>
+        <td>{{:Realname}}</td>        
+        <td>{{:DeptName}}</td> 
+        <td>{{:TrainGrade}}</td> 
+        {{if CPA=="是"}}
+           <td>{{:CPANO}}</td>
+        {{else}}
+           <td>N/A</td>  
+        {{/if}}
+        <td>{{:GettScore}}</td>
+        {{if CPA=="是"&&@ViewBag.ConvertType!=0}}
+            <td>{{:GetCPAScore}}</td>
+        {{else}}
+           <td>N/A</td>  
+        {{/if}}
+    </tr> 
+    {{/for}}
+</script>

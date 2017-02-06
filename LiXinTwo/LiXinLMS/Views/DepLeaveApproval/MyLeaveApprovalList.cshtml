@@ -1,0 +1,145 @@
+﻿@{
+    ViewBag.Title = "我的请假申请";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var appFlag = Request.QueryString["appFlag"] ?? "-1";
+}
+@(Html.Action("SiteMapLink", "Common", new { linkName = "MyLeaveApprovalList" }))
+<div class="main-c">
+    <input type="hidden" value="-1" id="selAppFlag"/>
+    <div  class="tab-bk">
+        <ul id="tagLeave">
+            <li id="tagTimeOut0" class="On" data-value="-1">全部</li>
+            <li id="tagTimeOut1" data-value="0">未审批</li>
+            <li id="tagTimeOut2" data-value="1">审批通过</li>
+            <li id="tagTimeOut3" data-value="2">审批拒绝</li>
+        </ul>
+    </div>
+    <div>
+        <div class="so-set">
+            <table class="tab-Form">
+                <tbody>
+                    <tr>
+                        <td class="Tit span7">
+                            课程名称：
+                        </td>
+                        <td class="span15">
+                            <input id="cname" class="span10 Box searchclass" type="text" info="请输入查找内容" value="请输入查找内容"/>
+                        </td>
+                        <td class="Tit span7">
+                            申请时间：
+                        </td>
+                        <td>
+                            <div class="data-choose">
+                            <input id="starttime" class="span12 Box" type="text" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'endtime\',{m:-1})}' }) " readonly="readonly"/><i></i>
+                            </div>
+                            至
+                            <div class="data-choose">
+                                <input id="endtime" class="span12 Box" type="text" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'starttime\',{m:1})}' }) " readonly="readonly"/><i></i>
+                            </div>
+                        </td>
+                        <td class="so-do">
+                            <input id="btnSearch" class="btn" type="button" onclick=" initData(); " value="搜索"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="slemust">
+                <option value="-1">选/必修</option>
+                <option value="0">必修</option>
+                <option value="1">选修</option>
+            </select>
+        </div>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th>课程名称</th>
+                    <th class="span6">学时</th>
+                    <th class="span6">必修/选修</th>
+                    <th class="span16">开课时间</th>
+                    <th class="span6">讲师</th>
+                    <th class="span14" sort="desc" jsrendersortfield="LeaveTime">申请时间</th>
+                    <th class="span8">审批状态</th>
+                    <th class="span6">审批人</th>
+                    <th class="span14">审批时间</th>
+                    <th class="span6">操作</th>
+                </tr>
+            </thead>
+            <tbody id="leaveList"></tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+</div>
+<script id="leaveListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="tl span15 ovh" title="{{:CourseName}}">{{:CourseName}}</div></td>
+        <td>{{:CourseLength}}</td>
+        <td>
+            {{if IsMust==0}}
+            必修
+            {{else}}
+            选修
+            {{/if}}
+        </td>
+        <td><div class="tl">{{:StartTimeShow}} -- {{:EndTimeShow}}</div></td>
+        <td>{{:Teacher}}</td>
+        <td>{{:LeaveTimeShow}}</td>
+        <td>{{:LeaveStatus}}</td>
+        <td>{{:AppFlag==0?"——":AppRealName}}</td>
+        <td>{{:AppFlag==0?"——":AppTimeShow}}</td>
+        <td>
+            <a class="icon iview" title="查看详情" onclick="browse({{:Id}});"></a>
+        </td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        //tab页切换
+        $("#tagLeave li").bind("click", function () {
+            settab($(this).attr('data-value'));
+        });
+
+        //必修、选项下拉事件
+        $("#slemust").bind("change", function () {
+            //初始化数据
+            initData();
+        });
+
+        settab(@appFlag);
+    });
+    
+    function settab(index) {
+        $("#tagLeave li").removeClass("On");
+        $("#tagLeave li[data-value='" + index + "']").addClass("On");
+        $("#selAppFlag").val(index);
+        //初始化数据
+        initData();
+    }
+
+    //初始化数据
+    function initData() {
+        $("#leaveList").JsRenderData({
+            sourceUrl: '/DepLeaveApproval/GetMyLeaveApprovalList?cname=' + escape(getSearchWord("cname")) + '&isMust=' + $("#slemust").val() + '&appFlag=' + $("#selAppFlag").val() + '&starttime=' + $('#starttime').val() + '&endtime=' + $("#endtime").val() + '&t=' + new Date(),
+            isPage: true,
+            pageSize: 10,
+            jsRenderSortField: "LeaveTime",
+            jsRenderASC: "desc",
+            pageIndex: 1,
+            templateID: 'leaveListTemplate'
+        });
+    }
+    
+    //查看详情
+    function browse(id) {
+        window.location.href = "/DepLeaveApproval/MyLeaveInfor?id=" + id + "&appFlag=" + $("#selAppFlag").val();
+    }
+</script>

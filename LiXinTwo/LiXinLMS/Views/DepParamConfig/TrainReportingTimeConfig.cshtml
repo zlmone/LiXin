@@ -1,0 +1,117 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<form id="fnSumitConfig">
+<h2 class="tit-h2 mt10">
+    <i></i><span class="tit-con">培训需求上报时间设定</span>
+</h2>
+<table class="tab-Form mt10">
+    <tr>
+        <td class="Tit span10">
+        </td>
+        <td>
+            <div class="time-choose">
+                <input type="text" id="txt_StartTime" name="starttime" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd',minDate:'%y-01-01', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1},%y-12-31)}' })  " />
+                <i></i>
+            </div>
+            至
+            <div class="time-choose">
+                <input type="text" id="txt_EndTime" name="endtime" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd',minDate:'#F{$dp.$D(\'txt_StartTime\',{m:1},%y-01-01)}', maxDate: '{%y+1}-12-31'  })" />
+                <i></i>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+        </td>
+        <td>
+            <input type="submit" value="确定" id="btn_Add" class="btn" />
+        </td>
+    </tr>
+</table>
+</form>
+<script type="text/javascript">
+        $(document).ready(function() {            
+
+
+            $("#fnSumitConfig").validate({
+                event: "blur",
+                rules: {
+                    starttime: { required: true, dateISO: true },
+                    endtime: { required: true, dateISO: true }
+                },
+                messages: {
+                    starttime: { required: "请输入开始日期", dateISO: "请输入正确的格式日期" },
+                    endtime: { required: "请输入结束日期", dateISO: "请输入正确的格式日期" }
+                },
+                errorPlacement: function (error, element) {
+                    var eid = element.attr('name');
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        $('input[name=' + eid + ']:last').parent(".time-choose").after(error);
+                    } else {
+                       
+                        error.insertAfter(element.parent());
+                    }
+
+                },
+                submitHandler: fnSumitConfig
+            });
+
+            var d = new Date();
+            var t = "";
+            var tt = "";
+            if (@(Model.ConfigValue.Split(';')[0]) == "1") {
+                t = d.getFullYear();
+            }
+
+            if (@(Model.ConfigValue.Split(';')[3]) == "1") {
+                tt = d.getFullYear();
+            } else {
+                tt = d.getFullYear() + 1;
+            }
+            var tempAa = @(Model.ConfigValue.Split(';')[1]);
+            if (@(Model.ConfigValue.Split(';')[1]) == "00") {
+                $("#txt_StartTime").val("");
+                $("#txt_EndTime").val("");
+            } else {
+                 $("#txt_StartTime").val(t + "-" + @(Model.ConfigValue.Split(';')[1]) + "-" + @(Model.ConfigValue.Split(';')[2]));
+            $("#txt_EndTime").val(tt + "-" + @(Model.ConfigValue.Split(';')[4]) + "-" + @(Model.ConfigValue.Split(';')[5]));
+            }
+           
+
+
+        });
+
+        function fnSumitConfig() {
+             var d = new Date();
+             var addt = "";
+                var addtt = "";
+                 var start = $("#txt_StartTime").val();
+                 var end = $("#txt_EndTime").val();
+                 
+                
+                 if (start.split('-')[0] == d.getFullYear()) {
+                     addt = 1;
+                 } else {
+                    addt = 2;
+                 }
+                
+                if (end.split('-')[0] == d.getFullYear()) {
+                     addtt = 1;
+                 } else {
+                    addtt = 2;
+                 }
+
+
+                var zhi = addt + ";" + start.split('-')[1] + ";" + start.split('-')[2] + ";" + addtt+";" + end.split('-')[1] + ";" + end.split('-')[2];
+                $.post("/DepParamConfig/UpdateConfig?type=1&value=" + zhi+"&deptID="+$("#depart").val(), function (data) {
+                    if (data.result == 1) {
+                         art.dialog.tips('配置成功', 3);
+                    } else {
+                         art.dialog.tips('配置失败', 3);
+                    }
+                });
+        }
+</script>

@@ -1,0 +1,686 @@
+﻿@{
+    ViewBag.Title = "编辑公告";
+}
+<script src="../../Scripts/ueditor1.3.6/ueditor.config.js"></script>
+<script src="../../Scripts/ueditor1.3.6/ueditor.all.min.js"></script>
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+<link href="../../Content/trainManage.css" rel="stylesheet" />
+<form id="formEditNote">
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "编辑公告" }))
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span15">标题：
+                </td>
+                <td>
+                    <input type="text" name="NoteTitle" id="txtNoteTitle" class="span60" maxlength="30" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">类别：
+                </td>
+                <td>
+                    <select id="sel_SortID" name="SortID">
+                        <option value="0">请选择公告类别</option>
+                        @if (ViewBag.NoteSortList != null)
+                        {
+                            if (((List<LiXinModels.SystemManage.Sys_NoteSort>)ViewBag.NoteSortList).Count() > 0)
+                            {
+                                foreach (var item in ((List<LiXinModels.SystemManage.Sys_NoteSort>)ViewBag.NoteSortList))
+                                {
+                            <option value="@item.Id">@item.SortName</option>         
+                                }
+                            }
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">是否内训首页显示：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="AdFlag" value="0" /><label>否</label>
+                        <input type="radio" name="AdFlag" value="1" /><label>是</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">是否新进员工首页显示：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="DepTrainFlag" value="0" /><label>否</label>
+                        <input type="radio" name="DepTrainFlag" value="1" /><label>是</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">开放对象：</td>
+                <td>
+                    <div id="TrainGrade">
+                        @{
+                            foreach (var item in @ViewBag.TrainGrade)
+                            {
+                            <input type="checkbox" value="@item" name="OpenLevel" /><label>@item</label>
+                            } 
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">正文：
+                </td>
+                <td>
+                    <textarea name="NoteContent" id="txtNoteContent" class="span60" style="height: 321px"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">内容概述：</td>
+                <td>
+                    <textarea name="ContentDesc" id="txtContentDesc" class="span60"></textarea>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="Tit">附件：
+                </td>
+                <td>
+                    <input type="file" name="courseAttachResource" value="" id="uploadAttachResource" />
+                    <input type="hidden" name="hidResourceIds" value="" id="hidResourceIds" />
+                    @if (ViewBag.NoteResource != null && ((IEnumerable<LiXinModels.SystemManage.Sys_NoteResource>)ViewBag.NoteResource).Count() > 0)
+                    {
+                        <div class="seled-list">
+                            <ul>
+                                @foreach (var item in (IEnumerable<LiXinModels.SystemManage.Sys_NoteResource>)ViewBag.NoteResource)
+                                {
+                                    <li id="div_courseAttach_@(item.Id)"><span title="@item.FileName">
+                                        @item.FileName
+                                    </span>
+                                        <input  type="button" name="btn" value="X" title="移除" class="btn btn-cancel" onclick="fnRemoveCourseResource('div_courseAttach_@(item.Id)    ',@item.Id)" />
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </td>
+            </tr>
+
+            <tr>
+                <td class="Tit span6">开放人群：
+                </td>
+                <td>
+                    <div class="fl all">
+                        <input type="hidden" name="OpenFlag" id="txtOpenFlag" />
+                        <input type="checkbox" name="chbOpenFlag" id="chbOpenFlag1" onclick="fnChooseOpen(this,1)"
+                            value="1" /><label>群组</label>
+                        <input type="checkbox" name="chbOpenFlag" id="chbOpenFlag2" onclick="fnChooseOpen(this,2)"
+                            value="2" /><label>组织结构</label>
+                        <input type="hidden" id="txtOpenDepartObject" name="OpenDepart" value="" />
+                        <input type="hidden" id="txtOpenGroupObject" name="OpenGroup" value="" />
+                        <input type="hidden" name="hidSpecialUserIds" value="" />
+
+                        <div id="div_showgroup">
+
+                            <div class="seled-list" id="showgroup_div" style="display: none">
+                                <h4 id="sp_choosegroup">已选群组：</h4>
+                                <ul id="showgroup">
+                                </ul>
+                                <div class="mt10" id='div_btn_goon_addgroup'>
+                                    <input type="button" id="btnGoOnAddGroups" onclick="fnGoOnAddGroups()" value="继续添加群组"
+                                        class="btn btn-co" />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div id="div_showDept">
+
+                            <div class="seled-list" id="showDept_div" style="display: none">
+                                <h4 id="sp_chooseDept">已选组织结构：</h4>
+                                <ul id="showDept">
+                                </ul>
+                                <div class="mt10">
+                                    <input type="button" id="btnGoOnAddDept" onclick="fnGoOnAddDept()" value="继续添加组织结构"
+                                        class="btn btn-co" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">背景图片：</td>
+                <td>
+                    <a id="btnadd" onclick="AddBackImage();" class="btn btn-co">添加图片</a>
+                    <div id="div_backUrl" class="mt10">
+                        <img alt="" src="../../UploadFiles/NoteBackImage/1.jpg" width="560px" height="378px" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit"></td>
+                <td>
+                    <input type="submit" id="btnSave" value="发表" class="btn" />
+                    <a id="btnBack" onclick="back()" class="btn btn-cancel">返回</a>
+                </td>
+            </tr>
+        </table>
+        <input id="NoteId" name="NoteId" type="hidden" value="@ViewBag.noteID" />
+        <input id="BackUrlName" name="NoteId" type="hidden" value="" />
+    </div>
+</form>
+<script type="text/javascript">
+    //渲染编辑器
+    var editor =new  UE.getEditor("txtNoteContent",{
+        toolbars: [['FontSize', 'FontFamily', 'ForeColor', 'Bold', 'Italic', 'Underline', 'StrikeThrough', 'Superscript', 'Subscript', 'RemoveFormat', 'FormatMatch', 'AutoTypeSet','|', 'JustifyLeft', 'JustifyRight',
+                    'JustifyCenter', 'InsertOrderedList', 'InsertUnorderedList',
+                    'InsertImage', 'WordImage', 'Source','Link', 'Unlink','|',
+                'InsertTable', 'DeleteTable', 'InsertParagraphBeforeTable', 'InsertRow', 'DeleteRow', 'InsertCol', 'DeleteCol', 'MergeCells', 'MergeRight', 'MergeDown', 'SplittoCells', 'SplittoRows', 'SplittoCols', '|', 'Help']],
+      
+        maximumWords: 2000,
+        wordCount: false,
+        autoHeightEnabled: true, 
+        elementPathEnabled: false,
+        minFrameHeight: 321
+    });
+
+
+    $(document).ready(function ()
+    {
+        $("#txtContentDesc:enabled").textareaCount({maxCharacterSize:100,displayFormat:"#input/#max"});
+        $("#formEditNote").validate(
+            {
+                event: "blur",
+                submitHandler: fnSaveNote,
+                rules: {
+                    SortID: { required: true, min: 1 },
+                   
+                    OpenLevel:{required:true},
+                    NoteTitle: {
+                        required: true,
+                        maxlength: 30,
+                        remote: {
+                            type: "get",
+                            dataType: "json",
+                            url: "/SystemManage/checkNoteTitle?t=" + new Date(),
+                            data: {
+                                NoteTitle: function () { return $.trim($("#txtNoteTitle").val()); },
+                                noteID: function () { return "@ViewBag.noteID"; }
+                            }
+                        }
+                    }
+                },
+                messages: {
+                    SortID: { required: "请选择公告类别！", min: "请选择公告类别！" },
+                  
+                    OpenLevel:{ required: "请选择开放级别！" },
+                    NoteTitle: {
+                        required: "标题不能为空！",
+                        maxlength: "标题不能多于30个字符！",
+                        remote: "标题已存在！"
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        var eid = element.attr('name');
+                        $('input[name=' + eid + ']:last').parent().after(error);
+                    } else {
+                        error.insertAfter(element);
+                    }
+
+                }
+            });
+        //     $("#txtNoteTitle").preInput();
+        GetNote();
+        //上传资源
+        $('#uploadAttachResource').uploadify({
+            'formData': { 'folder': "@(System.Configuration.ConfigurationManager.AppSettings["UFCONoteResource"])" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',//此处因需要增加了detailFlag字段 其他地方使用请自行移除
+            'auto': false,
+            'multi': true,
+            'onCancel': function (file) {
+            },
+            'onSelect': function (file) {
+                $("#tempAttachQueueId").val(file.id);
+            },
+            'onUploadStart': function (file) {
+            },
+            'onUploadError':function(file, errorCode, errorMsg, errorString)
+            {
+                if (errorCode!=-280) {
+                    art.dialog.tips('上传过程中发送异常，请重新选择文件！',3);
+                    $('input[type="submit"]').removeAttr('disabled');
+                }
+            },
+            'onUploadSuccess': function (file, data, response) {
+                var a = data.split('|');
+                if (a.length>0) {
+
+                    var ResourceName = a[0];
+                    var RealName = a[1]; 
+                    var ResourceSize = a[2];                
+                    var NoteID = $("#NoteId").val();
+
+                    $.post("/SystemManage/AddNoteResource?NoteId="+$("#NoteId").val()+"&FileName="+escape(ResourceName)+"&RealName="+RealName+
+                     "&ResourceSize="+ResourceSize+"&type=1",function(data){
+                     });    
+                }
+
+                //             ,'fileTypeExts': ' *.doc; *.ppt; *.xls;*.docx; *.pptx; *.xlsx; *.pdf; *.txt; *.rmvb; *.avi; *.wmv'
+            },
+            'onQueueComplete':function(){
+                art.dialog.tips("保存成功！",3
+                );
+                window.location.href='/SystemManage/NoteManage';
+
+            } });
+    });
+
+   
+    //editor.render("txtNoteContent");
+
+
+    function GetNote()
+    {
+        if ("@ViewBag.noteID" > "0")
+        {
+            $.getJSON('/SystemManage/GetSingeNote?noteID=@ViewBag.noteID' + "&t=" + new Date().valueOf(), function (data)
+            {
+
+                $('#sel_SortID').attr('value', data.SortID);
+                $("#txtNoteTitle").val(data.title);
+                $("input[name=AdFlag][value='" + data.AdFlag + "']").attr("checked", true);
+                $("input[name=DepTrainFlag][value='" + data.DepTrainFlag + "']").attr("checked", true);
+                $("#txtContentDesc").val(data.dataList.ContentDesc);
+                if(data.dataList.OpenGroupFlag==1)
+                {
+                    $("#chbOpenFlag1").attr("checked",true);
+                    $("#txtOpenGroupObject").val(data.dataList.OpenGroup);
+                    if(data.Listgroup.length>0)
+                    {
+                        $("#showgroup_div").show();
+                        $("#showgroup").html($("#listgroupTemplate").render(data.Listgroup));
+                    }
+                }
+                if(data.dataList.OpenDepartFlag==1)
+                {
+                    $("#txtOpenDepartObject").val(data.dataList.OpenDepart);
+                    $("#chbOpenFlag2").attr("checked",true);
+                    if(data.listdept.length>0)
+                    {
+                        $("#showDept_div").show();
+                        $("#showDept").html($("#listdeptTemplate").render(data.listdept));
+                    }
+                }
+                // debugger;
+                var openLevel=data.dataList.TrainGrade;
+                if(openLevel!=null&&openLevel!="")
+                {
+                    $("input[name='OpenLevel']").each(function(){
+                        var value=$(this).val();
+                        if($.inArray(value,openLevel.split(','))>=0)
+                        {
+                            $(this).attr("checked",true);
+                        }
+                    });
+                }
+                var realname=data.dataList.BackUrlName==""||data.dataList.BackUrlName==null?"1.jpg":data.dataList.BackUrlName;
+                var html='<img alt="" src="../../UploadFiles/NoteBackImage/'+realname+'" width="560px" height="378px" />';
+                $("#div_backUrl").html("");
+                $("#div_backUrl").html(html);
+                $("#BackUrlName").val(realname);
+             
+                editor.ready(function(){
+                    editor.setContent(data.content,false);
+                });
+            });
+        } else
+        {
+            $("input[name=AdFlag]:first").attr("checked", true);
+            $("input[name=DepTrainFlag]:first").attr("checked", true);
+        }
+    }
+
+
+    //添加群组合组织架构
+    function fnChooseOpen(obj, flag)
+    {
+
+        if (flag == 1)//群组
+        {
+            if ($(obj).is(":checked"))
+            {
+                art.dialog.load("/CourseManage/CourseChooseGroup", { title: '选择群组', id: "pop_chooseGroup",
+                    close: function ()
+                    {
+                        if ($("#txtOpenGroupObject").val() == "")
+                        {
+                            $(obj).attr("checked", false);
+                        } else
+                        {
+                            $(obj).attr("checked", true);
+                        }
+                    }
+                }, false);
+            }
+            else
+            {
+                $("#div_showgroup").html("");
+                $("#txtOpenGroupObject").val("");
+            }
+        }
+        if (flag == 2)//组织结构
+        {
+            if ($(obj).is(":checked"))
+            {
+                art.dialog.load("/UserCommon/DeptTree?type=checkbox&buttonShow=1", { title: '选择组织结构', id: "pop_chooseDept",
+                    close: function ()
+                    {
+                        if ($("#txtOpenDepartObject").val() == "")
+                        {
+                            $(obj).attr("checked", false)
+                        }
+                    }
+                }, false);
+            }
+            else
+            {
+                $("#div_showDept").html("");
+                $("#txtOpenDepartObject").val("");
+            }
+
+        }
+    }
+    //继续添加群组
+    function fnGoOnAddGroups()
+    {
+        art.dialog.load("/CourseManage/CourseChooseGroup?ids="+$("#txtOpenGroupObject").val(), { title: '选择群组', id: "pop_chooseGroup",
+            close: function () {
+                if ($("#txtOpenGroupObject").val()=="") {
+                    $("#chbOpenFlag1").attr("checked",false);
+                }else {
+                    $("#chbOpenFlag1").attr("checked",true);
+                }
+            }
+        }, false);
+
+    }
+    //继续添加结构
+    function fnGoOnAddDept()
+    {
+        art.dialog.load("/UserCommon/DeptTree?type=checkbox&buttonShow=1", { title: '选择组织结构', id: "pop_chooseDept",
+            close: function () {
+                if ($("#txtOpenDepartObject").val()=="") {
+                    $("#chbOpenFlag2").attr("checked",false);
+                }else {
+                    $("#chbOpenFlag2").attr("checked",true);
+                }
+            }
+        }, false);
+
+    }
+
+    function InitDeptTree()
+    {
+        if (($("#txtOpenDepartObject").val()!= "")&&($("#txtOpenDepartObject").val()!= 0)) {
+            var checkboxArray3 = $('#pop_deptTree input[type=checkbox]');
+            var IsOrderList = $("#txtOpenDepartObject").val().split(',');
+            for (key in IsOrderList) {
+                $.each(checkboxArray3, function (index, value) {
+                    if (IsOrderList[key] == $(value).val().split("_")[0]) {
+                        $(this).attr('checked', true);
+                        $(this).attr('disabled', "disabled"); 
+                    }
+                });
+            }
+            var IsOrderList2 = $("#txtOpenDepartObject").val().split(',');
+            for (key in IsOrderList2) {
+                $.each(checkboxArray3, function (index, value) {
+                    if (IsOrderList[key] == $(value).val().split("_")[0]) {
+                        if ("@ViewBag.TokenPublishflag" == 1) { $(this).attr('disabled', "disabled"); $(this).attr('oldchoose', "oldchoose"); }
+                }
+                });
+        }
+    }
+}
+
+
+//从隐藏域中移除相关的群组编号
+function fnRemoveGroupItem(id,groupId)
+{
+    $("#"+id).remove();
+    var oldGroupIds=$("#txtOpenGroupObject").val();
+
+    oldGroupIds =","+oldGroupIds+",";
+    var str=","+groupId+",";
+    if(oldGroupIds==str){
+        oldGroupIds=oldGroupIds.replace(str,"");
+    }else{
+        oldGroupIds=oldGroupIds.replace(str,",");
+    }
+    oldGroupIds=oldGroupIds.substring(1,oldGroupIds.length-1);
+    $("#txtOpenGroupObject").val(oldGroupIds);
+    if (oldGroupIds=="") {
+        $("#chbOpenFlag1").attr("checked",false);
+        $("#btnGoOnAddGroups").remove();
+        $("#sp_choosegroup").remove();
+    }
+    if($("li[id^='div_GroupItem_']").length==0)
+    {
+        $("#div_showgroup").html("");
+        $("#chbOpenFlag1").attr("checked",false);
+    }
+}
+//从隐藏域中移除相关的组织架构编号
+function fnRemoveDeptItem(id,groupId)
+{
+    $("#"+id).remove();
+    var oldGroupIds=$("#txtOpenDepartObject").val();
+
+    oldGroupIds =","+oldGroupIds+",";
+    var str=","+groupId+",";
+    if(oldGroupIds==str){
+        oldGroupIds=oldGroupIds.replace(str,"");
+    }else{
+        oldGroupIds=oldGroupIds.replace(str,",");
+    }
+    oldGroupIds=oldGroupIds.substring(1,oldGroupIds.length-1);
+    $("#txtOpenDepartObject").val(oldGroupIds);
+    if (oldGroupIds=="") {
+        $("#chbOpenFlag2").attr("checked",false);
+        $("#btnGoOnAddDept").remove();
+        $("#sp_chooseDept").remove();
+    }
+    if($("li[id^='div_DeptItem_']").length==0)
+    {
+        $("#div_showDept").html("");
+        $("#chbOpenFlag2").attr("checked",false);
+    }
+}
+
+//添加组织结构
+function SelectDept()
+{
+    var ids = "";
+    var names = "";
+    var html ="";
+    var flag=0;
+    if($("#sp_chooseDept").length==0)
+    {
+        html += "<div class='seled-list'><h4 id='sp_chooseDept'>已选组织结构：</h4><ul>";
+        flag=1;
+    }
+   
+    if( $("#pop_deptTree input:checked").length==0)
+    {
+        art.dialog.tips("请选择组织架构！", 3);
+        return;
+    }
+    $("#pop_deptTree input:checked").each(function ()
+    {
+        if ($(this).attr("disabled") == "disabled") {
+            return;
+        }
+        var s = $(this).attr("value").split("_");
+        ids = ids + s[0] + ",";
+        names = names + $(this).next().text() + "♣";
+        html += "<li id='div_DeptItem_" + s[0] + "'><span title='"+$(this).next().text()+"'>" + $(this).next().text() + '</span>' +
+    "<input  type='button' name='btn' title='移除' value='X' class='btn btn-cancel' onclick=\"fnRemoveDeptItem('div_DeptItem_" + s[0] + "',"+ s[0] + ")\" /></li>";
+    });
+    if (ids.length > 0)
+    {
+        $("#showDept_div").show();
+        ids = ids.substring(0, ids.length - 1);
+        names = names.substring(0, names.length - 1);
+        if(flag==1)
+        {
+            html += "</ul><div class='mt10'><input type='button' class='btn btn-co' id='btnGoOnAddDept' onclick='fnGoOnAddDept()' value='继续添加组织结构' /></div></div>";
+            $("#div_showDept").append(html);
+        }
+        else
+        {
+            $("#div_showDept").find("ul").eq(0).append(html);
+            //var h = "<div class='mt10'><input type='button' class='btn btn-co' id='btnGoOnAddDept' onclick='fnGoOnAddDept()' value='继续添加组织结构' /></div></div>";
+            //$("#div_showDept").find("ul").eq(0).after(h);
+        }
+
+    }
+    else
+    {
+        html = "";
+    }
+    var oldids=$("#txtOpenDepartObject").val();
+    $("#txtOpenDepartObject").val(oldids==""?ids: oldids+","+ids);
+    //$("#div_showDept").html(html);
+    art.dialog.list["pop_chooseDept"].close();
+}
+//保存公告
+function fnSaveNote()
+{
+    editor.sync();
+    var values = editor.getContent();
+    values = values.toString().replace(/&nbsp;/g, "").replace(/\//g, "").replace(/\s+/g, "").replace(/<br>/g, "").replace(/<br>/g, "").replace(/<P>/g, "").replace(/<p>/g, "").replace(/<div>/g, "").replace(/<\/div>/g, "");
+
+    if ($.trim(values) == "")
+    {
+        art.dialog({
+            content: '内容不能为空！',
+            time: 3
+        });
+        return false;
+    } else
+    {
+        //开放群组
+        var OpenGroupFlag=$("#chbOpenFlag1").attr("checked")=="checked"?1:0;
+        var OpenGroup=$("#txtOpenGroupObject").val();
+        //开放组织结构
+        var OpenDepartFlag=$("#chbOpenFlag2").attr("checked")=="checked"?1:0;
+        var OpenDepart=$("#txtOpenDepartObject").val();
+
+        var TrainGrade="";
+        $("input[name='OpenLevel']:checked").each(function(){
+            TrainGrade=TrainGrade==""?$(this).val():TrainGrade+","+$(this).val();
+        });
+       
+        $.post("/SystemManage/submitEditNote",
+            {
+                title: $("#txtNoteTitle").val(),
+                content: editor.getContent(),
+                noteID: "@ViewBag.noteID",
+                SortID: $("#sel_SortID").val(),
+                AdFlag: $("input[name='AdFlag']:checked").attr("value"),
+                DepTrainFlag: $("input[name='DepTrainFlag']:checked").attr("value"),
+                deleteID:$("#hidResourceIds").val(),
+                OpenGroupFlag:OpenGroupFlag,
+                OpenGroup:OpenGroup,
+                OpenDepartFlag:OpenDepartFlag,
+                OpenDepart:OpenDepart,
+                ContentDesc:$("#txtContentDesc").val(),
+                TrainGrade:TrainGrade,
+                BackUrlName: $("#BackUrlName").val()
+            },
+                function (data)
+                {
+                    $("#NoteId").val(data.Id);
+                    var uploadAttachResourceLength= $("#uploadAttachResource-queue").find(".uploadify-queue-item").length;
+               
+                    if (uploadAttachResourceLength>0) {
+                        $('#uploadAttachResource').uploadify('upload', '*');
+                    }
+                    else {
+                        window.location.href='/SystemManage/NoteManage';
+                   
+                    }
+                    //back();
+                });
+        }
+    }
+
+
+    function back()
+    {
+        window.location.href = '/SystemManage/NoteManage';
+    }
+
+    //hidResourceIds 已经删除的资源Ids
+    function fnRemoveCourseResource(id,relid)
+    {
+        $("#"+id).remove();
+        var ids= $("#hidResourceIds").val();
+        if (ids=="") {
+            ids=relid;
+        }
+        else if (ids!="") {
+            ids+=","+relid
+        }
+        $("#hidResourceIds").val(ids);
+    }
+    function AddBackImage()
+    {
+        art.dialog.load("/SystemManage/Pop_AddBackImage", {
+            title: '上传图片', id: "Pop_BackImage", width: 550, height: 300,
+            close: function () { }
+        }, false);
+    }
+    function SaveBackUrl()
+    {
+        var obj=$("#BackImageList").find("input[type='radio']:checked");
+        if(obj.length==0)
+        {
+            art.dialog({
+                content: '请选择图片！',
+                time: 3
+            });
+            return;
+        }
+
+        // $("#BackUrlName").val($(obj).val());
+        var realName=$(obj).attr("Realname");
+        $("#BackUrlName").val(realName);
+        var html='<img alt="" src="../../UploadFiles/NoteBackImage/'+realName+'" width="560px" height="378px" />';
+        $("#div_backUrl").html("");
+        $("#div_backUrl").html(html);
+        art.dialog.list["Pop_BackImage"].close();
+    }
+</script>
+<script id="listdeptTemplate" type="text/x-jsrender">
+   {{for #data}}                      
+       <li id="div_DeptItem_{{:DepartmentId}}">
+            <span title="{{:DeptName}}">{{:DeptName}}</span>
+           <input class="btn btn-cancel " type="button" value="X" title="移除" name="btn" onclick="fnRemoveDeptItem('div_DeptItem_{{:DepartmentId}}',{{:DepartmentId}})" />
+      </li>
+   {{/for}}                     
+</script>
+<script id="listgroupTemplate" type="text/x-jsrender">
+   {{for #data}}                      
+        <li id="div_GroupItem_{{:GroupId}}">
+            <span title="{{:GroupName}}">{{:GroupName}}</span>
+            <input class="btn btn-cancel "  type="button" value="X" title="移除" name="btn" onclick="fnRemoveGroupItem('div_GroupItem_{{:GroupId}}',{{:GroupId}})" />
+        </li>
+   {{/for}}                     
+</script>

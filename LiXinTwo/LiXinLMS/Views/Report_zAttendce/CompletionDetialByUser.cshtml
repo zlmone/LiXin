@@ -1,0 +1,152 @@
+﻿@{
+    ViewBag.Title = "个人培训学时汇总";
+    var user = ViewBag.User as LiXinModels.User.Sys_User;
+    var year = Request.QueryString["year"] ?? DateTime.Now.Year.ToString();
+}
+
+<div class="main-c">
+    @if (ViewBag.type == 0)
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "个人培训学时汇总" }))
+    }
+    else
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "userCPAScore" }))
+    }
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>    
+                <td class="Tit span6">选择年度：</td>
+                <td>
+                    @(Html.Action("ReportYear", "Common", new { id = "allyear" }))
+                    @* <div class="time-choose">
+                          <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy', maxDate: '#F{$dp.$D(\'singleend\',{m:-1})}' });"
+                            readonly="readonly" id="singlestart" />
+                        <i></i>
+                    </div>
+                    至
+                <div class="time-choose">
+                    <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy', minDate: '#F{$dp.$D(\'singlestart\',{m:+1})}' });"
+                            readonly="readonly" id="singleend" />
+                        <i></i>
+                </div>*@
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input type="button" value="导出EXCEL" id="btn_execl" class="btn btn-co" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-set">
+        <table class="tab-Form">
+            <tbody>
+                <tr>
+                    <td class="Tit span6">姓名：@(user.Realname)</td>
+
+                    <td class="Tit span6">培训级别：@(user.TrainGrade)</td>
+
+                    <td class="Tit span6" id="oneisorno"></td>
+
+                    <td class="Tit span6" id="twoisorno"></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="Tit span6">部门：@(user.DeptName)</td>
+
+                    <td class="Tit span6" id="threeisorno"></td>
+
+                    <td class="Tit span6" id="zhiyedaode"></td>
+                    <td class="Tit span6" id="fourexam"></td>
+
+            </tbody>
+        </table>
+    </div>
+
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span12">培训形式
+                </th>
+                <th class="span7" jsrendersortfield="CourseLength" sort="desc">所内获取有效学时/目标学时
+                </th>
+                @if (ViewBag.CPA == "执业")
+                {
+                    <th class="span5">当年完成CPA学时/目标学时
+                    </th>
+                    <th class="span7" id="cpazhouqi" jsrendersortfield="MyReport_LearnTimes" sort="desc" style="display: none">CPA考核周期完成学时/目标学时 </th> 
+                }
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <center class="mt10">
+            <a href="@Url.Content(@ViewBag.url)&cp=1" class="btn btn-cancel">返回</a>
+        </center>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function (e)
+    {
+        $("#allyear option[value='@year']").attr("selected",true);
+        //初始化查询条件
+        initSearch();
+
+        InitData();
+
+        $("#btn_Select").click(function () {
+            InitData();
+        });
+
+        $("#btn_execl").click(function () {
+            art.dialog({
+                content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+                ok: function () {                   
+
+                    var v = "starttime=" + $("#allyear").val()+"&userid="+@(user.UserId);
+                    window.location.href = "/MyCourse/GetMyCourseLengthCenterForReport?" + v;
+                },
+                cancel: true
+            });
+        })
+
+        $("#btn").click(function () {
+            location.href="/Common/RedirectUrl?blockName=Person";
+        })
+
+  
+    });
+
+    function InitData() {
+        var v = "starttime=" + $("#allyear").val()+"&userid="+@(user.UserId);
+
+        $.post("/MyCourse/GetMyCourseLengthCenter?" + v, function (data) {
+            //$("#Courstlist").html(data.html);
+            //$("#oneisorno").html("是否完成所内目标学时：" + data.oneisorno);
+            //$("#twoisorno").html("已通过在线测试次数/目标次数："+data.threeisorno);
+            //$("#threeisorno").html("是否完成CPA年度目标学时：" + data.twoisorno);
+            //$("#zhiyedaode").html("是否已参加职业道德培训："+data.zhiyedaode);
+            $("#Courstlist").html(data.html);
+            $("#oneisorno").html(data.oneisorno);
+            $("#twoisorno").html(data.threeisorno);
+            $("#threeisorno").html( data.twoisorno);
+            $("#zhiyedaode").html(data.zhiyedaode);
+            $("#fourexam").html(data.fourexam);
+            if (data.dangqianyear == 0)
+            {
+                $("#cpazhouqi").show();
+            }
+            else
+            {
+                $("#cpazhouqi").hide();
+            }           
+        })
+       
+    }
+
+</script>

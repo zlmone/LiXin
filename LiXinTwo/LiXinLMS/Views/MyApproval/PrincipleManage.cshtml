@@ -1,0 +1,183 @@
+﻿@{
+    ViewBag.Title = "违纪情况审批管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "违纪情况审批管理" }))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">
+                    姓名：
+                </td>
+                <td class="span11">
+                    <input type="text" class="span10 Box searchclass" id="txtPrinName" value="请输入搜索姓名"
+                           info="" />
+                </td>
+                <td class="Tit span6">
+                    课程名称：
+                </td>
+                <td class="span31">
+                    <input type="text" class="span30 Box searchclass" id="txtPrinCoName" value="请输入搜索课程"
+                           info="" />
+                </td>
+                <td class="Tit span6">
+                    申辩日期：
+                </td>
+                <td>
+                    <div class="data-choose">
+                        <input id="txtPrinStartTime" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' , maxDate: '#F{$dp.$D(\'txtPrinEndTime\',{m:-1})}'});" /><i></i></div>
+                    至
+                    <div class="data-choose">
+                        <input id="txtPrinEndTime" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' ,  minDate: '#F{$dp.$D(\'txtPrinStartTime\',{m:1})}'});" /><i></i></div>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnPrinSearch" onclick="SearchPrin();" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selTrainGrade">
+            <option value="-1">全部培训级别</option>
+        </select>
+        <select id="isPrinApp">
+            <option value="-1">全部出勤状态</option>
+            <option value="0">迟到</option>
+            <option value="1">早退</option>
+            <option value="2">缺勤</option>
+            <option value="3">迟到且早退</option>
+        </select>
+        <select id="isStatus">
+            <option value="-1">全部审批状态</option>
+            <option value="0">未审批</option>
+            <option value="1">审批通过</option>
+            <option value="2">审批拒绝</option>
+        </select>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        序号
+                    </th>
+                    <th class="span8">
+                        姓名
+                    </th>
+                    <th class="span8">
+                        培训级别
+                    </th>
+                    <th class="span15" jsrendersortfield="a.AppDateTime" sort="desc">
+                        申辩时间
+                    </th>
+                    <th>
+                        课程名称
+                    </th>
+                    <th class="span6">
+                        学时
+                    </th>
+                    <th class="span8">
+                        扣除学时
+                    </th>
+                    <th class="span18" jsrendersortfield="b.StartTime" sort="desc">
+                        开课时间
+                    </th>
+                    <th class="span8">
+                        出勤状态
+                    </th>
+                    <th class="span8">
+                        审批状态
+                    </th>
+                    <th class="span6">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="prinList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<!--违纪列表模板-->
+<script id="prinListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td>{{:RealName}}</td>
+        <td>{{:TrainGrade}}</td>
+        <td>{{:AppDateTimeShow}}</td>
+        <td style="text-align:left;"><div title="{{:CourseName}}" class="ovh span15">{{:CourseName}}</div></td>
+        <td>{{:CourseLength}}</td>
+        <td>{{:LessLength}}</td>
+        <td>{{:CourseTimeShow}}</td>
+        <td>{{:AttStatusShow}}</td>
+        <td>{{:StatusShow}}</td>
+        <td>
+            {{if Status==0}}
+            <a onclick="ApprovalPrin({{:ID}},{{:UserID}},{{:CourseID}});" class="icon icheck" title="审批"></a>
+            {{else}}
+            <span class="icon icheck idis" title="审批"></span>
+            {{/if}}
+            <a class="icon iview" onclick="DetailPrin({{:ID}},{{:UserID}},{{:CourseID}});" title="查看详情"></a>
+        </td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        //初始化列表
+        InitPrinList();
+
+        //加载培训级别
+        $.getJSON("/MyApproval/GetTrainGrade", function (data)
+        {
+            for (var i = 0; i < data.length; i++)
+            {
+                $("#selTrainGrade").append('<option value="' + data[i] + '">' + data[i] + '</option>');
+            }
+        });
+
+        //下拉框事件
+        $("#selTrainGrade,#isPrinApp,#isStatus").bind("change", function ()
+        {
+            //alert(1);
+            InitPrinList();
+        });
+    });
+    //加载违纪列表
+    function InitPrinList()
+    {
+        $("#prinList").JsRenderData({
+            sourceUrl: '/MyApproval/GetPrincipleManageList?courseName=' + escape($.trim(getSearchWord("txtPrinCoName"))) + '&realName=' + escape($.trim(getSearchWord("txtPrinName"))) + "&status=" + $("#isStatus").val() + "&attstatus=" + $("#isPrinApp").val() + "&grade=" + escape($.trim($("#selTrainGrade").val())) + "&startTime=" + ($("#txtPrinStartTime").val() == "" ? "2000-1-1" : $("#txtPrinStartTime").val()) + "&endTime=" + ($("#txtPrinEndTime").val() == "" ? "2050-1-1" : $("#txtPrinEndTime").val()) + "&t=" + new Date(),
+            isPage: true,
+            pageSize: 10,
+            jsRenderSortField: "a.AppDateTime",
+            jsRenderASC: "desc",
+            pageIndex: 1,
+            templateID: 'prinListTemplate'
+        });
+    }
+    //查询
+    function SearchPrin()
+    {
+        InitPrinList();
+    }
+
+    //审批
+    function ApprovalPrin(id, userId, courseId)
+    {
+        art.dialog.load('/MyApproval/PrincipleApproval?userID=' + userId + '&courseID=' + courseId + '&type=a&id=' + id + '&t=' + new Date(), { title: '审批违纪申辩', id: 'EditExplain', height: 320, width: 500 });
+    }
+
+    //详情
+    function DetailPrin(id, userId, courseId)
+    {
+        window.location.href = "/MyApproval/PrincipleApprovalInfor?id=" + id + '&userID=' + userId + '&courseID=' + courseId;
+    }
+</script>

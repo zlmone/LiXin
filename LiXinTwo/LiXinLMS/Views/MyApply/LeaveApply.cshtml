@@ -1,0 +1,138 @@
+﻿@{
+    ViewBag.Title = "请假审批";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="tab-bk">
+    <ul id="tagLeaves">
+        <li id="tagLeave0" class="On">待审批</li>
+        <li id="tagLeave1">全部</li>
+        <li id="tagLeave2">已审批</li>
+    </ul>
+</div>
+<div>
+    
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">
+                    课程名称：
+                </td>
+                <td>
+                    <input type="text" class="span30 Box searchclass" id="course" value="请输入课程名称" info="" />
+                </td>
+                <td class="Tit span6">
+                    姓名：
+                </td>
+                <td>
+                    <input type="text" class="span10 Box searchclass" id="realname" value="请输入姓名" info="" />
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- 列表 -->
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="tl">
+                        课程名称
+                    </th>
+                    <th class="tl Raster_12">
+                        请假人
+                    </th>
+                    <th class="tl Raster_12">
+                        请假时间
+                    </th>
+                    <th class="tl Raster_12">
+                        审批状态
+                    </th>
+                    <th class="tl Raster_12">
+                        审批人
+                    </th>
+                    <th class="tl Raster_12">
+                        审批时间
+                    </th>
+                    <th class="tl Raster_12">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="courseList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:Course_Name}}</td>   
+        <td>{{:realname}}   <a href="javascript:void(0);" title="请假理由：{{:Reson}}">理由</a></td> 
+        <td>{{:LeaveTimeStr}}</td>
+        <td>
+            {{if ApprovalFlag == 2}}
+                <a href="javascript:void(0);" title="审批理由：{{:ApprovalMemo}}">{{:ApprovalStatusStr}}</a>
+            {{else}}
+                {{:ApprovalStatusStr}}
+            {{/if}}
+        </td> 
+        <td>{{:ApprovalRealName}}</td> 
+        <td>{{:ApprovalDateTimeStr}}</td>
+        <td>
+        {{if ApprovalFlag == 0}}
+            <a onclick="Apply({{:Id}},1);">同意</a>   <a onclick="Apply({{:Id}},2);">拒绝</a> 
+        {{else}}
+            同意   拒绝
+        {{/if}}
+        </td>
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    var flag = 0;
+    $(document).ready(function () {
+        initSearch();
+        InitData();
+        $("#tagLeaves>li").click(function () {
+            $("#tagLeaves li").removeClass("On");
+            $(this).addClass("On");
+
+            flag = $(this).index();
+            InitData();
+        });
+    });
+
+    function InitData() {
+        var v = "course=" + escape(getSearchWord("course")) + "&realname=" + escape(getSearchWord("realname")) + "&Approval=" + flag;
+        $("#courseList").JsRenderData({
+            sourceUrl: '/MyApply/GetLeaveApplyList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "courseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function Apply(id, flag) {
+        $.getJSON("/MyApply/ApplyLeave?id=" + id + "&flag=" + flag, function (da) {
+            if (da == 1) {
+                art.dialog({
+                    content: "成功",
+                    time: 3,
+                    close: function () { InitData(); }
+                });
+            } else {
+                art.dialog({
+                    content: "失败",
+                    time: 3
+                });
+            }
+        });
+    }
+</script>

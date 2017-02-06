@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "我的违纪情况说明";
+    Layout = null;
+}
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span7">课程名称： </td>
+                <td class="span20"><input type="text" class="span20 searchclass" id="txtCourseName" value="请输入搜索内容" info="" /></td>
+                <td class="Tit span7">开课时间：</td>
+                <td>
+                <div class="data-choose"><input id="txtStartTime" class="span8" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' , maxDate: '#F{$dp.$D(\'txtEndTime\',{m:-1})}' });"/><i></i></div>
+                至
+                <div class="data-choose"><input id="txtEndTime" class="span8" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' , minDate: '#F{$dp.$D(\'txtStartTime\',{m:1})}' });"/><i></i></div></td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索"  onclick="btnSearch();" id="btnSearch"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selAttStatus">
+            <option value="-1">出勤情况</option>
+            <option value="0">迟到</option>
+            <option value="1">早退</option>
+            <option value="2">缺勤</option>
+            <option value="3">迟到且早退</option>
+        </select>
+        <select id="selAttApp">
+            <option value="-1">是否已申辩</option>
+            <option value="1">已申辩</option>
+            <option value="0">未申辩</option>
+        </select>
+        <select id="selAttAppStatus">
+            <option value="-1">申辩状态</option>
+            <option value="0">未审批</option>
+            <option value="1">审批通过</option>
+            <option value="2">审批拒绝</option>
+            <option value="3">未提交</option>
+        </select>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th>课程名称</th>
+                    <th class="span8">课程学时</th>
+                    <th class="span14" jsRenderSortField="StartTime" sort="desc">开课时间</th>
+                    <th class="span8">出勤情况</th>
+                    <th class="span8">扣除学时</th>
+                    <th class="span10">是否已申辩</th>
+                    <th class="span8">申辩状态</th>
+                    <th class="span8">操作</th>
+                </tr>
+            </thead>
+            <tbody id="prinList"></tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+<!--列表模板-->
+<script id="prinListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div  title="{{:CourseName}}" class="span30 ovh tl">{{:CourseName}}</div></td>
+        <td>{{:CourseLength}}</td>
+        <td><div class="tl f11">{{:CourseTimeShow}}</div></td>
+        <td>{{:AttStatusShow}}</td>
+        <td>{{:LessLength}}</td>
+        <td>{{:IsAppShow}}</td>
+        <td>{{:StatusShow}}</td>
+        <td>
+            {{if IsApp==0}}
+            <a onclick="AppPrin(this,{{:ID}});" class="icon idef" title="申辩"></a>        
+            
+            {{else}}
+            <span class="icon idef idis" title="申辩"></span>
+            {{/if}}
+            <a class="icon iview" onclick="DetailOrder({{:ID}});" title="详情"></a>
+            
+        </td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        //初始化列表
+        InitOrderData();
+        //下拉框绑定
+        $("#selAttStatus,#selAttApp,#selAttAppStatus").bind("change", function () {
+            
+            InitOrderData();
+        });
+    });
+    //初始化列表
+    function InitOrderData() {
+        $("#prinList").JsRenderData({
+            sourceUrl: '/MyApproval/GetMyPrincipleList?courseName=' + escape(getSearchWord("txtCourseName")) + "&ast=" + $("#selAttStatus").val() + "&aat=" + $("#selAttApp").val() + "&aast=" + $("#selAttAppStatus").val() + "&startTime=" + ($("#txtStartTime").val() == "" ? "2000-1-1" : $("#txtStartTime").val()) + "&endTime=" + ($("#txtEndTime").val() == "" ? "2050-1-1" : $("#txtEndTime").val()),
+            //sourceUrl: '/MyApproval/GetMyApprovalPrincipleListForWeiJi?courseName=' + escape(getSearchWord("txtCourseName")) + "&ast=" + $("#selAttStatus").val() + "&aat=" + $("#selAttApp").val() + "&aast=" + $("#selAttAppStatus").val() + "&startTime=" + ($("#txtStartTime").val() == "" ? "2000-1-1" : $("#txtStartTime").val()) + "&endTime=" + ($("#txtEndTime").val() == "" ? "2050-1-1" : $("#txtEndTime").val()),
+            isPage: true,
+            pageSize: 10,
+            jsRenderSortField: "StartTime",
+            jsRenderASC: "desc",
+            pageIndex: 1,
+            templateID: 'prinListTemplate'
+        });
+    }
+    //查询按钮
+    function btnSearch() {
+        InitOrderData();
+    }
+    //查看详情
+    function DetailOrder(id) {
+        window.location.href = "/MyApproval/MyPrincipleInfor?id="+id;
+    }
+    //申辩
+    function AppPrin(obj,id) {
+        art.dialog.load('/MyApproval/EditExplain?type=a&id=' + id + '&t=' + new Date(), { title: '违纪申辩', id: 'EditExplain', height: 320, width: 500 });
+    }
+</script>

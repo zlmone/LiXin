@@ -1,0 +1,347 @@
+﻿@{
+    ViewBag.Title = "培训目标";
+    Layout = null;
+}
+<div class="main-c">
+
+    <!--所内培训目标完成情况-->
+    <div id="attendceAll">
+        <input type="hidden" id="selout" value="0" />
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">对象名称：</td>
+                    <td class="span16">
+                        <input type="button" id="btn_deptid" value="选择部门/分所" class="btn  btn-co" />
+                    </td>
+                    <td class="Tit span6">培训级别：
+                    </td>
+                    <td class="span18">
+                        <div id="TrainGrade">
+                            @{
+                                foreach (var item in @ViewBag.allTrainGrade)
+                                {
+                                <input type="checkbox" value="@item" name="OpenLevel" /><label>@item</label>
+                                } 
+                            }
+                        </div>
+                    </td>
+                    <td class="Tit span8">是否执业CPA：</td>
+                    <td id="CPA">
+                        <input type="checkbox" value="1" name="IsCPA" />是
+                    <input type="checkbox" value="0" name="IsCPA" />否
+                    </td>
+                    <td class="so-do">
+                        <input class="btn" type="button" value="搜索" id="btnallSearch" />
+                        <input type="button" class="btn btn-co" value="导出" id="btnout" onclick="OutAllData()" />
+                        <input type="button" class="btn btn-co" value="同步" onclick="fabu(InitList)" />
+                    </td>
+                </tr>
+                <tr>
+                </tr>
+                <tr>
+                    @if (@ViewBag.type == 0)
+                    {
+                        <td class="Tit">薪酬级别：</td>
+                        <td>
+                            <input type="button" class="btn btn-co" value="选择薪酬级别" id="sel_attendPayGrade" /></td>
+                    }
+                    <td class="Tit span8">选择年度：</td>
+                    <td>
+                        @(Html.Action("ReportYear", "Common", new { id = "allyear" }))
+                    </td>
+                </tr>
+                <input id="cpa_PayGrade" type="hidden" value="" />
+            </table>
+        </div>
+        <div class="mt10">
+            <table class="tab-List" id="attdenceListAll">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>对象名称</th>
+                        <th jsrendersortfield="numberSum" sort="desc" class="tl span10">参与考核人数/免修人数</th>
+                        <th jsrendersortfield="goalYesSum" sort="desc" class="span10">目标完成人数/未完成人数</th>
+                        <th jsrendersortfield="lengthRate" sort="desc" class="span12">目标完成率</th>
+                        <th jsrendersortfield="PeriodYesSum" sort="desc" class="tl span12">目标学时完成人数/未完成人数</th>
+                        <th jsrendersortfield="PaperYseSum" sort="desc" class="tl span12">在线测试通过3次人数/未通过人数</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="alldataList" data-status="0">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <input id="txt_deptid_list" type="hidden" />
+
+</div>
+<script id="deptListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr class="report_{{:type}}" style="display:none">
+        <td>{{:#index+1}}</td>
+        <td>{{:Title}}</td>
+        <td>{{:numberSum}}/{{:freeSum}}</td>
+        <td>{{:goalYesSum}}/{{:goalNoSum}}</td>
+        <td>{{:lengthRate}}%</td>
+        <td>{{:PeriodYesSum}}/{{:PeriodNoSum}}</td>
+        <td>{{:PaperYseSum}}/{{:PaperNoSum}}</td>
+        <td><a  class="icon iview" title="查看报表" onclick="ToCompletionDetails('{{:DeptIDs}}',@ViewBag.type,1,0,0)"></a></td>
+     </tr>
+  {{/for}}
+</script>
+<!--合计-->
+<script id="AllListTemplate" type="text/x-jsrender">
+    {{for #data}}
+      <tr>
+        <td></td>
+        <td>{{:Title}}</td>
+        <td>{{:numberSum}}/{{:freeSum}}</td>
+        <td>{{:goalYesSum}}/{{:goalNoSum}}</td>
+        <td>{{:lengthRate}}%</td>
+        <td>{{:PeriodYesSum}}/{{:PeriodNoSum}}</td>
+        <td>{{:PaperYseSum}}/{{:PaperNoSum}}</td>
+        <td>
+          {{if type!=0}}
+             <a class="buttonhide btnshow" onclick="showHide({{:type}},this)"><a>
+          {{/if}}
+        </td>
+      </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        var arr="A,B,C,D";
+        $('input[name=OpenLevel]').each(function (i,d) {
+            if(arr.split(',')[i]==$(this).attr("value"))
+                $(this).attr("checked",true);
+        });
+
+        //初始化查询条件
+        initSearch();
+        Initall();
+        // InitList();
+
+        $("#sel_attendPayGrade").bind("click", function ()
+        {
+            art.dialog.load("/Common/ReportPayGrade", {
+                title: '选择薪酬级别', id: "pop_AttendPayGrade", width: 600, height: 200,
+                close: function ()
+                {
+                }
+            }, false);
+        });
+
+        $("#btnallSearch").bind("click", function ()
+        {
+            InitList();
+        });
+
+        $("#btn_deptid").bind("click", function ()
+        {
+            var naru = "";
+            if(@ViewBag.type==0)
+            {
+                naru="0";
+            }
+            art.dialog.load("/Report_zAttendce/SelectDept?deptid=0&ReportType=@(ViewBag.type)&naru=" + naru, { title: '选择部门/分所', id: "win_deptmanage" }, false);
+        });
+
+        MyTablesort("attdenceListAll", InitList);
+    });
+    function Change()
+    {
+        InitList();
+    }
+    function GetPayGradeList()
+    {
+        var pays = "";
+        $("#pop_cpaPayGradeList input[type='checkbox']:checked").each(function ()
+        {
+            {
+                pays =pays==""?"'" + $(this).val()+"'": pays + ",'" + $(this).val()+"'";
+            }
+            if (pays == "")
+            {
+                art.dialog.tips("请选择薪酬级别！", 3);
+                return;
+            }
+        });
+        $("#cpa_PayGrade").val(pays);
+        InitList();
+        art.dialog.list["pop_AttendPayGrade"].close();
+
+    }
+    //显示列表
+    function InitList(jsRenderSortField)
+    {
+        zhezaowait(); //等待提示
+        if (jsRenderSortField == undefined)
+        {
+            jsRenderSortField = " lengthRate asc";
+        }
+        else
+        {
+            jsRenderSortField = jsRenderSortField;
+        }
+
+        var openLevel = "";
+        $("input[name='OpenLevel']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                openLevel = openLevel == "" ? $(this).val() : openLevel + "," + $(this).val();
+            }
+        });
+
+        var isCPA = "";
+        $("input[name='IsCPA']").each(function (index)
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                isCPA = isCPA == "" ? $(this).val() : isCPA + "," + $(this).val();
+            }
+        });
+        if ($("input[name='IsCPA']:checked").length > 1)
+        {
+            isCPA = "2";
+        }
+
+        //赋给隐藏域 不要问我为什么
+        $("#hidOpenLevel").val(openLevel);
+        $("#hidCPA").val(isCPA);
+        $("#hidPayGrade").val($("#cpa_PayGrade").val());
+        $("#hidyear").val($("#allyear").val());
+        var url = "/Report_zAttendce/GetReportAllList?year=" + $("#allyear").val()  + "&openLevel=" + openLevel
+            + "&isCPA=" + isCPA + "&jsRenderSortField=" + jsRenderSortField + "&type=@ViewBag.type";
+                var html = "";
+                $.post(url, { PayGrade: $("#cpa_PayGrade").val(),deptids:$("#txt_deptid_list").val() }, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        var deplist = data.depdataList.length;
+                        var deptlist = data.deptdataList.length;
+                        if (deplist == 0 && deptlist == 0)
+                        {
+                            html = html + "<tr class='odd'><td colspan='8'><div class='tc c38 line_h30'>暂无数据</div></td></tr>";
+                            $("#selout").val(0);
+                        } else
+                        {
+                            html = html + $("#AllListTemplate").render(data.alldata);
+                            if (deplist > 0)
+                            {
+                                html = html + $("#AllListTemplate").render(data.depdata);
+                                html = html + $("#deptListTemplate").render(data.depdataList);
+                            }
+                            if (deptlist > 0)
+                            {
+                                html = html + $("#AllListTemplate").render(data.deptdata);
+                                html = html + $("#deptListTemplate").render(data.deptdataList);
+                            }
+                            $("#selout").val(1);
+                        }
+                    } else
+                    {
+                        html = html + "<tr class='odd'><td colspan='8'><div class='tc c38 line_h30'>暂无数据</div></td></tr>";
+                        $("#selout").val(0);
+                    }
+                    $("#alldataList").html(html);
+                    $("#alldataList").html(html);
+                  
+                    if ($("#alldataList").attr("data-status") == '0')
+                    {
+                        $("#alldataList").attr("data-status", 1);
+
+                    } else
+                    {
+                        $("#alldataList tr").show();
+                        $("#alldataList tr .btnshow").attr("class", "buttonshow btnshow");
+                    }
+                    
+                    closewait();
+                });
+            }
+
+            //显示隐藏
+            function showHide(type, obj)
+            {
+                var ismian = type;
+                if ($(obj).hasClass("buttonshow"))
+                {
+
+                    $(".report_" + ismian).hide();
+                    $(obj).removeClass('buttonshow').addClass('buttonhide');
+                }
+                else
+                {
+                    $(".report_" + ismian).show();
+                    $(obj).removeClass('buttonhide').addClass('buttonshow');
+                }
+
+            }
+
+            function OutAllData()
+            {
+                if ($("#selout").val() == "1")
+                {
+                    window.location.href = "/Report_zAttendce/Out_ReportAll?&t=" + new Date();
+                } else
+                {
+                    art.dialog.tips("无数据无法导出", 3);
+                }
+            }
+
+            function viewDeptDetail(deptid, depfrom)
+            {
+                window.location.href = "/Report_zAttendce/CompletionDetial?ReportType=" + depfrom + "&Deptid=" + deptid;
+            }
+
+
+            function searchByDept()
+            {
+                art.dialog.list['win_deptmanage'].close();
+                InitList();
+            }
+
+            //初始化条件
+            function Initall()
+            {
+                //ViewBag.Deptids = txt_deptid_list;
+                //ViewBag.PayGrade = cpa_PayGrade;
+                //ViewBag.TrainGrade = openLevel;
+                //ViewBag.year =allyear;
+                //ViewBag.isCPA = isCPA;
+                var openLevel="@ViewBag.TrainGrade";
+                $("#txt_deptid_list").val("@ViewBag.Deptids");
+                if ("@ViewBag.type" =="0")
+                {
+                    $("#cpa_PayGrade").val("@Html.Raw(ViewBag.PayGrade)")
+                }
+                if(openLevel!="")
+                {
+                    $('input[name=OpenLevel]').attr("checked",false);
+                    $("input[name='OpenLevel']").each(function(){
+                        var value=$(this).val();
+                        if($.inArray(value,openLevel.split(','))>=0)
+                        {
+                            $(this).attr("checked",true);
+                        }
+                    });
+                }
+                $("#allyear option[value='@ViewBag.year']").attr("selected",true)
+                if("@ViewBag.isCPA"=="2")
+                {
+                    $("input[name='IsCPA']").attr("checked",true);
+                }
+                else
+                {
+                    $("input[name='IsCPA'][value='@ViewBag.isCPA']").attr("checked",true);
+                }
+
+                InitList("lengthRate asc");
+            }
+</script>
+

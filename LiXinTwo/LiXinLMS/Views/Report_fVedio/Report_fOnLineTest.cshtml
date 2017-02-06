@@ -1,0 +1,174 @@
+﻿@{
+    //ViewBag.Title = "Report_OnLineTest";
+    var start = Request.QueryString["s"] ?? "";
+    Layout = null; 
+}
+<script src="../../Scripts/report/highcharts.js" type="text/javascript"></script>
+<script src="../../Scripts/report/column.js" type="text/javascript"></script>
+<script src="../../Scripts/report/pie.js" type="text/javascript"></script>
+<div class="main-c">
+    @*@(Html.Action("SiteMapLink", "Common", new { linkName = "我的已预订课程" }))*@
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">对象名称：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_CourseName" value="请输入对象名称" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">学习时间：</td>
+                <td class="span60">
+                    <div class="time-choose" style="float: left">
+                        <input type="text" id="txt_StartTime" value="@(start == "" ? "" : Convert.ToDateTime(start).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  "/>
+                        <i></i>
+                    </div>
+                    至
+                    <div class="time-choose">
+                        <input type="text" id="txt_EndTime" value="@(start == "" ? "" : Convert.ToDateTime(start).AddDays(1).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })"/>
+                        <i></i>
+                    </div>
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input id="btn_execl" type="button" class="btn btn-co" value="导出EXCEL" />
+                    <input type="button" class="btn btn-co" value="同步" onclick="fabu(InitAllData)" />
+                </td>
+
+
+            </tr>
+        </table>
+    </div>
+    <table class="tab-List mt10" id="tbCoursePass">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span16" class="">对象名称
+                </th>
+                <th class="span8" jsrendersortfield="JoinPateDouble" sort="desc">测试参与率
+                </th>
+                <th class="span7" jsrendersortfield="OnLineTestNum" sort="desc">已参加人数
+                </th>
+                <th class="span12" jsrendersortfield="YingCanJia" sort="desc">应参加人数
+                </th>
+                <th class="span8" jsrendersortfield="IsPassNum" sort="desc">测试通过人数
+                </th>
+                <th class="span7" jsrendersortfield="ExamPassPateDouble" sort="desc">测试通过率
+                </th>
+                <th class="span8" jsrendersortfield="AvgAnswerTimeMinDouble" sort="desc">平均答题时间<br />
+                    （分钟）
+                </th>
+                <th class="span5" jsrendersortfield="AvgAnswerNumDouble" sort="desc">平均答题次数
+                </th>
+                <th class="span7" jsrendersortfield="AvgDouble" sort="desc">平均得分
+                </th>
+                <th class="span4"></th>
+            </tr>
+        </thead>
+        <tbody id="courseList">
+            <tr>
+                <td colspan="11">
+                    <div class="tc c38 line_h30">正在努力加载....</div>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <br />
+
+</div>
+
+<script id="courseListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+         <td>{{:#index+1}}</td>
+         <td>{{:DeptName}}</td>
+         <td>{{:CanYuLv}}</td>
+         <td>{{:YiCanJia}}</td>
+         <td>{{:YingCanJia}}</td>
+         <td>{{:IsPassNum}}</td>
+         <td>{{:CeShiPass}}</td> 
+         <td>{{:AvgAnswerTime}}</td>
+         <td>{{:AvgAnswerNum}}</td>
+         <td>{{:Avg}}</td>
+     </tr>
+  {{/for}}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        InitData();
+
+        MyTablesort("tbCoursePass", InitData);
+
+        $("#btn_Select").click(function ()
+        {
+            InitData();
+            MyTablesort("tbCoursePass", InitData);
+        })
+
+        $("#btn_execl").click(function ()
+        {
+            art.dialog({
+                content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+                ok: function ()
+                {
+                    var str = "";
+                    $("input[name='OpenLevel']:checkbox").each(function ()
+                    {
+                        if ($(this).attr("checked"))
+                        {
+                            str += $(this).val() + ","
+                        }
+                    })
+
+                    var t = "courseid=" +@(ViewBag.courseid) +"&CourseName=" + escape(getSearchWord('txt_CourseName')) + "&type=1&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val();
+                    window.location.href = "/Report_zVedio/GetzOnlineTestForReport?" + t;
+                },
+                cancel: true
+            });
+        })
+
+    });
+
+    function InitData(jsRenderSortField)
+    {
+        jsRenderSortField = jsRenderSortField == undefined ? "JoinPateDouble desc" : jsRenderSortField;
+
+        $.post("/Report_zVedio/GetfOnlineTest?courseid=" +@(ViewBag.courseid) +"&CourseName=" + escape(getSearchWord('txt_CourseName'))
+           + "&jsRenderSortField=" + jsRenderSortField + "&type=1&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val(), function (data)
+           {
+
+               $("#courseList").html(data.dataList);
+           });
+    }
+
+
+    //显示隐藏
+    function showHidetest(type, obj)
+    {
+
+        if ($(obj).attr("class") == "buttonshow")
+        {
+
+            $(".reporttest_" + type).hide();
+            $(obj).removeClass('buttonshow').addClass('buttonhide');
+        }
+        else
+        {
+            $(".reporttest_" + type).show();
+            $(obj).removeClass('buttonhide').addClass('buttonshow');
+        }
+
+    }
+
+    function viewTestDetail(deptID)
+    {
+        window.location.href = "/Report_fVedio/FReport_Detail?type=1&courseid=@ViewBag.courseID&deptid=" + deptID + "&backurl=[" + window.location.href + "]";
+
+    }
+
+</script>

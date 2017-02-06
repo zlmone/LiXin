@@ -1,0 +1,67 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.DepManageList;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@(Html.Action("SiteMapLink", "Common", new { linkName = "课程列表" }))
+<div class="main-c">
+    <div class="tab-bk mt10">
+        <ul id="ul_menu">
+            @if (ViewBag.DepOrBranch)
+            {
+                <li class="On" onclick="fonclick(0)">部门自学 </li>}
+            else
+            {
+                <li class="On" onclick="fonclick(0)">分所自学 </li>       
+            }
+            <li onclick="fonclick(1)">开放至全所 </li>
+        </ul>
+    </div>
+    <div id="div_CourseCommonList">
+    </div>
+</div>
+<!-- 指定课程负责人 -->
+<input type="hidden" id="selcourseID" value=""/>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        fonclick(@ViewBag.tp);
+    })
+    function fonclick(t) {
+        switch (t) {
+            case 0:
+
+                $.get("/DepCourseManage/DepCourseManageList", function (data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(0)").addClass("On").siblings("li").removeClass("On");
+                break;
+
+            case 1:
+                $.get("/DepCourseManage/IncurredCourseManageList", function (data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(1)").addClass("On").siblings("li").removeClass("On");
+                break;
+        }
+    }
+    
+    //指定考勤负责人
+    function assignMaster(id,uid) {
+        $("#selcourseID").val(id);
+        art.dialog.load("/UserCommon/SelectUser?pageSize=10&seluser="+uid+"&t=" + new Date(), { title: "指定课程负责人", id: "selUser" });
+    }
+    
+    //添加负责人ID
+    function GetUserIDList() {
+        if($("#pop_userList input[type='checkbox']:checked").length>0) {
+            $.post('/DepCourseManage/AssignMaster',{id:$("#selcourseID").val(), uid:$("#commonSelectedIdStr").val()}, function(data) {
+                if(data.result==1) {
+                    art.dialog.tips(data.message, 3);
+                    closeDialog("selUser");
+                    fnGetCourseList();
+                }else {
+                    art.dialog.tips(data.message, 3);
+                }
+            });
+        }else {
+            art.dialog.tips("请选择负责人", 3);
+        }
+    }
+</script>

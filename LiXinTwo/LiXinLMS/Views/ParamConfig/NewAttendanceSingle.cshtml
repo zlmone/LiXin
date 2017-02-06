@@ -1,0 +1,96 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var tt = ViewBag.model as Sys_ParamConfig;
+ 
+}
+<form id="fnSumitEveryConfig">
+    <input type="hidden" id="txt_Every" value="@(tt.ConfigValue == "" ? "" : @tt.ConfigValue + ";")"/>
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit">迟到：
+            </td>
+            <td>
+                <input id="chidao" name="chidao" type="text" class="span16" value="@(tt.ConfigValue == "" ? "0" : tt.ConfigValue.Split(',')[0])" />分/次       
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">早退：
+            </td>
+            <td>
+                <input id="zaotui" name="zaotui" type="text" class="span16"  value="@(tt.ConfigValue == "" ? "0" : tt.ConfigValue.Split(',')[1])"/>分/次
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">缺勤：
+            </td>
+            <td>
+                <input id="queqin" name="queqin" type="text" class="span16"  value="@(tt.ConfigValue == "" ? "0" : tt.ConfigValue.Split(',')[2])"/>分/次
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">迟到并早退：
+            </td>
+            <td>
+                <input id="chidao_zaotui" name="chidao_zaotui" type="text" class="span16"  value="@(tt.ConfigValue == "" ? "0" : tt.ConfigValue.Split(',')[3])"/>分/次
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="submit" value="保存"  class="btn" />
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("#fnSumitEveryConfig").validate({
+            event: "blur",
+            rules: {
+                chidao: { digits: true, min: 0, max: 100 },
+                zaotui: { digits: true, min: 0, max: 100 },
+                queqin: { digits: true, min: 0, max: 100 },
+                chidao_zaotui: { required: true, digits: true, min: 0, max: 100 }
+            },
+            messages: {
+                chidao: { digits: "请输入大于0的正整数", min: "请输入大于等于0的正整数", max: "输入小于等于100的正整数" },
+                zaotui: { digits: "请输入大于0的正整数", min: "请输入大于等于0的正整数", max: "输入小于等于100的正整数" },
+                queqin: { digits: "请输入大于0的正整数", min: "请输入大于等于0的正整数", max: "输入小于等于100的正整数" },
+                chidao_zaotui: { digits: "请输入大于0的正整数", min: "请输入大于等于0的正整数", max: "输入小于等于100的正整数" }
+            },
+            errorPlacement: function (error, element)
+            {
+                var eid = element.attr('name');
+                if (element.is(':radio') || element.is(':checkbox'))
+                {
+                    $('input[name=' + eid + ']:last').next().after(error);
+                } else
+                {
+
+                    error.insertAfter(element.parent());
+                }
+            },
+            submitHandler: fnSumitEvery
+        });
+    });
+
+    function fnSumitEvery()
+    {
+
+        var value = "" + $("#chidao").val() + "," + $("#zaotui").val() + "," + $("#queqin").val() + "," + $("#chidao_zaotui").val();
+        $("#txt_Every").val(value);
+        $.post("/ParamConfig/fUpdateParamConfig?configType=38&configValue=" + value + "&useType=1", function (data)
+        {
+            if (data.result == 1)
+            {
+                art.dialog.tips('配置成功', 3);
+                $("#txt_Every").val(every.substring(0, every.lastIndexOf(';')));
+
+            } else
+            {
+                art.dialog.tips('配置失败', 3);
+            }
+        });
+    }
+</script>

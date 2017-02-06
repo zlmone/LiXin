@@ -1,0 +1,141 @@
+﻿@using LiXinLanguage
+@using LiXinModels.User
+@{
+    ViewBag.Title = NavigateMenuLanguage.DepClassRoomManage;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var depList = ViewBag.Departments as List<Sys_Department>;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DepClassRoomManage" }))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">教室名称： </td>
+                <td class="span21"><input type="text" class="span20 Box searchclass" id="searchName" value="请输入搜索内容" info=""/></td>
+                <td class="Tit span6">所管部门：</td>
+                <td>
+                    <input type="hidden" id="selectDeptID" value="0"/>
+                    <select id="deptList">
+                        @{
+                            foreach(var de in depList)
+                            {
+                                <option value="@(de.DepartmentId)">@(de.DeptName)</option>
+                            }
+                        }
+                    </select>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch"/>
+                    <input id="btnAddRoom" type="button" class="btn btn-co" value="新增教室"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th class="">教室名称</th>
+                    <th class="span10">教室容量</th>
+                    <th class="span20">备注</th>
+                    <th class="span16" jsRenderSortField="LastUpdateTime" sort="desc">创建时间</th>
+                    <th class="span8">操作</th>
+                </tr>
+            </thead>
+            <tbody id="roomList"></tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+</div>
+<script id="roomListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td style="text-align:left;">
+            <div class="span45 ovh" title="{{:RoomName}}">{{:RoomName}}</p>
+        </td>
+        <td>{{:RoomNumber}}</td>
+        <td style="text-align:left;"><div class="ovh span20" title="{{:Memo}}">{{:Memo}}</div></td>
+        <td>{{:LastUpdateTimeShow}}</td>
+        <td>
+            <a class="icon iedit" title="编辑" href="#" onclick="EditRoom({{:Id}});"></a>
+            <a class="icon idel" title="删除" onclick="DeleteRoom({{:Id}},this);"></a>
+        </td>
+    </tr>
+    {{/for}}
+</script>
+
+<script type="text/javascript">
+    //初始化列表
+    function InitData() {
+        $("#roomList").JsRenderData({
+            sourceUrl: '/DepClassRoom/GetAllClassRoom?deptId='+$("#selectDeptID").val()+'&roomName=' + escape(getSearchWord("searchName")) + '&t=' + new Date(),
+            isPage: true,
+            pageSize: 10,
+            jsRenderSortField: "LastUpdateTime",
+            jsRenderASC: "desc",
+            pageIndex: 1,
+            templateID: 'roomListTemplate'
+        });
+    }
+
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+
+        //初始化第一个选择的部门
+        if ($("#deptList option").length > 0) {
+            $("#selectDeptID").val($("#deptList option:first").attr("value"));
+        }
+
+        //添加知识点
+        $("#btnAddRoom").bind("click", function () {
+            EditRoom(0);
+        });
+
+        //查询
+        $("#btnSearch").bind("click", function () {
+            InitData();
+        });
+
+        //部门下拉框事件
+        $("#deptList").bind("change", function () {
+            $("#selectDeptID").val($(this).val());
+            InitData();
+        });
+        
+        //加载列表
+        InitData();
+    });
+    
+    //编辑知识点
+    function EditRoom(id) {
+        art.dialog.load('/DepClassRoom/ClassRoomEdit?id=' + id + '&t=' + new Date(), { title: '编辑教室', id: 'EditRoom', height: 320, width: 550 });
+    }
+
+    //删除知识点
+
+    function DeleteRoom(id, obj) {
+        art.dialog({
+            title: "@CommonLanguage.Common_Tip",
+            content: "此教室可能正在被使用，确定删除吗？",
+            width: 300,
+            okValue: '@CommonLanguage.Common_Sure',
+            cancelValue: '@CommonLanguage.Common_Cancel',
+            height: 50,
+            fixed: true,
+            lock: true,
+            ok: function () {
+                $.getJSON("/DepClassRoom/DeleteRoom?id=" + id, function (data) {
+                    if (data.result == 0)
+                        art.dialog({ title: '温馨提示', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                    else
+                        InitData();
+                });
+            },
+            cancel: function () {
+            }
+        });
+    }
+</script>

@@ -1,0 +1,127 @@
+﻿@using LiXinModels.User
+@{
+    ViewBag.Title = "我的首页";
+    Layout = null;
+    var currUser = Session["currentUser"] as Sys_User;
+    if (currUser == null)
+    {
+        currUser = new Sys_User
+        {
+            Realname = ""
+        };
+    }
+}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>首页</title>
+         <meta http-equiv="X-UA-Compatible" content="IE=9;IE=8;IE=7;IE=EDGE;IE=edge" />
+       @* <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />*@
+        <link href="@Url.Content("~/Content/Raster.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/base.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/index.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/type.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/table.css")" rel="stylesheet" type="text/css" />
+        <script src="@Url.Content("~/Scripts/jquery-1.8.1.min.js")" type="text/javascript"> </script>
+        <script src="@Url.Content("~/Scripts/artDialog4.1.6/jquery.artDialog.js?skin=twitter")" type="text/javascript"> </script>
+        <script src="@Url.Content("~/Scripts/artDialog4.1.6/plugins/iframeTools.source.js")" type="text/javascript"> </script>
+        @*<script type="text/javascript" src="@Url.Content("~/Scripts/index-bg.js")"></script>*@
+    </head>
+    <body>
+    <div id="head">
+        <div class="logo"></div>
+        <div class="info">
+            <p><span class="pointer" style="text-decoration:underline;" onclick="window.location.href='/Common/RedirectUrl?blockName=Person';">@(currUser.Realname)</span>，您好！欢迎进入立信培训管理系统！</p>
+            @*<a href="#" class="mail hav" title="邮件"><span id="myMessage">5</span></a>*@
+            @*<a onclick="window.open('/Log/立信培训管理系统学员操作手册.pdf');" class="help" title="帮助"></a>*@
+            <a onclick="fdownload()" class="help" title="帮助"></a>
+            <a href="#" class="out" title="退出" onclick="LogOut();"></a>
+        </div>
+    </div>
+    <div id="main">
+        <div class="word"></div>
+        <div class="menu">
+            <h2 title="立信会计师事务所（特殊普通合伙）内部培训管理系统"><span>版本号：V1.0</span></h2>
+            <div id="mymodu" class="mlist">
+                <p order="1" module=""></p>
+                <p order="4" module=""></p>
+                <p order="2" module=""></p>
+                <p order="5" module=""></p>
+                <p order="3" module=""></p>
+                <p order="6" module=""></p>
+                <div class="bg-a"></div>
+                <div class="bg-b"></div>
+            </div>
+        </div>
+    </div>
+    <div id="foot">
+        <h4 class="pointer" onclick="window.open('/Home/UpdateRecord');">版本更新日志<i></i></h4>
+        <p style="overflow:hidden;"><span class="fl">最新公告：</span><marquee behavior="scroll" onmouseover="this.stop();" onmouseout="this.start();" scrollamount="2" direction="left" class="span50 fl ovh"><div id="lastnote" class="span90"></div></marquee></p>
+        <a href="/Common/RedirectUrl?blockName=Announcement" class="more">更多<i></i></a>
+        <div class="lay-book"></div>
+    </div>
+    <div id="lay-bg"><img id="lay-bg-img" src="../../Images/lay-bg.jpg" /></div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //获取我的模块
+            $.getJSON("/Common/GetMyModule?t=" + new Date(), function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    $("#mymodu p[order='" + (i + 1) + "']").attr("module", data[i].module).html('<span class="num">' + data[i].order + '</span><a>' + data[i].name + '<span>' + data[i].ename + '</span></a>');
+                    $("#mymodu p[order='" + (i + 1) + "']").unbind("click").bind("click", function () {
+                        window.location.href = "/Common/RedirectUrl?blockName=" + $(this).attr("module");
+                        $("#mymodu p").unbind("click");
+                    });
+                }
+                for (var j = data.length + 1; j <= 6; j++) { 
+                    $("#mymodu p[order='" + j + "']").attr("module", "").css("cursor", "default").html('<span class="">&nbsp;</span><a>&nbsp;<span>&nbsp;</span></a>');
+                }
+            });
+            //获取最新公告
+            $.getJSON("/SystemManage/GetLastNote?t=" + new Date(), function (data)
+            {
+                for (var i = 0; i < data.length; i++) {
+                    $("#lastnote").append('<div style="display:block; float:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:40px; width:270px;margin-left:30px;"><a style="cursor: pointer"  onclick="GoToNoteDetail(' + data[i].id + ');">' + data[i].content + '</a></div>');
+                }
+                $("#lastnote").append('<div class="clear"></div>');
+            });
+
+//          
+        });
+//        function fnSendEmail()
+//        {
+//            $.getJSON("/CourseManage/SubmitSendEmail");
+//        }
+
+        function LogOut() {
+            //弹出iframe遮罩
+            //$("embed").hide();
+            art.dialog({
+                content: "确定退出系统吗？",
+                ok: function () {
+                    $.getJSON("/Login/LoginOut", function (data) {
+                        window.location.href = "/Login/";
+                    });
+                },
+                cancel: function () {
+                    //$("embed").show();
+                }
+            });
+        }
+
+        function fdownload() {
+           
+            art.dialog.load("/Home/ResourceMain", { title: '下载文档', id: "pop_ResourceMain" }, false);
+        }
+
+        ///公告详情
+        function GoToNoteDetail(NoteID)
+        {
+            $.get("/SystemManage/AddLookRecord?noteID=" + NoteID, function (data)
+            {
+                window.location.href = "/SystemManage/NoteDetail?noteID=" + NoteID + "&from=index";
+            });
+
+        }
+    </script>
+</body>
+</html>

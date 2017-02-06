@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "我的申请";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的申请"
+}))
+     <div class="step-app">
+        <div class="on"><span>1</span>选择申请内容<i></i></div>
+        <div><span>2</span>输入学时<i></i></div>
+    </div>
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit">申请类型：</td>
+                <td>
+                    <div>
+                        <input id="checktScore" type="checkbox"  @(ViewBag.cpa == 0 ? "checked='checked'" : "") name="FromType" value="1"  />所内学时<span style="color: gray"> 
+                             单门课程最高可折算
+                            <span id="maxtscore"></span> 所内学时</span>
+                    </div>
+                    <div>
+                        <input type="checkbox" @(ViewBag.cpa == 0 ? "disabled='disabled'" : "") name="FromType" value="0" />CPA学时<span style="color: gray"> 
+                             单门课程最高可折算
+                            <span id="cpascore"></span> CPA学时</span>
+                    </div>
+                </td>
+                <td class="Tit span6">申请年度：
+                </td>
+                <td class="span31">
+                    <input id="selyear" name="Year" type="text" readonly="readonly" onclick="WdatePicker({onpicking:function(dp){InitData(dp.cal.getNewDateStr() );},dateFmt: 'yyyy' }); " 
+                        value="@(DateTime.Now.Year)" />
+                </td>
+            
+            </tr>
+
+        </table>
+    </div>
+    <div>
+        <table class="tab-List" id="tbOrg">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th>申请项目
+                    </th>
+                    <th>适用于申请CPA/所内
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="OrganList">
+            </tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+    <div class="mt10">
+        <input type="button" value="下一步" class="btn" id="btn_next" />
+        <input type="button" value="取消" class="btn" id="btn_cancel" />
+    </div>
+</div>
+<script id="OrganListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+             {{:#index+1}}
+            </td>
+            <td style="text-align:left;" title="{{:FromName}}">{{:FromName}}</td>
+            <td>{{:FromTypeStr}}</td>
+        </tr> 
+        {{/for}}
+</script>
+
+<script type="text/javascript">
+
+    $(document).ready(function (e)
+    {
+        initSearch();
+        InitData();
+
+        $("input[name='FromType']").bind("change",function(){
+            InitData();
+        });
+
+        $("#btn_next").click(function ()
+        {
+            var obj = $("input[name='FromType']:checked");
+            if ($(obj).length == 0)
+            {
+                art.dialog.tips('请选择申请的类型', 3);
+                return;
+            }
+            else
+            {
+                var fromType = 2;
+                if (obj.length == 2)
+                {
+                    fromType = 2;
+                }
+                else
+                {
+                    fromType = $(obj).val();
+                }
+                var id = $(obj).val();
+
+                location.href = "/MyApply/Free_OtherOrganizationAdd_Second?ID=" + id + "&type=" + fromType+"&year="+$("#selyear").val();
+            }
+        });
+        $("#btn_cancel").click(function ()
+        {
+            location.href = '/MyApply/MyApply?flag=4&nextflag=2';
+        })
+    });
+
+    function InitData(year)
+    {
+        var obj = $("input[name='FromType']:checked");
+        var fromType = -1;
+        if (@ViewBag.cpa == 0)
+        {
+            fromType=1;
+        }
+        else
+        {
+            if (obj.length > 0)
+            {
+                if (obj.length == 2)
+                {
+                    fromType = 2;
+                }
+                else
+                {
+                    fromType = obj.val();
+                }
+            
+            }
+        }
+        year=year==undefined?$("#selyear").val():year;
+
+        $("#OrganList").JsRenderData({
+            sourceUrl: '/MyApply/GetOthreOrgList?year=' + year + "&fromType=" + fromType,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "OrganListTemplate",
+            funCallback:function(data){
+                $("#maxtscore").html(data.tScore);
+                $("#cpascore").html(data.CPAScore);
+                if(data.tScore==0)
+                {
+                    $("#checktScore").attr("disabled",true).attr("checked",false);
+                }
+            }
+        });
+    }
+
+</script>

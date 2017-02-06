@@ -1,0 +1,111 @@
+﻿@{
+    ViewBag.Title = "AfterCourseList";
+    Layout = null;
+    var tt = ViewBag.list as List<LiXinModels.NewCourseManage.New_CourseRoomRule>;
+    string pinglist = ViewBag.pinglist as string;
+    
+
+}
+<script src="../../Scripts/customstar.js" type="text/javascript"></script>
+<script src="../../Scripts/extend.js" type="text/javascript"></script>
+<input type="hidden" id="txt_CourseId" value="@(ViewBag.courseid)" />
+<input type="hidden" id="qiehuan" value="0" />
+<input type="hidden" id="courseroomrunleid" value="@(ViewBag.subid)"/>
+<div style="float: left; width: 250px;">
+    @if (tt != null && tt.Where(p => p.Type == 0).Count() > 0)
+    {
+        <h2 class="tit-h2">
+             <span class="tit-con">集中授课</span>
+        </h2>
+        <ul class="coursetype">
+        @foreach (var item in tt.Where(p => p.Type == 0))
+        {
+             <li class="tab-ass-td" type="type_@(item.Type)" sub="@item.Id" isping="@(item.PingId)">开课时间：@item.ShortCourseTimeStr 讲师： @item.teachername</li>
+        
+        }
+            </ul>
+    }
+
+    @if (tt != null && tt.Where(p => p.Type == 1).Count() > 0)
+    {
+        <h2 class="tit-h2">
+             <span class="tit-con">分组带教</span>
+        </h2>
+        <ul class="coursetype">
+        @foreach (var item in tt.Where(p => p.Type == 1))
+        {
+             <li class="tab-ass-td" type="type_@(item.Type)" sub="@item.Id" isping="@(item.PingId)">开课时间：@item.ShortCourseTimeStr 讲师： @item.teachername</li>
+        
+        }
+       </ul>
+    }
+
+
+</div>
+<div id="exampaperlist" style="width: 700px; float: left">
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        $.get("/NewMyCourse/BindExampaper?pingid=" + @(ViewBag.pingid) + "&subid=" + @(ViewBag.subid), function(data) { $("#exampaperlist").html(data); });
+
+        $(".tab-ass-td").click(function() {
+
+            var pingid = $(this).attr("isping");
+            var subid = $(this).attr("sub");
+            $.get("/NewMyCourse/BindExampaper?pingid=" + pingid + "&subid=" + subid, function(data) { $("#exampaperlist").html(data); });
+        });
+
+        showStars(1);
+    });
+
+    function showStars(t) {
+
+        if ($("div[id^='divScore_']").length > 0) {
+            $("div[id^='divScore_']").each(function() {
+                var star = $(this).attr("title");
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: t }, function(value) {
+                    $(obj).parent().find(".xp").val(value);
+
+
+                });
+            });
+        }
+    }
+
+
+    function fOnload() {
+        var CourseId = $("#txt_CourseId").val();
+        $.post("/NewMyCourse/FBindSurvey_ReplyAnswer?CourseId=" + CourseId + "&SurveyPaperId=" + @(pinglist), function(data) {
+            if (data.content != "") {
+                var arr = data.content.split('♥');
+
+                for (var i = 0; i < arr.length; i++) {
+                    //alert(arr[i].split('♣')[2]);
+                    $("#QuestionID" + arr[i].split('♣')[0]).children(".xp").val(arr[i].split('♣')[1]);
+                    $("#QuestionID" + arr[i].split('♣')[0]).children(".ml35").attr("title", arr[i].split('♣')[1]);
+                    if (arr[i].split('♣')[2] == "") {
+                        //.attr("disabled", "disabled");
+                        var h = "#QuestionID" + arr[i].split('♣')[0];
+                        $("#QuestionID" + arr[i].split('♣')[0]).children("p").children("textarea").val(arr[i].split('♣')[1])
+                        //alert($(h).html())
+                    } else {
+
+                        $("#QuestionID" + arr[i].split('♣')[0]).children(".why").children("input[name='xingPReplay']").val(arr[i].split('♣')[2]);
+                        showStars(0);
+                    }
+
+                }
+                $(".list").children(".why").children("input[name='xingPReplay']").attr("disabled", "true");
+                $(".list").children("p").children("textarea").attr("disabled", "true");
+                $("#btn_AllAdd").attr("disabled", "true");
+
+            } else {
+            }
+        });
+    }
+
+</script>

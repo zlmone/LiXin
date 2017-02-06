@@ -1,0 +1,2133 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "课程开设";
+}
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+<script src="/Scripts/ueditor/editor_all.js" type="text/javascript"></script>
+<script src="/Scripts/ueditor/editor_config.js" type="text/javascript"></script>
+<link href="/Scripts/ueditor/themes/default/ueditor.css" rel="stylesheet" type="text/css" />
+@(Html.Action("SiteMapLink", "Common", new { linkName = "EditDepCourseTogether" }))
+<div class="main-c">
+    <form id="forEditCourseTogether">
+        <div id="div_showPlan">
+            <table class="tab-Form mt10">
+                <tr>
+                    <td td class="Tit span20">
+                        <label>选择部门：</label>
+
+                    </td>
+                    <td>
+                        <select id="sel_pop_dept" name="sel_pop_dept" onchange="GetDept_ParamConfig()">
+                            @{ 
+                                foreach (var dept in ViewBag.DeptidList as List<LiXinModels.User.Sys_Department>)
+                                {
+                                <option value="@dept.DepartmentId">@dept.DeptName</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit span20">请选择开课类型：
+                    </td>
+                    <td>
+                        <div class="sel">
+                            <input type="radio" onclick="showPlanCourse(1)" name="showYear" checked="checked"
+                                value="1" /><label>计划内开课</label>
+                            <input type="radio" onclick="showPlanCourse(0)" name="showYear" value="0" /><label>计划外开课</label>
+                        </div>
+                        <div id="showExistCourse">
+                            <div class="seled-list" style="width: 96%;">
+
+                                @Html.Action("YearMonthSelectForCourse", "DeptPlanManage", new
+                                                                 {
+                                                                     viewType = 0,
+                                                                     dataType = 1
+                                                                 })
+                                <label>选择课程：</label>
+                                <select id="sle_CourseList" name="sle_CourseList" onchange="fnChooseMonthSysCourse()">
+                                    <option value="-1">请选择课程</option>
+                                </select>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit span20">开课方式：</td>
+                    <td>
+                        <input type="radio" name="coursetype" onclick="fdiscoursetype(1)" value="1" checked="checked" />
+                        <label>课程自学</label>
+                        <input type="radio" name="coursetype" onclick="fdiscoursetype(2)" value="2" />
+                        <label>开放至全所</label>
+                        <input type="radio" name="coursetype" onclick="fdiscoursetype(3)" value="3" />
+                        <label>过期开课</label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <h3 class="tit-h3">课程基本信息</h3>
+        <input type="hidden" name="DeptId" id="txtDeptId" value="@ViewBag.Deptid" />
+        <input type="hidden" name="Id" id="txtId" value="@Model.Id"  />
+        <input type="hidden" id="txtIsYearPlan" name="IsYearPlan" value="@Model.IsYearPlan" />
+        @*<input type="text" id="txtway" name="Way" value="@(Model.Way == 0 ? 1 : Model.Way)" />*@
+        <input type="hidden" id="txtway" name="Way" value="@(ViewBag.Way == 0 ? Model.Way : ViewBag.Way)" />
+        <input type="hidden" id="txt_year_ids" name="txt_year_ids" />
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span20">所属年度计划：
+                </td>
+                <td>
+                    <select id="sel_YearPlan" name="YearPlan">
+                        <option value="0">请选择年度计划</option>
+
+                        @*@if (ViewBag.YearPlanList != null)
+                        {
+                            if (((IEnumerable<int>)ViewBag.YearPlanList).Count() > 0)
+                            {
+                                foreach (var item in ((IEnumerable<int>)ViewBag.YearPlanList))
+                                {
+                            <option value="@item">@item</option>         
+                                }
+                            }
+                        }*@
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">课程编号：
+                </td>
+                <td>
+                    <input type="text" name="Code" value="@Model.Code" @(ViewBag.TotalCourseTimes == 0 && Model.Id == 0 ? "" : "disabled=disabled")  id="txtCode" class="span20" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">课程名称：</td>
+                <td>
+                    <input type="text" id="txtCourseName" name="CourseName" value="@Model.CourseName" class="span40" @(ViewBag.TokenPublishflag == 0 || Model.Id == 0 ? "" : "disabled=disabled") /></td>
+            </tr>
+            <tr>
+                <td class="Tit">预设开课时间：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input id="txtPreCourseTime"  type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm' }) " name="PreCourseTime"  value="@(Model.PreCourseTime > DateTime.MinValue ? Model.PreCourseTime.ToString("yyyy-MM-dd HH:mm") : "")"/>
+                        <i></i>
+                    </div>
+                </td>
+            </tr>
+            <tr id="tr_trainGrade">
+                <td class="Tit">课程开放级别：
+                </td>
+                <td>
+                    <div>
+                        @{
+                            foreach (var item in @ViewBag.trainGrade)
+                            {
+                            <input type="checkbox" value="@item" name="OpenLevel" /><label class="mr10">@item</label>
+                            
+                            }      
+                        }
+                    </div>
+                </td>
+            </tr>
+            @*<tr>
+                <td class="Tit">
+                    是否开放分所：
+                </td>
+                <td>
+                     <div class="sel">
+                    <input type="radio" name="IsOpenSub" value="1" /><label>是</label>
+                    <input type="radio" name="IsOpenSub" value="0" /><label>否</label>
+                    </div>
+                </td>
+            </tr>*@
+            <tr>
+                <td class="Tit">必修/选修：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="IsMust" value="0" /><label>必修</label>
+                        <input type="radio" name="IsMust" value="1" /><label>选修</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span20">是否框架内：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="IsSystem" value="0" /><label>框架外</label>
+                        <input type="radio" name="IsSystem" value="1" /><label>框架内</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">考勤：</td>
+                <td>
+                    <div class="fl">
+                        <input type="text" id="txt_courseattend" name="courseattend" value="@Model.CourseLengthDistribute.Split(';')[0]" />%
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">考试：</td>
+                <td>
+                    <div class="fl">
+                        <input type="text" id="txt_courseonlinetest" name="courseonlinetest" value="@Model.CourseLengthDistribute.Split(';')[1]"/>%
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">评估：</td>
+                <td>
+                    <div class="fl">
+                        <input type="text" id="txt_courseafter" name="courseafter" value="@Model.CourseLengthDistribute.Split(';')[2]"/>%
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">授课讲师：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input type="hidden" name="Teacher" id="txtTeacher" value="@Model.Teacher" />
+                        <input type="text" name="TeacherName" readonly="readonly" id="txtTeacherName" value="@Model.TeacherName" />
+                        <input type="button" onclick="fnChooseTeacher()" name="choose" value="选择讲师" class="btn btn-co" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <h3 class="tit-h3 mt20">课程开课信息完善</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span20">开课时间：
+                </td>
+                <td>
+                    <div class="time-choose" style="float: left" id="start_time">
+                        <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) " name="StartTime" id="txt_StartTime" value="@(Model.StartTime > DateTime.MinValue ? Model.StartTime.ToString("yyyy-MM-dd HH:mm") : "")"/>
+                        <i></i>
+                    </div>
+                    <div class="course_starttime" style="float: left">
+                        (如果是新开课次的课程，请先将开课时间修改为大于系统当前时间！)
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span20">结课时间：
+                </td>
+                <td>
+                    <div class="time-choose" style="float: left" id="end_time">
+                        <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) " id="txt_EndTime" value="@(Model.EndTime > DateTime.MinValue ? Model.EndTime.ToString("yyyy-MM-dd HH:mm") : "")"/>
+                        <i></i>
+                    </div>
+                    <div class="course_endtime" style="float: left">
+                        (如果是新开课次的课程，请先将结课时间修改为大于系统当前时间！)
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">开设课次：
+                </td>
+                <td>
+                    <input type="text" name="CourseTimes" value="@(Model.CourseTimes == 0 ? 1 : Model.CourseTimes)" id="txtCourseTimes" />
+                </td>
+            </tr>
+
+            @if (!ViewBag.DepOrBranch)
+            {
+                <tr>
+                    <td class="Tit">课程类别：
+                    </td>
+                    <td>
+                        <div>
+                            <input type="checkbox" name="Sort" value="1" /><label class="mr10">内部培训</label>
+                            <input type="checkbox" name="Sort" value="2" /><label class="mr10">社会招聘</label>
+                            <input type="checkbox" name="Sort" value="3" /><label class="mr10">新进员工</label>
+                            <input type="checkbox" name="Sort" value="4" /><label class="mr10">实习生</label>
+                        </div>
+                        <span id="Sort_error"></span>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td class="Tit">课程学时：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" id="txtCourseLength" name="CourseLength" value="@Model.CourseLength" />（学时在0~999.9之间，并且至多可以保留一位小数）
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">开课地点：
+                </td>
+                <td>
+                    <select id="sel_RoomId" onchange="fnChooseRoom(this)" name="RoomId">
+                        <option value="0" num="0">请选择开课地点</option>
+                        @if (ViewBag.ClassRoomList != null && (((List<LiXinModels.Dep_ClassRoom>)ViewBag.ClassRoomList).Count > 0))
+                        {
+                            foreach (var item in (List<LiXinModels.Dep_ClassRoom>)ViewBag.ClassRoomList)
+                            {
+                            <option num="@item.RoomNumber" id="sel_room_@(item.Id)" value="@item.Id">@item.RoomName</option>   
+                            }
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr id="tr_NumberLimited">
+                <td class="Tit">最大允许人数：
+                </td>
+                <td>
+                    <input class="span4" type="text" id="txtNumLimited" name="NumberLimited" value="@Model.NumberLimited" />
+                </td>
+            </tr>
+            @*<tr>
+                <td class="Tit">是否可折算CPA学时：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="IsCPA" value="0" /><label>否</label>
+                        <input type="radio" name="IsCPA" value="1" /><label>是</label>
+                    </div>
+                </td>
+            </tr>*@
+            <tr>
+                <td class="Tit">是否在首页切换显示：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="AdFlag" value="0" /><label>否</label>
+                        <input type="radio" name="AdFlag" value="1" /><label>是</label>
+                    </div>
+                </td>
+            </tr>
+            <tr id="tr_isorder">
+                <td class="Tit">
+                    <input type="hidden" name="IsOrder" id="txtIsOrder"  value="@Model.IsOrder" />预订/指定：
+                </td>
+                <td>
+                    <div>
+                        <input type="checkbox" id="chbIsOrder1" name="chbIsOrder" value="1" /><label class="mr10">预订</label>
+                        <input type="checkbox" id="chbIsOrder2" name="chbIsOrder" value="2" /><label class="mr10">指定</label>
+                    </div>
+                </td>
+            </tr>
+            <tr id="tr_AttFlag">
+                <td class="Tit">
+                    <input type="hidden" name="AttFlag" id="txtAtt"  value="@Model.AttFlag" />上传考勤操作人：
+                </td>
+                <td>
+                    <div>
+                        <input type="radio" id="chbAtt1" name="chbAtt" value="0" /><label class="mr10">主办部门培训负责人</label>
+                        <input type="radio" id="chbAtt2" name="chbAtt" value="1" checked="checked" /><label class="mr10">各参与部门培训负责人</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">是否允许直接退订：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="IsLeave" value="0" /><label>是</label>
+                        <input type="radio" name="IsLeave" value="1" /><label>否</label>
+                    </div>
+
+                </td>
+            </tr>
+            @*<tr>
+                <td class="Tit">是否对分所进行转播：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="IsRT" value="0" /><label>否</label>
+                        <input type="radio" name="IsRT" value="1" /><label>是</label>
+                    </div>
+                </td>
+            </tr>*@
+            <tr id="tr_openflag">
+                <td class="Tit">
+                    <input type="hidden" name="OpenFlag" id="txtOpenFlag"  value="@Model.OpenFlag" />开放人群：
+                </td>
+                <td>
+                    <div class="sel">
+                        @*<input type="checkbox" name="chbOpenFlag" id="chbOpenFlag1" onclick="fnChooseOpen(this,1)"
+                            value="1" /><label>群组</label>*@
+                        <input type="checkbox" name="chbOpenFlag" id="chbOpenFlag2" disabled="disabled" onclick="fnChooseOpen(this,2)"
+                            value="2" /><label>组织结构</label>
+                    </div>
+                    <div id="div_showgroup">
+                        @if (ViewBag.Groups != null && ((IEnumerable<LiXinModels.SystemManage.Sys_Group>)ViewBag.Groups).Count() > 0)
+                        {
+                            <div class="seled-list">
+                                <h4 id="sp_choosegroup">已选群组：</h4>
+                                <ul>
+                                    @foreach (var item in (IEnumerable<LiXinModels.SystemManage.Sys_Group>)ViewBag.Groups)
+                                    {
+                                        <li id="div_GroupItem_@(item.GroupId)"><span title="@item.GroupName">@item.GroupName</span>
+                                            @if (ViewBag.TokenPublishflag == 0)
+                                            {
+                                                <input  type="button" class="btn btn-cancel" name="btn" title="移除" value="X" onclick="fnRemoveGroupItem('div_GroupItem_@(item.GroupId)    ',@item.GroupId)" />
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="mt10" id="div_btn_goon_addgroup">
+                                    <input type="button" class="btn btn-co" id="btnGoOnAddGroups" onclick="fnGoOnAddGroups()"
+                                        value="继续添加群组" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div id="div_showDept">
+                        @if (ViewBag.Departs != null && ((IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.Departs).Count() > 0)
+                        {
+                            <div class="seled-list">
+                                <h4 id="sp_chooseDept">已选组织结构：</h4>
+                                <ul>
+                                    @foreach (var item in (IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.Departs)
+                                    {
+                                        <li id="div_DeptItem_@(item.DepartmentId)"><span title="@item.DeptName">@item.DeptName</span>
+                                            @if (ViewBag.TokenPublishflag == 0)
+                                            {
+                                                <input class="btn btn-cancel"  type="button" name="btn" title="移除" value="x" onclick="fnRemoveDeptItem('div_DeptItem_@(item.DepartmentId)    ',@item.DepartmentId)" />
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="mt10">
+                                    <input type="button" id="btnGoOnAddDept" onclick="fnGoOnAddDept()" value="继续添加组织结构"
+                                        class="btn btn-co" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr id="tr_openperson">
+                <td class="Tit">指定部门人员：
+                </td>
+                <td>
+                    @if (ViewBag.TokenPublishflag == 0)
+                    {
+                        <input type="button" name="btnOpenPerson" id="btnOpenPerson" value="选择人员" onclick="fnChoosePerson()"
+                            class="btn btn-co" />
+                    }
+                    else
+                    {
+                        <input type="button" name="btnOpenPerson" id="btnOpenPerson" value="选择人员" class="btn btn-co"
+                            disabled="disabled" />
+                    }
+                    <input type="hidden" id="txtOpenDepartObject" name="OpenDepartObject" value="@Model.OpenDepartObject" />
+                    <input type="hidden" id="txtOpenGroupObject" name="OpenGroupObject" value="@Model.OpenGroupObject" />
+                    <input type="hidden" id="txtOpenPerson" name="OpenPerson"  value="@Model.OpenPerson" />
+                    <input type="hidden" id="txtTempOpenDepartObject" name="OpenDepartObject" value="@Model.OpenDepartObject" />
+                    <input type="hidden" id="txtTempOpenGroupObject" name="OpenGroupObject" value="@Model.OpenGroupObject" />
+                    <input type="hidden" id="txtTempOpenPerson" name="OpenPerson"  value="@Model.OpenPerson" />
+                    <div id="div_showPerson">
+                        @if (ViewBag.PersonList != null && ((IEnumerable<LiXinModels.User.Sys_User>)ViewBag.PersonList).Count() > 0)
+                        {
+                            <div class="seled-list">
+                                <h4 id="sp_choosePerson">指定部门人员：</h4>
+                                <ul>
+                                    @foreach (var item in (IEnumerable<LiXinModels.User.Sys_User>)ViewBag.PersonList)
+                                    {
+                                        <li id="div_UserItem_@(item.UserId)"><span title="@item.Realname">@item.Realname</span>
+                                            @if (ViewBag.TokenPublishflag == 0)
+                                            {
+                                                <input class="btn btn-cancel"  type="button" name="btn" title="移除" value="X" onclick="fnRemoveUserItem('div_UserItem_@(item.UserId)    ',@item.UserId)" />
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </td>
+                </t>
+            <tr>
+                <td class="Tit">是否需要在线测试：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="IsTest" id="rad_IsTest1" value="1" onclick="fnShowChoosePaper(1)" /><label>是</label>
+                        <input type="radio" name="IsTest" id="rad_IsTest0" value="0" onclick="fnShowChoosePaper(0)" /><label>否</label>
+                    </div>
+                    <div id="div_showPaperSetting">
+                        <div class="seled-list" style="width: 81%">
+                            <input type="hidden" name="PaperId" id="hid_PaperId" value="@(ViewBag.CoursePaper != null ? ((LiXinModels.DepCourseManage.Dep_Coursepaper)ViewBag.CoursePaper).PaperId : 0)" />
+                            <table class="tab-Form">
+                                <tr>
+                                    <td class="Tit span10">试卷名称：
+                                    </td>
+                                    <td>
+                                        <strong id="lbl_PaperName">@(ViewBag.PaperName)</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">课程结束内：
+                                    </td>
+                                    <td>
+                                        <div class="time-choose">
+                                            <input class="span4" type="text" id="txtHour" name="Hour" value="@(ViewBag.CoursePaper != null ? ((LiXinModels.DepCourseManage.Dep_Coursepaper)ViewBag.CoursePaper).Hour : ViewBag.RefHour)" />
+                                            小时允许考试（限制在0~99999之间）
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">考试时长：
+                                    </td>
+                                    <td>
+                                        <div class="time-choose">
+                                            <input class="span4" type="text" name="Length" id="txtLength" value="@(ViewBag.CoursePaper != null ? ((LiXinModels.DepCourseManage.Dep_Coursepaper)ViewBag.CoursePaper).Length : ViewBag.RefLength)"" />
+                                            分钟
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">通过线：
+                                    </td>
+                                    <td>
+                                        <div class="time-choose">
+                                            <input class="span4" type="text" name="LevelScore" id="txtLevelScore" value="@(ViewBag.CoursePaper != null ? ((LiXinModels.DepCourseManage.Dep_Coursepaper)ViewBag.CoursePaper).LevelScore : 0)" />%
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">试卷总分：
+                                    </td>
+                                    <td>
+                                        <span id="lbl_TotalScore">@(ViewBag.PaperTotalScore)
+                                            分</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">最大考试次数：
+                                    </td>
+                                    <td>
+                                        <input class="span4" type="text" name="TestTimes" id="txtTestTimes" value="@(ViewBag.CoursePaper != null ? ((LiXinModels.DepCourseManage.Dep_Coursepaper)ViewBag.CoursePaper).TestTimes : ViewBag.MaxTestTimes)" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">是否需要课后评估：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="IsPing" id="rad_IsPing1" value="1" onclick="fnShowChooseSurveybtn(1)" /><label>是</label>
+                        <input type="radio" name="IsPing" id="rad_IsPing0" value="0" onclick="fnShowChooseSurveybtn(0)" /><label>否</label>
+                        <div id="div_showChooseSurveybtn">
+                            <input type="button" name="name" class="btn btn-co" value="课程问卷" onclick="fnShowChooseSurvey(0)" />
+                            <input type="button" id="btnChooseSurvery2" name="name" class="btn btn-co" value="讲师问卷"
+                                onclick="fnShowChooseSurvey(2)" />
+                        </div>
+                    </div>
+                    <input type="hidden"  name="SurveyPaperId" id="hid_SurveyPaperId"  value="@Model.SurveyPaperId" />
+                    <div id="div_showSurvey">
+                        <div class="seled-list">
+                            <div id="div_showSurvey0">
+                                <input type="hidden" name="hid_SurveyPaperId0" id="hid_SurveyPaperId0" value="@ViewBag.SurveyExampaperId0" />
+                                问卷类型：课程问卷 问卷名称：<strong id="lbl_SurveyPaperName0">@(ViewBag.SurveyExampaperName0)</strong>
+                                <input class="btn btn-cancel" type="button" name="btn" title="移除" value="X" onclick="fnRemoveShowSurveyItem('div_showSurvey0',0)" />
+                            </div>
+                            <div id="div_showSurvey2">
+                                <input type="hidden" name="hid_SurveyPaperId2" id="hid_SurveyPaperId2"  value="@ViewBag.SurveyExampaperId2" />
+                                问卷类型：讲师问卷 问卷名称：<strong id="lbl_SurveyPaperName2">@(ViewBag.SurveyExampaperName2)</strong>
+                                <input class="btn btn-cancel" type="button" name="btn" title="移除" value="X" onclick="fnRemoveShowSurveyItem('div_showSurvey2',2)" />
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr id="tr_PreAdviceConfigTime">
+                <td class="Tit">课程开始前：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input class="span4" type="text" name="PreAdviceConfigTime" value="@(Model.Id > 0 ? Model.PreAdviceConfigTime : ViewBag.RefPreAdviceConfigTime)"  />
+                        小时开放建议
+                    </div>
+                    （限制在0.1~999.9之间）
+                </td>
+            </tr>
+            <tr id="tr_afterEvlConfigTime">
+                <td class="Tit">课程结束后：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input class="span4" type="text" id="txtAfterEvlutionConfigTime" name="AfterEvlutionConfigTime" value="@(Model.Id > 0 ? Model.AfterEvlutionConfigTime : ViewBag.RefAfterEvlutionConfigTime)" />
+                        小时开放评估
+                    </div>
+                    （限制在0.1~999.9之间）
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">附件：
+                </td>
+                <td>
+                    <input type="file" name="courseAttachResource" value="" id="uploadAttachResource" />
+                    @if (ViewBag.CourseAttachList != null && ((IEnumerable<LiXinModels.DepCourseManage.Dep_CourseResource>)ViewBag.CourseAttachList).Count() > 0)
+                    {
+                        <div class="seled-list">
+                            <ul>
+                                @foreach (var item in (IEnumerable<LiXinModels.DepCourseManage.Dep_CourseResource>)ViewBag.CourseAttachList)
+                                {
+                                    <li id="div_courseAttach_@(item.Id)"><span title="@item.ResourceName ( @item.ResourceSize K )">
+                                        @item.ResourceName
+                                        ( @item.ResourceSize K ) </span>
+                                        <input  type="button" name="btn" value="X" title="移除" class="btn btn-cancel" onclick="fnRemoveCourseResource('div_courseAttach_@(item.Id)    ',@item.Id)" />
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </td>
+            </tr>
+        </table>
+        <h3 class="tit-h3 mt20">课程资源</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span20">课程资源：
+                </td>
+                <td>
+                    <input type="file" name="courseResource" value="" id="uploadResource" />
+                    <input type="hidden" name="hidResourceIds" value="" id="hidResourceIds" />
+                    @if (ViewBag.CourseResourceList != null && ((IEnumerable<LiXinModels.DepCourseManage.Dep_CourseResource>)ViewBag.CourseResourceList).Count() > 0)
+                    {
+                        <div class="seled-list">
+                            <ul>
+                                @foreach (var item in (IEnumerable<LiXinModels.DepCourseManage.Dep_CourseResource>)ViewBag.CourseResourceList)
+                                {
+                                    <li id="div_courseRes_@(item.Id)"><span title="@item.ResourceName ( @item.ResourceSize K )">
+                                        @item.ResourceName
+                                        ( @item.ResourceSize K ) </span>
+                                        @if (item.Flag == 0)
+                                        {
+                                            <input  type="button" name="btn" value="X" title="移除" class="btn btn-cancel" onclick="fnRemoveCourseResource('div_courseRes_@(item.Id)    ',@item.Id)" />  
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">课程大纲：
+                </td>
+                <td>
+                    <textarea cols="5" id="Memo" name="Memo" rows="10" class="all80" style="display: none;"></textarea>
+                    <textarea cols="5" id="txt_Memo" rows="10" class="all80">@Model.Memo</textarea>
+                </td>
+            </tr>
+        </table>
+
+        <center class="mt10">
+        <input type="submit" value="确定" class="btn" />
+        @if (ViewBag.Way == 1 || ViewBag.Way == 3)
+        {
+            <a href="/DepCourseManage/DepManageList?tp=0" class="btn btn-cancel">返回</a>
+        }
+        else
+        { 
+        <a href="/DepCourseManage/DepManageList?tp=1" class="btn btn-cancel">返回</a>
+        }
+        
+    </center>
+        <input id="hidDeptID" type="hidden" />
+    </form>
+</div>
+
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <option Year="{{:Year}}" Code="{{:Code}}" PreCourseTime="{{:PreCourseTime}}" Month="{{:Month}}"  StartTime="{{:StartTime}}" Id="sel_op_{{:Id}}" CourseName="{{:CourseName}}"
+        EndTime="{{:EndTime}}" OpenLevel="{{:OpenLevel}}" IsMust="{{:IsMust}}" IsOpenSub="{{:IsOpenSub}}" IsSystem="{{:IsSystem}}" TeacherName="{{:TeacherName}}" Teacher="{{:Teacher}}"  value="{{:Id}} "
+        CourseLength="{{:CourseLength}}" RoomId="{{:RoomId}}" IsSystem="{{:IsSystem}}" IsYearPlan="{{:IsYearPlan}}" IsCPA="{{:IsCPA}}">{{:CourseName}}</option>
+   {{/for}}
+</script>
+
+<script type="text/javascript">
+    var fileCount = 0;
+    var currNum = 0;
+    var interval = null;
+    //渲染编辑器
+    var editor = null
+
+    
+
+    $(document).ready(function(){
+
+        $("#sel_YearPlan").append("<option value="+getYears('s',-1)+">"+getYears("s",-1)+"</option><option value="+getYears('s',0)+">"+getYears("s",0)+"</option><option value="+getYears('s',1)+">"+getYears("s",1)+"</option>");
+        //alert(getYears("s",0));
+        fOnloaddiscoursetype($("#txtway").val());
+        //注册页面加载事件,解决flash的bug
+        addEvent(window, init, "load", "集中授课课程开设");
+
+        //渲染编辑器
+        editor = new baidu.editor.ui.Editor({
+            toolbars: [['FontSize', 'FontFamily', 'ForeColor', 'Bold', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+                'JustifyCenter', 'InsertOrderedList', 'InsertUnorderedList']],
+            wordCount: false,
+            autoHeightEnabled: false,
+            elementPathEnabled: false,
+            minFrameHeight: 321
+        });
+        editor.render("txt_Memo");
+        //默认不可用
+        $("input[name='chbOpenFlag']").attr("disabled","disabled");
+        $("#btnOpenPerson").attr("disabled","disabled");
+        /*-------------------------------------------------*/
+        $("input[name='chbIsOrder']").click(function(){
+           
+            var value=$(this).val();
+            if(value=="1")
+            {
+                if($("input[name='chbIsOrder'][value='1']").attr("checked"))
+                {                  
+                    $("input[name='chbOpenFlag']").removeAttr("disabled");       
+                    
+                }
+                else
+                {                  
+                    $("input[name='chbOpenFlag']").attr({"disabled":"disabled","checked":false});                    
+                    $("#div_showDept").html("");
+                    $("#txtOpenDepartObject").val("");
+                    $("#txt_year_ids").val("");
+                }
+            }
+            else
+            {
+                if($("input[name='chbIsOrder'][value='2']").attr("checked"))
+                {                  
+                    $("#btnOpenPerson").removeAttr("disabled");
+                    $("#btnOpenPerson").bind("click",function(){
+                        fnChoosePerson();
+                    });
+                }
+                else
+                {                  
+                    $("#btnOpenPerson").attr("disabled","disabled");
+                }
+
+                //btnOpenPerson
+            }
+
+            //chbOpenFlag
+        });
+
+
+        $("#txtMemo").textareaCount({ maxCharacterSize: 200 });
+        //radio
+        $("input[name=IsMust][value='@Model.IsMust']").attr("checked", true);
+        $("input[name=IsOpenSub][value='@Model.IsOpenSub']").attr("checked", true);
+        $("input[name=IsSystem][value='@(Model.IsSystem == 0 ? 0 : 1)']").attr("checked", true);
+        $("input[name=IsCPA][value='@Model.IsCPA']").attr("checked", true);
+        $("input[name=AdFlag][value='@Model.AdFlag']").attr("checked", true);
+        $("input[name=IsRT][value='@Model.IsRT']").attr("checked", true);
+        $("input[name=IsLeave][value='@Model.IsLeave']").attr("checked", true);
+        $("input[name=IsTest][value='@Model.IsTest']").attr("checked", true);
+        $("input[name=IsPing][value='@Model.IsPing']").attr("checked", true);
+
+        $("input[name=coursetype][value='@ViewBag.Way']").attr("checked", true);
+
+
+        if ($("input[name=IsTest]:checked").val()==1) {
+            $("#div_showPaperSetting").show();
+        }
+        else {
+            $("#div_showPaperSetting").hide();
+            $("#hid_PaperId").val("");
+        }
+        if ($("input[name=IsPing]:checked").val()==1) {
+            $("#div_showSurvey").show();
+            $("#div_showChooseSurveybtn").show();
+            JudegSurvey();
+            $("#tr_afterEvlConfigTime").show();
+        }
+        else {
+            $("#div_showSurvey").hide();
+            $("#hid_SurveyPaperId").val("");
+            $("#div_showChooseSurveybtn").hide();
+            $("#tr_afterEvlConfigTime").hide();
+
+        }
+
+        /*-----------------------------华丽的分割线------------------------------------------------------------*/
+        if ('@(Model.Id)' > 0) {
+            
+            $("#chbIsOrder2").attr('disabled', "disabled");
+
+            $("#div_showPlan").hide();
+            //checkbox
+            if ("@Model.OpenLevel" != "") {
+                var checkboxArray = $('input[name=OpenLevel]');
+                var openList = "@Model.OpenLevel".split(',');
+                for (key in openList) {
+                    $.each(checkboxArray, function (index, value) { // value or jquery object
+                        if (openList[key] == $(value).val()) { // $(this).val() == $(value).val()//与页面上的值进行比较，如果相等就“打勾”
+                            $(this).attr('checked', true);
+                            if ("@ViewBag.TokenPublishflag"==1) {$(this).attr('disabled', "disabled");}
+                        }
+                    });
+                }
+            }
+
+            if ("@Model.Sort" != "") {
+                var checkboxArray2 = $('input[name=Sort]');
+                var SortList = "@Model.Sort".split(',');
+                for (key in SortList) {
+                    $.each(checkboxArray2, function (index, value) {
+                        if (SortList[key] == $(value).val()) {
+                            $(this).attr('checked', true);
+                        }
+                    });
+                }
+            }
+            if ("@ViewBag.TokenPublishflag"==1) 
+            {
+                $('input[name=Sort]').attr('disabled', "disabled");
+            }
+
+            if ("@Model.IsOrder" != "0") {
+                var checkboxArray3 = $('input[name=chbIsOrder]');
+                var IsOrderList = "@Model.IsOrder".split(',');
+                for (key in IsOrderList) {
+                    $.each(checkboxArray3, function (index, value) {
+                        if (IsOrderList[key] == $(value).val()) {
+                            $(this).attr('checked', true);
+                        }
+                    });
+                }
+            }
+
+            if ("@Model.OpenFlag" != "0") {
+                var checkboxArray4 = $('input[name=chbOpenFlag]');
+                var OpenFlagList = "@Model.OpenFlag".split(',');
+                for (key in OpenFlagList) {
+                    $.each(checkboxArray4, function (index, value) {
+                        if (OpenFlagList[key] == $(value).val()) {
+                            $(this).attr('checked', true);
+                            if ("@ViewBag.TokenPublishflag"==1) {$(this).attr('disabled', "disabled");}
+
+                        }
+                    });
+                }
+                if ($("#sp_choosegroup").length==0) {
+                    $("#chbOpenFlag1").attr("checked",false);
+                    $("#txtOpenGroupObject").val("");
+                }
+                if ($("#sp_chooseDept").length==0) {
+                    $("#chbOpenFlag2").attr("checked",false);
+                    $("#txtOpenDepartObject").val("");
+                }
+            }
+
+            if ("@Model.OpenFlag" == "3") {
+                $("#chbOpenFlag1").attr("checked",true);
+                $("#chbOpenFlag2").attr("checked",true);
+                if ($("#sp_choosegroup").length==0) {
+                    $("#chbOpenFlag1").attr("checked",false);
+                    $("#txtOpenGroupObject").val("");
+                }
+                if ($("#sp_chooseDept").length==0) {
+                    $("#chbOpenFlag2").attr("checked",false);
+                    $("#txtOpenDepartObject").val("");
+                }
+                if ("@ViewBag.TokenPublishflag"==1) {$("#chbOpenFlag1").attr('disabled', "disabled");$("#chbOpenFlag2").attr('disabled', "disabled");}
+            }
+
+            if ("@Model.IsOrder" == "3") {
+                $("#chbIsOrder1").attr("checked",true);
+                $("#chbIsOrder2").attr("checked",true);
+            }
+             
+            @*if ("@Model.AttFlag" == "1" || "@Model.AttFlag" == "3") {
+                $("#chbAtt1").attr("checked",true);
+            }else {
+                $("#chbAtt1").attr("checked",false);
+            }
+             
+            if ("@Model.AttFlag" == "2" || "@Model.AttFlag" == "3") {
+                $("#chbAtt2").attr("checked",true);
+            }else {
+                $("#chbAtt2").attr("checked",false);
+            }*@
+
+            if("@Model.AttFlag" == "0")
+            {
+                $("#chbAtt1").attr("checked",true);
+            }
+            else
+            {
+                $("#chbAtt2").attr("checked",true);
+            }
+
+            $('#sel_RoomId').attr('value','@Model.RoomId'); 
+            $('#sel_YearPlan').attr('value','@Model.YearPlan');
+        }
+        else
+        {
+            showPlanCourse(1);
+        }
+        
+
+        /*-------------------------------------------华丽的分割线----------------------------------------------------------------------*/
+        //上传附件
+        $('#uploadAttachResource').uploadify({
+            'formData': { 'folder': "@(System.Configuration.ConfigurationManager.AppSettings["UFCOResource"])" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',//此处因需要增加了detailFlag字段 其他地方使用请自行移除
+            'auto': false,
+            'multi': true,
+            'onCancel': function (file) {
+            },
+            'onSelect': function (file) {
+                $("#tempAttachQueueId").val(file.id);
+            },
+            'onUploadStart': function (file) {
+            },
+            'onUploadError':function(file, errorCode, errorMsg, errorString)
+            {
+                if (errorCode!=-280) {
+                    art.dialog.tips('上传过程中发送异常，请重新选择文件！',1.5);
+                    $('input[type="submit"]').removeAttr('disabled');
+                }
+            },
+            'onUploadSuccess': function (file, data, response) {
+                var a = data.split('|');
+                if (a.length>0) {
+
+                    var ResourceName = a[0];
+                    var RealName = a[1];
+                    var ResourceSize = a[2];
+                    var  ResourceType =1; 
+                    var CourseId = $("#txtId").val();
+                    $.post("/DepCourseManage/SubmitAddCourseResource?CourseId="+CourseId+"&resourceName="+escape(ResourceName)+"&RealName="+RealName+
+                        "&ResourceSize="+ResourceSize+"&ResourceType="+ResourceType,function(data){
+                            currNum++;
+                        });
+                }
+            },
+            'onAllComplete':function(){
+                
+            } });
+
+        //上传资源
+        $('#uploadResource').uploadify({
+            'formData': { 'folder': "@System.Configuration.ConfigurationManager.AppSettings["UFCOResource"]" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',//此处因需要增加了detailFlag字段 其他地方使用请自行移除
+            'auto': false,
+            'multi': true,
+            'onCancel': function (file) {
+            },
+            'onSelect': function (file) {
+                 
+            },
+            'onUploadError':function(file, errorCode, errorMsg, errorString)
+            {
+                if (errorCode!=-280) {
+                    art.dialog.tips('上传过程中发送异常，请重新选择文件！',1.5);
+                    $('input[type="submit"]').removeAttr('disabled');
+                }
+                
+            },
+            'onUploadStart': function (file) {
+            },
+            'onUploadSuccess': function (file, data, response) {
+                var a = data.split('|');
+                if (a.length>0) {
+
+                    var ResourceName = a[0];
+                    var RealName = a[1];
+                    var ResourceSize = a[2];
+                    var  ResourceType =0; 
+                    var CourseId = $("#txtId").val();
+                    $.post("/DepCourseManage/SubmitAddCourseResource?CourseId=" + CourseId + "&resourceName=" + escape(ResourceName) + "&RealName=" + RealName +
+                        "&ResourceSize=" + ResourceSize + "&ResourceType=" + ResourceType, function(data) {
+                            currNum++;
+                        });
+                }
+            },
+
+            'onAllComplete':function(){
+                
+            }
+        });
+        /*--------------------------------华丽的分割线-------------------------------------------------------------------*/
+        jQuery.validator.addMethod("decimal_1", function(value, element) {
+            var decimal = /^-?\d+(\.\d{1})?$/;
+            return this.optional(element) || (decimal.test(value));
+        }, $.validator.format("请输入正确的格式！"));
+        jQuery.validator.addMethod("characterletter", function(value, element) {
+            var decimal = /^[0-9a-zA-Z-]*$/;
+            return this.optional(element) || (decimal.test(value));
+        }, $.validator.format("课程编号只能以字母+数字的组合且不能超过15字符！"));
+
+        $("#forEditCourseTogether").validate(
+            { 
+                errorPlacement: function (error, element) {
+                    var eid = element.attr('name');
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        $('input[name=' + eid + ']:last').next().after(error);
+                    } else if(eid=='PreCourseTime'||eid=='StartTime'||eid=='EndTime' ||eid=='CourseLength'||eid=='TeacherName'||eid=='Hour'||eid=='Length'||eid=='LevelScore'||eid=='PreAdviceConfigTime'||eid=='AfterEvlutionConfigTime'){
+                        error.appendTo(element.parent().parent());
+                    }       
+                    else if(eid=="courseattend"||eid=="courseonlinetest"||eid=="courseafter")
+                    {
+                        error.insertAfter(element.parent());
+                    }                
+                    else {
+                        error.insertAfter(element);
+                    }
+
+                },
+                debug: true,
+                submitHandler: fnSubmitEditCourseTogether,
+                event: "blur",
+                rules: {
+                    YearPlan:{required: true,min:1},
+                    Code:{ required: true,
+                        characterletter:true,
+                        maxlength: 15
+                           
+                        @(ViewBag.TotalCourseTimes != 0 && Model.Id > 0 ? Html.Raw("") : Html.Raw(",remote: {type: 'get',dataType: 'json',url: '/DepCourseManage/CheckCourseCode?t=' + new Date(),data: {CourseCode: function () { return $('#txtCode').val(); },Id: function () { return $('#txtId').val(); }}}"))
+                    },
+                    CourseName: {
+                        required: true,
+                        maxlength: 30
+                    },
+                    courseattend:{ required: true, digits: true, min: 0, max: 100},
+                    courseonlinetest:{ required: true, digits: true, min: 0, max: 100},
+                    courseafter:{ required: true, digits: true, min: 0, max: 100},
+                    PreCourseTime:{required:true},
+                    //OpenLevel:{required:true},
+                    TeacherName:{  required: true},
+                    StartTime:{required:true},
+                    EndTime:{required:true},           
+                    CourseLength: { required: true,min:0,max:999.9, decimal_1: true },
+                    RoomId:{required:true,min:1},
+                    NumberLimited: { required: true, min: 1,max:9999, digits: true },
+                    Sort: {
+                        required: true
+                    },
+                    chbIsOrder: {                        
+                        required: true,min:1,
+                    },
+                    chbAtt: {
+                        required: true,min:0
+                    },
+                    CourseTimes:{required:true,digits:true,min:"@(ViewBag.TotalCourseTimes == 0 ? 1 : ViewBag.TotalCourseTimes)",max:99},
+                    TestTimes:{min:-1,digits: false,max:99},
+                    PreAdviceConfigTime:{required:true,min: 0,max:999.9, decimal_1: true}
+                    
+                },
+                messages: {
+                    YearPlan:{required:"请选择所属年度计划！",min:"请选择所属年度计划！"},
+                    Code:{ required: '请输入课程编号！',
+                        maxlength:  "课程编号不能多于15个字符！"
+                        @(ViewBag.TotalCourseTimes != 0 ? Html.Raw("") : Html.Raw(",remote:'该课程编号已经存在！'"))
+                    },
+                       
+                    CourseName: {
+                        required: "课程名称不能为空！",
+                        maxlength: "课程名称不能多于30个字符！"
+                        // ,remote: "该课程名称已存在！"
+                    },
+                    courseattend: { required: "请输入百分比", digits: "请输入大于等于0的整数", min: "请输入大于等于0的整数", max: "请输入小于等于100的整数" },
+                    courseonlinetest: { required: "请输入百分比", digits: "请输入大于等于0的整数", min: "请输入大于等于0的整数", max: "请输入小于等于100的整数" },
+                    courseafter: { required: "请输入百分比", digits: "请输入大于等于0的整数", min: "请输入大于等于0的整数", max: "请输入小于等于100的整数" },
+                    PreCourseTime:{required:"请选择预设开课时间！"},
+                    //OpenLevel:{ required: "请选择课程开放级别！" },
+                    TeacherName:{  required: "请选择授课讲师！"},
+                    StartTime:{required:"请选择开课时间！"},
+                    EndTime:{required:"请选择结课时间！"},                
+                    CourseLength: { required: "请输入正确的格式！",min:"请输入正确的格式！",max:"请输入正确的格式！" },
+                    RoomId:{required:"请选择开课地点！",min:"请选择开课地点！"},
+                    NumberLimited: { required: "请输入最大允许人数！", min: "最大允许人数必须是大于0的正整数！",max:"最大允许人数不能大于9999！",  digits: "最大允许人数必须是大于0的正整数！" },
+                    Sort: { required: "请选择课程类别！" },
+                    chbIsOrder: {
+                        required: "至少选择预订与指定中的一种形式！",min:"至少选择预订与指定中的一种形式！"
+                    },
+                    chbAtt: {
+                        required: "至少选择一种考勤形式！",min:"至少选择一种考勤形式！"
+                    },
+                    CourseTimes:{required:"请输入开课次数！", min:"@(ViewBag.TotalCourseTimes == 0 ? "开课次数不能小于1！" : "开课次数不能小于该课程已开设的次数:" + ViewBag.TotalCourseTimes + '！')", digits:"开设次数必须为正整数！",max:"开课次数不能大于99！"},
+                    //Memo: { maxlength: "课程大纲不能超过1000个字符！" },
+                    TestTimes:{min:"在线测试次数在-1到99之间！！", digits: "在线测试次数在-1到99之间！！",max:"在线测试次数在-1到99之间！"},
+                    AfterEvlutionConfigTime:{required:"请输入正确的格式！",min:"请输入正确的格式！",max:"请输入正确的格式！"},
+                    PreAdviceConfigTime:{required:"请输入正确的格式！",min:"请输入正确的格式！",max:"请输入正确的格式！"}
+                }
+            }
+        );
+
+    }
+    );
+
+        /*-----------------------------华丽的分割线--------------------------------------------------------*/
+        function fdiscoursetype(t)
+        {
+ 
+            $("#txtway").val(t);
+            if(t==1)
+            {
+                //$("#tr_isorder,#tr_openflag,#tr_openperson").css("display","")
+                $("#tr_trainGrade,#tr_NumberLimited,#tr_isorder,#tr_openflag,#tr_openperson,#tr_PreAdviceConfigTime,#tr_AttFlag").css("display","");
+                $("input[name='chbIsOrder']").attr("checked",false);
+                $("#chbIsOrder2").attr("disabled","");
+                $(".course_starttime").html("(如果是新开课次的课程，请先将开课时间修改为大于系统当前时间！)");
+                $(".course_endtime").html("(如果是新开课次的课程，请先将结课时间修改为大于系统当前时间！)");
+                fGetParamConfig();
+            }
+            else if(t==2)
+            {
+                $("#tr_trainGrade,#tr_NumberLimited,#tr_PreAdviceConfigTime").css("display","").css("display","")
+                $("#tr_isorder,#tr_openflag,#tr_openperson,#tr_AttFlag").css("display","none")
+                $("input[name='chbIsOrder']").eq(0).attr("checked",true);
+                $("#div_showDept").html("");
+                $("#txtOpenDepartObject").val("");
+                $(".course_starttime").html("(如果是新开课次的课程，请先将开课时间修改为大于系统当前时间！)");
+                $(".course_endtime").html("(如果是新开课次的课程，请先将结课时间修改为大于系统当前时间！)");
+                fGetParamConfig();
+            }
+            else if(t==3)
+            {
+                //课程开放级别，最大允许人数，预定/指定，开放人群，指定部门人员，课前建议
+                $("#tr_trainGrade,#tr_NumberLimited,#tr_openperson,#tr_PreAdviceConfigTime").css("display","none")
+                //$("#tr_AttFlag").css("display","");
+                //$("#tr_isorder,#tr_openflag,#tr_openperson,#tr_AttFlag").css("display","");
+                $("#tr_isorder,#tr_openflag,#tr_AttFlag").css("display","");
+                $("#chbIsOrder1").attr("checked",false);
+                $("#chbIsOrder2").attr("disabled","disabled");
+                $(".course_starttime").html("(如果是过期课程，课程开课时间不能大于系统当前时间！)");
+                $(".course_endtime").html("(如果是过期课程，课程结束时间不能大于系统当前时间！)");
+                //$("input[name='chbIsOrder']").eq(0).attr("checked",true);
+                fGetParamConfig();
+                //$("#start_time").html(" <input type=\"text\" readonly=\"readonly\" onclick=\" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\\'txt_EndTime\\',{m:-1})||%Y-%M-%d}' }) \" name=\"StartTime\" id=\"txt_StartTime\" /><i></i>");
+                //alert("执行111");
+            }
+
+        }
+
+
+        function fOnloaddiscoursetype(t)
+        {
+       
+            $("#txtway").val(t);
+            if(t==1)
+            {
+                //$("#tr_isorder,#tr_openflag,#tr_openperson").css("display","")
+                $("#tr_trainGrade,#tr_NumberLimited,#tr_isorder,#tr_openflag,#tr_openperson,#tr_PreAdviceConfigTime,#tr_AttFlag").css("display","").css("display","")
+                $("input[name='chbIsOrder']").attr("checked",false);
+                $(".course_starttime").html("(如果是新开课次的课程，请先将开课时间修改为大于系统当前时间！)");
+                $(".course_endtime").html("(如果是新开课次的课程，请先将结课时间修改为大于系统当前时间！)");
+            
+            }
+            else if(t==2)
+            {           
+                $("#tr_trainGrade,#tr_NumberLimited,#tr_PreAdviceConfigTime").css("display","").css("display","");
+                $("#tr_isorder,#tr_openflag,#tr_openperson,#tr_AttFlag").css("display","none");
+                $("input[name='chbIsOrder']").eq(0).attr("checked",true);
+                $("#div_showDept").html("");
+                $("#txtOpenDepartObject").val("");   
+                $(".course_starttime").html("(如果是新开课次的课程，请先将开课时间修改为大于系统当前时间！)");
+                $(".course_endtime").html("(如果是新开课次的课程，请先将结课时间修改为大于系统当前时间！)");
+            }
+            else if(t==3)
+            {
+                //课程开放级别，最大允许人数，预定/指定，开放人群，指定部门人员，课前建议
+                $("#tr_trainGrade,#tr_NumberLimited,#tr_openperson,#tr_PreAdviceConfigTime").css("display","none");
+                $("#tr_isorder,#tr_openflag,#tr_AttFlag").css("display","");
+                $("#chbIsOrder2").attr("disabled","disabled").removeAttr("checked");;
+                $("#tr_AttFlag").css("display","");
+                $("input[name='chbIsOrder']").eq(0).attr("checked",true);          
+                $(".course_starttime").html("(如果是过期课程，课程开课时间不能大于系统当前时间！)");
+                $(".course_endtime").html("(如果是过期课程，课程结束时间不能大于系统当前时间！)");
+                //$("#start_time").append(" <input type=\"text\" readonly=\"readonly\" onclick=\" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' },maxDate:'%y-%M-%d-%h-%m') \" name=\"StartTime\" id=\"txt_StartTime\" />");
+                //alert("执行");
+            }
+
+        }
+
+        //加载参数配置
+        function fGetParamConfig()
+        {
+            $.getJSON("/DepCourseManage/GetParamConfig?type="+$("#txtway").val(),function(data){
+
+                $("#txt_courseattend").val(data.guoqifenbu.split(';')[0]);
+                $("#txt_courseonlinetest").val(data.guoqifenbu.split(';')[1]);
+                $("#txt_courseafter").val(data.guoqifenbu.split(';')[2]);
+
+                if(data.ping!="")
+                {
+                    if(data.type==3)
+                    {
+                        $("#txtAfterEvlutionConfigTime").val(data.ping);
+                    }
+                    else
+                    {
+                        $("#txtAfterEvlutionConfigTime").val(data.ping.split(';')[1]);
+                    }
+                }
+                else
+                {
+                    $("#txtAfterEvlutionConfigTime").val(999);
+                }
+           
+           
+                if(data.test!="")
+                {
+                    $("#txtHour").val(data.test.split(';')[0]);
+                    $("#txtLength").val(data.test.split(';')[1]);
+                }
+                else
+                {
+                    $("#txtHour").val(99999);
+                    $("#txtLength").val(999);
+                }
+
+            })
+        }
+    
+
+
+        function showPlanCourse(obj) {
+            if (obj == 1) {
+                $("#showExistCourse").fadeIn("slow");
+                $("#txtIsYearPlan").val("1");
+            }
+            else {
+                $("#showExistCourse").fadeOut("slow");
+                $("#txtIsYearPlan").val("0");
+            }
+            $("#sel_pop_year option[value=-1]").attr("selected",true);
+            $("#sel_pop_month option[value=-1]").attr("selected",true);
+            $("#sle_CourseList option[value=-1]").attr("selected",true);
+            $("#txtCourseName").val("");
+            $("input[name=IsMust][value='0']").attr("checked", true);
+            $("input[name=IsOpenSub][value='1']").attr("checked", true);
+            $("input[name=IsSystem][value='0']").attr("checked", true);
+            $('input[name=OpenLevel]').each(function () {
+                $(this).attr("checked",false);
+            });
+            $("#txtTeacher").val("");
+            $("#txtTeacherName").val("");
+            $("#txtCourseLength").val("0");
+            $("#sel_RoomId option[value=0]").attr("selected",true);
+            $("input[name=IsCPA][value=0]").attr("checked", true);
+            $("input[name=AdFlag][value=0]").attr("checked", true);
+            $("#txtCode").val("");
+            $("#txtPreCourseTime").val("");
+            $("#txtCourseLength").val("");
+            $("#txtIsSystem").val("0");
+        }
+
+        //绑定课程到 Course下拉列表
+        function fnLoadMonthCourse(obj) {
+            if (obj!=-1) {
+                $.getJSON("/DepCourseManage/GetMonthPlanCourse?monthstr=" + $(obj).val()+"&deptid="+$("#txtDeptId").val(), function (data) {                    
+                    $("#sle_CourseList").html("");
+                    $("#sle_CourseList").append("<option value='-1' >请选择课程</option>" + $("#courseListTemplate").render(data.dataList));
+
+                });
+            }
+            else {
+                $("#sle_CourseList").html("");
+                $("#sle_CourseList").append("<option value='-1' >请选择课程</option>");
+            }
+        }
+
+        /*----------------------------------------------------------------------------------*/
+        //选择课程绑定到 课程基本信息
+        function fnChooseMonthSysCourse() {
+            var id = $("#sle_CourseList").val();        
+            var obj=$("#sel_op_" + id);
+            if (id!=-1) {          
+                //$("#txtOpenFlag").val(2);               
+                $("#txtCourseName").val(obj.attr("CourseName"));
+                $("#txtPreCourseTime").val(obj.attr("PreCourseTime"));
+                $("#txtCode").val(obj.attr("Code"));
+                $('input[name=OpenLevel]').each(function(){ $(this).attr("checked", false);});
+                if (obj.attr("OpenLevel") != "") {
+                    var checkboxArray = $('input[name=OpenLevel]');
+                    var openList = obj.attr("OpenLevel");//.split(',');
+                    checkboxArray.each(function() {
+                        var str = $(this).attr('value');
+                        if((','+openList+',').indexOf(','+str+',')>=0)
+                            $(this).attr("checked",true);
+                        else 
+                            $(this).attr("checked",false);
+                    });
+
+                }
+                $("input[name=IsMust][value='" + obj.attr("IsMust") + "']").attr("checked", true);
+                $("input[name=IsOpenSub][value='" + obj.attr("IsOpenSub") + "']").attr("checked", true);
+                $("input[name=IsSystem][value='" + (obj.attr("IsSystem")=="0"?"0":"1") + "']").attr("checked", true);
+                $("#txtTeacher").val(obj.attr("Teacher"));
+                $("#txtTeacherName").val(obj.attr("TeacherName"));
+                $("#txtCourseLength").val(obj.attr("courselength"));
+                $("#sel_RoomId option[value='"+obj.attr("roomid")+"']").attr("selected",true);
+                $("input[name=IsCPA][value='"+obj.attr("IsCPA")+"']").attr("checked", true);
+                $("input[name=AdFlag][value='"+obj.attr("AdFlag")+"']").attr("checked", true);
+                $("#txtCourseLength").val(obj.attr("CourseLength"));
+                $("#txtIsSystem").val(obj.attr("IsSystem"));
+                fnJudgeSurvery();
+                fnChooseRoom($("#sel_RoomId"));
+            }
+            else {
+                //$("#txtOpenFlag").val(2);
+                $("#txtCourseName").val("");
+                $("input[name=IsMust][value='0']").attr("checked", true);
+                $("input[name=IsOpenSub][value='1']").attr("checked", true);//默认是1开放分所
+                $("input[name=IsSystem][value='0']").attr("checked", true);
+                $('input[name=OpenLevel]').each(function () {
+                    $(this).attr("checked",false);
+                });
+                $("#txtTeacher").val("");
+                $("#txtTeacherName").val("");
+                $("#txtCourseLength").val("0");
+                $("#sel_RoomId option[value=0]").attr("selected",true);
+                $("input[name=IsCPA][value=0]").attr("checked", true);
+                $("input[name=AdFlag][value=0]").attr("checked", true);
+                $("#txtCode").val("");
+                $("#txtPreCourseTime").val("");
+                $("#txtCourseLength").val("");
+                $("#txtIsSystem").val("0");
+                $("#txtNumLimited").val("0");
+            }
+        }
+
+        function fnChooseTeacher() {
+            //alert($("input[name='coursetype']:checked").val());
+            //art.dialog.load("/UserCommon/SelectTeacher?AllUserID="+$("#txtTeacher").val()+"&choose=1&way="+$("input[name='coursetype']:checked").val(), { title: '选择讲师', id: "pop_chooseTeacher"}, false);
+            art.dialog.load("/UserCommon/SelectTeacherNew", { title: '选择讲师', id: "pop_chooseTeacher"}, false);
+        }
+
+        function GetUserIDList() {
+
+            var userIds = $("#teacherList [type='radio']:checked").val();
+           
+            
+            if (userIds==0||userIds==undefined) { 
+                art.dialog.tips('请选择讲师！',1.5);
+                return;
+            }
+            var name = $("#" + userIds).attr("username");
+            $("#txtTeacher").val(userIds);
+            $("#txtTeacherName").val(name);
+            $("#txtTeacherName").parent().next().hide();
+            art.dialog.list["pop_chooseTeacher"].close();
+        }
+        /*-----------------------------------------------------------------------------------*/
+        function fnChooseOpen(obj, flag) {
+
+            if (flag == 1)//群组
+            {
+                if ($(obj).is(":checked")) {
+                    art.dialog.load("/CourseManage/CourseChooseGroup?ids="+$("#txtOpenGroupObject").val()+"&TokenPublishflag=1"+"&tempGroupIds="+$("#txtTempOpenGroupObject").val(), { title: '选择群组', id: "pop_chooseGroup",
+                        close: function () {
+                            if ($("#txtOpenGroupObject").val()=="") {
+                                $(obj).attr("checked",false);                            $("#sp_choosegroup").hide();
+                            }else {
+                                $(obj).attr("checked",true);                            $("#sp_choosegroup").show();
+                            }
+                        }
+                    }, false);
+                }
+                else {
+                    $("#div_showgroup").html("");
+                    $("#txtOpenGroupObject").val("");
+                }
+            }
+            if (flag == 2)//组织结构
+            {
+                if ($(obj).is(":checked")) 
+                {
+                    art.dialog.load("/UserCommon/DeptTree?type=checkbox&buttonShow=1", { title: '选择组织结构', id: "pop_chooseDept",
+                        close: function () {
+                            if ($("#txtOpenDepartObject").val()=="") {
+                                $(obj).attr("checked",false)
+                            }
+                        }
+                    } , false);
+                }
+                else
+                {
+                    $("#div_showDept").html("");
+                    $("#txtOpenDepartObject").val("");
+                }
+
+            }
+        }
+        /*----------------------------------------------------------------------------*/
+        function fnGoOnAddGroups()
+        {
+            art.dialog.load("/CourseManage/CourseChooseGroup?ids="+$("#txtOpenGroupObject").val()+"&TokenPublishflag=1"+"&tempGroupIds="+$("#txtTempOpenGroupObject").val(), { title: '选择群组', id: "pop_chooseGroup",
+                close: function () {
+                    if ($("#txtOpenGroupObject").val()=="") {
+                        $("#chbOpenFlag1").attr("checked",false);
+                        $("#sp_choosegroup").hide();
+                    }else {
+                        $("#chbOpenFlag1").attr("checked",true);                            $("#sp_choosegroup").show();
+                    }
+                }
+            }, false);
+
+        }
+        function fnGoOnAddDept()
+        {
+            art.dialog.load("/UserCommon/DeptTree?type=checkbox&buttonShow=1", { title: '选择组织结构', id: "pop_chooseDept",
+                close: function () {
+                    if ($("#txtOpenDepartObject").val()=="") {
+                        $("#chbOpenFlag2").attr("checked",false);
+                    }else {
+                        $("#chbOpenFlag2").attr("checked",true);
+                    }
+                }
+            }, false);
+
+        }
+
+        function InitDeptTree()
+        {          
+            $('#'+$("#sel_pop_dept").val()).attr("Checked",true);
+            if (($("#txtOpenDepartObject").val()!= "")&&($("#txtOpenDepartObject").val()!= 0)) {
+                var checkboxArray3 = $('#pop_deptTree input[type=checkbox]');
+                var IsOrderList = ","+$("#txtOpenDepartObject").val()+",";
+                var IsOrderList2 = ","+$("#txtTempOpenDepartObject").val()+",";
+                $.each(checkboxArray3, function (index, value) {
+                    if (IsOrderList.indexOf(","+$(value).val().split("_")[0]+",")>=0) {
+                        $(this).attr('checked', true);
+                        $(this).attr('disabled', "disabled");
+                    }
+                    if ("@ViewBag.TokenPublishflag" == 1) { 
+                        if (IsOrderList2.indexOf(","+$(value).val().split("_")[0]+",")>=0) {
+                            $(this).attr('disabled', "disabled");
+                            $(this).attr('oldchoose', "oldchoose");
+                        }
+                    }
+                });
+            }
+
+            if (($("#txt_year_ids").val()!= "")&&($("#txt_year_ids").val()!= 0)) {
+                var checkboxArray3 = $('#pop_deptTree input[type=checkbox]');
+                var IsOrderList = ","+$("#txt_year_ids").val()+",";               
+                $.each(checkboxArray3, function (index, value) {
+                    if (IsOrderList.indexOf(","+$(value).val().split("_")[0]+",")>=0) {
+                        $(this).attr('checked', true);
+                        $(this).attr('disabled', "disabled");
+                    }                   
+                });
+            }
+        }
+
+        function SelectDept()
+        {
+            
+            var ids = $("#txtOpenDepartObject").val();
+            var names = "";
+            var html ="";
+            var flag=0;
+            if($("#sp_chooseDept").length==0)
+            {
+                html += "<div class='seled-list'><h4 id='sp_chooseDept'>已选组织结构：</h4><ul>";
+                flag=1;
+            }
+            $("#pop_deptTree input:checked").each(function () {
+                if ($(this).attr("disabled") == "disabled") {
+                    return;
+                }
+                var s = $(this).attr("value").split("_");
+                ids = ids==""?s[0]:ids+"," + s[0];
+                names = names + $(this).next().text() + "♣";
+                html += "<li id='div_DeptItem_" + s[0] + "'><span title='" +  $(this).next().text() + "'>" +  $(this).next().text() + "</span>";
+                if ($(this).attr("oldchoose") != "oldchoose") {
+                    html+="<input class='btn btn-cancel' type='button' name='btn' value='X' title='移除'  onclick=fnRemoveDeptItem(\'div_DeptItem_" + s[0] + "\'," + s[0] + ") /></li>";
+                }
+
+        
+            });
+            if (ids.length > 0) {
+                names = names.substring(0, names.length - 1);
+                if(flag==1)
+                {               
+                    html += "</ul><div class='mt10'><input type='button' class='btn btn-co' id='btnGoOnAddDept' onclick='fnGoOnAddDept()' value='继续添加组织结构' /></div></div>";
+                    $("#div_showDept").append(html);
+               
+                }
+                else
+                {
+                    $("#div_showDept").find("ul").eq(0).append(html);
+               
+                }
+            }
+            else {
+                html="";
+            }
+            $("#txtOpenDepartObject").val(ids);
+            art.dialog.list["pop_chooseDept"].close();
+        }
+
+
+
+        function fnShowChoosePaper(obj) //选择试卷
+        {
+            if (obj==1) {
+                //art.dialog.load("/Exampaper/ExampaperSelect?selectType=radio&deptid="+@ViewBag.DeptId, {
+                art.dialog.load("/Exampaper/ExampaperSelect?selectType=radio&deptid="+$("#txtDeptId").val(), {
+                    title: "选择试卷",
+                    id: "pop_SelExam",
+                    close: function () {
+                        if (($("#hid_PaperId").val() == "")||($("#hid_PaperId").val() == 0)) {
+                            $("#div_showPaperSetting").hide();
+                            $("#rad_IsTest0").attr("checked","checked");
+                            $("#txtHour").rules("remove","required min max digits");      
+                            $("#txtLength").rules("remove","required min max digits");    
+                            $("#txtLevelScore").rules("remove","required min max digits");    
+                            $("#txtTestTimes").rules("remove","required min max digits");    
+                        }
+                        else {
+                            $("#txtHour").rules("add",{required:true,min:0,max:99999, digits: true,messages:{required:"请输入正确的格式！",min:"请输入正确的格式！",max:"请输入正确的格式！",digits:"请输入0~99999以内的整数！"}});
+                            $("#txtLength").rules("add",{required:true,min: 1,max:999, digits: true,messages:{required:"请输入1~999以内的整数！",min:"请输入1~999以内的整数！",max:"请输入1~999以内的整数！",digits:"请输入1~999以内的整数！"}});
+                            $("#txtLevelScore").rules("add",{required:true,min: 1,max:100, digits: true,messages:{required:"请输入1~100以内的整数！",min:"请输入1~100以内的整数！",max:"请输入1~100以内的整数！",digits:"请输入1~100以内的整数！"}});
+                            $("#txtTestTimes").rules("add",{required:true,min: -1,max:99, digits: false,messages:{required:"请输入-1~99以内的整数！",min:"请输入-1~99以内的整数！",max:"请输入-1~99以内的整数！",digits:"请输入-1~99以内的整数！"}});
+                        }
+                    }
+                }, false);
+            }
+            else {
+                $("#div_showPaperSetting").hide();
+                $("#hid_PaperId").val("");
+                $("#txtHour").rules("remove","required min max digits");      
+                $("#txtLength").rules("remove","required min max digits");    
+                $("#txtLevelScore").rules("remove","required min max digits");    
+                $("#txtTestTimes").rules("remove","required min max digits");     
+            }
+
+        }
+
+        //选择部门人员
+        function fnChoosePerson()
+        {
+            if($("#txtOpenDepartObject").val()==""&&$("#txt_year_ids").val()=="")
+            {
+                $("#hidDeptID").val($("#txtDeptId").val());
+                //art.dialog.load("/DepCourseManage/DeptPersn?deptId="+@ViewBag.DeptId, {           
+            art.dialog.load("/DepCourseManage/DeptPersn", {
+            
+                title: "选择人员",
+                id: "pop_SelPerson",
+                init:function(){
+                    $("#pop_btnSure").attr("onclick","GetChoosePersonIDList()");
+                },
+                width:960,
+                close: function () {
+                    if ($("#txtOpenPerson").val() == "") {
+                    
+                        $("#div_showPerson").hide();
+                    }else {
+                        $("#div_showPerson").show();
+                    }
+                }
+            }, false);
+        }
+        else
+        {
+           
+            //alert($("#txtOpenDepartObject").val()+","+$("#txt_year_ids").val());
+            var a="";
+            if($("#txtOpenDepartObject").val()=="")
+            {
+                a=$("#txt_year_ids").val();
+            }
+            else{
+
+
+                if($("#txt_year_ids").val()!="")
+                {
+                    a=$("#txtOpenDepartObject").val()+","+$("#txt_year_ids").val();
+                }
+                else
+                {
+                    a=$("#txtOpenDepartObject").val();
+                }
+            }
+            $("#hidDeptID").val(a);
+            art.dialog.load("/DepCourseManage/DeptPersn", {
+                title: "选择人员",
+                id: "pop_SelPerson",
+                init:function(){
+                    $("#pop_btnSure").attr("onclick","GetChoosePersonIDList()");
+                },
+                width:960,
+                close: function () {
+                    if ($("#txtOpenPerson").val() == "") {
+                    
+                        $("#div_showPerson").hide();
+                    }else {
+                        $("#div_showPerson").show();
+                    }
+                }
+            }, false);
+        }
+
+    }
+
+    function fnCallBackInvokeByRichter()
+    {
+        if (($("#txtOpenPerson").val()!= "")&&($("#txtOpenPerson").val()!= 0)) {
+            var checkboxArray3 = $('#pop_deptUserTemplateList tbody input[type=checkbox]');
+            var IsOrderList = $("#txtOpenPerson").val().split(',');
+            for (key in IsOrderList) {
+                $.each(checkboxArray3, function (index, value) {
+                    if (IsOrderList[key] == $(value).val().split("_")[0]) {
+                        //$(this).attr('checked', true);
+                        $(this).attr('disabled', "disabled");
+                    }
+                });
+            }
+
+
+        }
+
+    }
+    function GetChoosePersonIDList() {
+        var ids = $("#commonSelectedIdStr").val();
+        if (ids==null || ids=="") {
+            art.dialog.tips("请选择人员！",1.5);
+            return;
+        }
+        var txtOpenPerson=$("#txtOpenPerson").val();
+        var txtNumLimited=$("#txtNumLimited").val();
+        var idslength=ids.split(',').length;
+
+        if(txtOpenPerson=="")
+        {
+            if(idslength>txtNumLimited)
+            {
+                art.dialog.tips("指定人数已超过最大允许人数，请重新选择人员！",1.5);
+                return;
+            }
+        }
+
+        var txtNumLimited=$("#txtNumLimited").val();        
+        var Alllength=(txtOpenPerson.split(',').length-1)+idslength;
+
+        if(Alllength>txtNumLimited)
+        {
+            art.dialog.tips("指定人数已超过最大允许人数，请重新选择人员！",1.5);
+            return;
+        }
+
+        var html = "";
+        var flag = 0;
+        if ($("#sp_choosePerson").length==0) {
+            html += "<div class='seled-list'><h4 id='sp_choosePerson'>已选特殊人群：</h4><ul>";
+            flag=1;
+        }
+        var nameStr=$("#commonSelectedNameStr").val().split(";");
+        for (var i = 0; i < nameStr.length; i++) {
+            var idAndName = nameStr[i].split(",");
+            html += "<li id='div_UserItem_" + idAndName[0]+ "'><span title='" +   idAndName[1] + "'>" +   idAndName[1] + '</span>';
+            html+="<input  type='button' name='btn' class='btn btn-cancel' value='X' title='移除' onclick=fnRemoveUserItem(\'div_UserItem_" + idAndName[0] + "\'," + idAndName[0] + ") /></li>";
+
+        }
+        if (ids.length > 0) {
+            //ids = ids.substring(0, ids.length - 1);
+            if (flag == 1) {
+                html += "</ul></div>";
+                $("#div_showPerson").append(html);
+            }
+            else {
+                $("#div_showPerson").find("ul").eq(0).append(html);
+            }
+        }
+        else {
+            html="";
+        }
+        var per= $("#txtOpenPerson").val();
+        if(per!="" || per!=null){
+            $("#txtOpenPerson").val(per+","+ids);
+        }else{
+            $("#txtOpenPerson").val(ids);
+        }
+        art.dialog.list["pop_SelPerson"].close();
+
+    }
+
+
+    function fnShowChooseSurvey(obj) //选择课程评估问卷
+    {
+        $(".aui_content").attr("style","");
+        
+        //art.dialog.load("/DeptSurvey/DeptCourseChooseSurvey?type="+obj+"&DeptID="+@(ViewBag.DeptId), {
+       
+        art.dialog.load("/DeptSurvey/DeptCourseChooseSurvey?type="+obj+"&DeptID="+$("#txtDeptId").val(), {
+        
+            title: "选择问卷",
+            id: "pop_SelSurvey",
+            close: function () {
+                if ((($("#hid_SurveyPaperId0").val() == "")||($("#hid_SurveyPaperId0").val()==0))&&
+                    (($("#hid_SurveyPaperId2").val() == "")||($("#hid_SurveyPaperId2").val()==0))) {
+                    $("#div_showSurvey").hide();$("#div_showChooseSurveybtn").hide();
+                    $("#rad_IsPing0").attr("checked","checked");
+                }
+            }
+        }, false);
+
+    }
+
+
+
+    function fnShowChooseSurveybtn(obj) //选择课程评估问卷
+    {
+        if (obj==1) {
+            $("#div_showChooseSurveybtn").show();
+            $("#tr_afterEvlConfigTime").show();
+            $("#txtAfterEvlutionConfigTime").rules("add",{required:true,min:0,max:999.9, decimal_1: true,messages:{required:"请输入正确的格式！",min:"请输入正确的格式！",max:"请输入正确的格式！"}});
+        }
+        else {
+            $("#txtAfterEvlutionConfigTime").rules("remove","required min max decimal_1");    
+            $("#div_showChooseSurveybtn").hide();
+            $("#tr_afterEvlConfigTime").hide();
+            $("#div_showSurvey").hide();
+            $("#hid_SurveyPaperId").val("");
+
+            $("#hid_SurveyPaperId0").val("");
+            $("#hid_SurveyPaperId2").val("");
+            $("#lbl_SurveyPaperName0").val("");
+            $("#lbl_SurveyPaperName2").val("");
+
+        }
+
+    }
+
+    function ExamIDList(str) {
+        $("#hid_PaperId").val(str);
+        var paperName = $("#paper_" + $('#hid_PaperId').val()).attr("title");
+        var paperTotalScore = $("#paper_" + $('#hid_PaperId').val()).attr("pop_totalsocre");
+        $("#lbl_PaperName").html(paperName);
+        $("#lbl_TotalScore").html(paperTotalScore);
+        art.dialog.list['pop_SelExam'].close();
+        $("#div_showPaperSetting").show();
+    }
+
+    function fnChooseSurvey(str,surveyName,type) {
+        $("#hid_SurveyPaperId"+type).val(str);
+        $("#lbl_SurveyPaperName"+type).html(surveyName);
+        art.dialog.list['pop_SelSurvey'].close();
+        $("#div_showSurvey").show();
+        JudegSurvey();
+
+    }
+
+    function JudegSurvey()
+    {
+        if ($("#hid_SurveyPaperId0").val()!=0&&$("#hid_SurveyPaperId0").val()!="") {
+            $("#div_showSurvey0").show();
+        }else {
+            $("#div_showSurvey0").hide();
+        }
+        if ($("#hid_SurveyPaperId2").val()!=0&&$("#hid_SurveyPaperId2").val()!="") {
+            $("#div_showSurvey2").show();
+        }else {
+            $("#div_showSurvey2").hide();
+        }
+    }
+
+    function fnRemoveShowSurveyItem(obj,type)
+    {
+        //TODO
+        $("#"+obj).hide();
+        $("#hid_SurveyPaperId"+type).val("");
+        $("#lbl_SurveyPaperName"+type).html("");
+        if ($("#hid_SurveyPaperId0").val()==""&&$("#hid_SurveyPaperId2").val()=="") {
+            $("#div_showSurvey").hide(); $("#div_showChooseSurveybtn").hide();
+            $("#rad_IsPing0").attr("checked","checked");
+        }
+    }
+
+    function fnCourseResource() {
+
+    }
+    function fnSubmitEditCourseTogether() {
+        
+        if ($("#rad_IsTest1").is(":checked")&&$("#rad_IsPing1").is(":checked")) {
+            var txtAfterEvlutionConfigTime=$("#txtAfterEvlutionConfigTime").val();
+            var txtHour=$("#txtHour").val();
+            if (Number(txtHour)<=Number(txtAfterEvlutionConfigTime)) {
+                art.dialog.tips("课程允许考试时间范围必须大于课程评估时间范围",1);
+                return;
+            }
+        }       
+
+
+        if ((parseInt($("#txt_courseattend").val()) + parseInt($("#txt_courseonlinetest").val()) + parseInt($("#txt_courseafter").val())) != 100) {
+            art.dialog.tips('集中授课学时折算分布总和必须等于100', 1.5);
+            return;
+        }
+
+        //开放人群判断
+        if ($("#chbOpenFlag1").is(":checked")&&$("#chbOpenFlag2").is(":checked")) {
+            $("#txtOpenFlag").val("3");
+        }
+        else   if ((!$("#chbOpenFlag1").is(":checked"))&&(!$("#chbOpenFlag2").is(":checked"))) {
+            //$("#txtOpenFlag").val("0");
+            $("#txtOpenGroupObject").val("");
+            if($("#txtOpenDepartObject").val()=="")
+            {            
+                $("#txtOpenDepartObject").val("");
+            }
+        }
+        else {
+            var t=$("input[name='chbOpenFlag']:checked").val();
+            if (t== "1") {
+                $("#txtOpenDepartObject").val("");
+            }
+            if (t == "2") {
+                $("#txtOpenGroupObject").val("");
+                //alert("ff");
+            }
+            //alert("aaaaaaaaa");
+            $("#txtOpenFlag").val(t);
+        }
+        //指定 预订 判断
+        if ($("#chbIsOrder1").is(":checked")&&$("#chbIsOrder2").is(":checked")) {
+            $("#txtIsOrder").val("3");
+        }
+        else   if ((!$("#chbIsOrder1").is(":checked"))&&(!$("#chbIsOrder2").is(":checked"))) {
+            $("#txtIsOrder").val("0");
+        }
+        else {
+            var t=$("input[name='chbIsOrder']:checked").val() ;
+            $("#txtIsOrder").val(t);
+        }
+        //当选择部门自学判断 选择开放至全所不需要
+        if($("#txtway").val()==1)
+        {
+            if($("#chbIsOrder1").is(":checked"))
+            {
+                if($("#txtOpenDepartObject").val()==""&&$("#txt_year_ids").val()=="")
+                {
+                    art.dialog.tips("请选择开放人群！",1.5);
+                    return;
+                }
+            }
+            if($("#chbIsOrder2").is(":checked"))
+            {
+                if($("#txtOpenPerson").val()=="")
+                {
+                    art.dialog.tips("请选择指定部门人员！",1.5);
+                    return;
+                }
+            }               
+             
+        }
+
+        //考勤方式
+        //if ($("#chbAtt1").is(":checked")&&$("#chbAtt2").is(":checked")) {
+        //    $("#txtAtt").val("3");
+        //}
+        //else   if ((!$("#chbAtt1").is(":checked"))&&(!$("#chbAtt2").is(":checked"))) {
+        //    $("#txtAtt").val("0");
+        //}
+        //else {
+        var t=$("input[name='chbAtt']:checked").val() ;
+        $("#txtAtt").val(t);
+        //}
+            
+        if ($("#rad_IsPing1").is(":checked")) {
+            var surId="";
+            var hid_SurveyPaperId0= $("#hid_SurveyPaperId0").val();
+            var hid_SurveyPaperId2= $("#hid_SurveyPaperId2").val();
+
+            if (hid_SurveyPaperId0!=""&&hid_SurveyPaperId2=="") {
+                surId="0,"+hid_SurveyPaperId0+";";
+            }
+            if (hid_SurveyPaperId2!=""&&hid_SurveyPaperId0=="") {
+                surId=";2,"+hid_SurveyPaperId2;
+            }
+            if (hid_SurveyPaperId2!=""&&hid_SurveyPaperId0!="") {
+                surId="0,"+hid_SurveyPaperId0+";2,"+hid_SurveyPaperId2;
+            }    
+            if (hid_SurveyPaperId2==""&&hid_SurveyPaperId0=="") {
+                art.dialog.tips("请选择课程评估问卷！",1.5);
+                return;
+            }
+            $("#hid_SurveyPaperId").val(surId);
+        }
+        else {
+            $("#hid_SurveyPaperId").val("");
+        }
+
+        $('input[type="submit"]').attr('disabled','disabled');
+        
+        //记录数据的总个数
+        fileCount =$("#uploadResource-queue").find(".uploadify-queue-item").length + $("#uploadAttachResource-queue").find(".uploadify-queue-item").length;
+        //上传资源 //上传附件
+        var uploadResourceLength = $("#uploadResource-queue").find(".uploadify-queue-item").length;
+        var uploadAttachResourceLength = $("#uploadAttachResource-queue").find(".uploadify-queue-item").length;
+        $("#Memo").val(editor.getContent());
+        $.post("/DepCourseManage/SubmitEditCourseTogether?isCopy=@ViewBag.IsCopy", $("#forEditCourseTogether").formSerialize(), function (data) {
+            if (data.result==1) {
+                $("#txtId").val(data.courseId);               
+                if (uploadResourceLength == 0 && uploadAttachResourceLength == 0) {
+                    //window.location.href = '/CourseManage/CourseManageList?way=1&p=1';                   
+                    var i=$("#txtway").val();
+                    //alert(i);
+                    if(i==1||i==3)
+                    {
+                      
+                        window.location.href ="/DepCourseManage/DepManageList?tp=0"
+                    }
+                    else
+                    {
+                     
+                        window.location.href ="/DepCourseManage/DepManageList?tp=1"
+                    }
+                   
+
+                }
+                if (uploadAttachResourceLength > 0) {
+                    $('#uploadAttachResource').uploadify('upload', '*');
+                }
+                if (uploadResourceLength > 0) {
+                    $('#uploadResource').uploadify('upload', '*');
+                }
+                if (uploadResourceLength > 0 || uploadAttachResourceLength > 0) {                   
+                    if(interval==null || interval==undefined) {
+                        interval=setInterval("CheckBack()", 1000);
+                    }
+                }
+            } else {
+                art.dialog.tips(data.content,1.5);
+                $('input[type="submit"]').removeAttr('disabled');
+                return;
+            }
+        });
+    }
+    
+    function CheckBack()
+    {
+        if(currNum==fileCount) {
+            clearInterval(interval);
+            art.dialog.tips("保存成功！", 1);
+            var i=$("#txtway").val();
+            if(i==1||i==3)
+            {                      
+                window.location.href ="/DepCourseManage/DepManageList?tp=0"
+            }
+            else
+            {                     
+                window.location.href ="/DepCourseManage/DepManageList?tp=1"
+            }
+            //window.location.href = '/DepCourseManage/DepManageList?tp=0';
+        }
+    }
+
+    //hidResourceIds 已经删除的资源Ids
+    function fnRemoveCourseResource(id,relid)
+    {
+        $("#"+id).remove();
+        var ids= $("#hidResourceIds").val();
+        if (ids=="") {
+            ids=relid;
+        }
+        else if (ids!="") {
+            ids += "," + relid;
+        }
+        $("#hidResourceIds").val(ids);
+    }
+
+    //从隐藏域中移除相关的群组编号
+    function fnRemoveGroupItem(id,groupId)
+    {
+        $("#"+id).remove();
+        var oldGroupIds=$("#txtOpenGroupObject").val();
+
+        oldGroupIds =","+oldGroupIds+",";
+        var str=","+groupId+",";
+        if(oldGroupIds==str){
+            oldGroupIds=oldGroupIds.replace(str,"");
+        }else{
+            oldGroupIds=oldGroupIds.replace(str,",");
+        }
+        oldGroupIds=oldGroupIds.substring(1,oldGroupIds.length-1);
+        var splitObj=oldGroupIds.split(",");
+        var objflag= true;
+        if (splitObj.length>0) {
+            for (var i = 0; i <splitObj.length; i++) {
+                if (splitObj[i]!="") {
+                    objflag=false;
+                }
+            }
+        }
+        if (objflag==true) {
+            oldGroupIds="";
+        }
+        $("#txtOpenGroupObject").val(oldGroupIds);
+        if (oldGroupIds=="") {
+            $("#chbOpenFlag1").attr("checked",false);
+            $("#div_showgroup").html("");
+        }
+    }
+
+    //
+    function fnRemoveDeptItem(id,groupId)
+    {
+        //alert(id);
+        $("#"+id).remove();
+        // var oldGroupIds=$("#txtOpenDepartObject").val();
+        var yearoldGroupIds=$("#txt_year_ids").val();
+        var oldGroupIds=$("#txtOpenDepartObject").val();
+
+        oldGroupIds =","+oldGroupIds+",";
+        var str=","+groupId+",";
+        if(oldGroupIds==str){
+            oldGroupIds=oldGroupIds.replace(str,"");
+        }else{
+            oldGroupIds=oldGroupIds.replace(str,",");
+        }
+        oldGroupIds=oldGroupIds.substring(1,oldGroupIds.length-1);
+        var splitObj=oldGroupIds.split(",");
+        var objflag= true;
+        if (splitObj.length>0) {
+            for (var i = 0; i <splitObj.length; i++) {
+                if (splitObj[i]!="") {
+                    objflag=false;
+                }
+            }
+        }
+        if (objflag==true) {
+            oldGroupIds="";
+        }
+        //alert(oldGroupIds);
+        $("#txtOpenDepartObject").val(oldGroupIds);
+        if (oldGroupIds==""&&yearoldGroupIds=="") {
+            $("#chbOpenFlag2").attr("checked",false);
+            $("#div_showDept").html("");
+        }
+    }
+    
+
+    function fnYearRemoveDeptItem(id,groupId)
+    {
+        //alert(id);
+        $("#"+id).remove();
+        var oldGroupIds=$("#txt_year_ids").val();
+        var aa=$("#txtOpenDepartObject").val();
+
+        oldGroupIds =","+oldGroupIds+",";
+        var str=","+groupId+",";
+        if(oldGroupIds==str){
+            oldGroupIds=oldGroupIds.replace(str,"");
+        }else{
+            oldGroupIds=oldGroupIds.replace(str,",");
+        }
+        oldGroupIds=oldGroupIds.substring(1,oldGroupIds.length-1);
+        var splitObj=oldGroupIds.split(",");
+        var objflag= true;
+        if (splitObj.length>0) {
+            for (var i = 0; i <splitObj.length; i++) {
+                if (splitObj[i]!="") {
+                    objflag=false;
+                }
+            }
+        }
+        if (objflag==true) {
+            oldGroupIds="";
+        }
+        //alert(oldGroupIds);
+        $("#txt_year_ids").val(oldGroupIds);
+        if (oldGroupIds==""&&aa=="") {
+            $("#chbOpenFlag2").attr("checked",false);
+            $("#div_showDept").html("");
+        }
+    }
+
+    function fnRemoveUserItem(id,userId)
+    {
+        $("#"+id).remove();
+        var oldGroupIds=$("#txtOpenPerson").val();
+
+        oldGroupIds =","+oldGroupIds+",";
+        var str=","+userId+",";
+        if(oldGroupIds==str){
+            oldGroupIds=oldGroupIds.replace(str,"");
+        }else{
+            oldGroupIds=oldGroupIds.replace(str,",");
+        }
+        oldGroupIds=oldGroupIds.substring(1,oldGroupIds.length-1);
+        var splitObj=oldGroupIds.split(",");
+        var objflag= true;
+        if (splitObj.length>0) {
+            for (var i = 0; i <splitObj.length; i++) {
+                if (splitObj[i]!="") {
+                    objflag=false;
+                }
+            }
+        }
+        if (objflag==true) {
+            oldGroupIds="";
+        }
+        $("#txtOpenPerson").val(oldGroupIds);
+        if (oldGroupIds=="") {
+            $("#div_showPerson").html("");
+
+        }
+    }
+    function fnChooseRoom(obj)
+    {var id=$(obj).val();   
+        if (id!=0) {
+                 
+            $("#txtNumLimited").val($("#sel_room_"+id).attr("num"));
+
+        }
+    }
+
+    function fnJudgeSurvery() {
+        if ($("#txtTeacherName").val()!="") {
+            $("#btnChooseSurvery2").removeAttr("disabled");
+            $("#btnChooseSurvery2").attr("onclick","fnShowChooseSurvey(2)");
+        }
+        else {
+            $("#btnChooseSurvery2").attr("disabled","disabled");
+            $("#btnChooseSurvery2").removeAttr("onclick");
+            fnRemoveShowSurveyItem('div_showSurvey2',2);
+        }
+    }
+
+
+    function getYears(type,years){
+
+        var d = new Date();
+        var year = d.getFullYear();
+        var fd = year+years;
+        var ed = year+years;
+        var yr = "";
+
+        if(type=="s"){
+
+            yr = fd;
+
+        }else{
+
+            yr = ed;
+
+        }
+
+        return yr;
+
+    }
+
+</script>

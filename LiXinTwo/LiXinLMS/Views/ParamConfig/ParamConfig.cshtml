@@ -1,0 +1,335 @@
+﻿@using LiXinLanguage
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = NavigateMenuLanguage.ParamConfig;
+    var manType = Request.QueryString["manType"] ?? "0";
+    var year = Request.QueryString["year"] ?? DateTime.Now.Year.ToString();
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "ParamConfig" }))
+    <div style="width: 290px; float: left;">
+        <div class="tab-red">
+            <ul>
+                <li class="On" title="事务所培训" onclick="$('#employee,#shiwusuo,#bumenfensuo,#newemployee').hide();$('#shiwusuo').show();$(this).parent().find('li').removeClass('On');$(this).addClass('On');">事务所培训<i></i></li>
+                <li title="员工" onclick="$('#employee,#shiwusuo,#bumenfensuo,#newemployee').hide();$('#employee').show();$(this).parent().find('li').removeClass('On');$(this).addClass('On');">员工<i></i></li>
+                <li title="部门/分所" onclick="$('#employee,#shiwusuo,#bumenfensuo,#newemployee').hide();$('#bumenfensuo').show();$(this).parent().find('li').removeClass('On');$(this).addClass('On');">部门/分所<i></i></li>
+                <li title="新进员工" onclick="$('#employee,#shiwusuo,#bumenfensuo,#newemployee').hide();$('#newemployee').show();$(this).parent().find('li').removeClass('On');$(this).addClass('On');">新进员工<i></i></li>
+            </ul>
+        </div>
+        <div class="main-l" style="width: 290px;">
+            <div class="menu-list" id="shiwusuo">
+                <ul>
+                    <li><a class="url_a On" title="短信设置" configtyp="1">短信设置<i></i></a> </li>
+                    <li><a class="url_a" title="邮箱配置" configtyp="2">邮箱配置<i></i></a> </li>
+                    <li><a class="url_a" title="培训年度设定" configtyp="7">培训年度设定<i></i></a> </li>
+                    <li><a class="url_a" title="CPA培训周期设定" configtyp="8">CPA培训周期设定<i></i></a> </li>
+                    <li><a class="url_a" title="培训级别统一调整时间设定" configtyp="9">培训级别统一调整时间设定<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="部门/分所培训负责人设定时限" configtyp="10">部门/分所培训负责人设定时限<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="培训需求上报时间设定" configtyp="11">培训需求上报时间设定<i></i></a> </li>
+                    <li><a class="url_a" title="排队状态更改为正常预订状态的时间点" configtyp="21">排队状态更改为正常预订状态的时间点<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="请假审核时限" configtyp="22">请假审核时限<i></i></a> </li>
+                    <li><a class="url_a" title="补预订审核时限" configtyp="23">补预订审核时限<i></i></a> </li>
+                    <li><a class="url_a" title="课前建议、课后评估的开放时间" configtyp="29">课前建议、课后评估的开放时间<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="参加课后评估获取奖励学时上限" configtyp="30">参加课后评估获取奖励学时上限<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="是否纳入考核范围配置" configtyp="54">是否纳入考核范围配置<i></i></a></li>
+                    <li><a class="url_a" title="计划开设课程学时数图表区间配置" configtyp="56">计划开设课程学时数图表区间配置<i></i></a> </li>
+                    <li><a class="url_a" title="首页背景图片配置" configtyp="57">首页背景图片配置<i></i></a> </li>
+
+                    <li><a class="url_a" title="其他形式、免修申请开放时间配置" configtyp="60">其他形式、免修申请开放时间配置<i></i></a> </li>
+                    <li><a class="url_a" title="其他形式、免修审批开放时间配置" configtyp="61">其他形式、免修审批开放时间配置<i></i></a> </li>
+
+                    <li><a class="url_a" title="考核级别配置" configtyp="62">考核级别配置<i></i></a> </li>
+
+
+
+                    <li><a class="url_a" title="  其他形式、免修申请项目配置" configtyp="999">其他形式、免修申请项目配置<i></i></a> </li>
+
+                </ul>
+            </div>
+            <div class="menu-list" id="employee" style="display: none;">
+                <ul>
+                    <li><a class="url_a" title="违纪学时配置" configtyp="5">违纪学时配置<i></i></a> </li>
+                    <li><a class="url_a" title="各级别当年度内部培训的目标学时" configtyp="13">各级别当年度内部培训的目标学时<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="各培训形式当年度内部培训的获取学时上限" configtyp="14">各培训形式当年度内部培训的获取学时上限<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="CPA年度考核目标学时" configtyp="16">CPA年度考核目标学时<i></i></a> </li>
+                    <li><a class="url_a" title="CPA培训周期考核目标学时" configtyp="17">CPA培训周期考核目标学时<i></i></a>
+                    </li>
+                    <!--<li><a class="url_a" title="必修/选修课程学时获取上限" configtyp="18">必修/选修课程学时获取上限<i></i></a>
+                    </li>-->
+                    <li><a class="url_a" title="全年课程退订次数" configtyp="19">全年课程退订次数<i></i></a> </li>
+                    <li><a class="url_a" title="全年课程补预订次数" configtyp="20">全年课程补预订次数<i></i></a> </li>
+                    <li><a class="url_a" title="集中授课学时折算分布" configtyp="24">集中授课学时折算分布<i></i></a> </li>
+                    <li><a class="url_a" title="视频课程课后可参加在线测试条件" configtyp="25">视频课程课后可参加在线测试条件<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="在线测试允许答题时间" configtyp="26">在线测试允许答题时间<i></i></a> </li>
+                    <li><a class="url_a" title="在线测试允许最大次数" configtyp="27">在线测试允许最大次数<i></i></a> </li>
+                    <li><a class="url_a" title="全年在线测试完成次数" configtyp="33">全年在线测试完成次数<i></i></a></li>
+                    <li><a class="url_a" title="视频课程学分折算" configtyp="53">视频课程学分折算<i></i></a></li>
+                    @* <li><a class="url_a" title="综合评定设置" configtyp="34">综合评定设置<i></i></a></li>
+                     <li><a class="url_a" title="综合评定考勤配置" configtyp="35">综合评定考勤配置<i></i></a></li>
+                     <li><a class="url_a" title="综合评定课后评估配置" configtyp="36">综合评定课后评估配置<i></i></a></li>*@
+                    <li><a class="url_a" title="部门/分所课程学时CPA折算" configtyp="55">部门/分所课程学时CPA折算<i></i></a></li>
+                </ul>
+            </div>
+            <div class="menu-list" id="bumenfensuo" style="display: none;">
+                <ul>
+                    <li><a class="url_a" title="视频转播预程退订次数" configtyp="41">全年视频转播课程退订次数<i></i></a>
+                    <li><a class="url_a" title="补考次数配置" configtyp="3">补考次数配置<i></i></a> </li>
+                    <li><a class="url_a" title="部门计划提交时间配置" configtyp="4">部门计划提交时间配置<i></i></a> </li>
+                    <li><a class="url_a" title="课后评估获得学时配置" configtyp="6">课后评估获得学时配置<i></i></a> </li>
+                    <li><a class="url_a" title="培训需求填报开放对象" configtyp="12">培训需求填报开放对象<i></i></a> </li>
+                    <li><a class="url_a" title="全年在线测试要求完成次数" configtyp="15">全年在线测试要求完成次数<i></i></a>
+
+                    </li>
+                    <li><a class="url_a" title="违纪情况的学时扣除" configtyp="28">违纪情况的学时扣除<i></i></a> </li>
+                    @*<li><a class="url_a" title="分所培训设置" configtyp="37">分所培训设置<i></i></a> </li>*@
+                    @*<li><a class="url_a" title="是否联合学习" configtyp="39">是否联合学习<i></i></a> </li>*@
+                    <li><a class="url_a" title="学时折算分布" configtyp="42">学时折算分布<i></i></a> </li>
+                    <li><a class="url_a" title="年度计划与课程关联配置" configtyp="43">年度计划与课程关联配置<i></i></a> </li>
+                    @*<li><a class="url_a" title="参加课后评估获取奖励学时上限" configtyp="44">参加课后评估获取奖励学时上限<i></i></a> </li>*@
+                    <li><a class="url_a" title="是否需要月度大纲" configtyp="45">是否需要月度大纲<i></i></a> </li>
+                    <li><a class="url_a" title="部门/分所考勤上报截止时间" configtyp="46">部门/分所考勤上报截止时间<i></i></a> </li>
+                    @*<li><a class="url_a" title="部门/分所课程退订次数" configtyp="47">部门/分所课程退订次数<i></i></a> </li>*@
+                    <li><a class="url_a" title="年度计划上报时间设定" configtyp="49">年度计划上报时间设定<i></i></a> </li>
+                    <li><a class="url_a" title="过时课程学时折算分布" configtyp="50">过时课程学时折算分布<i></i></a> </li>
+                    <li><a class="url_a" title="过时课程考勤上报截止时间" configtyp="51">过时课程考勤上报截止时间<i></i></a> </li>
+
+                </ul>
+            </div>
+            <div class="menu-list" id="newemployee" style="display: none;">
+                <ul>
+                    <li><a class="url_a" title="综合评定设置" configtyp="34">综合评定设置<i></i></a></li>
+                    <li><a class="url_a" title="综合评定考勤配置" configtyp="35">综合评定考勤配置<i></i></a></li>
+                    <li><a class="url_a" title="综合评定课后评估配置" configtyp="36">综合评定课后评估配置<i></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="main-r right_div" style="width: 700px;">
+        @* @Html.Action("MessageConfig", "ParamConfig")<!--默认Email页面-->*@
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        fonload('@ViewBag.id','@manType')
+
+        $(".url_a").click(function ()
+        {
+            var tt = $(this).attr("configtyp");
+            $(".menu-list li a").removeClass("On");
+            $(".menu-list li a[configtyp='" + tt + "']").addClass("On");
+            switch (tt)
+            {
+
+                case "1":
+                    $(".right_div").load("/ParamConfig/MessageConfig");
+                    break;
+                case "2":
+                    $(".right_div").load("/ParamConfig/EmailConfig");
+                    break;
+                case "3":
+                    $(".right_div").load("/ParamConfig/ExamNumberConfig");
+                    break;
+                case "4":
+                    $(".right_div").load("/ParamConfig/DepartmentConfig");
+                    break;
+                case "5":
+                    $(".right_div").load("/ParamConfig/DisciplineHoursConfig");
+                    break;
+                case "6":
+                    $(".right_div").load("/ParamConfig/AfterEvaluationConfig");
+                    break;
+                case "7":
+                    $(".right_div").load("/ParamConfig/TrainYearConfig");
+                    break;
+                case "8":
+                    $(".right_div").load("/ParamConfig/CPATrainConfig");
+                    break;
+                case "9":
+                    $(".right_div").load("/ParamConfig/TrainLevelAdjustTimeConfig");
+                    break;
+                case "10":
+                    $(".right_div").load("/ParamConfig/AllDeptTrainSetTime");
+                    break;
+                case "11":
+                    $(".right_div").load("/ParamConfig/TrainReportingTimeConfig");
+                    break;
+                case "12":
+                    $(".right_div").load("/ParamConfig/TrainOpenObjectConfig");
+                    break;
+                case "13":
+                    $(".right_div").load("/ParamConfig/AlllevelTrainTargetTimeConfig");
+                    break;
+                case "14":
+                    $(".right_div").load("/ParamConfig/TrainTimeLimitConfig");
+                    break;
+                case "15":
+                    $(".right_div").load("/ParamConfig/YearCompletionTimesConfig");
+                    break;
+                case "16":
+                    $(".right_div").load("/ParamConfig/CPAYealTargetHoursConfig");
+                    break;
+                case "17":
+                    $(".right_div").load("/ParamConfig/CPATargetTrainCycleTimeConfig");
+                    break;
+                case "18":
+                    $(".right_div").load("/ParamConfig/CourseUpperLimitConfig");
+                    break;
+                case "19":
+                    $(".right_div").load("/ParamConfig/YearCourseRescindNumberConfig");
+                    break;
+                case "20":
+                    $(".right_div").load("/ParamConfig/YearCourseFillUpNumberConfig");
+                    break;
+                case "21":
+                    $(".right_div").load("/ParamConfig/QueuechangeNormalNumberConfig");
+                    break;
+                case "22":
+                    $(".right_div").load("/ParamConfig/LeaveTimeConfig");
+                    break;
+                case "23":
+                    $(".right_div").load("/ParamConfig/FillUpTimeConfig");
+                    break;
+                case "24":
+                    $(".right_div").load("/ParamConfig/ConcentrationTeachTimeConfig");
+                    break;
+                case "25":
+                    $(".right_div").load("/ParamConfig/AfterVideoJoinTestConfig");
+                    break;
+                case "26":
+                    $(".right_div").load("/ParamConfig/TestAnswerTimeConfig");
+                    break;
+                case "27":
+                    $(".right_div").load("/ParamConfig/TestMaxNumberConfig");
+                    break;
+                case "28":
+                    $(".right_div").load("/ParamConfig/DisciplineClassDeductionConfig");
+                    break;
+                case "29":
+                    $(".right_div").load("/ParamConfig/ClassOpingTimeConfig");;
+                    break;
+                case "30":
+                    $(".right_div").load("/ParamConfig/EvaluationRewardTimeLimitConfig");
+                    break;
+                case "31":
+                    $(".right_div").load("/ParamConfig/ClassTemplateConfig");
+                    break;
+                case "33":
+                    $(".right_div").load("/ParamConfig/CompletionOnlineTestTimes");
+                    break;
+                case "34":
+                    $(".right_div").load("NewAllScoreConfig");
+                    break;
+                case "35":
+                    $(".right_div").load("NewAttendanceScoreConfig");
+                    break;
+                case "36":
+                    $(".right_div").load("NewRewardScoreConfig");
+                    break;
+                case "37":
+                    $(".right_div").load("/ParamConfig/DeptEvaluationConfig");
+                    break;
+                case "39":
+                    $(".right_div").load("/ParamConfig/IsUnionStudyConfig");
+                    break;
+                case "41":
+                    $(".right_div").load("/ParamConfig/BuMenunsubscribe");
+                    break;
+                case "42":
+                    $(".right_div").load("/ParamConfig/TimeDistribution");
+                    break;
+                case "43":
+                    $(".right_div").load("/ParamConfig/AnnualPlansAndCurriculumConfiguration");
+                    break;
+                case "44":
+                    $(".right_div").load("/ParamConfig/AwardTime");
+                    break;
+                case "45":
+                    $(".right_div").load("/ParamConfig/MonthPlan");
+                    break;
+                case "46":
+                    $(".right_div").load("/ParamConfig/AttendceDeadline");
+                    break;
+                case "47":
+                    $(".right_div").load("/ParamConfig/OrderTimesLimited");
+                    break;
+                case "49":
+                    $(".right_div").load("/ParamConfig/YearPlanTimeSetting");
+                    break;
+                case "50":
+                    $(".right_div").load("/ParamConfig/TimeOutDistribution");
+                    break;
+                case "51":
+                    $(".right_div").load("/ParamConfig/TimeOutAttendceDeadline");
+                    break;
+                case "53":
+                    $(".right_div").load("/ParamConfig/VedioCourseZheSuan");
+                    break;
+                case "54":
+                    $(".right_div").load("/ParamConfig/InputDepCheck");
+                    break;
+                case "55":
+                    $(".right_div").load("/ParamConfig/DepIsCPA");
+                    break;
+                case "56":
+                    $(".right_div").load("/ParamConfig/SectionConfig");
+                    break;
+                case "57":
+                    $(".right_div").load("/ParamConfig/BackImageConfig");
+                    break;
+                case "999":
+                    window.location.href="/ParamConfig/ParamConfig?id=999&manType=@manType";
+                    break;
+
+                case "60":
+                    $(".right_div").load("/ParamConfig/OtherApplyConfig");
+                    break;
+                case "61":
+                    $(".right_div").load("/ParamConfig/OtherApprovalConfig");
+                    break;
+
+                case "62":
+                    $(".right_div").load("/ParamConfig/OtherlevelConfig");
+                    break;
+
+            }
+        });
+        $.ajaxSetup({
+            cache: false //关闭AJAX相应的缓存
+        });
+
+    });
+
+    function fonload(id,mianType)
+    {
+        mianType=mianType==undefined?0:mianType;
+        if (id != "0") {
+            $(".menu-list li a").removeClass("On");
+            $(".menu-list li a[configtyp='999']").addClass("On");
+        }
+        switch (id) {
+            case "0":
+                $(".right_div").load("/ParamConfig/MessageConfig");
+                break;
+            case "65":
+                $(".right_div").load("/ParamConfig/OtherFromsProjectConfigurationAdd?year=@year&id="+(@ViewBag.fromId));
+                break;
+            case "66":
+                $(".right_div").load("/ParamConfig/OtherFromsProjectConfigurationConfig?year=@year");
+                break;
+            case "999":
+               $(".right_div").load("/ParamConfig/FreeApplyConfig?manType="+mianType);
+                break;
+        }
+    }
+    
+</script>

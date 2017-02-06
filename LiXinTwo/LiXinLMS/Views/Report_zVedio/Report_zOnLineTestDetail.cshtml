@@ -1,0 +1,239 @@
+﻿@{
+    ViewBag.Title = "Report_fOnLineTestDetail";
+    var start = Request.QueryString["s"] ?? "";
+    Layout = null;
+}
+
+@*@(Html.Action("SiteMapLink", "Common", new { linkName = "我的已预订课程" }))*@
+
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">学习时间：
+            </td>
+            <td>
+                <div class="time-choose" style="float: left">
+                    <input type="text" id="txt_StartTime" value="@(start == "" ? "" : Convert.ToDateTime(start).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  "/>
+                    <i></i>
+                </div>
+                至
+                    <div class="time-choose">
+                        <input type="text" id="txt_EndTime" value="@(start == "" ? "" : Convert.ToDateTime(start).AddDays(1).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })"/>
+                        <i></i>
+                    </div>
+            </td>
+            <td class="Tit span6">姓名：</td>
+            <td>
+                <input type="text" id="txt_Name" value="请输入姓名" info="" class="Box span16 searchclass" />
+            </td>
+            <td class="so-do" colspan="4">
+                <input type="button" value="查询" id="btn_Select" class="btn" />
+                <input id="btn_execl" type="button" class="btn btn-co" value="导出EXCEL" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span6">部门/分所：</td>
+            <td class="span33">
+                <input type="text" id="txt_BullName" value="请输入部门/分所名称" info="" class="Box span30 searchclass" /></td>
+            <td class="Tit span6">培训级别：
+            </td>
+            <td>
+                @{
+                    foreach (var item in @ViewBag.trainGrade)
+                    {
+                    <input type="checkbox" value="@item" name="OpenLevel" /><label class="mr10">@item</label>
+                            
+                    }      
+                }
+            </td>
+            <td class="Tit span8">是否免修：</td>
+                <td>
+                    <input type="checkbox" name="isFree" value="1" /><label>是</label>
+                    <input type="checkbox" name="isFree" value="0" /><label>否</label>
+                </td>
+            <td class="so-do">
+                <input type="button" class="btn btn-co" value="同步" onclick="fabu(InitData)" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <select id="sltStatus">
+        <option value="99">请选择考试状态</option>
+        <option value="1">未参与</option>
+        <option value="2">考试中</option>
+        <option value="3">已通过</option>
+        <option value="4">未通过</option>
+
+    </select>
+    <select id="sltcpa">
+        <option value="99">是否CPA</option>
+        <option value="1">CPA</option>
+        <option value="2">非CPA</option>
+    </select>
+    <div class="course-tysel">
+            <span style="float: right; color: orangered;">温馨提示：名字红色的为有免修的人员</span>
+        </div>
+</div>
+<table class="tab-List mt10">
+    <thead>
+        <tr>
+            <th class="span4">序号
+            </th>
+            <th class="">部门/分所
+            </th>
+            <th class="span5">姓名
+            </th>
+            <th class="span7">培训级别
+            </th>
+            <th class="span12">是否CPA
+            </th>
+            @*<th class="span8">CPA编号
+                </th>*@
+            <th class="span7" jsrendersortfield="LearnTimes" sort="desc">在线观看次数
+            </th>
+            <th class="span8" jsrendersortfield="VedioTime" sort="desc">在线观看时间<br />
+                （分钟）
+            </th>
+            <th class="span5">考试状态
+            </th>
+            <th class="span7" jsrendersortfield="ExamNum" sort="desc">考试次数
+            </th>
+            <th class="span7" jsrendersortfield="ExamScore" sort="desc">考试成绩
+            </th>
+            <th class="span7" jsrendersortfield="GetLength" sort="desc">获取学时
+            </th>
+        </tr>
+        <tr>
+            <th>合计</th>
+            <th>--</th>
+            <th>--</th>
+            <th>--</th>
+            <th>--</th>
+            @*<td>--</td>*@
+            <th id="td_ALLLearnTimes">@*@ViewBag.ALLLearnTimes*@</th>
+            <th id="td_ALLVedioTimes">@*@ViewBag.ALLVedioTimes*@</th>
+            <th>--</th>
+            <th id="td_ALLExamNum">@*@ViewBag.ALLExamNum*@</th>
+            <th id="td_ALLExamScore">@*@ViewBag.ALLExamScore*@</th>
+            <th id="td_ALLGetLength">@*@ViewBag.ALLGetLength*@</th>
+        </tr>
+    </thead>
+    <tbody id="courseList">
+    </tbody>
+
+    <tfoot>
+    </tfoot>
+</table>
+<script id="courseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+     <tr>
+         <td>{{:#index+1}}</td>
+         <td>{{:DeptName}}</td>
+         <td>
+              {{if IsFree==0}}
+                 {{:Realname}}
+              {{else}}
+                 <div style="color:red;font-weight: bold;">{{:Realname}}</div>
+              {{/if}}
+         </td>
+         <td>{{:TrainGrade}}</td>
+         <td>{{:CPA}}</td>
+         @*<td>{{:CPANo}}</td>*@
+         <td>{{:LearnTimes}}</td>
+         <td>{{:VedioTimeByMin}}</td>
+         <td>{{:StrExamStatus}}</td>
+         <td>{{:ExamNum}}</td>
+         <td>{{:ExamScore}}</td>
+         <td>{{if ExamStatus==0}}
+                N/A
+             {{else}}
+             {{:GetLength}}
+             {{/if}}</td>
+     </tr>
+    {{/for}}
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        InitData();
+
+
+        $("#btn_Select").click(function () {
+            InitData();
+        })
+
+        $("#sltStatus,#sltcpa").change(function () { InitData(); })
+
+        $("#btn_execl").click(function () {
+
+            art.dialog({
+                content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+                ok: function () {
+                    var str = "";
+                    $("input[name='OpenLevel']:checkbox").each(function () {
+                        if ($(this).attr("checked")) {
+                            str += $(this).val() + ","
+                        }
+                    })
+                    var isFree = "-1";
+                    if ($("input[name='isFree']:checked").length == 1)
+                    {
+                        isFree = $("input[name='isFree']:checked").val();
+                    }
+
+                    var t = "courseid=" +@(ViewBag.courseid) +"&DeptName=" + escape(getSearchWord('txt_BullName')) + "&RealName=" + escape(getSearchWord('txt_Name')) +
+                   "&trainGrade=" + str.substring(0, str.lastIndexOf(',')) + "&sltStatus=" + $("#sltStatus").val() + "&sltcpa=" + $("#sltcpa").val()
+                   + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&isFree=" + isFree;
+                    window.location.href = "/Report_zVedio/GetzOnlineTestDetailForReport?" + t;
+                },
+                cancel: true
+            });
+
+        })
+
+    });
+
+    function InitData() {
+
+        var str = "";
+        $("input[name='OpenLevel']:checkbox").each(function () {
+            if ($(this).attr("checked")) {
+                str += $(this).val() + ",";
+            }
+        })
+        var isFree = "-1";
+        if ($("input[name='isFree']:checked").length == 1)
+        {
+            isFree = $("input[name='isFree']:checked").val();
+        }
+        //var v = "DepartmentName=" + escape(getSearchWord("course")) + "&start=" + $("#start").val() + "&end=" + $("#end").val();
+        var t = "type=0&courseid=" +@(ViewBag.courseid) +"&DeptName=" + escape(getSearchWord('txt_BullName')) + "&RealName=" + escape(getSearchWord('txt_Name')) +
+                    "&trainGrade=" + str.substring(0, str.lastIndexOf(',')) + "&sltStatus=" + $("#sltStatus").val()
+                    + "&sltcpa=" + $("#sltcpa").val() + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&isFree=" + isFree;
+
+
+        $("#courseList").JsRenderData({
+            sourceUrl: "/Report_zVedio/GetzOnlineTestDetail?" + t,
+            isPage: true,
+            pageIndex: 1,
+            pageSize: 10,
+            jsRenderSortField: " DeptId,TrainGrade,VedioTime ",
+            jsRenderASC: "asc",
+            templateID: "courseListTemplate",
+            funCallback: function (data) {
+                $("#td_ALLLearnTimes").html(data.ALLLearnTimes);
+                $("#td_ALLVedioTimes").html(data.ALLVedioTimes);
+                $("#td_ALLExamNum").html(data.ALLExamNum);
+                $("#td_ALLExamScore").html(data.ALLExamScore);
+                $("#td_ALLGetLength").html(data.ALLGetLength);
+            }
+
+        });
+
+
+
+    }
+</script>

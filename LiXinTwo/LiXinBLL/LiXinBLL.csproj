@@ -1,0 +1,219 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FE9334C9-5A94-4429-8294-842234AAE7BE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LiXinBLL</RootNamespace>
+    <AssemblyName>LiXinBLL</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Interop.EMPPLib">
+      <HintPath>..\Lib\Interop.EMPPLib.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="LiXinCommon">
+      <HintPath>..\LiXinCommon\bin\Debug\LiXinCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Bson, Version=1.6.0.19291, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver, Version=1.6.0.19292, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\MongoDB.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.Cache">
+      <HintPath>..\Lib\Retech.Cache.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.Core">
+      <HintPath>..\Lib\Retech.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AttendceManage\AttendceBL.cs" />
+    <Compile Include="ClassRoom\ClassRoomBL.cs" />
+    <Compile Include="ClassRoom\ClassRoomResourceBL.cs" />
+    <Compile Include="ClassRoom\NewClassRoomBL.cs" />
+    <Compile Include="ClassRoom\DepClassRoomBL.cs" />
+    <Compile Include="CourseLearn\Cl_AttendceBL.cs" />
+    <Compile Include="CourseLearn\Cl_CourseAdviceBL.cs" />
+    <Compile Include="CourseLearn\Cl_CpaLearnStatusBL.cs" />
+    <Compile Include="CourseLearn\Cl_LearnVideoInforBL.cs" />
+    <Compile Include="CourseLearn\CourseOrderBL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CourseLearn\Co_CourseResourceBL.cs" />
+    <Compile Include="CourseManage\Cl_VideoManageBL.cs" />
+    <Compile Include="CourseManage\Co_CourseBL.cs" />
+    <Compile Include="CourseManage\Co_CoursePaperBL.cs" />
+    <Compile Include="CourseManage\Co_CourseSystemBL.cs" />
+    <Compile Include="CourseManage\Co_SystemLinkCourseBL.cs" />
+    <Compile Include="CourseManage\Co_VideoResourceBL.cs" />
+    <Compile Include="CourseManage\Sys_PayGradeBL.cs" />
+    <Compile Include="DepCourseLearn\Dep_CpaLearnStatusBL.cs" />
+    <Compile Include="DepCourseLearn\DepCourseAdviceBl.cs" />
+    <Compile Include="DepCourseManage\Dep_AttendceApprovalRecordBL.cs" />
+    <Compile Include="DepCourseManage\Dep_AttendceBL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DepCourseManage\Dep_CourseAttFileBL.cs" />
+    <Compile Include="DepCourseManage\Dep_CourseBL.cs" />
+    <Compile Include="DepCourseManage\Dep_CourseDeptBL.cs" />
+    <Compile Include="DepCourseManage\Dep_CourseOrderBL.cs" />
+    <Compile Include="DepCourseManage\Dep_CoursePaperBL.cs" />
+    <Compile Include="DepCourseManage\Dep_CourseResourceBL.cs" />
+    <Compile Include="DepLeaveApproval\DepLeaveApprovalBL.cs" />
+    <Compile Include="DepSurvey\DeptSurveyBL.cs" />
+    <Compile Include="DepSurvey\Dep_SurveyExampaperBL.cs" />
+    <Compile Include="DepSurvey\Dep_SurveyReplyAnswerBL.cs" />
+    <Compile Include="DepSurvey\Dep_Survey_SurveyBL.cs" />
+    <Compile Include="DeptCourseManage\DeptCourseBL.cs" />
+    <Compile Include="DeptCourseManage\DeptCoursePaperBL.cs" />
+    <Compile Include="DeptCourseManage\DeptResourceBL.cs" />
+    <Compile Include="DeptPlanManage\Dep_MonthPlanBL.cs" />
+    <Compile Include="DeptPlanManage\Dep_YearPlanBL.cs" />
+    <Compile Include="DepTranManage\DepTranAttendceApprovalBL.cs" />
+    <Compile Include="DepTranManage\DepTran_AttendceApprovalRecordBL.cs" />
+    <Compile Include="DepTranManage\DepTran_CourseAttFileBL.cs" />
+    <Compile Include="DepTranManage\DepTran_CourseOpenBL.cs" />
+    <Compile Include="DepTranManage\DepTran_CourseOrderBL.cs" />
+    <Compile Include="DepTranManage\DepTran_AttendceBL.cs" />
+    <Compile Include="DepTranManage\DepTran_DepartLeaderConfigBL.cs" />
+    <Compile Include="DepCourseManage\DepMyScoreBL.cs" />
+    <Compile Include="DeptSystemManage\Dept_NotesBL.cs" />
+    <Compile Include="DeptSystemManage\Dept_NoteSortBL.cs" />
+    <Compile Include="DeptSystemManage\ParamConfigBl.cs" />
+    <Compile Include="Email.cs" />
+    <Compile Include="Examination\ExaminationBL.cs" />
+    <Compile Include="Examination\ExampaperBL.cs" />
+    <Compile Include="Examination\ExampaperSortBL.cs" />
+    <Compile Include="Examination\ExamReportBL.cs" />
+    <Compile Include="Examination\ExamTestBL.cs" />
+    <Compile Include="Examination\KnowledgeKeyBL.cs" />
+    <Compile Include="Examination\QuestionBL.cs" />
+    <Compile Include="Examination\QuestionSortBL.cs" />
+    <Compile Include="Home\HomeBL.cs" />
+    <Compile Include="MyApproval\FreeBL.cs" />
+    <Compile Include="MyApproval\MyApprovalBL.cs" />
+    <Compile Include="DeptCourseManage\MyScoreBL.cs" />
+    <Compile Include="NewCourseManage\New_AttendceBL.cs" />
+    <Compile Include="NewCourseManage\New_CourseAdviceBL.cs" />
+    <Compile Include="NewCourseManage\New_CourseOrderBL.cs" />
+    <Compile Include="NewCourseManage\New_CourseOrderDetailBL.cs" />
+    <Compile Include="NewCourseManage\New_CourseRoomRuleBL.cs" />
+    <Compile Include="NewCourseManage\New_CpaLearnStatusBL.cs" />
+    <Compile Include="NewCourseManage\New_LearnVideoInforBL.cs" />
+    <Compile Include="NewQueryStatistics\StatisticsBL.cs" />
+    <Compile Include="NewQueryStatistics\UserStatisticsBL.cs" />
+    <Compile Include="NewUserManage\NewUserBL.cs" />
+    <Compile Include="NewCourseManage\New_CourseBL.cs" />
+    <Compile Include="NewCourseManage\New_CourseFilesBL.cs" />
+    <Compile Include="NewCourseManage\New_CoursePaperBL.cs" />
+    <Compile Include="NewClassManage\NewClassBL.cs" />
+    <Compile Include="NewClassManage\NewGroupBL.cs" />
+    <Compile Include="NewClassManage\NewGroupUserBL.cs" />
+    <Compile Include="PlanManage\Tr_MonthPlanBL.cs" />
+    <Compile Include="PlanManage\Tr_YearPlanBL.cs" />
+    <Compile Include="ReportCache.cs" />
+    <Compile Include="Report_AllData\Report_AllData.cs" />
+    <Compile Include="Report_CPA\Report_CPABL.cs" />
+    <Compile Include="Report_Free\Report_FreeBL.cs" />
+    <Compile Include="Report_fVedio\ReportBL.cs" />
+    <Compile Include="Report_fVedio\Report_fVedioBL.cs" />
+    <Compile Include="Report_fVedio\Report_OnLineTestBL.cs" />
+    <Compile Include="Report_Together\TogetherCourseLearnBL.cs" />
+    <Compile Include="Report_Together\ReportTogetherBL.cs" />
+    <Compile Include="Report_Together\Report_DepCourseBL.cs" />
+    <Compile Include="Report_zAttendce\zAttendceBL.cs" />
+    <Compile Include="Report_zVedio\Report_zVedioBL.cs" />
+    <Compile Include="ReResourceManage\ReMyResourceBL.cs" />
+    <Compile Include="ReResourceManage\ReResourceBL.cs" />
+    <Compile Include="ReResourceManage\ReResourceTypeBL.cs" />
+    <Compile Include="SeatPlan.cs" />
+    <Compile Include="SendMessage.cs" />
+    <Compile Include="Survey\SurveyExampaperBL.cs" />
+    <Compile Include="Survey\SurveyQuestionAnswerBL.cs" />
+    <Compile Include="Survey\SurveyQuestionBL.cs" />
+    <Compile Include="Survey\SurveyReplyAnswerBL.cs" />
+    <Compile Include="Survey\Survey_SurveyBL.cs" />
+    <Compile Include="SystemManage\FreeConfigBL.cs" />
+    <Compile Include="SystemManage\Free_AllOtherApplyBL.cs" />
+    <Compile Include="SystemManage\Free_OtherFromsBL.cs" />
+    <Compile Include="SystemManage\Free_UserApplyFilesBL.cs" />
+    <Compile Include="SystemManage\Free_UserApplyOtherFormBL.cs" />
+    <Compile Include="SystemManage\Free_UserApplyTeacherDetailsBL.cs" />
+    <Compile Include="SystemManage\Free_UserOtherApplyBL.cs" />
+    <Compile Include="SystemManage\Sys_LeaderBL.cs" />
+    <Compile Include="SystemManage\Sys_LogTrainBL.cs" />
+    <Compile Include="SystemManage\Sys_GroupBL.cs" />
+    <Compile Include="SystemManage\Sys_LogBL.cs" />
+    <Compile Include="SystemManage\Sys_NoteResourceBL.cs" />
+    <Compile Include="SystemManage\Sys_NotesBL.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SystemManage\Sys_NoteSortBL.cs" />
+    <Compile Include="SystemManage\Sys_ParamConfigBL.cs" />
+    <Compile Include="SystemManage\UpdateRecordBL.cs" />
+    <Compile Include="TrainGradeManage\Sys_TrainGradeBL.cs" />
+    <Compile Include="UserFingerInfor\UserFingerInforBL.cs" />
+    <Compile Include="User\DepartmentBL.cs" />
+    <Compile Include="User\PostBL.cs" />
+    <Compile Include="User\RightBL.cs" />
+    <Compile Include="User\RoleBL.cs" />
+    <Compile Include="User\UserBL.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LiXinDataAccess\LiXinDataAccess.csproj">
+      <Project>{f365a61b-9921-4e95-9d3d-f8133f143bb2}</Project>
+      <Name>LiXinDataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinInterface\LiXinInterface.csproj">
+      <Project>{17E752C8-5549-4A84-B378-71BFEC4DCD3F}</Project>
+      <Name>LiXinInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LixinModels\LiXinModels.csproj">
+      <Project>{9F7DCE1F-6769-4BED-8876-B3D118306F57}</Project>
+      <Name>LiXinModels</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

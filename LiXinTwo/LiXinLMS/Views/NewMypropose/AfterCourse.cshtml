@@ -1,0 +1,38 @@
+﻿@using LiXinModels.NewCourseManage
+@{
+    ViewBag.Title = "我的评估详情";
+    var courseRule = ViewBag.course as New_CourseRoomRule;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "NewMyAfterCourseDetail" }))
+    <table class="tab-Form mt10">
+        @if (courseRule != null)
+        { 
+            <tr>
+                <td class="Tit span10">课程名称：</td>
+                <td colspan="3"><strong>@(courseRule.CourseName) 
+                    @if(courseRule.Type==1)
+                    {
+                     @courseRule.GroupName
+                    }
+                                </strong></td>
+            </tr>
+            <tr>
+                <td class="Tit">开课时间：</td>
+                <td><strong>@courseRule.CourseTimeStr</strong></td>
+                <td class="Tit span10">授课讲师：</td>
+                <td><strong>@courseRule.teachername</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit">开课地点：</td>
+                <td><div class="ovh span30" title="@courseRule.RoomName"><strong>@courseRule.RoomName</strong></div></td>
+                <td class="Tit">课程状态：</td>
+                <td><strong class="c_col">@courseRule.StatusStr</strong></td>
+            </tr>
+        }
+    </table>
+    <div class="mt10">
+        <input id="txt_CourseId" type="hidden" value="@(courseRule.CourseId)"/>
+        @Html.Action("BindExampaper", "NewMyCourse", new { pingid = courseRule.PingId, subid = courseRule.Id, backurl = ViewBag.backurl })
+    </div>
+</div>

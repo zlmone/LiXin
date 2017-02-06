@@ -1,0 +1,74 @@
+﻿@using LiXinControllers
+@using LiXinLanguage
+@using LiXinModels.Survey
+@model LiXinModels.NewCourseManage.New_CourseRoomRule
+@{
+    ViewBag.Title = "评价详情";
+    var teacheracdlist = ViewBag.teacheracdlist as List<AfterCourceDetail>;
+    var courseacdlist = ViewBag.courseacdlist as List<AfterCourceDetail>;
+
+    //var order = 0;
+    //var courseOrder = 0;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "NewTeacherEvlutionManageDetail" }))
+    <div>
+        <h3 class="tit-h3">
+            <strong>@Model.CourseName (@Model.TypeStr)</strong>
+            <input style="float: right;" type="button" id="exportExcel" class="btn btn-cancel" value="导出" />
+        </h3>
+    </div>
+    <div>
+        <strong>开始时间：</strong>@Model.StartTimeStr
+        <strong>结束时间：</strong>@Model.EndTimeStr
+        <strong>讲师：</strong>@Model.teachername
+        <strong>教室：</strong>@Model.RoomName
+    </div>
+    <div style="margin-top: 10px; margin-bottom: 20px;">
+        <strong>课程评估综合平均分：</strong>@Model.TotalCourseAvgStr
+    </div>
+    <div>
+        搜索关键字：<input type="text" id="text_keyword" />
+        <input type="button" value="查询" id="btn_Select" class="btn fr" />
+    </div>
+
+    <div id="load">
+    
+    </div>
+</div>
+<div class="lh30 tc">
+    <input type="button" class="btn btn-cancel"
+        onclick="  window.location.href = '/NewMyEvaluate/NewEvaluateAllUserToTeacher?tp=1'; " value="返回" />
+</div>
+
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        $("#exportExcel").click(function () {
+            window.location.href = "/NewMyEvaluate/ExportNewEvaluateUserToTeacherDetail?courseRoomRuleId=@Model.Id";
+
+        });
+        showStars();
+
+        $.get("/NewMyEvaluate/NewMyEvaluateMain?courseRoomRuleId="+@Model.Id+"&keywords="+escape($("#text_keyword").val()), function (data) { $("#load").html(data); });
+        
+        $("#btn_Select").click(function () {
+            //alert(escape($("#text_keyword").val()));
+            $.get("/NewMyEvaluate/NewMyEvaluateMain?courseRoomRuleId=" +@Model.Id +"&keywords=" + escape($("#text_keyword").val()), function (data) { $("#load").html(data); });
+        })
+    });
+   
+    //显示隐藏Div列表
+    function ShowHideDivContent(divId) {
+        $("#" + divId).toggle();
+    }
+
+    //加载星评题
+    function showStars() {
+        $(".divXpScore").each(function () {
+            var star = $(this).attr("score");
+            var obj = this;
+            $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: false });
+        });
+    }
+</script>
+

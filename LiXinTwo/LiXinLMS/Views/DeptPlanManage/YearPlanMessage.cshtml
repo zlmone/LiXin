@@ -1,0 +1,70 @@
+﻿@{
+    Layout = null;
+}
+<form id="formmessage">
+    <div id="ycinfo" style="padding-bottom: 20px;">
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span9">接受/拒绝：
+                </td>
+                <td>
+                    <span class="sel">
+                        <input type="radio" value="1" name="isFlag" text="接受" checked="checked" /><label>接受</label>
+                        <input type="radio" value="2" name="isFlag" text="拒绝" /><label>拒绝</label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">通知类型：
+                </td>
+                <td>
+                    <span class="sel">
+                        <input type="checkbox" value="1" name="mMust" text="邮件" /><label>邮件</label>
+                        <input type="checkbox" value="2" name="mMust" text="短信" /><label>短信</label>
+                    </span>
+                </td>
+            </tr>
+        </table>
+        <div class="mt10 tc">
+            <input type="button" value="保存" class="btn" onclick="$(this).submit();" />
+        </div>
+    </div>
+</form>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        $("#formmessage").validate({
+            submitHandler: function (form) { Send();}
+        });
+    });
+
+    function Send() {
+        zhezaowait(); //等待提示
+
+        var ismust = 0;
+        $("input[name='mMust']").each(function (index) {
+            if ($(this).attr("checked") == "checked") {
+                ismust += parseInt($(this).val());
+            }
+        });
+        //alert(ismust);
+        $.post("/DeptPlanManage/SendMessageByYear",
+            {
+                Yids: $("#selyear").val(),
+                did:@(ViewBag.did),
+                flag: $('input[name="isFlag"]:checked').val(),
+                Must: ismust
+            },
+            function (data) {
+                if (data.result == 1) {
+                    closewait();
+                    art.dialog.tips("保存成功", 3);
+                    $("#selyear").val("");
+                    InitYearList(getParamUrl());
+                    art.dialog.list['YearMess'].close();
+                } else {
+                    art.dialog.tips("保存失败", 3);
+                }
+            }
+        );
+        }
+</script>

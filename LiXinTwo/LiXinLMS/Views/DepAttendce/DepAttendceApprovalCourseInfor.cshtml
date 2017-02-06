@@ -1,0 +1,235 @@
+﻿@{
+    ViewBag.Title = "课程考勤详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "课程考勤详情" }))
+</div>
+<div class="tab-bk mt10">
+    <ul id="tags">
+        <li id="tag0" class="On">考勤管理</li>
+        <li id="tag1">审批记录</li>
+    </ul>
+</div>
+<!-- 列表 -->
+<div id="Record" class="mt10" style="display: none;">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th class="span11">上传者</th>
+                <th class="span10">上传时间</th>
+                <th class="span8">审批者</th>
+                <th class="span10">审批时间</th>
+                <th class="span10">审批结果</th>
+                <th class="span18">审批原因</th>
+            </tr>
+        </thead>
+        <tbody id="tbReordList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<div id="Content" class="mt10">
+    <div id="div_Search" class="so-set">
+    <table class="tab-Form">
+         <tr>
+             <input type="hidden" id="info"/>
+             <input type="hidden" id="score"/>
+             @*<input type="hidden" id="deptmentId" value="1"/>*@
+        </tr>
+        <tr>
+            <td class="Tit span10">姓名：</td>
+            <td class="span25"><input type="text" id="txtName" class="span15" value="" info="" /></td>
+             <td class="Tit span10">出勤状态：</td>
+            <td>
+                <select id="ismust" class="span10">
+                    <option value="-1">查看全部</option>
+                    <option value="0">待考勤</option>
+                    <option value="2">缺勤</option>
+                    <option value="1">正常</option>
+                    <option value="3">迟到</option>
+                    <option value="4">早退</option>
+                    <option value="5">迟到且早退</option>
+                </select>
+            </td>
+             <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick="search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+    <div align="right">
+        @*<input class="btn span10" value="批量审批" onclick="isAllowedAll()" type="button"/>*@
+        @{
+            if (ViewBag.AttFlag == 1 && ViewBag.ApprovalFlag == 0 && ViewBag.attApprovalFlag==0)
+            {
+                <input class="btn span10" value="审批" type="button" onclick="isAllowedAll()" id="Approve" name="Approve"/>
+            }
+            else
+            {
+                <input class="btn span10" value="审批" type="button" disabled="disabled"/>
+            }
+        }
+        <input class="btn" value="附件下载(预览)" onclick="resourceView()" type="button"/>
+    </div>
+    <table class="tab-List">
+        <thead>
+            <tr>
+                @*<th class="span4"><input type="checkbox" id="SelectedAll" name="SelectedAll" onclick="SelectedItems()"/></th>*@
+                <th class="span4">序号</th>
+                <th class="span4">姓名</th>
+                <th class="span3">性别</th>
+                <th class="span13">手机</th>
+                <th class="span16">邮箱</th>
+                <th class="span12" >部门/分所</th>
+                <th class="span6">出勤状态</th>
+                @*                <th class="span8">审批状态</th>
+                <th class="span6">操作</th>*@
+            </tr>
+        </thead>
+        <tbody id="tbUserList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<div align="center">
+    <input type="button" class ="btn" value="返回" onclick="returnPage()"/>
+</div>
+<script id="DeptRecordTemplate" type="text/x-jsrender">
+   {{for #data}}
+    <tr>
+    <td>{{:#index+1}}</td>
+    <td>{{:SubmitRealname}}</td>
+    <td>{{:SubmitTimeStr}}</td>
+    <td>{{:Realname}}</td>
+    <td>{{:ApprovalTimeStr}}</td>
+    <td>{{:ApprovalFlag==1?"审批通过":"审批拒绝"}}</td>
+    <td>
+    <div class="ovh tl span18"  title="{{:Reason}}">{{:Reason}}</div></td>
+    </tr>
+   {{/for}}
+</script>
+<script id="userListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>
+            <div class="span8" title="{{:realName}}" align="center">{{:realName}}</div>
+            </td>
+            <td>
+                {{:Sex==0?"男":"女"}}
+            </td>
+            <td><div class="ovh tl span14"  title="{{:Telephone}}">{{:Telephone}}</div></td>
+            <td><div class="ovh tl span14"  title="{{:Email}}">{{:Email}}</div></td>
+            <td><div class="ovh tl span14"  title="{{:DeptName}}">{{:DeptName}}</div></td>
+            <td>
+                {{if Status==0}}
+                待考勤
+                {{else Status==1}}
+                正常
+                {{else Status==2}}
+                缺勤
+                {{else Status==3}}
+                迟到
+                {{else Status==4}}
+                早退
+                {{else Status==5}}
+                迟到且早退
+                {{/if}}
+                <input type="hidden" id="deptmentId" name="deptmentId" value="{{:deptId}}"/>
+                <input type="hidden" id="courseId" name="courseId" value="{{:CourseId}}"/>
+                <input type="hidden" id="CourseLengthDistribute" name="CourseLengthDistribute" value="{{:CourseLengthDistribute}}"/>
+                <input type="hidden" id="CourseLength" name="CourseLength" value="{{:CourseLength}}"/>
+            </td>
+        </tr>
+   {{/for}}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        initUserList();
+        initRecord();
+        $("#ismust").bind("change", function () {
+            initUserList();
+        });
+        var temp = "";
+        var Ids = ("@ViewBag.aa").split("㉿");
+        temp = Ids[0] + "," + Ids[1] + ";";
+        $("#info").val(temp);
+        $("#tags li").bind("click", function () {
+            var index = $(this).index();
+            $("#tags li").removeClass("On");
+            $("#tags #tag" + index).addClass("On");
+            $("#Record,#Content").hide();
+            switch (index) {
+                case 0:
+                    $("#Content").show();
+                    $("#Record").hide();
+                    initUserList();
+                    break;
+                case 1:
+                    $("#Record").show();
+                    $("#Content").hide();
+                    initRecord();
+                    break;
+            }
+        });
+
+    });
+
+    function initUserList() {
+        var Ids = ("@ViewBag.aa").split("㉿");
+
+        var str = "&realName=" + escape($("#txtName").val()) + "&isMust=" + $("#ismust").val() + "&isOpen=0" + "&courseId=" + Ids[0] + "&deptId=" + Ids[1];
+        $("#tbUserList").JsRenderData({
+            sourceUrl: '/DepAttendce/GetDepAttendceUserList?' + str,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "userListTemplate"
+        });
+    }
+
+    function initRecord() {
+        var Ids = ("@ViewBag.aa").split("㉿");
+        var str = "courseId=" + Ids[0] + "&departId=" + Ids[1];
+        $("#tbReordList").JsRenderData({
+            sourceUrl: '/DepAttendce/GetRecord?' + str,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "DeptRecordTemplate"
+        });
+    }
+
+    function search() {
+        initUserList();
+    }
+
+    function SelectedItems() {
+        if ($("#SelectedAll").attr("checked") == "checked") {
+            $("input[name='SelectedAllItems']").attr("checked", true);
+        } else {
+            $("input[name='SelectedAllItems']").attr("checked", false);
+        }
+    }
+
+    function isAllowedAll() {
+        art.dialog.load('/DepAttendce/DepAttendceApprovalAllowed?type=0', { title: '考勤审批', id: 'Allowed', height: 320, width: 550 });
+
+    }
+
+    function resourceView() {
+        var Ids = ("@ViewBag.aa").split("㉿");
+        art.dialog.load('/DepAttendce/DepAttendceApprovalResource?t=' + new Date() + "&courseId=" + $("input[name='courseId']")[0].value + "&deptId=" + Ids[1], { title: '附件下载', id: 'resourceView', height: 320, width: 550 });
+    }
+
+    function returnPage() {
+        window.location.href = "/DepAttendce/DepAttendceApprovalList";
+    }
+</script>

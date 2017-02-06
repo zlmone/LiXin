@@ -1,0 +1,215 @@
+﻿@using LiXinCommon
+@{
+    Layout = null;
+}
+
+<div class="centerbody">
+    <form method="post" id="AutoSplitClassForm">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span10">分班/分组规则：
+                </td>
+                <td>
+                    <input type="checkbox" id="splitSex" />性别不同
+                    <input type="checkbox" id="splitSchool" />毕业院校不同
+                    <input type="checkbox" id="splitMajor" />毕业专业不同
+                    <input type="checkbox" id="splitFirm" />事务所实习经验的有无
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span8">分班数：</td>
+                <td>
+                    <input maxlength="2" type="text" id="txtNowGroupCount" value="1" onblur="if (isNaN($(this).val()) || !parseInt($(this).val()) > 0) {$(this).val(1);} setgroup(parseInt($(this).val()));" /></td>
+            </tr>
+            <tr>
+                <td class="Tit " rowspan="2" valign="middle">填写人数：</td>
+                <td>
+                    <div>
+                        共有<span id="classNum" style="color: red">@(ViewBag.NotSplitClassNum)
+                        </span>
+
+                        人可以分配
+                    </div>
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <div style="width: 500px; height: 280px; overflow: auto;" id="setgroupList"></div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <a class="btn" id="save" onclick="submitAutoSplitClassForm()">立即分班/分组</a>
+                    <a class="btn" id="cancel" onclick="Cancel(); ">取消</a>
+                </td>
+            </tr>
+        </table>
+        <input id="ClassNumberCount" type="hidden" value="@(ViewBag.NotSplitClassNum)" />
+    </form>
+</div>
+
+<script type="text/javascript">
+    //验证班
+    function CheckPerClassPersonCount(obj, id)
+    {
+        var classcount = 0;
+        var sumcount = parseInt($("#ClassNumberCount").val());//可以分配的总人数
+        var thisCount = parseInt($(obj).val());
+        var PersonCount = parseInt($("#" + id + "_GroupPersonCount").val());//每个班级的人数
+        $(".classPersonCount").each(function ()
+        {
+            classcount += parseInt($(this).val());
+        });
+
+        var count = $(obj).val();
+        if (count.trim() != "")
+        {
+            if (parseInt(count) == 0)
+            {
+
+                $(obj).val(parseInt(count));
+                return false;
+            }
+            if (classcount > sumcount)
+            {
+                art.dialog.tips("每班人数之和不能大于总人数！", 3);
+                $(obj).val(1);
+                $("#classNum").html(sumcount - classcount + thisCount - 1);
+                return false;
+            }
+            else
+            {
+                $("#classNum").html(sumcount - classcount);
+                //计算可以分几组
+                var yushu = thisCount % PersonCount;
+                var numberCount = yushu == 0 ? thisCount / PersonCount : (thisCount - yushu) / PersonCount + 1;
+                $("#" + id + "_groupPersoncount").html(numberCount);
+                $(obj).val(parseInt(count));
+            }
+        }
+        return true;
+    }
+
+    //验证组
+    function CheckPerGroupPersonCount(obj, id)
+    {
+
+        var count = parseInt($(obj).val());
+        var classcount = parseInt($("#" + id + "_classPersoncount").val());
+        if (count != 0 && classcount != 0)
+        {
+           // debugger;
+            if (parseInt(count) == 0)
+            {
+                $(obj).val("");
+                return false;
+            }
+            if (parseInt(count) > classcount)
+            {
+                art.dialog.tips("每组人数不能大于每班人数！", 3);
+                $(obj).val(1);
+                $("#" + id + "_groupPersoncount").html(classcount % count);
+
+                return false;
+            }
+            else
+            {
+                var yushu1 = classcount % count;
+                var groupcount = yushu1 == 0 ? classcount / count : (classcount - yushu1) / count + 1;
+                $(obj).val(count);
+                $("#" + id + "_groupPersoncount").html(groupcount);
+            }
+        }
+        return true;
+    }
+
+    $(document).ready(function ()
+    {
+        setgroup(1);
+    });
+
+    function submitAutoSplitClassForm()
+    {
+        //if (!CheckPerClassPersonCount())
+        //{
+        //    return;
+        //}
+        //if (!CheckPerGroupPersonCount())
+        //{
+        //    return;
+        //}
+
+        var splitSexFlag = ($("#splitSex").attr("checked") == true || $("#splitSex").attr("checked") == "checked") ? true : false;
+        var splitSchoolFlag = ($("#splitSchool").attr("checked") == true || $("#splitSchool").attr("checked") == "checked") ? true : false;
+        var splitMajorFlag = ($("#splitMajor").attr("checked") == true || $("#splitMajor").attr("checked") == "checked") ? true : false;
+        var splitFirmFlag = ($("#splitFirm").attr("checked") == true || $("#splitFirm").attr("checked") == "checked") ? true : false;
+        var classconfig = "";
+        $(".classConfig").each(function ()
+        {
+            var singleClass = $(this).find(".classPersonCount").val() + "," + $(this).find(".groupPersonCount").val();
+            classconfig = classconfig == "" ? singleClass : classconfig + ";" + singleClass;
+        });
+
+
+        $.post("/NewClassManage/SaveAllAutoSplitClass", {
+            splitSex: splitSexFlag, splitSchool: splitSchoolFlag, splitMajor: splitMajorFlag, splitFirm: splitFirmFlag
+                                        , classconfig: classconfig
+        }, function (data)
+        {
+            if (data.result == 1)
+            {
+                //art.dialog.tips("操作成功！", 3);
+                closeDialog("art_AutoSplitClass");
+                InitDataCurrentClassGroup(); //初始化当前班组列表
+                InitData(); //初始化未分组人员列表
+
+            } else
+            {
+                art.dialog.tips("操作失败！", 3);
+
+            }
+
+        });
+
+    }
+
+    function Cancel()
+    {
+        closeDialog("art_AutoSplitClass");
+    }
+
+    //重新设置分组数
+    function setgroup(count)
+    {
+        $("#setgroupList").html("");
+        $.getJSON("/NewClassManage/GetCanClass?SumCount=" + count, function (data)
+        {
+            var sumcount = parseInt($("#ClassNumberCount").val());
+            $("#classNum").html(sumcount - data.list.length);
+            $("#setgroupList").append($("#listNowGroupTemplate").render(data.list));
+        });
+    }
+</script>
+<!--生成当前分班级的页面-->
+<script id="listNowGroupTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <p class="mt5 mb5 pl5" style="background-color:#ddd;">{{:#data}}班</p>
+    <table class="tab-Form classConfig" style="width:100%;">
+           <tr>
+                <td>每班人数
+                    <input type="text"  name="txtPerClassPersonCount" class="classPersonCount"
+                         maxlength="6" value="1" onblur="if (isNaN($(this).val()) || !parseInt($(this).val()) > 0) {$(this).val(1);}CheckPerClassPersonCount(this,'{{:#data}}');" id="{{:#data}}_classPersoncount" />
+                     
+                </td>
+            </tr>
+            <tr>
+                <td>每组人数
+                    <input type="text"  name="txtPerGroupPersonCount" class="groupPersonCount"
+                        maxlength="6" value="1" onblur="if (isNaN($(this).val()) || !parseInt($(this).val()) > 0) {$(this).val(1);}CheckPerGroupPersonCount(this,'{{:#data}}');"id="{{:#data}}_GroupPersonCount" />
+                    可分为<span id="{{:#data}}_groupPersoncount">1</span>组
+                </td>
+            </tr>
+    </table>
+    {{/for}}
+</script>

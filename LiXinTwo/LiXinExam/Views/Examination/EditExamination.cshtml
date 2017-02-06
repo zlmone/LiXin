@@ -1,0 +1,277 @@
+﻿@using LiXinLanguage
+@model LiXinModels.Examination.DBModel.tbExamination
+@{
+    ViewBag.Title = NavigateMenuLanguage.EditExamination;
+}
+<div class="main-c">
+    @Html.Action("SiteMapLink", "Common", new {linkName = "EditExamination"})
+    <form id="fro_EditExamination">
+        <input type="hidden" name="_id" id="txt_id" value="@Model._id" />
+        <h3 class="tit-h3">考试基本信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span10"><span class="must" title="必填项">*</span>考试名称：</td>
+                <td><input type="text" class="span30" name="ExaminationTitle" value="@Model.ExaminationTitle" id="txtExaminationTitle" /></td>
+            </tr>
+            <tr>
+                <td class="Tit"><span class="must" title="必填项">*</span>考试时长：</td>
+                <td><input type="text" class="span6" name="ExamLength" maxlength="3" value="@Model.ExamLength" id="txt_ExamLength" /> 分钟</td>
+            </tr>
+            <tr>
+                <td class="Tit"><span class="must" title="必填项">*</span>考试次数：</td>
+                <td><input type="text" class="span6" name="TestTimes" value="@Model.TestTimes" id="txt_TestTimes" /></td>
+            </tr>
+            <tr>
+                <td class="Tit"><span class="must" title="必填项">*</span>通过分数：</td>
+                <td>试卷总分的 <input type="text" class="span6" name="PassScore" value="@Model.PassScore" id="txt_PassScore"  /> %</td>
+            </tr>
+            <tr>
+                <td class="Tit"><span class="must" title="必填项">*</span>考试时间：</td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_ExamEndTime\',{m:-1})}' }) " name="ExamBeginTime" id="txt_ExamBeginTime" value="@(Model.ExamBeginTime > DateTime.MinValue ? Model.ExamBeginTime.ToString("yyyy-MM-dd HH:mm") : "")"/>
+                        <i></i>
+                    </div>
+                    至 
+                    <div class="time-choose">
+                        <input type="text" name="ExamEndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_ExamBeginTime\',{m:1})}' }) " id="txt_ExamEndTime" value="@(Model.ExamEndTime > DateTime.MinValue ? Model.ExamEndTime.ToString("yyyy-MM-dd HH:mm") : "")"/>
+                        <i></i>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">试卷顺序：</td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="RadomOrderFlag" value="0" id="txt_RadomOrderFlag0" /><label>固定排序</label>
+                        <input type="radio" name="RadomOrderFlag" value="1" id="txt_RadomOrderFlag1" /><label>随机排序</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">显示模式：</td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="ShowType" value="0" id="txt_ShowType0" /><label>整卷显示</label>
+                        <input type="radio" name="ShowType" value="1" id="txt_ShowType1" /><label>单题可逆</label>
+                        <input type="radio" name="ShowType" value="2" id="txt_ShowType2" /><label>单题不可逆</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">是否百分制：</td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="PercentFlag" value="0" id="txt_PercentFlag0" /><label>是</label>
+                        <input type="radio" name="PercentFlag" value="1" id="txt_PercentFlag1" /><label>否</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">选择试卷：</td>
+                <td>
+                    <input type="button" id="btnChoosePaper" class="btn btn-co" value="选择试卷" onclick=" choosePaper() " />
+                    <input name="PaperID" type="hidden" style="display: none"  id="hid_PaperId" value="@Model.PaperID" />
+                    <div id="lbl_PaperName">@(ViewBag.PaperName)</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">批阅人信息：</td>
+                <td>
+                    <input type="button" id="btnChooseApprovalUser" value="选择批阅人"  class="btn btn-co" />
+                    <input name="ApprovalUser" id="ApprovalUserIds" type="hidden" value="@ViewBag.ApprovalUserIds" />
+                    <div id="AUser"></div>
+                </td>
+            </tr>
+        </table>
+        <h3 class="tit-h3 mt20">
+            参考人信息
+        </h3>
+        <div>@Html.Action("AuthorizedExam", "Examination", new {examinationId = @Model._id})</div>
+        <center class ="mt10">
+            <a name="btnSave" title="保存" id="btnSave" onclick=" SaveExam() " class="btn">保存</a>
+            <input  type="hidden" name="PublishedFlag" id="txt_PublishedFlag" />
+            <a title="发布" id="btnPublish" name="btnPublish" onclick="PublishedExam()" class="btn">发布</a>
+            <a title="返回" id="btnBack" name="back" onclick=" fnback() " class="btn btn-cancel">返回</a>
+        </center>
+    </form>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(
+        function() {
+            //编辑时，数据初始化radio
+            $("input[name=RadomOrderFlag][value='@Model.RadomOrderFlag']").attr("checked", true);
+            $("input[name=ShowType][value='@Model.ShowType']").attr("checked", true);
+            $("input[name=PercentFlag][value='@Model.PercentFlag']").attr("checked", true);
+            //客户端数据验证
+            $("#fro_EditExamination").validate(
+                {
+                    submitHandler: submitExam,
+                    event: "blur",
+                    rules: {
+                        ExaminationTitle: {
+                            required: true,
+                            maxlength: 30,
+                            remote: {
+                                type: "post",
+                                dataType: "json",
+                                url: "/Examination/IsExistExaminationTitle?t=" + new Date(),
+                                data: {
+                                    ExamTitle: function() { return $("#txtExaminationTitle").val(); },
+                                    id: function() { return $("#txt_id").val(); }
+                                }
+                            }
+                        },
+                        ExamLength: { required: true, min: 1, digits: true },
+                        TestTimes: { required: true, min: 1, range: [1, 100], digits: true },
+                        PassScore: { required: true, range: [1, 100], digits: true },
+                        ExamEndTime: "ExamEndTime",
+                        ExamBeginTime: { required: true },
+                        ExamEndTime: { required: true },
+                        ApprovalUser: { required: true },
+                        PaperID: { required: true, min: 1 }
+                    },
+                    messages: {
+                        ExaminationTitle: {
+                            required: "考试名称不能为空！",
+                            remote: "考试名称已经存在！",
+                            maxlength: "考试名称不能超过30个字符！"
+                        },
+                        ExamLength: { required: "请输入考试时长！", min: "考试时长在1~999之间！", digits: "考试时长在1~999之间！" },
+                        TestTimes: { required: "请输入考试次数！", min: "考试次数在1~100之间！", range: "考试次数在1~100之间！", digits: "考试次数必须为正整数！" },
+                        PassScore: { required: "请输入通过分数！", range: "通过分数在1~100之间！", digits: "通过分数必须为正整数！" },
+                        ExamBeginTime: { required: "请选择开始时间！" },
+                        ExamEndTime: { required: "请选择结束时间！" },
+                        ApprovalUser: { required: "请选择批阅人！" },
+                        PaperID: { required: "请选择试卷！", min: "请选择试卷！" }
+                    }
+                }
+            );
+
+            $("#btnChooseApprovalUser").bind("click", function() {
+                $("#AllUserID").val($("#ApprovalUserIds").val());
+                $("#SelectUserFlag").val("ApprovalUser");
+
+                art.dialog.load("/UserCommon/SelectUser", { title: "添加批阅人", id: "SelUser"});
+            });
+            AddApprovalUser();
+        }
+    );
+
+
+    function choosePaper() {
+        art.dialog.load("/Exampaper/ExampaperSelect?selectType=radio",{
+            title: "选择试卷",
+            id: "SelExam"
+        });
+    }
+
+    function ExamIDList(str) {
+        $("#hid_PaperId").val(str);
+        var paperName = $("#paper_" + $('#hid_PaperId').val());
+        var paperHtml = "";
+        paperHtml += "<div class='seled-list'><h4 style='margin-top:5px;float:left;'>已选择试卷：</h4><ul>";
+        paperHtml += "<li id='sp_paperName' class='ovh'>" + paperName.html() + " <a class='btn btn-cancel' onclick='removeRelPaper()'>X</a></li>";
+        paperHtml += "</ul></div>";
+        $("#lbl_PaperName").html(paperHtml);
+        art.dialog.list['SelExam'].close();
+    }
+
+    function submitExam(form) {
+        if ($("#txt_PublishedFlag").val() == 1) {
+            if ($("#personids").val().length == 0) {
+                //art.dialog({ content: "发布考试必须有考生参加！", time: 3 });
+                art.dialog.tips("发布考试必须有考生参加", 3);
+                return;
+            }
+
+            art.dialog({
+                content: '考试发布之后不可修改，确认发布吗？',
+                ok: function () {
+                    $("#btnSave").removeAttr("onclick");
+                    $("#btnPublish").removeAttr("onclick");
+                    
+                    $.post("/Examination/SubmitEditExamination?personIds=" + $("#personids").val() + "&ApprovalUser=" + $("#ApprovalUserIds").val(), $("#fro_EditExamination").formSerialize(), function (data) {
+                        
+                        art.dialog.tips(data.content, 3, function () {
+                            if (data.result == 1) {
+                                window.location.href = '/Examination/ExaminationList';
+                            }
+                            else {
+                                $("#btnSave").attr("onclick", "SaveExam()");
+                                $("#btnPublish").attr("onclick", "PublishedExam()");
+                            }
+                        });
+                    });
+                    return true;
+                },
+                cancelVal: '关闭',
+                cancel: true //为true等价于function(){}
+            });
+        } else {
+            $("#btnSave").removeAttr("onclick");
+            $("#btnPublish").removeAttr("onclick");
+            $.post("/Examination/SubmitEditExamination?personIds=" + $("#personids").val() + "&ApprovalUser=" + $("#ApprovalUserIds").val(), $("#fro_EditExamination").formSerialize(), function(data) {
+                
+                art.dialog.tips(data.content, 3, function () {
+                    $("#txt_id").val(data.examId);
+                    if (data.result == 1) {
+                        window.location.href = '/Examination/ExaminationList';
+
+                    }
+                    else {
+                        $("#btnSave").attr("onclick", "SaveExam()");
+                        $("#btnPublish").attr("onclick", "PublishedExam()");
+                    }
+                });
+            });
+        }
+    }
+
+    function PublishedExam() {
+        $("#txt_PublishedFlag").val(1);
+        $("#fro_EditExamination").submit();
+    }
+
+    function SaveExam() {
+        $("#txt_PublishedFlag").val(0);
+        $("#fro_EditExamination").submit();
+    }
+
+    function AddApprovalUser() {
+        $("#AUser").html("");
+        $.getJSON("/Examination/GetUserByIds", { ids: $("#ApprovalUserIds").val() }, function (data) {
+            var html = "";
+            if (data.data.length > 0) {
+                html += "<div class='seled-list'><h4>已选择批阅人：</h4><ul>";
+                for (var i = 0; i < data.data.length; i++) {
+                    var tagId = "Tag_" + data.data[i].UserId;
+                    //$("#AUser").prepend('<li id=' + tagId + '><span title=' + data.data[i].Realname + '>' + data.data[i].Realname + '</span><a class="btn btn-cancel" onclick="removeApprovalUser(\'' + data.data[i].UserId + '\')">X</a></li>');
+                    html += "<li id='" + tagId + "'><span title='" + data.data[i].Realname + "' >" + data.data[i].Realname + "</span><a onclick='removeApprovalUser(" + data.data[i].UserId + ")' class='btn btn-cancel'>X</a></li>";
+                }
+                html += "</ul></div>";
+
+                $("#AUser").prepend(html);
+            }
+            $("#ApprovalUserIds").val(data.ids);
+        });
+    }
+
+    function removeApprovalUser(tagId) {
+        $("#Tag_" + tagId).remove();
+        var tagArray = [];
+        tagArray = $("#ApprovalUserIds").val().split(",");
+        $.arrayRemove(tagArray, tagId);
+        $("#ApprovalUserIds").val(tagArray.join(","));
+    }
+
+    function removeRelPaper() {
+        $("#sp_paperName").html("");
+        $('#hid_PaperId').val(0);
+    }
+
+    function fnback() {
+        window.location.href = '/Examination/ExaminationList';
+    }
+</script>

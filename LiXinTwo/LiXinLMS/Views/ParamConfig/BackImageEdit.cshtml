@@ -1,0 +1,69 @@
+﻿@model LiXinModels.sys_NoteBackImage
+@{
+    ViewBag.Title = "BackImageEdit";
+    Layout = null;
+    var show = Request.QueryString["show"] ?? "0";
+}
+<div>
+    @if (show == "0")
+    {
+        <table class="tab-List mt10">
+            <tr>
+                <td>用途：
+               <input name="defalutType" type="radio" checked="checked" value="0" />正常
+               <input name="defalutType" type="radio" value="2" />课程的背景
+                </td>
+                <td>
+                    <input type="button" value="保存" class="btn" onclick="savedatetype()" />
+                    <a onclick="pop_close()" class="btn btn-cancel">取消</a></td>
+            </tr>
+        </table>
+    }
+</div>
+<div>
+    背景图片：
+    <img style="margin-top:5px" width="560px" height="378px" alt="" src="../../UploadFiles/NoteBackImage/@(Model.RealName)"
+</div>
+@if (show == "1")
+{
+    <center>
+      <a onclick="pop_close()" class="btn btn-cancel">取消</a>
+    </center>
+}
+<script>
+    $(document).ready(function ()
+    {
+
+        var type =@(Model.defalutType);
+        $("input[name='defalutType'][value='"+type+"']").attr("checked", true);
+        //if(type==0)
+        //{
+        //    $("#rdefalutType").attr("checked", true);
+        //}
+     
+        //else
+        //{
+        //    $("#rdefalutType").attr("checked", false);
+        //    $("input[name='cdefalutType'][value='"+type+"']").attr("checked", true);
+        //}
+      
+    });
+
+    function savedatetype()
+    {
+       
+        var type = $("input[name='defalutType']:checked").val();
+        $.get("/SystemManage/UpdateImageType?id=@ViewBag.id&type=" + type, function (data)
+        {
+            art.dialog.list["pop_ImageEdit"].close();
+            InitData();
+            
+        });
+
+    }
+
+    function pop_close()
+    {
+        art.dialog.list["pop_ImageEdit"].close();
+    }
+</script>

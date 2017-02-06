@@ -1,0 +1,99 @@
+﻿@{
+    Layout = null;
+    var emailmodel = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+<!DOCTYPE html>
+<form id="fnSumitConfig">
+<h2 class="tit-h2 mt10">
+    <i></i><span class="tit-con">短信设置</span>
+</h2>
+<table class="tab-Form mt20">
+    <input type="hidden" value="2" id="configType" /><!--区分ID-->
+    <tr>
+        <td class="Tit span20">
+            地址：
+        </td>
+        <td>
+            <input type="text" id="txt_ip" name="ip" class="Box span30 inpbor" value="@emailmodel.ConfigValue.Split(';')[0]" />
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            端口号：
+        </td>
+        <td>
+            <input type="text" id="txt_port" name="port" class="Box span30 inpbor" value="@emailmodel.ConfigValue.Split(';')[1]" />
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            用户名：
+        </td>
+        <td>
+            <input type="text" id="txt_Name" name="Name" class="Box span30 inpbor" value="@emailmodel.ConfigValue.Split(';')[2]" />
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            密码：
+        </td>
+        <td>
+            <input type="text" id="txt_Password" name="password" class="Box span30 inpbor" value="@emailmodel.ConfigValue.Split(';')[3]"/>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" class="tc">
+            <input type="submit" value="确定" id="btn_Add" class="btn" />
+        </td>
+    </tr>
+</table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+        jQuery.validator.addMethod("IsIP", function (value, element)
+        {
+            var re = /^((0[0-9]|1[0-9]\d{1,2})|(2[0-5][0-5])|(2[0-4][0-9])|(\d{1,2}))\.((0[0-9]|1[0-9]\d{1,2})|(2[0-5][0-5])|(2[0-4][0-9])|(\d{1,2}))\.((0[0-9]|1[0-9]\d{1,2})|(2[0-4][0-9])|(2[0-5][0-5])|(\d{1,2}))\.((0[0-9]|1[0-9]\d{1,2})|(2[0-4][0-9])|(2[0-5][0-5])|(\d{1,2}))$/;
+            return this.optional(element) || re.test(value);
+        }, "请输入正确的ip地址");
+
+
+        $("#fnSumitConfig").validate({
+            event: "blur",
+            rules: {
+                ip: { required: true, IsIP: true },
+                port: { required: true, digits: true, min: 1 },
+                Name: { required: true, digits: true, min: 1 },
+                password: { required: true }
+            },
+            messages: {
+                ip: { required: "请输入地址" },
+                port: { required: "请输入端口", digits: "请输入大于0的正整数", min: "请输入大于0的正整数" },
+                Name: { required: "请输入账户名字", digits: "请输入大于0的正整数", min: "请输入大于0的正整数" },
+                password: { required: "请输入密码" }
+            },
+            submitHandler: fnSumitConfig
+        });
+    });
+
+
+    function fnSumitConfig()
+    {
+
+        var tt = $("#txt_ip").val() + ";" + $("#txt_port").val() + ";" + $("#txt_Name").val() + ";" + $("#txt_Password").val();
+        $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + tt, function (data)
+        {
+            if (data.result == 1)
+            {
+                art.dialog.tips('配置成功',3);
+            } else
+            {
+                art.dialog.tips('配置失败', 3);
+            }
+
+        });
+
+    }
+
+</script>

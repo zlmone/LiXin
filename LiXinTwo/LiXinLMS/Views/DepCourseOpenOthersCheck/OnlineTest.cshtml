@@ -1,0 +1,139 @@
+﻿
+@{
+    Layout =null;
+}
+
+<div class="main-c">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span12">
+                    序号
+                </th>
+                <th class="span12">
+                    姓名
+                </th>
+                <th>
+                    部门/分所
+                </th>
+                <th class="span8">
+                    考试次数
+                </th>
+                <th class="span12">
+                    成绩(所得/通过)
+                </th>
+                <th class="span8">
+                    是否通过
+                </th>
+                <th class="span8">
+                    答卷详情
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+               {{:#index+1}}
+            </td>
+            <td>
+               {{>Realname}}
+            </td>
+            <td>
+                {{>DeptName}}
+            </td>
+            <td>
+                {{:ExamTestTimes}}/
+                
+                {{if TestTimes==-1}}
+                无限次
+                {{else}}
+                    {{:TestTimes}}
+                {{/if}}
+            </td>
+            <td>
+              {{:GetexamScore}}/{{:LevelScoreStr}}
+            </td>
+            <td>
+             {{:GetexamScore>=LevelScoreStr?"是":"否"}}
+            </td>                    
+             <td>            
+             {{if DoExamStatus==0}}
+              <a onclick="lookPaper({{:PaperId}},0)" title="详情" class="icon iview"></a> 
+             {{/if}}
+             {{if DoExamStatus==2}}
+             <a onclick="browseDetail({{:tbExamstudentId}})" title="详情" class="icon iview"></a>  
+             {{/if}}         
+            </td>            
+        </tr> 
+        {{/for}}
+</script>
+
+<script type="text/javascript">
+        $(document).ready(function() {
+            InitData();
+
+        });
+        
+        function InitData() {
+            $("#Courstlist").JsRenderData({
+                sourceUrl: '/DepCourseOpenOthersCheck/GetTeacherOnLineTest?courseid=@ViewBag.Id',
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: "CourseListTemplate"
+            });
+        }
+
+        function browseDetail(examUserId) {
+       // window.location.href = '/ExamTest/ExamTestDetail?euID=' + examUserId+"&type=5&backurl="+window.location.href;
+            var openurl = "/ExamTest/DepExamTestDetail?euID=" + examUserId + "&type=5";
+            art.dialog({
+                title: "答卷详情",
+                lock: true,
+                fixed: true,
+                width: 700,
+                height: 450,
+                time: false,
+                content: '<div class="tac mt20"><img src="/Images/loading.gif" alt="loading"/></div>',
+                close: function () {
+                    $('#popIframe').hide();
+                    $(".aui_content").css({ "height": "auto", "width": "auto", "overflow": "auto" });
+                }
+            });
+            $(".aui_content").css({ "height": "450px", "width": "700px", "overflow": "auto" });
+            $.get(openurl + "&t=" + new Date(), function (data) {
+                $(".aui_content").html(data);
+            });
+    }
+        
+
+         function lookPaper(id, sid) {
+        var openurl = "/Exampaper/ExampaperDetail?flag=1&type=1&id=" + id + "&sortID=" + sid;
+        art.dialog({
+            title: "题目",
+            lock: true,
+            fixed: true,
+            width: 700,
+            height: 450,
+            time: false,
+            content: '<div class="tac mt20"><img src="/Images/loading.gif" alt="loading"/></div>',
+            close: function() {
+                $('#popIframe').hide();
+                $(".aui_content").css({ "height": "auto", "width": "auto", "overflow": "auto" });
+            }
+        });
+        $(".aui_content").css({ "height": "450px", "width": "700px", "overflow": "auto" });
+        $.get(openurl + "&t=" + new Date(), function(data) {
+            $(".aui_content").html(data);
+        });
+    }
+        
+</script>

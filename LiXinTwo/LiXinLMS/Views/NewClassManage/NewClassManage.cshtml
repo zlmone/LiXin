@@ -1,0 +1,395 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "班级维护";
+}
+<input type="hidden" id="selUserId" value="" />
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "班级维护" }))
+    <h2 class="tit-h2">
+        <span class="tit-con">当前班组：</span>
+    </h2>
+    <div class="so-set">
+        <table class="tab-Form">
+            <tbody>
+                <tr>
+                    <td class="Tit span8">选择年度：</td>
+                    <td>
+                        <select id="selYear" onchange="InitDataCurrentClassGroup();">
+                            @foreach (var year in ViewBag.yearList)
+                            {
+                                <option value="@year"  @(year == ViewBag.nowyear ? "selected='selected'" : "")>@year</option>
+                            }
+                        </select>
+                    </td>
+                    <td class="Tit"></td>
+                    <td class="so-do">
+                        <a onclick="BatchDeleteClass(GetChecked('currentClassList'));" class="btn btn-co" style="float: right;" id="deleteAll">批量删除</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="Content1">
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        <input type="checkbox" value="0" id="selectall1" />
+                    </th>
+                    <th class="span4">序号</th>
+                    <th>班级名称
+                    </th>
+                    <th class="span10">班级人数
+                    </th>
+                    <th class="span10">包含小组数
+                    </th>
+                    <th class="span6">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="currentClassList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <div>
+        <a onclick="OverSplitClass();" class="btn btn-co" style="float: right;" id="endClass">结束分班</a>
+    </div>
+
+    <script id="currentClassListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td class="tc">
+                {{if IsDoDelete==1}}
+                    <input type="checkbox" id='{{:Id}}' value='{{:Id}}' />
+                {{else}}
+                    <input type="checkbox" id='{{:Id}}' value='{{:Id}}' disabled="disabled"/>
+                {{/if}}
+            </td>
+            <td>{{:#index+1}}</td>
+            <td  class="tl">
+                <div class="tl ovh span60" title="{{>ClassName}}（男：{{:NowManCount}}，女：{{:NowWomanCount}}；有事务所实习经验：{{:NowInternExpCount}}，无事务所实习经验：{{:NowNoInternExpCount}}）">
+                <strong>{{>ClassName}}</strong>
+                （男：{{:NowManCount}}，女：{{:NowWomanCount}}；有事务所实习经验：{{:NowInternExpCount}}，无事务所实习经验：{{:NowNoInternExpCount}}）
+                </div>
+            </td>
+            <td>{{:NowPeopleCount}}</td>
+            <td>{{:NowGroupCount}}</td>
+            <td class="tc">
+                <a class="icon irole-as" title="人员调整" onclick="PersonChange({{:Id}});"></a>
+                {{if IsDoDelete==1}}
+                    <a class="icon idel" title="删除"  onclick="BatchDeleteClass('{{:Id}}');"></a>
+                {{else}}
+                    <a class="icon idel idis" title="删除" disabled="disabled"></a>
+                {{/if}}
+            </td>
+        </tr>
+    {{/for}}
+    </script>
+
+    <div class="clear"></div>
+
+    <h2 class="tit-h2">
+        <span class="tit-con">当前未分班人员列表：</span>
+    </h2>
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tbody>
+                <tr>
+                    <td class="Tit span6">姓名：
+                    </td>
+                    <td>
+                        <input type="text" class="span30  searchclass" value="请输入姓名" id="realName" info="" />
+                    </td>
+                    <td class="so-do">
+                        <input type="button" class="btn" id="btnSearch" name="搜索" value="搜索" onclick=" InitData(); " />
+                        <a onclick="AutoSplitClass();" class="btn btn-co" id="autofenban">自动分班</a>
+                        <a onclick="JoinClassManage(GetChecked('newClassManageList'));" id="insertClass" class="btn btn-co">插班管理</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="so-seq lh30">
+        新进员工人数：<strong><span id="newUserCount"></span></strong>
+        已划分班级数：<strong><span id="splitClassCount"></span></strong>
+        已分班人数：<strong><span id="splitUserCount"></span></strong>
+    </div>
+    <div id="Content">
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        <input type="checkbox" value="0" id="selectall" />
+                    </th>
+                    <th class="span4">序号</th>
+                    <th class="span4">学号
+                    </th>
+                    <th class="span4">姓名
+                    </th>
+                    <th>所在部门
+                    </th>
+                    <th class="span10">毕业院校
+                    </th>
+                    <th class="span8">毕业专业
+                    </th>
+                    <th class="span8">是否有事务<br />
+                        所实习经验
+                    </th>
+                    <th class="span8">是否在我<br />
+                        所进行实习
+                    </th>
+                    <th class="span10">实习部门
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="newClassManageList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="newClassManageListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td class="tc">
+                <input type="checkbox" id='{{:UserId}}' value='{{:UserId}}' />
+            </td>
+            <td>{{:#index+1}}</td>
+            <td class="tl span10">
+                {{:NumberIDStr}}
+            </td>
+            <td  class="tl span10">
+                <div class="ovh span10" title="{{>Realname}}">
+                    {{if Sex==0}}
+                      <span style="color:blue">♂</span>
+                    {{else}}
+                        <span style="color:red">♀</span>      
+                    {{/if}}
+                    <strong>{{>Realname}}</strong>
+                </div>
+            </td>
+            <td>
+                <div class="tl ovh span16" title="{{>DeptName}}">{{>DeptName}}</div>
+            </td>
+            <td>{{>GraduateSchoolStr}}</td>
+            <td>{{>MajorStr}}</td>
+            <td>{{>IsInternExpStr}}</td>
+            <td>{{>IsOurInternStr}}</td>
+            <td>
+                <div class="tl ovh span10" title="{{>InternDeptStr}}">{{>InternDeptStr}}</div>
+            </td>
+        </tr>
+    {{/for}}
+</script>
+<script language="javascript" type="text/javascript">
+    //初始化人数班级数
+    function GetClassAndPersonCount()
+    {
+        $.post("/NewClassManage/GetClassAndPersonCount",
+            function (data)
+            {
+                $("#newUserCount").html(data.newUserCount);
+                $("#splitClassCount").html(data.splitClassCount);
+                $("#splitUserCount").html(data.splitUserCount);
+            });
+    }
+
+
+    $(document).ready(function ()
+    {
+        initSearch();
+        InitDataCurrentClassGroup(); //初始化当前班组列表
+        InitData(); //初始化未分组人员列表
+    });
+
+
+    //初始化当前班组列表
+    function InitDataCurrentClassGroup()
+    {
+        var v = "";
+        $("#currentClassList").JsRenderData({
+            sourceUrl: '/NewClassManage/GetCurrentClassList?year=' + $("#selYear").val(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "currentClassListTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox('selectall1', 'currentClassList');
+                if ("@ViewBag.nowyear" != $("#selYear").val())
+                {
+                    $("#currentClassList .irole-as").attr("disabled", true);
+                    $("#deleteAll,#deleteAll,#autofenban,#insertClass,#endClass").attr("disabled", true);
+                }
+                else
+                {
+                    $("#deleteAll,#deleteAll,#autofenban,#insertClass,#endClass").attr("disabled", false);
+                }
+                InitData();
+            }
+        });
+    }
+    //跳转到班级人员调整详细界面
+    function PersonChange(id)
+    {
+        window.location.href = '/NewClassManage/ClassPersonManage?classId=' + id;
+    }
+
+    //批量删除班级
+    function BatchDeleteClass(id)
+    {
+        if (id == "")
+        {
+            //art.dialog({ content: "请选择班级！", time: 3 });
+            art.dialog.tips("请选择班级！", 3);
+            return;
+        }
+        art.dialog({
+            content: "确认删除？",
+            ok: function ()
+            {
+                $.post("/NewClassManage/BatchDeleteClass", { classIds: id }, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        art.dialog.tips("操作成功！", 3);
+                    } else
+                    {
+                        art.dialog.tips("操作失败！", 3);
+                    }
+                    InitDataCurrentClassGroup(); //初始化当前班组列表
+                    InitData(); //初始化未分组人员列表
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //结束分班
+    function OverSplitClass()
+    {
+        art.dialog({
+            content: "结束分班则已生成的班级均不可删除，是否结束分班？",
+            ok: function ()
+            {
+                $.post("/NewClassManage/OverSplitClass", function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        art.dialog.tips("操作成功！", 3);
+                    } else
+                    {
+                        art.dialog.tips("操作失败！", 3);
+
+                    }
+                    InitDataCurrentClassGroup(); //初始化当前班组列表
+                    InitData(); //初始化未分组人员列表
+                });
+            },
+            cancel: true
+        });
+    }
+
+
+    //初始化未分组人员列表
+    function InitData()
+    {
+        GetClassAndPersonCount(); //初始化人数班级数
+        var v = "realName=" + escape(getSearchWord("realName")) + "&year=" + $("#selYear").val();
+        $("#newClassManageList").JsRenderData({
+            sourceUrl: '/NewClassManage/GetUserNotInNewClassList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            //jsRenderSortField: "Sys_Roles.RoleId",
+            //jsRenderASC: "desc",
+            templateID: "newClassManageListTemplate",
+            funCallback: function (data)
+            {
+                if (data.dataList.length == 0)
+                {
+                    $("#autofenban").removeAttr("onclick").attr("disabled", true);
+                }
+                else
+                {
+                    $("#autofenban").attr("disabled", false).attr("onclick", "AutoSplitClass()");
+                }
+                SetCheckBox('selectall', 'newClassManageList');
+            }
+        });
+    }
+
+    //自动分班
+    function AutoSplitClass()
+    {
+        art.dialog.load("/NewClassManage/AutoSplitClass",
+            {
+                title: '自动分班',
+                id: 'art_AutoSplitClass',
+                width: 750
+            });
+    }
+
+    //插班管理
+    function JoinClassManage(id)
+    {
+        if (id == "")
+        {
+            //art.dialog({ content: "请选择人员！", time: 3 });
+            art.dialog.tips("请选择人员！", 3);
+            return;
+        }
+        $("#selUserId").val(id);
+        art.dialog.load("/NewClassManage/JoinClassManage?userIds" + id,
+            {
+                title: '插班管理',
+                id: 'art_JoinClassManage',
+                width: 600
+            });
+    }
+</script>
+
+<script type="text/javascript">
+    function SaveClassGroup()
+    {
+        var classid = $("#selClass").val();
+        var groupid = $("#selGroup").val();
+        if (classid == "-1")
+        {
+            //art.dialog({ content: "请选择班级！", time: 3 });
+            art.dialog.tips("请选择班级！", 3);
+            return;
+        }
+        if (groupid == "-1")
+        {
+            //art.dialog({ content: "请选择组！", time: 3 });
+            art.dialog.tips("请选择组！", 3);
+            return;
+        }
+        var classNo = $("#selClass").find("option:selected").attr("classNo");
+        var groupNo = $("#selGroup").find("option:selected").attr("groupNo");
+        $.post("/NewClassManage/InsertClassByIsNew", {
+            userIds: $("#selUserId").val(),
+            classId: classid,
+            groupId: groupid,
+            classNo: classNo,
+            groupNo: groupNo
+        },
+            function (data)
+            {
+                if (data.result == 1)
+                {
+                    art.dialog.tips("操作成功！", 3);
+                } else
+                {
+                    art.dialog.tips("操作失败！", 3);
+                }
+                closeDialog("art_JoinClassManage");
+                InitDataCurrentClassGroup(); //初始化当前班组列表
+                InitData(); //初始化未分组人员列表
+            });
+    }
+</script>

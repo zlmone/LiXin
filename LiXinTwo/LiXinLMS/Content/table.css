@@ -1,0 +1,118 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+
+.tab-List{width:100%;border:0 none;}
+.tab-List thead tr th{padding:4px 0;background:#e5e5e5;border-bottom:1px solid #333;text-align:center;font-weight:bold;word-wrap:break-word;vertical-align:middle;}
+.ie7 .tab-List thead tr th{white-space:nowrap;}
+.tab-List thead tr th .sort{position:relative;padding-right:10px;}
+.tab-List thead tr th .sort .sort-do{position:absolute;right:3px;display:inline;}
+.tab-List thead tr th .sort .sort-do i{margin:3px 0;display:block;}
+.tab-List thead tr th .sort .do-up .s-down{display:none;}
+.tab-List thead tr th .sort .do-up .s-up{margin-top:6px;}
+.tab-List thead tr th .sort .do-down .s-up{display:none;}
+.tab-List thead tr th .sort .do-down .s-down{margin-top:6px;}
+.tab-List tbody tr td{padding:4px 0;border-bottom:1px dotted #aaa;text-align:center;color:#4d4d4d;}
+.tab-List tbody tr.odd td{background:none;}
+.tab-List tbody tr.even td{background:#e5e5e5;}
+.tab-List tbody tr:hover td{background:#ccc;}
+
+
+.tab-List tbody .icon{margin:0 2px;}
+.ie7 .tab-List tbody .icon{margin:0 2px;position:relative;float:left;}
+.tab-List tbody .Info{color:#aaa;}
+.tab-List tbody .Info i{margin:0 3px;}
+.tab-List tbody .Info strong,.tab-List tbody tr:hover .Info strong{color:#333;font-weight:normal;}
+.tab-List tbody tr:hover .Info{color:#666;}
+.tab-List tbody tr:hover .Info i{color:#aaa;}
+.tab-List tfoot #listPage,.tab-List #listPage{padding:15px 0;text-align:center;line-height:28px;}
+.tab-List tfoot #listPage span,.tab-List tfoot #listPage a,.tab-List #listPage span,.tab-List #listPage a{display:inline-block;height:28px;overflow:hidden;text-align:center;}
+.tab-List tfoot #listPage a,.tab-List .blocklist #listPage a{cursor:pointer;}
+.tab-List tfoot #listPage a,.tab-List .blocklist #listPage a,
+.tab-List tfoot #listPage .first,.tab-List .blocklist #listPage .first,
+.tab-List tfoot #listPage .previous,.tab-List .blocklist #listPage .previous,
+.tab-List tfoot #listPage .status_disabled,.tab-List .blocklist #listPage .status_disabled{min-width:28px;background-color:#aaa;color:#fff;text-decoration:none;}
+.tab-List tfoot #listPage .status-on,.tab-List .blocklist #listPage .status-on{background-color:#333;}
+.tab-List tfoot #listPage .previous,.tab-List tfoot #listPage .next,.tab-List .blocklist #listPage .previous,.tab-List .blocklist #listPage .next{text-indent:30px;width:28px;}
+.tab-List tfoot #listPage a:hover,.tab-List .blocklist #listPage a:hover{background-color:#666;}
+.tab-List tfoot #listPage .previous,.tab-List .blocklist #listPage .previous{background:url(../images/other-bg.png) -32px 6px no-repeat #aaa;}
+.tab-List tfoot #listPage .next,.tab-List .blocklist #listPage .next{background:url(../images/other-bg.png) -50px 6px no-repeat #aaa;}
+.tab-List tfoot #listPage .c38,.tab-List .blocklist #listPage .c38{margin:0 10px;line-height:28px;}
+.tab-List tfoot #listPage input,.tab-List .blocklist #listPage input{width:22px;height:22px;border:1px solid #ccc;line-height:22px;text-align:center;font-family:Verdana;}
+.tab-List tfoot #listPage .c38 input,.tab-List tfoot #listPage .c38 a,.tab-List .blocklist #listPage .c38 input,.tab-List .blocklist #listPage .c38 a{margin-left:5px;float:right;}
+.tab-List tfoot #listPage .c38 a,.tab-List .blocklist #listPage .c38 a{background:#ccc;}
+.tab-List tfoot #listPage .c38 a:hover,.tab-List .blocklist #listPage .c38 a:hover{background-color:#666;color:#fff;}
+.tab-List tfoot .listPage a,.tab-List .blocklist .listPage a,
+.tab-List tfoot .listPage span,.tab-List .blocklist .listPage span{margin:0 2px;}
+
+.tab-List tbody tr td ol{list-style:decimal inside;}
+
+/* Course Type -- */
+/*.tab-List tbody tr.c-it td{background:#f0d9d9;} �ڲ���ѵ 
+.tab-List tbody tr.c-it:hover td{background:#e7caca;}*/
+/* .tab-List tbody tr.c-it td{background:#f0e5d9;}�����Ƹ 
+.tab-List tbody tr.c-sr:hover td{background:#e7d6c5;}*/
+/*.tab-List tbody tr.c-ne td{background:#cceed4;} �½�Ա�� 
+.tab-List tbody tr.c-ne:hover td{background:#b6e2c0;}*/
+/*.tab-List tbody tr.c-tr td{background:#d3d7ed;} ʵϰ�� 
+.tab-List tbody tr.c-tr:hover td{background:#c3c8e4;}*/
+.course-type:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.course-type{position:relative;margin-right:5px;width:17px;height:17px;float:left;zoom:1;}
+.course-type i{width:8px;height:8px;text-indent:999px;display:block;overflow:hidden;float:left;}
+.course-type i.c-it{margin-right:1px;background:#c8000a;}
+.course-type i.c-sr{background:#002e7c;}
+.course-type i.c-ne{margin-right:1px;margin-top:1px;background:#1c8439;}
+.course-type i.c-tr{margin-top:1px;background:#ee811c;}
+.course-type i.c-no{background:#bcbcbc;}
+
+/* ���� -- */
+.tab-List tbody tr td .att{position:relative;height:100%;}
+.tab-List tbody tr td .lt{margin-top:-9px;padding-top:9px;}
+.tab-List tbody tr td .att i{position:absolute;top:-4px;left:0;width:10px;height:10px;background:url(../images/other-bg.png) -100px -190px;cursor:pointer;display:block;}
+.tab-List tbody tr td .att p{position:absolute;top:-4px;left:0;padding:0 3px 2px;background:#c7000b;color:#fff;line-height:14px;white-space:nowrap;cursor:pointer;display:none;}
+.tab-List tbody tr td .att.ma i{background-position:-110px -190px;}
+.tab-List tbody tr td .att.ma p{background:#1c833c;}
+
+/* �ƶ��γ��ö� -- */
+.tab-List tbody tr.top td{background:#f0d9d9;}
+.tab-List tbody tr.top:hover td{background:#e7caca;}
+
+
+.tab-Info tbody tr td{padding:10px 0;border:0 none;text-align:left;}
+.tab-Info tbody tr td h5,.tab-Info tbody tr td .con{padding:0 20px;line-height:20px;}
+.tab-Info tbody tr td h5{color:#333;}
+.tab-Info tbody tr td .con{margin-top:5px;text-indent:2em;}
+.tab-Info tbody tr td .con a{margin:0 10px;color:#D4004A;cursor:pointer;}
+.tab-Info tbody tr td p{padding-right:10px;text-align:right;color:#666;}
+
+.tab-Rank{width:100%;border:0 none;}
+.tab-Rank tr td{padding:4px 0;border-bottom:1px dotted #999;text-align:center;color:#333;}
+.tab-Rank tr td .num{margin:0 10px;width:16px;height:16px;background:url(../images/other-bg.png) 0 -32px no-repeat;line-height:16px;text-align:center;color:#fff;font-weight:bold;overflow:hidden; }
+.tab-Rank tr td .num-f{background-position:0 0;}
+.tab-Rank tr td .num-s{background-position:0 -16px;}
+
+
+.tab-Form{width:100%;border:0 none;}
+.tab-Form tr td{padding:4px 0;vertical-align:top;line-height:26px;}
+.tab-Form tr td.Tit{padding:4px 3px 4px 15px;text-align:right;line-height:26px;}
+.tab-Form tr td .sel{padding:0;}
+.tab-Form tr td .sel span{float:left;height:20px;}
+.tab-Form tr td .sel span,.tab-Form tr td .sel label{white-space:nowrap;}
+.tab-Form tr td .sel label,.tab-Form tr td .sel input{vertical-align:middle;}
+.tab-Form tr td .sel label{margin:0 10px 0 3px;}
+.tab-Form tr td .must{margin-right:3px;color:#c8000b;}
+.tab-Form .tab-List tr td{padding:4px 0;border-bottom:1px dotted #aaa;}
+.tab-Form textarea{margin-bottom:3px;}
+.tab-Form .list{width:90%;}
+.tab-Form .list .item{margin:5px 0;padding:10px;border:1px solid #ccc;background:#fefefe;position:relative;}
+.tab-Form .list .item .close{position:absolute;right:7px;top:0;cursor:pointer;font-size:14px;}
+.tab-Form .list .item .close:hover{color:#f00;}
+table .Validform_checktip{margin-left:5px;display:inline-block;padding:0 3px;color:#C2812D;line-height:24px;white-space:nowrap; vertical-align:top;}
+table .Validform_checktip.Validform_wrong{background:#FFE3E3;border:1px solid #EDBDBD;color:#B54848;}
+table .charleft.originalTextareaInfo{padding:0 3px;display:inline-block;background:#E7F1FF;border:1px solid #BACFEB;color:#5684C5;white-space:nowrap;vertical-align:top;}
+
+.tab-now tr td.Tit{white-space:nowrap;}
+
+.tab-Form .salary{height:100px;overflow-y:scroll;}
+.tab-Form .salary label{width:80px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+

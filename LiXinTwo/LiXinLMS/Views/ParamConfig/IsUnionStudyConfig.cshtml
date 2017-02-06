@@ -1,0 +1,69 @@
+﻿@{
+    Layout = null;
+    var evaluationmodle = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+
+<!DOCTYPE html>
+<form>
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">是否联合学习</span>
+    </h2>
+    <table class="tab-Form mt20">
+        <input type="hidden" value="39" id="configType" /><!--区分ID-->
+        <tr>
+            <td class="Tit span20">
+                是否联合学习配置：
+            </td>
+            <td>
+                <input type="radio" id="setYes" name="setYes" onclick="isCheckedYes()" />是
+                <input type="radio" id="setNo" name="setNo" onclick="isCheckedNo()" />否
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="button" value="确定" id="btn_Add" name="btn_Add" class="btn" onclick="btnClick()"/>
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var flag = @evaluationmodle.ConfigValue;
+        if (flag == "1") {
+            $("#setYes").attr("checked", true);
+        } else {
+            $("#setNo").attr("checked", true);
+        }
+    });
+
+    function isCheckedYes() {
+        if ($("#setYes").attr("checked") == "checked") {
+            $("#setNo").attr("checked", false);
+        }
+
+    }
+
+    function isCheckedNo() {
+        if ($("#setNo").attr("checked") == "checked") {
+            $("#setYes").attr("checked", false);
+        }
+    }
+
+    function btnClick() {
+        var flagData;
+        if ($("#setYes").attr("checked") == "checked") {
+            flagData = "1";
+        } else {
+            flagData = "0";
+        }
+        $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + flagData, function (data) {
+            if (data.result == 1) {
+                art.dialog.tips("配置成功");
+            }
+            else {
+                art.dialog.tips("配置失败");
+            }
+        })
+    }
+</script>
+

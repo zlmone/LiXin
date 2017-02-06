@@ -1,0 +1,239 @@
+﻿@model LiXinModels.MyApproval.ShowFreeDetails
+@{
+    ViewBag.Title = "批量其他形式详情";
+    string TrainGrade = ViewBag.TrainGrade as string;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "批量其他形式详情"
+}))
+
+
+    <input class="btn btn-co" type="button" value="导出人员名单" onclick="ExportUser()" />
+    <input class="btn btn-co" type="button" value="导出申请表格" onclick="ExportUserAll()" />
+    <div>
+        <table class="tab-Form lh30 pl20">
+            <tbody>
+                <tr>
+                    <td class="Tit span7">申请内容：</td>
+                    <td>@(Model.ApplyContent)</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        @if (ViewBag.type == 3 && Model.ApplyType == 3)
+                        {
+                            foreach (var item in Model.teacherDetails)
+                            {
+                            <table class="tab-Form app-item">
+                                <tr>
+                                    <td class="Tit span8">培训班名称：</td>
+                                    <td>@item.ClassName</td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">授课学时：</td>
+                                    <td>@item.ConvertScore<span style="color: gray" class="ml10">按实际授课、主持或演讲时间的@(Model.ConvertBaseTo)倍折算学时</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">所内学时：</td>
+                                    <td>@item.tScore</td>
+                                </tr>
+                                <tr>
+                                    <td class="Tit">CPA学时：</td>
+                                    <td>@item.CPAScore</td>
+                                </tr>
+                            </table>
+                            }
+                        }
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="Tit">申请年度：</td>
+                    <td>@(Model.Year)</td>
+                </tr>
+                @if (ViewBag.type == 1 && Model.ApplyType == 1)
+                {
+                    <tr>
+                        <td class="Tit">折算方法：</td>
+                        <td>@(Model.ConvertScore)@(Model.ConvertBaseInfo)
+                            <span style="color: gray">@(Model.ConvertBaseTo)学时/@(Model.ConvertBase)@(Model.ConvertBaseInfo)
+                                @if (Model.ConvertType!=1)
+                                {
+                                    <span>最高可折算所内学时：@(Model.TrainGradeScoreStr)</span>
+                          
+                                }
+                                @if (ViewBag.cpa == 1 && Model.ConvertMax != 0)
+                                {
+                                    <span>最高可折算CPA学时:@(Model.ConvertMax)</span>
+                                }
+                            </span>
+                        </td>
+                    </tr>
+                                if (Model.TrainGradeScoreStr != "N/A")
+                                {
+                    <tr>
+                        <td class="Tit span10">申请所内学时：</td>
+                        <td>@(Model.tScore)</td>
+                    </tr>
+                                }
+                                if (Model.ConvertMaxStr != "N/A")
+                                { 
+                    <tr>
+                        <td class="Tit span10">申请CPA学时：</td>
+                        <td>@(Model.CPAScore)</td>
+                    </tr>
+                                }
+                }
+                <tr>
+                    <td class="Tit">情况说明：</td>
+                    <td>
+                        <label>@(Model.Memo)</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">证明资料：</td>
+                    <td>
+                        @foreach (var item in Model.ApplyFileList)
+                        {
+                            <p class="span50" style="border-bottom: 1px solid #ccc">
+                                @item.ResourceName
+                                <a class="icon idown fr ml10 mt5" title="下载" onclick="DownFile(this,'@item.RealName','@item.ResourceName')"></a>
+                                <a class="icon iview fr mt5" title="查看" id="other_view" onclick="ViewFile('@item.ResourceName','@item.ConvertName')"></a>
+                            </p>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">申请时间：</td>
+                    <td>
+                        @(Model.ApplyTimeStr)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit span12">批量申请人员：</td>
+                    <td>
+                        <table id="userall" class="tab-List mt10">
+                            <thead>
+                                <tr>
+
+                                    <th class="span4">序号
+                                    </th>
+                                    <th class="span6">姓名
+                                    </th>
+                                    <th class="span8">部门
+                                    </th>
+                                    <th class="span4">培训级别
+                                    </th>
+                                    <th class="span8">CPA编号
+                                    </th>
+                                    <th class="span8">获得所内学时
+                                    </th>
+                                    <th class="span8">获得CPA学时
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="userList">
+                            </tbody>
+                            <tfoot>
+                            </tfoot>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <center class="mt10">
+        <input type="button" class="btn  btn-cancel" value="返回" onclick="back()">
+    </center>
+</div>
+<script type="text/ecmascript">
+    var path = "@(System.Configuration.ConfigurationManager.AppSettings["FreeUplpadUrl"])"
+    $(document).ready(function ()
+    {
+
+        InitData();
+    });
+
+    function DownFile(obj, Rname, name)
+    {
+        $.getJSON("/home/IsExistFile?path=" + path + "/" + Rname, function (data)
+        {
+            if (data.result == 1)
+            {
+                window.location.href = "/home/LoadPrincipleFile?type=1&path=" + path + "/" + Rname + "&name=" + escape(name);
+            }
+            else
+            {
+                art.dialog.tips('文件不存在', 3);
+            }
+        });
+    }
+
+    function back()
+    {
+        window.location.href = "/MyApply/Free_BatchOtherFrom?flag=1"
+    }
+
+    //导出人员名单
+    function ExportUser()
+    {
+        window.location.href = "ExportUser?ID=@ViewBag.ID&&CreateTimeStr=@(Model.CreateTimeStr)&&type=0&ConvertType=@ViewBag.ConvertType";
+    }
+
+    //导出申请表格
+    function ExportUserAll()
+    {
+        window.location.href = "ExportUserAllForFree?ID=@ViewBag.ID&&CreateTimeStr=@(Model.CreateTimeStr)&&type=0";
+    }
+
+    function ViewFile(ResourceName, name)
+    {
+        art.dialog.load("/MyApproval/Free_FilesView?type=1&ResourceName=" + ResourceName + "&name=" + name, { title: '文件查看', id: 'atr_ViewFile', height: 320, width: 550 });
+    }
+
+    function InitData()
+    {
+
+        var v = "id=@ViewBag.ID";
+        $("#userList").JsRenderData({
+            sourceUrl: '/MyApply/GetApplyUsers?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            //jsRenderSortField: "OrderTime",
+            jsRenderASC: "desc",
+            templateID: "userListTemplate",
+            funCallback: function ()
+            {
+
+            }
+        });
+    }
+</script>
+<script id="userListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr> 
+        <td>{{:#index+1}}</td>
+        <td>{{:Realname}}</td>        
+        <td>{{:DeptName}}</td> 
+        <td>{{:TrainGrade}}</td> 
+        {{if CPA=="是"}}
+           <td>{{:CPANO}}</td>
+        {{else}}
+           <td>N/A</td>  
+        {{/if}}
+      {{if CPA=="是"&&@ViewBag.ConvertType==0}}
+          <td>N/A</td> 
+      {{else}}
+         <td>{{:GettScore}}</td>
+       {{/if}}
+        {{if CPA=="是"&&@ViewBag.ConvertType!=1}}
+            <td>{{:GetCPAScore}}</td>
+        {{else}}
+           <td>N/A</td>  
+        {{/if}}
+    </tr> 
+    {{/for}}
+</script>

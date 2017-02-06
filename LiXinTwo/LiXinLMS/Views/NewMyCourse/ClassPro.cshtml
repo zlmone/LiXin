@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "ClassPro";
+    Layout = null;
+}
+<script src="../../Scripts/extend.js" type="text/javascript"></script>
+<div class="main-c">
+    <input type="hidden" id="txt_CourseId" value="@ViewBag.courseid"/><!--存放课程id-->
+    <div class="course-pro">
+        <div id="CourseAdviceList">
+            <div id="myattendce">
+                <h5 class="tit-h5">
+                    <span>我的课前建议</span></h5>
+            </div>
+            <div id="otherattendce">
+                <h5 class="tit-h5">
+                    <span>他人分享的课前建议</span></h5>
+            </div>
+        </div>
+        <div class="pro-do">
+            <textarea id="txt_Content" class="all60"></textarea>
+            <p>
+                <input type="button" value="提交" id="txt_Add" class="btn" />
+                <center class="mt10">@Html.ActionLink("返回", "CourseList", "NewMyCourse", new { p = "1" }, new { @class = "btn btn-cancel" })</center>
+            </p>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+       
+        Onload(); //第一次加载课前建议
+        $("#txt_Content").textareaCount({ maxCharacterSize: 1000, displayFormat: "#input/#max" });
+
+        //$("#ul_menu li:eq(1)").addClass("On").siblings("li").removeClass("On");
+
+        $("#txt_Add").click(function (e)
+        {
+            var content = $("#txt_Content").val().trim();
+            //alert($("#txt_Content").val().length)
+            if ($("#txt_Content").val().length > 1000) {
+                art.dialog.tips("输入的内容太多", 3);
+                 $("#txt_Content").focus();
+                return false;
+            }
+
+            var html = "";
+            if (content != "")
+            {
+                $.post("/NewMyCourse/SubmitCl_CourseAdvice",
+                    {
+                        CourseId: encodeURIComponent($("#txt_CourseId").val()),
+                        AdviceContent: content
+                    }
+                    , function (data)
+                    {
+                        if (data.result == 0)
+                        {                           
+                           // art.dialog({ title: '提示', content: '提交成功', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { $("#txt_Content").focus(); } });
+                            html += "<div id=" + data.id + " class='list'>";
+                            html += "   <div class='list-head'><span>" + data.username + "</span><img src='" + data.photourl + "' /></div>";
+                            html += "   <div class='list-info'>";
+                            html += "       <i></i>";
+                            html += "       <div class='list-type'><strong>课前建议</strong>" + data.adviceTime + "</div>";
+                            html += "       <div class='list-con'>" + content + "</div>";
+                            html += "   </div>";
+                            html += "</div>";
+                            $("#myattendce").append(html);
+                            $("#txt_Content").val("");
+                        } else
+                        {
+                            art.dialog.tips(data.content, 3);
+                        }
+                    });
+            } else
+            {
+                art.dialog.tips("请填写课前建议内容", 3);
+                $("#txt_Content").focus();
+            }
+        });
+    });
+        function FReply(a) {
+            var t = $(a).attr("type");
+            if (t == 1) {
+                $(a).parent("div").siblings("#Reply_div").show();
+                $(a).attr("type", 2);
+            } else {
+                $(a).parent("div").siblings("#Reply_div").hide();
+                $(a).attr("type", 1);
+            }
+        }
+
+
+       function Onload() {
+           $.post("/NewMyCourse/OnLoadNew_CourseAdvice?id=" + $("#txt_CourseId").val(), function (data) {
+               //$("#CourseAdviceList").append(data.content);
+               if (data.leavestatus == 0) {
+                   $("#txt_Add").attr("disabled", "true");
+               }
+               $("#myattendce").append(data.content);
+               $("#otherattendce").append(data.other);
+               
+           });
+       }
+
+</script>

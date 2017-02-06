@@ -1,0 +1,133 @@
+﻿@using LiXinLanguage
+@using LiXinModels.Examination.DBModel
+@{
+    Layout = null;
+    Response.Expires = 0;
+    string id = Request.QueryString["id"];
+    var questonInfor = ViewData["QuestionInfor"] as List<QuestionAnswer>;
+    var baseInfor = ViewData["BaseInfor"] as tbQuestion;
+}
+@*多选题*@
+<table class="tab-Form">
+    <tr>
+        <td class="Tit all15" style="vertical-align:top;"><span title="必填项" class="must">*</span>@Question.Question_QuestionManage_QuestionContent：</td>
+        <td><textarea id="txtQuestionContent" class="all80" name="txtQuestionContent" isType="text" isnull="0" message="@Question.Question_QuestionManage_QueationContentNotNull">@(baseInfor.QuestionContent)</textarea></td>
+    </tr>
+    <tr>
+        <td class="Tit"><span title="必填项" class="must">*</span>@Question.Question_QuestionManage_ItemAnswer：</td>
+        <td><input type="button" class="btn btn-co" value="@Question.Question_QuestionManage_AddItemAnswer" id="btnAddAnswer"/></td>
+    </tr>
+    <tr>
+        <td class="Tit"></td>
+        <td><table class="tab-List mt5 fl" style="width:80%;">
+            <thead>
+                <tr>
+                    <th>@Question.Question_QuestionManage_ItemContent</th>
+                    <th class="all15">@Question.Question_QuestionManage_RightAnswer</th>
+                    <th class="all10">操作</th>
+                </tr>
+            </thead>
+            <tbody id="multipeAnswer">
+                @{
+                    if (questonInfor.Count > 0)
+                    {
+                        foreach (var anser in questonInfor.OrderBy(p=>p.Order))
+                        {
+                            <tr>
+                                <td>
+                                    <div class="tl"><span title="必填项" class="must">*</span><input class="Box all70" type="text" isType="text" isnull="0" value="@(anser.Answer)" maxlength="200"  message="@Question.Question_QuestionManage_ItemContentNotNull"/></div>
+                                </td>
+                                <td>
+                                    <input style="margin-top:7px;" type="checkbox" name="multipe" @(anser.AnswerFlag == 1 ? " value=1 " : " value=0 ") @(anser.AnswerFlag == 1 ? "checked='checked'" : "") onclick=" if ($(this).attr('checked')) {$(this).attr('value', 1);} else {$(this).attr('value', 0);} " />
+                                </td>
+                                <td>
+                                    <a title="@CommonLanguage.Common_Delete" onclick=" delAnswer(this); " class="icon idel" style="margin-top:7px;"></a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>
+                                <div class="tl"><span title="必填项" class="must">*</span><input class="all70" type="text" isType="text" isnull="0" maxlength="200" message="@Question.Question_QuestionManage_ItemContentNotNull"/></div>
+                            </td>
+                            <td>
+                                <input style="margin-top:7px;" type="checkbox" name="multipe" value="0" onclick=" if ($(this).attr('checked')) {$(this).attr('value', 1);} else {$(this).attr('value', 0);} " />
+                            </td>
+                            <td>
+                                <a title="@CommonLanguage.Common_Delete" onclick=" delAnswer(this); " class="icon idel" style="margin-top:7px;"></a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table></td>
+    </tr>
+    <tr>
+        <td class="Tit">试题解析：</td>
+        <td><textarea id="txtQuestionAnalysis" class="all80" name="txtQuestionAnalysis"  message="试题解析不可以为空">@(id == "0" ? "" : baseInfor.QuestionAnalysis)</textarea></td>
+    </tr>
+</table>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#submitQuestionForm").PreCheckForm();
+        //添加新的选项
+        $("#btnAddAnswer").bind("click", function() {
+            if ($("#multipeAnswer tr").length < 26) {
+                $("#multipeAnswer").append('<tr>' +
+                    '     <td>' +
+                    '         <div class="tl"><span title="必填项" class="must">*</span><input type="text"  class="all70" isType="text" isnull="0" maxlength="200" message="@Question.Question_QuestionManage_ItemContentNotNull"/></div>' +
+                    '     </td>' +
+                    '     <td>' +
+                    '         <input style="margin-top:7px;" type="checkbox" name="single" value="0" onclick="if($(this).attr(\'checked\')){$(this).attr(\'value\',1);}else{$(this).attr(\'value\',0);}" />' +
+                    '     </td>' +
+                    '     <td>' +
+                    '         <a title="@CommonLanguage.Common_Delete" onclick="delAnswer(this);" class="icon idel" style="margin-top:7px;"></a>' +
+                    '     </td>' +
+                    ' </tr>');
+                $("#submitQuestionForm").PreCheckForm();
+            } else {
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '@Question.Question_QuestionManage_ItemCountLimit', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                art.dialog.tips("@Question.Question_QuestionManage_ItemCountLimit", 3);
+            }
+        });
+    });
+    //判断信息是否完整
+
+    function isCheck() {
+        var answerStr = '';
+        var answers = $("#multipeAnswer tr");
+        var flag = true;
+        var rightAnswerCount = 0;
+        if (answers.length > 1) {
+            for (var i = 0; i < answers.length; i++) {
+                var str = $(answers[i]).find("input[type='text']").eq(0).val().trim() + '***!!***' + $(answers[i]).find("input[type='checkbox']").eq(0).attr("value");
+                answerStr += answerStr == "" ? str : ("!!%!%!%!!" + str);
+                if ($(answers[i]).find("input[type='text']").eq(0).val().trim() == "")
+                    flag = false;
+                if ($(answers[i]).find("input[type='checkbox']").eq(0).attr("value") == "1")
+                    rightAnswerCount++;
+            }
+            if (flag && rightAnswerCount > 0) {
+                $("#hiddenQuestionAnswer").val(answerStr);
+                return true;
+            } else {
+                if (rightAnswerCount == 0)
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '@Question.Question_QuestionManage_MustOneRightItem', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                    art.dialog.tips("@Question.Question_QuestionManage_MustOneRightItem", 3);
+                return false;
+            }
+        } else {
+            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '@Question.Question_QuestionManage_MustOneItem', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+            art.dialog.tips("@Question.Question_QuestionManage_MustOneItem", 3);
+            return false;
+        }
+    }
+
+    //删除选项
+
+    function delAnswer(obj) {
+        $(obj).parent().parent().remove();
+    }
+</script>

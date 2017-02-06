@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "NewRewardScoreSingle";
+    Layout = null;
+    var tt = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+<form id="fnSumitEveryConfig">
+    <input type="hidden" id="txt_Every" value="@(tt.ConfigValue == "" ? "" : @tt.ConfigValue + ";")"/>
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit">次数：
+            </td>
+            <td>
+                <input id="R_score" name="R_score" type="text" class="span16" value="@(tt.ConfigValue == "" ? "0" : tt.ConfigValue.Split(',')[0])" />分/次  （限制在0~999.9之间）     
+            </td>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="submit" value="保存" class="btn" />
+                </td>
+            </tr>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        jQuery.validator.addMethod("decimal_1", function (value, element)
+        {
+            var decimal = /^-?\d+(\.\d{1})?$/;
+            return this.optional(element) || (decimal.test(value));
+        }, $.validator.format("请输入正确的格式！"));
+
+        $("#fnSumitEveryConfig").validate({
+            event: "blur",
+            rules: {
+                R_score: { required: true, min: 0, max: 999.9, decimal_1: true }
+            },
+            messages: {
+                R_score: { required: "请输入正确的格式", min: "请输入正确的格式", max: "请输入正确的格式" }
+            },
+            errorPlacement: function (error, element)
+            {
+                var eid = element.attr('name');
+                if (element.is(':radio') || element.is(':checkbox'))
+                {
+                    $('input[name=' + eid + ']:last').next().after(error);
+                } else
+                {
+
+                    error.insertAfter(element.parent());
+                }
+            },
+            submitHandler: fnSumitEvery
+        });
+    });
+
+    function fnSumitEvery()
+    {
+
+        var value = "" + $("#R_score").val();
+        $("#txt_Every").val(value);
+        $.post("/ParamConfig/fUpdateParamConfig?configType=40&configValue=" + value + "&useType=1", function (data)
+        {
+            if (data.result == 1)
+            {
+                art.dialog.tips('配置成功', 3);
+                $("#txt_Every").val(every.substring(0, every.lastIndexOf(';')));
+
+            } else
+            {
+                art.dialog.tips('配置失败', 3);
+            }
+        });
+    }
+</script>

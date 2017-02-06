@@ -1,0 +1,209 @@
+﻿@{
+    ViewBag.Title = "新进员工教室详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="../../Content/roomseat.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.dragsort-0.4.min.js")"> </script>
+<script src="../../Scripts/createSeat.js" type="text/javascript"></script>
+<style type="text/css">
+    .signf{position:absolute;top:1px;right:1px;width:10px;height:10px;display:block;background-color:#FFF;text-decoration:none;cursor: pointer;}
+    .signt{position:absolute;top:1px;right:1px;width:10px;height:10px;display:block;background-color:red;text-decoration: none;cursor: pointer;}
+    .zuoweiposition{ line-height: 14px;}
+</style>
+<div class="main-c">
+  @(Html.Action("SiteMapLink", "Common", new { linkName = "新进员工教室详情" }))
+
+
+<div class="centerbody all">
+    <form method="post" action="" id="roomForm">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span10">
+                    <span class="must">*</span>教室名称：
+                </td>
+                <td>
+                    @(Model.RoomName)
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="must">*</span>最大容纳人数：
+                </td>
+                <td>
+                    @(Model.RoomNumber)
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="must">*</span>教室类型：
+                </td>
+                <td>
+                    @{
+                        if (Model.SeatType == 0)
+                        {
+                            <span>集中授课</span>
+                        }
+                        else if (Model.SeatType == 1){
+                            <span>分组带教</span>
+                        }else{
+                            <span>考试</span>
+                        }
+                }
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="must">*</span>教室规格：
+                </td>
+                <td>
+                    @(Model.RowNumber)行@(Model.ColumnNumber)列
+                @{
+                    if (Model.SeatType == 1)
+                    {
+                        <span>每张桌子：@(Model.PrePersonCount)个人</span>
+                    }
+                }
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="must"></span>教室座位图：
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div data-class="createseat" style="position:relative;" class="mt20 mb10">
+                        <div class="showSeat">
+                        <div class="bg" id="roombg">
+                            <div id="room" class="room">
+                                <div id="zhuoziMain" style="position: relative;">
+                                </div>
+                            </div>
+                        </div>    
+                    </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="must">*</span>教室地址：
+                </td>
+                <td>
+                    @(Model.Address)
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="must"></span>教室资源：
+                </td>
+                <td>
+                    @if (ViewBag.ClassRoomResources != null && ((IEnumerable<LiXinModels.Sys_ClassRoomResource>)ViewBag.ClassRoomResources).Count() > 0)
+                    {
+                        <div >
+                            <ul>
+                                @foreach (var item in (IEnumerable<LiXinModels.Sys_ClassRoomResource>)ViewBag.ClassRoomResources)
+                                {
+                                    if (@item.Name.EndsWith(".jpg") || @item.Name.EndsWith(".JPG"))
+                                    {
+                                        <li id="div_roomRes_@(item.Id)">
+                                            <span title="@item.Name"> @item.Name</span>&nbsp;
+                                            <input type="button" onclick="fnShowRoomResource('@(item.RealName)')" value="查看" class="btn"/>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li id="div_roomRes_@(item.Id)">
+                                            <span title="@item.Name"> @item.Name</span>&nbsp;
+                                            <a onclick="loadPinFile('@(item.RealName)','@(item.Name)');" class="icon idown" title="我要下载"></a>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">备注：
+                </td>
+                <td>
+                    <textarea id="roomMemo" name="roomMemo" class="span26" disabled="disabled"  rows="5" cols="5">@(Model.Memo)</textarea>     
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <a class="btn" href="/NewClassRoom/ClassRoomManage">返回</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+</div>
+<script type="text/javascript">
+    //图片显示
+    function fnShowRoomResource(id) {
+        var item = "@System.Configuration.ConfigurationManager.AppSettings["ClassRoomResource"]";
+        item = ".." + item.substr(1) + id;
+        art.dialog({
+            title:'显示图片',
+            okVal:"关闭",
+            content: "<img src="+item+" alt=\"\"/>",
+            ok:function() {
+            }
+        });
+    }
+</script>
+
+<!--方桌单个座位的模板-->
+<script id="singleSeatTemplate" type="text/x-jsrender">
+   <div class="{{:divclass}}" freeze="{{:freeze}}" data-position="{{:row}},{{:col}}" order="{{:order}}" ishave="0" type="zuowei" status="0" id="dengzi{{:order}}" style="left:{{:left}}px; top:{{:top}}px; width:{{:width}}px;" userID="0">
+        <div class="name"></div>
+        <div class="gender"></div>
+        <div class="zuoweiposition">{{:row+1}}行,{{:col+1}}列</div>
+        <div class="seatselected" style="cursor:default;">&nbsp;</div>
+    </div>
+</script>
+<!--圆桌单个桌子的模板-->
+<script id="singleDeskSeatTemplate" type="text/x-jsrender">
+   <div class='circle yz1' style="left:{{:left}}px;top:{{:top}}px;" order={{:number}}"">
+        {{for orderlist}}
+        <div type='zuowei' status='0' id="dengzi_{{:row}}_{{:col}}_{{:order}}" data-position="{{:row}},{{:col}},{{:order}}" order="{{:order}}" class="yizi1" ishave="0" freeze="{{:freeze}}" userID="0">
+            <div class="name" style="line-height:12px;text-align:left;"></div><div class="gender"></div>
+            <div class="seatselected" style="width:50px;height:35px;cursor:default;">&nbsp;</div>
+        </div>
+        {{/for}}
+        <a class="deskNumber">{{:number}}</a>
+   </div>
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        fnChange();
+    });
+    //排座显示
+    function fnChange() {
+        $("#zhuoziMain").html("");
+        if (@(Model.SeatType) ==1) {
+            //圆桌
+            exportcreateRoundSeat($("#roombg"), @(Model.RowNumber)* @(Model.ColumnNumber) * @(Model.PrePersonCount), @(Model.RowNumber), @(Model.ColumnNumber), @(Model.PrePersonCount),'@(Model.DisSeat)',1);
+        } else { 
+            //方桌
+            exportcreateSeat($("#roombg"), @(Model.RowNumber) * @(Model.ColumnNumber), @(Model.RowNumber), @(Model.ColumnNumber),'@(Model.DisSeat)',1);
+        }
+    }
+</script>
+<script type="text/javascript">
+    //下载文件
+    function loadPinFile(path, name) {
+        $.post("/NewClassRoom/IsExistFile", { path: path }, function (data) {
+            if (data.result == 1) {
+                window.location.href = "/NewClassRoom/LoadPrincipleFile?path=" + path + "&name=" + escape(name);
+            }
+            else {
+                art.dialog.tips("此文件不存在！", 3);
+            }
+        });
+    }
+</script>

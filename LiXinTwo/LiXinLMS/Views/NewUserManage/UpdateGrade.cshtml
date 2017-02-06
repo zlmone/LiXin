@@ -1,0 +1,44 @@
+﻿@using LiXinLanguage
+@model LiXinModels.New_UserExamScore
+@{
+    ViewBag.Title = "UpdateGrade";
+    Layout = null;
+    
+}
+<form id="forminputScore">
+    <div>
+        <table class="tab-Form" >
+            <tr>
+                <td>
+                    培训级别：
+                    <select id="grade" class="sel">
+                        @foreach (var item in ViewBag.Grade)
+                        {
+                            <option value="@(item)">@(item)</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="button" class="btn" value="确定" id="btn_OK" onclick="pop_AddGrade()" />
+                    <input type="button" class="btn  btn-cancel" value="取消" id="close" onclick="closeDialog('pop_AllGrade');" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<script type="text/javascript">
+    function pop_AddGrade()
+    {
+        $.post("SaveUpdateGrade",
+            {
+                userIDs: $("#hisUserIDs").val(),
+                grade: $("#grade").val()
+            }, function (data)
+            {
+                InitData();
+                closeDialog('pop_AllGrade');
+            });
+    }
+</script>

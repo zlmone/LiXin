@@ -1,0 +1,301 @@
+﻿@using LiXinModels.PlanManage
+@{
+    Layout = null;
+    ViewBag.Title = "MyCPACourse";
+    var StrCPAYear = ViewData["StrCPAYear"] as List<string>;
+    var allsum = ViewData["allsum"] as string;
+}
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+             <td class="Tit">获取类型：</td>
+             <td>
+                <input name="searchType" type="radio" value="0" checked="checked" />课程学时
+                <input name="searchType" type="radio" value="1" />其他形式、免修学时
+            </td>
+            <td class="Tit">学时类型：</td>
+            <td>
+                <select id="selscore" onchange="cpaChange();">
+                    <option value="-1">请选择学时</option>
+                    <option value="0">@ViewBag.titlename</option>
+                    <option value="1">集中授课学时</option>
+                    <option value="2">视频授课学时</option>
+                    <option value="3">注协课程学时</option>
+                </select>
+                <select id="selfree" onchange="FreezhouqiChange();" style="display: none">
+                    <option value="4">其他形式学时</option>
+                    <option value="5">免修学时</option>
+                    <option value="6">其他有组织形式学时</option>
+                </select>
+            </td>
+           
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="ibtnCPASearch" />
+            </td>
+        </tr>
+        <tr>
+             <td class="Tit span6" style="text-align: center" id="spanName">课程名称：</td>
+            <td>
+                <input type="text" class="span20 searchclass" id="tbTitle" value="请输入搜索课程" info="" />
+            </td>
+            <td class="Tit span6">周期：</td>
+            <td>
+                <select id="selyear" onchange="cpaChange();">
+                    @{ 
+                        for (int i = 0; i < StrCPAYear.Count; i++)
+                        {
+                        <option value="@(StrCPAYear[i])">@(StrCPAYear[i])</option>
+                        }
+                    }
+                </select>
+            </td>
+           
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+
+    <div class="list-do lh30" id="targetinfor">
+        <label>CPA课程目标学时：</label><span id="allsum">@(allsum)</span>
+        <label class="ml20">已获得学时：</label><span id="passsum">0</span>
+        <label class="ml20">（有效学时：</label><span id="youxiao">0</span>）
+            <label class="ml20">职业道德已获得学时：</label><span id="daode">0</span>
+        <label class="ml20">完成率：</label><span id="lengthRate">0</span>
+    </div>
+    <div id="Freediv" class="list-do lh30 mr20" style="display: none">
+        <label>CPA课程目标学时：</label><span>@(allsum)</span>
+        <label class="ml20">已获得学时：</label><span id="getsum">0</span>
+    </div>
+</div>
+<div class="mt10" id="CPAtable">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th>课程名称</th>
+                <th>学时类型</th>
+                <th>课程学时</th>
+                <th>课程时间</th>
+                <th class="span8">获得学时</th>
+            </tr>
+        </thead>
+        <tbody id="CPAcourseList">
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+<!--其他形式、免修-->
+<div class="mt10" id="freetable" style="display: none">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>申请内容</th>
+                <th jsrendersortfield="typeForm" sort="asc">申请类型</th>
+                <th class="span12" jsrendersortfield="ApplyTime" sort="asc">申请时间</th>
+                <th class="span4" jsrendersortfield="GettScore" sort="asc">获得学时</th>
+            </tr>
+        </thead>
+        <tbody id="FreeList">
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+<input id="typeForm" type="hidden" />
+<script id="CPAcourseTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="tl span30 ovh" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>{{:CPAFromStr}}</td>
+            <td>{{:CourseLength}}</td>
+            <td><div class="f11">{{:CourseTime}}</div></td>
+            <td>{{:GetLength}}</td>
+        </tr>  
+    {{/for}}
+</script>
+
+<script id="FreeListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>{{:ApplyContent}}</td>
+            <td>{{:typeFormStr}}</td>
+            <td>{{:ApplyTimeStr}}</td>
+            <td>{{:GetCPAScore}}</td>
+        </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //查询条件输入框初始化
+        initSearch();
+        if ($("#selyear option").length > 0)
+            InitCPAList(getCPAUrl());
+        else
+            $("#mycourseList").html('<tr><td colspan="5">暂无数据</td></tr>');
+        //查询
+        $("#ibtnCPASearch").bind("click", function ()
+        {
+            if ($("input[name='searchType']:checked").val() == "0")
+            {
+                InitCPAList(getCPAUrl());
+            }
+            else
+            {
+                freeInitZhouqiData();
+            }
+        });
+
+        $("input[name='searchType']").bind("click", function ()
+        {
+
+            var type = parseInt($("input[name='searchType']:checked").val());
+            if (type == 0)
+            {
+                $("#spanName").html("课程名称：");
+                //列表
+                $("#CPAtable").show();
+                $("#freetable").hide();
+                //总结
+                $("#targetinfor").show();
+                $("#Freediv").hide();
+                //选择下拉框
+                $("#selscore").show();
+                $("#selfree").hide();
+                InitCPAList(getCPAUrl());
+            }
+            else
+            {
+                $("#spanName").html("申请内容：");
+                //列表
+                $("#CPAtable").hide();
+                $("#freetable").show();
+                //总结
+                $("#targetinfor").hide();
+                $("#Freediv").show();
+                //选择下拉框
+     
+                $("#selscore").hide();
+                $("#selfree").show();
+
+                $("#selscore option[value=-1]").attr("selected", true);
+                $("#selfree option[value=4]").attr("selected", true);
+
+                $("#typeForm").val(4);
+
+               
+                freeInitZhouqiData();
+            }
+        });
+    });
+
+    //显示年度培训课程列表
+    function InitCPAList(url)
+    {
+        var templateId = 'CPAcourseTemplate';
+        $("#CPAcourseList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function (data)
+            {
+                if (data.dataList.length != 0)
+                {
+                    $("#passsum").html(data.dataList[0].passsum);
+                    $("#daode").html(data.dataList[0].daode);
+                    $("#lengthRate").html(data.dataList[0].lengthRate);
+                    $("#youxiao").html(data.dataList[0].CoLength);
+                }
+                else
+                {
+                    $("#passsum").html("0");
+                    $("#daode").html("0");
+                    $("#lengthRate").html("0%");
+                    $("#youxiao").html("0");
+                }
+            }
+        });
+    }
+
+    function getCPAUrl()
+    {
+        return "/UserManage/GetMyCPACourse?year=" + escape($.trim($("#selyear").val())) +
+            "&allsum=@(allsum)&name=" + escape($.trim(getSearchWord("tbTitle"))) + "&scoreway=" + $("#selscore").val();
+        }
+
+        function cpaChange()
+        {
+            if ($("input[name='searchType']:checked").val() == "0")
+            {
+                InitCPAList(getCPAUrl());
+            }
+            else
+            {
+                freeInitZhouqiData();
+            }
+        }
+
+        //查询周期
+        function freeInitZhouqiData(typeForm)
+        {
+           // debugger;
+            var type = parseInt($("#typeForm").val());
+            typeForm = typeForm == undefined ? -1 : typeForm;
+            var Url = "";
+            var param = "type=1&typeForm=" + typeForm + "&name=" + escape(getSearchWord("tbTitle")) + "&year=-1&zhouqi=" + escape($("#selyear").val());
+            switch (type)
+            {
+                case 4://其他形式
+                    Url = "/MyApply/GetUserFreeOtherList?" + param;
+                    break;
+                case 5://免修
+                    Url = "/MyApply/GetUserFreeList?" + param;
+                    break;
+                case 6://其他有组织形式
+                    Url = "/MyApply/GetUserFreeOrgList?" + param;
+                    break;
+            }
+            $("#FreeList").JsRenderData({
+                sourceUrl: Url,
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: "FreeListTemplate",
+                jsRenderSortField: " typeForm,ApplyID,ApplyTime",
+                jsRenderASC: "asc",
+                funCallback: function (data)
+                {
+                    if (data.dataList.length != 0)
+                    {
+                        $("#getsum").html(data.sum);
+                    } else
+                    {
+                        $("#getsum").html("0");
+                    }
+                }
+            });
+
+        }
+        function FreezhouqiChange()
+        {
+            var type = parseInt($("#selfree").val());
+            $("#spanName").html("申请内容：");
+            //列表
+            $("#CPAtable").hide();
+            $("#freetable").show();
+            //总结
+            $("#targetinfor").hide();
+            $("#Freediv").show();
+
+            $("#selscore").hide();
+            $("#selfree").show();  
+
+            $("#typeForm").val(type);
+            freeInitZhouqiData()
+        }
+</script>
+

@@ -1,0 +1,227 @@
+﻿@{
+    ViewBag.Title = "我的综合评定";
+}
+@model LiXinModels.NewQueryStatistics.ShowScore
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "我的综合评定" }))
+    @*    <div class="so-set lh30">
+        <strong>@Model.Realname</strong> <span>综合评分:<strong>@Model.SSumScore</strong></span>
+        <span>排名:<strong>@Model.number</strong></span>
+    </div>*@
+    <table class="tab-Form">
+        <tbody>
+            <tr>
+                <td class="Tit span4">姓名：</td>
+                <td><strong>@Model.Realname</strong></td>
+                <td class="Tit span10">综合评分：</td>
+                <td><strong>@Model.SSumScore/@(ViewBag.SumScore)</strong></td>
+                <td class="Tit span6">排名：</td>
+                <td><strong>@Model.number/@(ViewBag.newCount)</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="color: red">
+        温馨提示：@ViewBag.perStr
+    </div>
+    <div>
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span4">排名
+                    </th>
+                    <th class="span20">学号
+                    </th>
+                    <th class="span6">姓名
+                    </th>
+                    <th>所在部门
+                    </th>
+                    <th class="span8">考勤得分
+                    </th>
+                    <th class="span12">集中授课现场评分
+                    </th>
+                    <th class="span12">分组带教现场评分
+                    </th>
+                    @*<th class="span10">混合考试成绩
+                    </th>*@
+                    <th class="span10">视频考试成绩
+                    </th>
+                    <th class="span10">独立考试成绩
+                    </th>
+                    <th class="span10">奖励
+                    </th>
+                    <th class="span10">综合评分
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @Model.number
+                    </td>
+                    <td>@Model.NumberID
+                    </td>
+                    <td>@Model.Realname
+                    </td>
+                    <td>
+                        <div class="tl ovh span10" title="@Model.DeptName">@Model.DeptName</div>
+                    </td>
+                    <td>
+                        <a onclick="Details(2)" style="color: red; cursor: pointer; font-weight: bold;">@Model.SAttendScore</a>
+                    </td>
+                    <td>
+                        <a onclick="Details(0)" style="color: red; cursor: pointer; font-weight: bold;">@Model.StogetherSumScore</a>
+                    </td>
+                    <td>
+                        <a onclick="Details(1)" style="color: red; cursor: pointer; font-weight: bold;">@Model.SgroupSumScore</a>
+                    </td>
+                    @*<td>
+                        <a onclick="Details(4)" style="color: red; cursor: pointer; font-weight: bold;">@Model.cSumScore</a>
+                    </td>*@
+                    <td>
+                        <a onclick="Details(6)" style="color: red; cursor: pointer; font-weight: bold;">@Model.vSumScore</a>
+                    </td>
+                    <td>
+                        <a onclick="Details(5)" style="color: red; cursor: pointer; font-weight: bold;">@Model.eSumScore</a>
+                    </td>
+                    <td>
+                        <a onclick="Details(3)" style="color: red; cursor: pointer; font-weight: bold;">@Model.SRewardScore</a>
+                    </td>
+                    <td>
+                        @Model.SSumScore
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <div class="clear">
+    </div>
+
+    <h3 class="tit-h3 mt20">综合评定详情</h3>
+    <div class="so-seq">
+        <select id="Way" onchange="InitData(); ">
+            <option value="-1">请选择课程类型</option>
+            <option value="1">混合式培训课程</option>
+            <option value="2">视频课程</option>
+        </select>
+    </div>
+    <div>
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th class="span10">课程名称
+                    </th>
+                    <th class="span14">课程类型
+                    </th>
+                    <th class="span24">课程时间段
+                    </th>
+                    <th class="span11">实际考勤/应考勤
+                    </th>
+                    <th class="span11">集中授课现场评分
+                    </th>
+                    <th class="span11">分组带教现场评分
+                    </th>
+                    <th class="span8">课程考试分数
+                    </th>
+                    <th class="span8">奖励
+                    </th>
+                    <th class="span12">授课类型
+                    </th>
+                    <th class="span4">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="Courstlist">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="tl ovh span20" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>{{:WayStr}}</td>
+            <td>{{:CourseTimeStr}}</td>
+            <td><span id="Attend_{{:Id}}">{{:HaveAttend}}/{{:AttendCount}}</span></td>
+            <td>
+              <div id='Score_Together_{{:Id}}' memo="{{:TogetherMemo}}" scorememo="{{:togetherScoreLevel}}" title='{{:TogetherScore}}'  >{{:TogetherScore}}
+              </div>
+            </td> 
+            <td> <div id='Score_Group_{{:Id}}' memo="{{:GroupMemo}}" scorememo="{{:groupScoreLevel}}" title='{{:GroupScore}}' >{{:GroupScore}}
+              </div></td> 
+           <td>{{:CourseExamScore}}/{{:CourseExamSumScore}}</td>
+            <td><span id="Reward_{{:Id}}" >{{:RewardStr}}</span></td>
+           <td>
+               {{if IsGroupTeach==0}}
+                无
+                {{/if}}
+                {{if IsGroupTeach==1}}
+                集中授课
+                {{/if}}
+                {{if IsGroupTeach==2}}
+                分组带教
+                {{/if}}
+                {{if IsGroupTeach==3}}
+                集中授课，分组带教
+                {{/if}}
+             </td>
+            <td>
+               <a class="icon idet"onclick="Memo({{:Id}},{{:PaperId}},{{:CourseId}},{{:CoPaperID}},{{:Way}},{{:IsGroupTeach}})" title="分数说明"></a>
+            </td>
+        </tr> 
+        {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        InitData();
+    });
+
+    //初始化星星样式
+    function InitTogether(id)
+    {
+        if ($("div[id^='" + id + "']").length > 0)
+        {
+            $("div[id^='" + id + "']").each(function ()
+            {
+                var obj = this;
+                var title = $(obj).attr("title");
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: title, Enabled: false }, function (value)
+                {
+                });
+            });
+        }
+    }
+
+    function InitData()
+    {
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/NewQueryStatistics/GetPersonalStatistics?userID=@ViewBag.UserId&Way=' + $("#Way").val(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate",
+            funCallback: function ()
+            {
+                //InitTogether("Score_");
+            }
+        });
+    }
+
+
+    function Memo(id, paperId, courseID, coPaperID, Way, IsGroupTeach)
+    {
+        art.dialog.load("ScoreMemo?id=" + id + "&paperId=" + paperId + "&courseID=" + courseID + "&userID=@ViewBag.UserID" + "&coPaperID=" + coPaperID + "&Way=" + Way + "&IsGroupTeach=" + IsGroupTeach, { title: "分数", id: "pop_ScoreMemo", width: 400 });
+    }
+    function Details(type)
+    {
+        art.dialog.load("ScoreDetails?type=" + type + "&userID=@ViewBag.UserID", { title: "得分详情", id: "pop_ScoreDetail", width: 600 });
+    }
+</script>
+

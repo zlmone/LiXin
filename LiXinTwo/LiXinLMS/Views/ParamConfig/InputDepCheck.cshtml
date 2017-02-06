@@ -1,0 +1,273 @@
+﻿@model LiXinModels.Sys_ParamConfig
+@{
+    ViewBag.Title = "InputDepCheck";
+    Layout = null;
+}
+<style>
+    .rmr_con {
+        padding: 130px 62px 130px 62px;
+    }
+
+    .rmr_btnl {
+        display: block;
+        margin-top: 77px;
+        width: 130px;
+        height: 35px;
+        border: 0;
+        background: url(../../Images/CancelCheck.png) no-repeat scroll;
+        text-indent: -9999em;
+        cursor: pointer;
+    }
+
+    .rmr_btnr {
+        display: block;
+        width: 130px;
+        height: 35px;
+        border: 0;
+        background: url(../../Images/InputCheck.png) no-repeat scroll;
+        text-indent: -9999em;
+        cursor: pointer;
+    }
+</style>
+<ul>
+    <li class="fl">
+        <div class="treeview-box fl  span21">
+            <div class="menu-list">
+                <h3>
+                    <i class="il"></i><i class="ir"></i>立信组织结构</h3>
+            </div>
+            <div class="pt5 pb5">
+                <input type="text" class="span14 searchclass" id="searchdept" value="请输入立信组织" info="" />
+                <input class="btn btn-co" type="button" value="搜索" onclick="resetDeptTree(); " />
+            </div>
+            <div id="deptTreePage" class="tree-list" style="min-height: 440px; _height: 440px;">
+                @ViewBag.html
+            </div>
+        </div>
+    </li>
+    <li class="rmr_con fl ">
+        <a type="button" id="btnRight" class="rmr_btnr" onclick="Input()">纳入考核</a>
+        <a type="button" id="btnLeft" class="rmr_btnl" onclick="Out()">取消考核</a>
+    </li>
+    <li class="fl">
+        <div class="treeview-box fl  span21">
+            <div class="menu-list">
+                <h3>
+                    <i class="il"></i><i class="ir"></i>纳入考核的组织</h3>
+            </div>
+            <div class="pt5 pb5">
+                <input type="text" class="span14 searchclass" id="searchcheckdept" value="请输入立信组织" info="" />
+                <input class="btn btn-co" type="button" value="搜索" onclick="resetCheckDeptTree(); " />
+            </div>
+            <div id="checkdeptTreePage" class="tree-list" style="min-height: 440px; _height: 440px;">
+                @ViewBag.checkhtml
+            </div>
+        </div>
+    </li>
+</ul>
+
+<input id="hisDeptID" type="hidden"  value="@(Model.ConfigValue)"/>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        deptReady();
+        IsDisable();
+        $("#deptTreePage input[type='checkbox']").bind('change', function ()
+        {
+            var checked = false;
+            $(this).parent().find("input[type='checkbox']").each(function (index, value)
+            {
+                if (index == 0)
+                {
+                    checked = $(this).attr("checked") ? true : false;
+                }
+                if ($(this).attr("disabled") == undefined)
+                {
+                    $(this).attr('checked', checked);
+                }
+            });
+        });
+        $("#checkdeptTreePage input[type='checkbox']").bind('change', function ()
+        {
+           
+            var checked = false;
+            $(this).parent().find("input[type='checkbox']").each(function (index, value)
+            {
+                if (index == 0)
+                {
+                    checked = $(this).attr("checked") ? true : false;
+                }
+                if ($(this).attr("disabled") == undefined)
+                {
+                    $(this).attr('checked', checked);
+                }
+            });
+        });
+    });
+
+    //加载部门组织结构树
+    function resetDeptTree()
+    {
+        $.getJSON("/ParamConfig/GetDeptTree?flag=1&type=&clickFunction=&name=" + escape(getSearchWord("searchdept")), function (data)
+        {
+            $("#deptTreePage").html(data);
+            deptReady();
+            IsDisable();
+            $("#deptTreePage input[type='checkbox']").bind('change', function ()
+            {
+                var checked = false;
+                $(this).parent().find("input[type='checkbox']").each(function (index, value)
+                {
+                    if (index == 0)
+                    {
+                        checked = $(this).attr("checked") ? true : false;
+                    }
+                    if ($(this).attr("disabled") == undefined)
+                    {
+                        $(this).attr('checked', checked);
+                    }
+                });
+            });
+        });
+    }
+
+    //加载部门组织结构树
+    function resetCheckDeptTree()
+    {
+        $.getJSON("/ParamConfig/GetCheckDeptTree?name=" + escape(getSearchWord("searchcheckdept")), function (data)
+        {
+            $("#checkdeptTreePage").html(data);
+            deptcheckReady();
+            $("#checkdeptTreePage input[type='checkbox']").bind('change', function ()
+            {
+                var checked = false;
+                $(this).parent().find("input[type='checkbox']").each(function (index, value)
+                {
+                    if (index == 0)
+                    {
+                        checked = $(this).attr("checked") ? true : false;
+                    }
+                    if ($(this).attr("disabled") == undefined)
+                    {
+                        $(this).attr('checked', checked);
+                    }
+                });
+            });
+        });
+    }
+
+    //初始化
+    function deptReady()
+    {
+        //debugger;
+        $("#deptTreePage,#checkdeptTreePage").treeview({
+            persist: "location",
+            collapsed: false,
+            unique: false
+        });
+        $("#deptTreePage,#checkdeptTreePage").removeClass("treeview");
+        $("#hidDeptID").val(0);
+        $("#deptTreePage>ul>li>ul>li>div").each(function ()
+        {
+            $(this).click();
+        });
+        $("#checkdeptTreePage>ul>li>ul>li>div").each(function ()
+        {
+            $(this).click();
+        });
+    }
+
+    function deptcheckReady()
+    {
+        $("#checkdeptTreePage").treeview({
+            persist: "location",
+            collapsed: false,
+            unique: false
+        });
+        $("#checkdeptTreePage").removeClass("treeview");
+        $("#checkdeptTreePage>ul>li>ul>li>div").each(function ()
+        {
+            $(this).click();
+        });
+    }
+
+    //已经选择的置灰
+    function IsDisable()
+    {
+        $("#deptTreePage input[type='checkbox']").each(function ()
+        {
+            if ($(this).attr("disabled") == "disabled")
+            {
+                $(this).attr("disabled", false).attr("checked", false);
+            }
+        });
+        var deptIDs = $("#hisDeptID").val();
+        var haveArr = deptIDs.split(',');
+        $.each(haveArr, function (index, value)
+        {
+            $("#" + value).attr("disabled", true).attr("checked", false);
+        });
+    }
+
+    //纳入
+    function Input()
+    {
+        var hvaedeptIDs = $("#hisDeptID").val();
+        var deptIDs = "";
+        // debugger;
+        $("#deptTreePage input:checked").each(function ()
+        {
+            //debugger;
+            if ($(this).attr("disabled") == "disabled")
+            {
+                return;
+            }
+            var s = $(this).attr("value").split("_");
+            deptIDs = deptIDs == "" ? s[0] : deptIDs + "," + s[0];
+        });
+        if (deptIDs.length > 0)
+        {
+            $("#hisDeptID").val(hvaedeptIDs == "" ? deptIDs : hvaedeptIDs + "," + deptIDs);
+            $.post("/ParamConfig/fUpdateParamConfig?configType=54", {configValue: $("#hisDeptID").val()}, function (data)
+            {
+                art.dialog.tips("纳入成功", 3);
+                IsDisable();
+                resetCheckDeptTree();
+            });
+        }
+        else
+        {
+            art.dialog.tips("请选择要纳入考核的组织结构", 3);
+            return;
+        }
+    }
+
+    //取消
+    function Out()
+    {
+        var deptIDs = "";
+        // debugger;
+        $("#checkdeptTreePage input:checked").each(function ()
+        {
+            var s = $(this).attr("value").split("_");
+            ReomveArray("hisDeptID", s[0])
+            deptIDs = deptIDs + s[0] + ",";
+        });
+        if (deptIDs.length > 0)
+        {
+            // $("#hisDeptID").val(hvaedeptIDs == "" ? deptIDs : hvaedeptIDs + "," + deptIDs);
+            $.post("/ParamConfig/fUpdateParamConfig?configType=54" + "&configValue=" + $("#hisDeptID").val(), function (data)
+            {
+                IsDisable();
+                resetCheckDeptTree();
+            });
+        }
+        else
+        {
+            art.dialog.tips("请选择要取消考核的组织结构", 3);
+            return;
+        }
+
+    }
+</script>

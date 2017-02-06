@@ -1,0 +1,131 @@
+﻿@using LiXinModels.DepCourseManage
+@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.DepSelfCourse;
+    var course = ViewBag.Course as Dep_Course;
+    course = course ?? new Dep_Course();
+    var backUrl = Request.QueryString["backUrl"] ?? "";
+    var year = Request.QueryString["year"];
+    var deptId = Request.QueryString["deptId"];
+    var type = Request.QueryString["type"] ?? "0";
+    var isYearStatus = Request.QueryString["isYearStatus"] ?? "0";
+}
+<input type="hidden" id="txt_CourseId" value="@course.Id"/>
+<input type="hidden" id="txt_SurveyPaperId" value="@course.SurveyPaperId"/>
+<div class="main-c">
+    @if (ViewBag.show == 0)
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "DepSelfCourse" }))
+    }
+    else
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "FDepSelfCourse" }))
+    }
+    <div class="course-top">
+        <div class="pic">
+            <img src="/Images/course-pic.jpg" />
+        </div>
+        <div class="info">
+            <h3 class="ovh" title="@course.CourseName">@course.CourseName</h3>
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span9">开课地点：
+                    </td>
+                    <td>
+                        <div class="ovh span20 tl" title="@course.RoomName">@course.RoomName</div>
+                    </td>
+                    <td class="Tit span6">开课时间：
+                    </td>
+                    <td colspan="3">@course.TeacherCourseTime
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">课程开放级别：
+                    </td>
+                    <td>@course.OpenLevel
+                    </td>
+                    <td class="Tit">课程学时：
+                    </td>
+                    <td>@course.CourseLength
+                    </td>
+                    <td class="Tit span6">课程状态：
+                    </td>
+                    <td>
+                        @course.CourseStatus
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">授课讲师：
+                    </td>
+                    <td colspan="5">
+                        @course.TeacherName
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="tab-bk mt10">
+        <ul id="ul_menu">
+            <li class="On" onclick="fonclick(0)">课程详情        
+            </li>
+            <li onclick="fonclick(1)">课前建议          
+            </li>
+            <li onclick="fonclick(2)">考勤详情           
+            </li>
+            <li onclick="fonclick(3)">课后评估
+            </li>
+            <li onclick="fonclick(4)">在线测试           
+            </li>
+        </ul>
+    </div>
+    <div id="div_CourseCommonList">
+    </div>
+    <div class="mt10 tc">
+        <a class="btn btn-cancel" onclick="back()">返回</a>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        fonclick(@ViewBag.tp);
+    });
+
+    function back()
+    {
+        if (@ViewBag.show == 0)
+        {
+            window.location.href="/DepCourseOpenOthersCheck/DepCourseLearnSelfList?p=1&isDeptFlag=0&type=@type&deptId=@deptId&isYearStatus=@isYearStatus";
+        }
+        else
+        {
+            window.location.href="/DepCourseOpenOthersCheck/FDepCourseLearnSelfList?yearPlan=@year&deptId=@deptId&isDeptFlag=@ViewBag.isDeptFlag&type=2&isYearStatus=@isYearStatus";
+        }
+    }
+
+    function fonclick(t) {
+        switch (t) {
+            case 1:
+                $.get("/DepCourseOpenOthersCheck/ClassPro?courseid=@course.Id" , function(data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(1)").addClass("On").siblings("li").removeClass("On");
+                break;
+            case 2:
+                $.get("/DepCourseOpenOthersCheck/Attendance?courseid=@course.Id", function(data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(2)").addClass("On").siblings("li").removeClass("On");
+                break;
+            case 3:
+                $.get("/DepCourseOpenOthersCheck/AfterCourseNew?courseid=@course.Id", function(data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(3)").addClass("On").siblings("li").removeClass("On");
+                break;
+            case 4:
+                $.get("/DepCourseOpenOthersCheck/OnlineTest?courseid=@course.Id", function(data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(4)").addClass("On").siblings("li").removeClass("On");
+
+                break;
+            case 0:
+            default:
+                $.get("/DepCourseOpenOthersCheck/CourseMain?courseid=@course.Id&isDeptFlag=@ViewBag.isDeptFlag", function(data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(0)").addClass("On").siblings("li").removeClass("On");
+                break;
+        }
+    }
+</script>

@@ -1,0 +1,79 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.TrainGradeDetail;
+    var user = (LiXinModels.User.Sys_User)ViewData["user"];
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "TrainGradeDetail" }))
+    
+    <h3 class="tit-h3">员工基本信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">姓名： </td>
+            <td><strong>@(user.Realname)</strong></td>
+            <td class="Tit span10">性别：</td>
+            <td><strong>@(user.SexStr)</strong></td>
+              <td class="Tit">所属分所：</td>
+            <td><strong>@(user.DeptCodeStr)</strong></td>
+            <td class="tr" rowspan="2" valign="middle"><a href="javascript:window.print();" class="btn btn-co">打印</a></td>
+        </tr>
+        <tr>
+          
+            @*<td class="Tit">薪酬级别：</td>
+            <td><strong>@(user.PayGrade)</strong></td>*@
+            <td class="Tit">培训级别：</td>
+            <td><strong>@(user.TrainGrade)</strong></td>
+        </tr>
+    </table>
+    <h3 class="tit-h3 mt20">员工培训级别变更记录</h3>
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th>
+                    变更时间
+                </th>
+                <th>
+                    变更人
+                </th>
+                <th>
+                    原培训级别
+                </th>
+                <th>
+                    现培训级别
+                </th>
+            </tr>
+        </thead>
+        <tbody id="UpdateLogList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <div class="mt10 tc"><a href="TrainGrade" target="_self" class="btn btn-cancel">返回</a></div>
+</div>
+<script id="UpdateLogTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+          <td >{{:UpdateTimeStr}}</td>
+          <td >{{:CreateName}}</td>
+          <td >{{:OldGrade}}</td>
+          <td >{{:NewGrade}}</td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        Getdata();
+    });
+    //基础信息
+    function Getdata()
+    {
+        $("#UpdateLogList").JsRenderData({
+            sourceUrl: "/TrainGradeManage/GetUpdateLog?userID=@ViewBag.userID&t=" + Date(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "UpdateLogTemplate"
+        });
+    }
+</script>

@@ -1,0 +1,102 @@
+﻿@using LiXinModels.Examination.DBModel;
+@{
+    ViewBag.Title = "StudyOnlineTest";
+    Layout = null;
+   var NewCoursePaper = ViewBag.New_CoursePaper as LiXinModels.NewCourseManage.New_CoursePaper;
+    var exap = ViewBag.exap as tbExamination;
+    var examsendstudent = ViewBag.examsendstudent as tbExamSendStudent;
+    var exampapger = ViewBag.exampapger as tbExampaper;
+    var course = ViewBag.course as LiXinModels.NewCourseManage.New_Course;
+    
+    
+}
+  <div class="main-c">
+        <input type="hidden" id="txt_CourseId" value="@ViewBag.courseid"/>
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th>试卷名称</th>
+                    <th>考试时长(分钟)</th>
+                    @*<th>考试时间</th>*@
+                    <th>考试分数/通过分数</th>
+                    <th>允许(进入)考试次数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @*&& @exampapger.Status==0*@
+                @if (NewCoursePaper != null  && exampapger != null)
+                { 
+                    <tr>
+                        <td>
+                            <div class="tl ovh span30" title="@exampapger.ExampaperTitle">@exampapger.ExampaperTitle</div>
+                        </td>
+                        <td>
+                            @NewCoursePaper.Length
+                        </td>
+                        @*<td>
+                            课程结束后 @NewCoursePaper.Hour 小时
+                        </td>*@
+                        <td>
+                        
+                            @if (examsendstudent != null)
+                            {
+                                <span>@examsendstudent.StudentAnswerList.Sum(pa => pa.GetScore)</span>
+                            }
+                            else
+                            {
+                                <span>0</span>
+                            }
+                        
+                            <span>
+                                / @(Convert.ToInt32(NewCoursePaper.LevelScore * 0.01 * @exampapger.ExampaperScore))
+                            </span>
+                        
+                        </td>
+                        <td>
+                            @if (examsendstudent != null)
+                            {
+                                <span>@examsendstudent.TestTimes/</span>
+                            }
+                            else
+                            {
+                                <span>0/</span>
+                            }
+                            <span>@NewCoursePaper.TestTimes</span>
+                        </td>
+                   
+                        <td>
+                            
+                                <a onclick="fGoIn(@NewCoursePaper.PaperId)" class="icon iexam" title="进入" ></a>
+                        
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr><td colspan="6">暂无数据</td></tr>
+                }
+            </tbody>
+            <tfoot></tfoot>
+        </table>
+        
+        <center class="mt10">@Html.ActionLink("返回", "StudyCourseList", "NewMyCourse", new { @class = "btn btn-cancel" })</center>
+    </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#ul_menu li:eq(4)").addClass("On").siblings("li").removeClass("On");
+    });
+    //以前的集中考试SourceType是：1 视频是：2 新进人员考试：3
+    function fGoIn(id) {
+        $.post("/NewMyCourse/FGetInto?courseid=" + $("#txt_CourseId").val() + "&ExamPaperId=" + id + "&SourceType=3", function (data) {
+            if (data.result == 1) {
+                location.href = "/ExamTest/ExamTestOnline?euID=" + data.euId + "&SourceType=3&backurl=/NewMyCourse/StudyMyCourse?courseid=" + $("#txt_CourseId").val() + "&tp=2";
+            } else if (data.result == 0) {
+                art.dialog.tips(data.message, 3);
+            } else {                   
+                art.dialog.tips(data.message, 3);
+            }
+        });
+    }
+</script>

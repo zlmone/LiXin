@@ -1,0 +1,274 @@
+﻿@{
+    ViewBag.Title = "总所自学员工学习情况";
+    Layout = null;
+}
+
+<div class="main-c">
+    <input type="hidden" id="txt_deptid_list" />
+    <input type="hidden" id="hidSelUserIds" />
+
+    @*@(Html.Action("SiteMapLink", "Common", new { linkName = "我的已预订课程" }))*@
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span10">部门/分所：
+                </td>
+                <td class="span17">
+                    <input type="button" class="btn  btn-co" value="选择部门/分所" id="btn_selectdeptid" />
+                </td>
+                <td class="Tit span12">选择年度：</td>
+                <td class="span10">
+                    @Html.Action("ReportYear", "Common", new { id = "sel_year" })
+                </td>
+                <td class="Tit span8">是否免修：</td>
+                <td>
+                    <input type="checkbox" name="isFree" value="1" />是
+                    <input type="checkbox" name="isFree" value="0" />否 
+                </td>
+                <td class="so-do" rowspan="2">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                    <input id="btn_execl" type="button" class="btn btn-co" value="导出EXCEL" onclick="ExportUser()" />
+                    @*<input type="button" class="btn btn-co" value="同步" onclick="fabu(InitAllData)" />*@
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span12">姓名：</td>
+                <td>
+                    <input type="text" id="txt_realName" info="" class="Box span16 searchclass" />
+
+                </td>
+                <td class="Tit span12">是否CPA：
+                </td>
+                <td>
+                    <input type="checkbox" name="iscpa" value="0" />是
+                    <input type="checkbox" name="iscpa" value="1" />否
+                </td>
+
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <div class="course-tysel">
+            <span style="float: right; color: orangered;">温馨提示：名字红色的为有免修的人员</span>
+        </div>
+    </div>
+    <table class="tab-List mt10" id="tbCoursePass">
+        <thead>
+            <tr>
+
+                <th class="span4">序号
+                </th>
+                <th class="span8" class="">部门/分所
+                </th>
+                <th class="span6">姓名
+                </th>
+                <th class="span4">是否CPA
+                </th>
+                <th class="span4" jsrendersortfield="CanYu" sort="desc">参与课程数
+                </th>
+                <th class="span8" jsrendersortfield="GetLength" sort="desc">已获取部门自学学时
+                </th>
+                <th class="span7" jsrendersortfield="Qj_Num" sort="desc">请假次数
+                </th>
+                <th class="span8" jsrendersortfield="Td_Num" sort="desc">退订次数
+                </th>
+                <th class="span7" jsrendersortfield="Cd_Num" sort="desc">迟到次数
+                </th>
+
+                <th jsrendersortfield="Qq_Num" sort="desc">缺勤次数</th>
+                <th jsrendersortfield="Advice_Num" sort="desc">课前建议次数</th>
+                <th jsrendersortfield="AfterAnswer_Num" sort="desc">课后评估次数</th>
+                <th jsrendersortfield="OnlineTest_Num" sort="desc">在线测试通过次数</th>
+                <th jsrendersortfield="Research_Num" sort="desc">参与需求调研次数</th>
+                <th class="span4">操作</th>
+            </tr>
+        </thead>
+        <tbody id="courseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <br />
+    @if (ViewBag.show == 1)
+    {
+        <div class="mt10 tc">
+            <input type="button" id="d_btnback" class="btn btn-cancel" value="返回">
+        </div>
+    }
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+         <td>{{:#index+1}}</td>
+         <td style="text-align:left">{{:Dep_DeptName}}</td>
+         <td>
+          {{if IsFree==0}}
+             {{:RealName}}
+          {{else}}
+             <div style="color:red;font-weight: bold;">{{:RealName}}</div>
+          {{/if}}
+         </td>
+         <td>{{:IsCPAStr}}</td>
+         <td>{{:CanYu}}</td>
+         <td>{{:GetLength}}</td>
+         <td>{{:Qj_Num}}</td> 
+         <td>
+             {{:Td_Num}}
+         </td>
+         <td>
+             {{:Cd_Num}}
+         </td>
+         <td>{{:Qq_Num}}</td>
+         <td>{{:Advice_Num}}</td>
+         <td>{{:AfterAnswer_Num}}</td>
+         <td>{{:OnlineTest_Num}}</td>
+         <td>{{:Research_Num}}</td>
+         <td><a onclick="fhref({{:UserId}})" class="icon iview" title="查看详情"></a></td>
+     </tr>
+  {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        showIndex();
+
+        $("#btn_Select").click(function() {
+            InitData();
+        });
+
+        $("#sel_year").change(function() {
+            InitData();
+        });
+
+        $("#btn_selectdeptid").click(function ()
+        {           
+            if("@ViewBag.deptid"==0)
+            {
+                art.dialog.load("/Report_zAttendce/SelectDept?deptid=0&ReportType=0&naru=1", { title: '选择部门/分所', id: "win_deptmanage" }, false);
+            }
+        
+            else
+            {
+                art.dialog.load("/Report_zAttendce/SelectDept?deptid=@(ViewBag.deptid)&ReportType=0&naru=1", { title: '选择部门/分所', id: "win_deptmanage" }, false);
+            }
+            
+        })
+
+        $("#d_btnback").click(function(){
+            show(0,1);
+        });
+    })
+
+    function showIndex()
+    {
+        var page=@ViewBag.pageInex;
+        $("#txt_deptid_list").val("@ViewBag.deptid");
+        $("#sel_year option[value='@ViewBag.year']").attr("selected",true);
+        $("#txt_realName").val("@ViewBag.realname");
+        if ("@ViewBag.cpa" == "2")
+        {
+            $("input[name='iscpa']").attr("checked", true);
+        }
+        else
+        {
+            $("input[name='iscpa'][value='@ViewBag.cpa']").attr("checked", true);
+        }
+        InitData(page);
+    }
+
+
+
+    function fhref(id) {
+        location.href = '/Report_zAttendce/CompletionDetialByUser?userid=' + id +"&year="+$("#sel_year").val()+ '&url=/Report_DepCourse/Report_DepCourseALL?type=1';
+    }
+    function InitData(page) {
+        page=page==undefined?1:page;
+        var param = { deptid: $("#txt_deptid_list").val() };
+        $("#courseList").JsRenderData({
+            sourceUrl: geturl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            templateID: "courseListTemplate",
+            jsRenderSortField: "Dep_DeptName,GetLength",
+            jsRenderASC: "asc",
+            ajaxtype: "post",
+            ajaxParam: param,
+         
+            funCallback: function (data) {
+                //SetCheckBox('selectall', 'courseList');
+                // closewait();
+            }
+        });
+        closewait();
+    }
+    function geturl() {
+        var iscpa = "";
+        var isFree="-1";
+        if ($("input[name='iscpa']:checked").length == 2) {
+            iscpa = "2";
+        }
+        else {
+            $("input[name='iscpa']:checked").each(function () {
+                iscpa = $(this).val();
+            })
+        }      
+        if($("input[name='isFree']:checked").length == 1)
+        {
+            isFree=$("input[name='isFree']:checked").val();
+        }
+        
+        if("@ViewBag.deptid"=="0")
+        {
+            return '/Report_DepCourse/getReport_CompleteDetail?deptype=0&realname=' + escape(getSearchWord('txt_realName')) 
+                + "&year=" + $("#sel_year").val() + "&cpa=" + iscpa+"&isFree="+isFree;
+        }
+        else
+        {
+            return '/Report_DepCourse/getReport_CompleteDetail?deptype=0&realname=' + escape(getSearchWord('txt_realName')) 
+                + "&year=" + $("#sel_year").val() + "&cpa=" + iscpa+"&isFree="+isFree;
+        }
+    }
+
+
+
+    function ExportUser() {
+        var iscpa = "";
+        if ($("input[name='iscpa']:checked").length == 2) {
+            iscpa = "2";
+        }
+        else {
+            $("input[name='iscpa']:checked").each(function () {
+                iscpa = $(this).val();
+            })
+        }
+
+        var isFree="-1";
+        if($("input[name='isFree']:checked").length == 1)
+        {
+            isFree=$("input[name='isFree']:checked").val();
+        }
+
+        art.dialog({
+            content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+            ok: function () {
+                var v = '/Report_DepCourse/getReport_CompleteDetailForReport?deptype=0&deptid=' + $("#txt_deptid_list").val() 
+                    + "&realname=" + escape(getSearchWord('txt_realName')) + "&year=" + $("#sel_year").val() + "&cpa=" + iscpa
+                    +"&isFree="+isFree;
+                window.location.href = v;
+            },
+            cancel: true
+        });
+    }
+
+    function searchByDept() {
+        var ids = $("#selAllDeptIDs").val();
+        var selids = "";
+        $("input[name=check_deptid]:checked").each(function () {
+            selids = selids == "" ? $(this).attr("id") : selids + "," + $(this).attr("id");
+        });
+        $("#txt_deptid_list").val(ids == "" ? selids : ids + "," + selids);
+        art.dialog.list['win_deptmanage'].close();
+        InitData();
+    }
+
+</script>

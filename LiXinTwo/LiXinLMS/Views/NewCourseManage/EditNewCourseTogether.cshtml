@@ -1,0 +1,536 @@
+﻿@{
+    ViewBag.Title = "编辑新进员工混合培训课程";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var courseID = Request.QueryString["courseID"] ?? "0";
+}
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+<script src="/Scripts/ueditor/editor_all.js" type="text/javascript"></script>
+<script src="/Scripts/ueditor/editor_config.js" type="text/javascript"></script>
+<link href="/Scripts/ueditor/themes/default/ueditor.css" rel="stylesheet" type="text/css" />
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "编辑新进员工混合培训课程" }))
+    <div id="baseinfor" sign="divcontain">
+        <form id="formEditCourse">
+            <h3 class="tit-h3">课程基本信息</h3>
+            <input type="hidden" name="Id" id="txtId" value="@Model.Id"  />
+            <table class="tab-Form mt10">
+                <tr>
+                    <td class="Tit span20">课程名称：</td>
+                    <td>
+                        <input type="text" id="txtCourseName" name="CourseName" value="@Model.CourseName" class="span40" maxlength="50" onblur="if($.trim($(this).val())!=''){$(this).next().html('').hide();}"/>
+                        <span class="Validform_checktip Validform_wrong" style="display:none;"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">课程编号：</td>
+                    <td>
+                        <input type="text" name="Code" @(Model.PublicFlag==1?"disabled=disabled":"") value="@Model.Code" id="txtCode" class="span20" maxlength="15" onblur="checkCourseCode(this);"/>
+                        <span class="Validform_checktip Validform_wrong" style="display:none;"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">授课类型：</td>
+                    <td>
+                        <div class="sel">
+                            <input type="checkbox" @(Model.PublicFlag==1?"disabled=disabled":"") name="IsGroupTeach" value="0" /><label>集中授课</label>@*onchange="showBtn();"*@
+                            <input type="checkbox" @(Model.PublicFlag==1?"disabled=disabled":"") name="IsGroupTeach" value="1" /><label>分组带教</label>@*onchange="showBtn();"*@
+                        </div>
+                    </td>
+                </tr>
+                <tr style="display:none;">
+                    <td class="Tit">选择班级：</td>
+                    <td>
+                        <input type="hidden" name="Classes" id="txtClass" value="@Model.Classes" />
+                        <input id="btnSelClass" @(Model.PublicFlag==1?"disabled=disabled":"") class="btn btn-co" type="button" onclick="fnChooseClass();" value="选择班级" name="btnSelClass"/>
+                        <span class="Validform_checktip Validform_wrong" style="display:none;"></span>
+                        <div class="seled-list">
+                            <ul id="classlist">
+                                @foreach (var item in (IEnumerable<LixinModels.NewClassManage.New_Class>)ViewBag.ClassList)
+                                {
+                                    <li id="class@(item.Id)"><span title="@item.ClassName">@item.ClassName</span>
+                                    @{
+                                    if (Model.PublicFlag == 0)
+                                    {
+                                        <input class="btn btn-cancel"  type="button" name="btn" title="移除" value="X" onclick="  fnRemoveclass('class@(item.Id)    ',@item.Id)" />
+                                    }
+                                    }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">是否有在线测试：</td>
+                    <td>
+                        <div class="sel">
+                            <input type="radio" name="IsTest" value="0" onclick="fnShowChoosePaper(0)" /><label>否</label>
+                            <input type="radio" name="IsTest" value="1" onclick="fnShowChoosePaper(1)" /><label>是</label>
+                            <label id="messagetest" class="Validform_checktip Validform_wrong" style="display:none;"></label>
+                        </div>
+                        <div id="div_showPaperSetting">
+                            <div class="seled-list" style="width: 81%">
+                                <input type="hidden" name="PaperId" id="hid_PaperId" value="@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).PaperId)" />
+                                <table class="tab-Form">
+                                    <tr>
+                                        <td class="Tit span10">试卷名称：
+                                        </td>
+                                        <td>
+                                            <strong id="lbl_PaperName">@(ViewBag.PaperName)</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="Tit">课程结束内：
+                                        </td>
+                                        <td>
+                                            <div class="time-choose">
+                                                <input class="span4" type="text" id="txtHour" maxlength="3" name="Hour" value="@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).Hour)" number="@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).Hour)" onblur="if (isNaN($(this).val()) || !(parseInt($(this).val()) >= 0)) {$(this).val($(this).attr('number'));}"/>
+                                                小时允许考试（限制在0~999之间）
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="Tit">考试时长：
+                                        </td>
+                                        <td>
+                                            <div class="time-choose">
+                                                <input class="span4" type="text" name="Length" maxlength="3" id="txtLength" value="@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).Length)" number="@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).Length)" onblur="if (isNaN($(this).val()) || !(parseInt($(this).val()) > 0)) {$(this).val($(this).attr('number'));}" />
+                                                分钟
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="Tit">通过线：
+                                        </td>
+                                        <td>
+                                            <div class="time-choose">
+                                                <input class="span4" type="text" name="LevelScore" maxlength="3" id="txtLevelScore" value="@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).LevelScore)" number="@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).LevelScore)" onblur="if (isNaN($(this).val()) || !(parseInt($(this).val()) > 0)) {$(this).val($(this).attr('number'));}else{if(parseInt($(this).val())>100){$(this).val($(this).attr('number'));}}" />%
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="Tit">试卷总分：
+                                        </td>
+                                        <td>
+                                            <span id="lbl_TotalScore">@(ViewBag.PaperTotalScore)分</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="Tit">最大考试次数：
+                                        </td>
+                                        <td>
+                                            <input class="span4" type="text" name="TestTimes" maxlength="2" id="txtTestTimes" value="@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).TestTimes)" number="@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).TestTimes)" onblur="if (isNaN($(this).val()) || !(parseInt($(this).val()) > 0)) {$(this).val($(this).attr('number'));}"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <h3 class="tit-h3">课程资源</h3>
+            <table class="tab-Form mt10">
+                <tr>
+                    <td class="Tit span20">课程资源：</td>
+                    <td >
+                        <input type="hidden" id="deleteFile" value=""/>
+                        <input type="file" name="courseResource" value="" id="uploadResource" />
+                        @if (ViewBag.CourseResourceList != null && ((IEnumerable<LiXinModels.NewCourseManage.New_CourseFiles>)ViewBag.CourseResourceList).Count() > 0)
+                        {
+                            <div class="seled-list">
+                                <ul id="resourseIds">
+                                    @foreach (var item in (IEnumerable<LiXinModels.NewCourseManage.New_CourseFiles>)ViewBag.CourseResourceList)
+                                    {
+                                        <li id="resource@(item.Id)"><span title="@item.Name ( @item.ResourceSize K )">
+                                                                        @item.Name
+                                                                        ( @item.ResourceSize K ) </span>
+                                            <input  type="button" name="btn" value="X" title="移除" class="btn btn-cancel" onclick="fnRemoveCourseResource('resource@(item.Id)',@item.Id)" />
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">课程大纲：
+                    </td>
+                    <td>
+                        <textarea cols="5" id="txt_Memo" name="Memo" rows="10" class="all80">@Model.Memo</textarea>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <div class="tc">
+            <input type="hidden" id="savedirection" value="0"/>
+            <input class="btn" type="button" value="保存" id="btnSaveCourse" onclick="$('#savedirection').val(0);btnSaveCourse();"/>
+            <input class="btn" type="button" disabled="disabled" id="btnEditJizhong" value="编辑集中授课" onclick="$('#savedirection').val(1);btnSaveCourse();"/>
+            <input class="btn" type="button" disabled="disabled" id="btnEditGroupTeach" value="编辑分组带教" onclick="$('#savedirection').val(2);btnSaveCourse();"/>
+            <a class="btn btn-cancel" href="/NewCourseManage/NewCourseManageList?way=1&p=1">返回</a>
+        </div>
+    </div>
+</div>
+
+<script id="listTeachTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <li id="{{:type}}{{:id}}">
+            <span title="{{:name}}">{{:name}}</span>
+            <input class="btn btn-cancel"  type="button" name="btn" title="移除" value="X" onclick="fnRemove{{:type}}('{{:type}}{{:id}}',{{:id}});" />
+        </li>
+    {{/for}}
+</script>
+
+<script type="text/javascript">
+   //课程编号是否重复
+   function checkCourseCode(obj) {
+       var reglar = /^[0-9a-zA-Z-]*$/;
+       if (reglar.test($.trim($("#txtCode").val()))) {
+           $(obj).next().html('').hide();
+       } else {
+           $(obj).next().show().html('课程编号只能以字母+数字的组合且不能超过15字符！').show();
+           return;
+       }
+       if ($.trim($(obj).val()) != '') {
+           $.getJSON('/NewCourseManage/CheckNewCourseCode?way=1&Id=' + $("#txtId").val() + '&CourseCode=' + $.trim($(obj).val()) + '&t=' + new Date(), function(data) {
+               if (data) {
+                   $(obj).next().html('').hide();
+               } else {
+                   $(obj).next().show().html('课程编号已经存在！');
+               }
+           });
+       }
+   }
+
+   function showBtn() {
+        if($("input[name='IsGroupTeach'][value='0']").prop('checked')) {
+            if($("#txtId").val()!="0" && $("#txtId").val()!="") {
+                $("#btnEditJizhong").attr("disabled",false);
+            }else {
+                $("#btnEditJizhong").attr("disabled",true);
+            }
+        }else {
+            $("#btnEditJizhong").attr("disabled",true);
+        }
+        if($("input[name='IsGroupTeach'][value='1']").prop('checked')) {
+            if($("#txtId").val()!="0" && $("#txtId").val()!="") {
+                $("#btnEditGroupTeach").attr("disabled",false);
+            }else {
+                $("#btnEditGroupTeach").attr("disabled",true);
+            }
+        }else {
+            $("#btnEditGroupTeach").attr("disabled",true);
+        } 
+    }
+
+    //保存课程
+    function btnSaveCourse() {
+        var flag = 0;
+        if ($.trim($("#txtCourseName").val()) == "") {
+            $("#txtCourseName").next().html('请输入课程名称！').show();
+            flag = 1;
+        } else {
+            $("#txtCourseName").next().html('').hide();
+        }
+        if ($.trim($("#txtCode").val()) == "") {
+            $("#txtCode").next().html('请输入课程编号！').show();
+            flag = 1;
+        } else {
+            var reglar = /^[0-9a-zA-Z-]*$/;
+            if (reglar.test($.trim($("#txtCode").val()))) {
+                $("#txtCode").next().html('').hide();
+            } else {
+                $("#txtCode").next().html('课程编号只能以字母+数字的组合且不能超过15字符！').show();
+                flag = 1;
+            }
+        }
+        //if ($("#txtClass").val() == '') {
+        //    $("#txtClass").parent().find(".Validform_wrong").html('请选择班级！').show();
+        //    flag = 1;
+        //} else {
+        //    $("#txtClass").parent().find(".Validform_wrong").html('').hide();
+        //}
+        if ($("input[name='IsTest'][value='1']").attr("checked") && ($("#hid_PaperId").val() == '0' || $("#hid_PaperId").val() == '')) {
+            $("#messagetest").html('请选择在线测试试卷！').show();
+            flag = 1;
+        } else {
+            $("#messagetest").html('').hide();
+        }
+        if ($(".Validform_wrong:visible").length > 0) {
+            flag = 1;
+            return;
+        }
+        if (flag == 0) {
+            var isgroupteach = 0;
+            if ($("input[name='IsGroupTeach'][value='0']").attr("checked") && !$("input[name='IsGroupTeach'][value='1']").attr("checked")) {
+                isgroupteach = 1;
+            }
+            if (!$("input[name='IsGroupTeach'][value='0']").attr("checked") && $("input[name='IsGroupTeach'][value='1']").attr("checked")) {
+                isgroupteach = 2;
+            }
+            if ($("input[name='IsGroupTeach'][value='0']").attr("checked") && $("input[name='IsGroupTeach'][value='1']").attr("checked")) {
+                isgroupteach = 3;
+            }
+            //提交
+            $.post('/NewCourseManage/SubmitCourse',
+                {
+                    way: 1,
+                    id: $("#txtId").val(),
+                    name: $("#txtCourseName").val(),
+                    code: $("#txtCode").val(),
+                    groupteach: isgroupteach,
+                    starttime: "2000-1-1 00:00",
+                    endtime: "2050-1-1 00:00",
+                    teacher: '0',
+                    classes: $("#txtClass").val(),
+                    survey: '',
+                    test: $("#hid_PaperId").val() + ',' + $("#txtHour").val() + ',' + $("#txtLength").val() + ',' + $("#txtLevelScore").val() + ',' + $("#txtTestTimes").val(),
+                    memo: editor.getContent(),
+                    delFile: $("#deleteFile").val()
+                }, function(codata) {
+                    if (codata.result == 1) {
+                        $("#txtId").val(codata.id);
+                        showBtn();
+                        totalCount = $("#uploadResource-queue .uploadify-queue-item").length;
+                        if (totalCount > 0) {
+                            interval = setInterval("CheckBack()", 1000);
+                            //提交成功，上传附件
+                            $('#uploadResource').uploadify('upload', '*');
+                        } else {
+                            art.dialog.tips("保存成功！", 1.5);
+                            if($("#savedirection").val()=="0") {
+                                if ($("input[name='IsGroupTeach']:checked").length > 0) {
+                                    if ($("input[name='IsGroupTeach'][value='0']").attr('checked')) {
+                                        window.location.href = '/NewCourseManage/CourseSeatSistribute?courseID=' + $("#txtId").val()+'&rtype=0';
+                                    } else {
+                                        window.location.href = '/NewCourseManage/CourseSeatSistribute?courseID=' + $("#txtId").val()+'&rtype=1';
+                                    }
+                                } else {
+                                    window.location.href = '/NewCourseManage/NewCourseManageList';
+                                }
+                            }else if($("#savedirection").val()=="1") {
+                                window.location.href = '/NewCourseManage/CourseSeatSistribute?courseID=' + $("#txtId").val()+'&rtype=0';
+                            }
+                            else if($("#savedirection").val()=="2") {
+                                window.location.href = '/NewCourseManage/CourseSeatSistribute?courseID=' + $("#txtId").val()+'&rtype=1';
+                            }
+                        }
+                    }
+                });
+        }
+    }
+
+    var currNum = 0;
+    var totalCount = 0;
+    var interval = null;
+    var editor;
+    //课程基本信息保存完之后的操作
+    function CheckBack()
+    {
+        if(currNum==totalCount) {
+            clearInterval(interval);
+            art.dialog.tips("保存成功！", 1);
+            if($("#savedirection").val()=="0") {
+                if ($("input[name='IsGroupTeach']:checked").length > 0) {
+                    if ($("input[name='IsGroupTeach'][value='0']").attr('checked')) {
+                        window.location.href = '/NewCourseManage/CourseSeatSistribute?courseID=' + $("#txtId").val();
+                    } else {
+                        window.location.href = '/NewCourseManage/GroupCourseSeatSistribute?courseID=' + $("#txtId").val();
+                    }
+                } else {
+                    window.location.href = '/NewCourseManage/NewCourseManageList';
+                }
+            }
+            else if($("#savedirection").val()=="1") {
+                window.location.href = '/NewCourseManage/CourseSeatSistribute?courseID=' + $("#txtId").val();
+            }else if($("#savedirection").val()=="2"){
+                window.location.href = '/NewCourseManage/GroupCourseSeatSistribute?courseID=' + $("#txtId").val();
+            }
+        }
+    }
+    
+    $(document).ready(function () {
+        $("input[name='IsGroupTeach']").bind("change", function() {
+            showBtn();
+        });
+        if ('@courseID' == '0') {
+            $("input[name='IsGroupTeach']").attr("checked", false);
+            $("input[name='IsTest']:first").attr("checked", true);
+            $("#div_showPaperSetting").hide();
+            $(".seled-list").hide();
+        }else {
+            if('@(Model.IsGroupTeach)'=='0') {
+                $("input[name='IsGroupTeach']").attr("checked", false);
+            }
+            if('@(Model.IsGroupTeach)'=='1') {
+                $("input[name='IsGroupTeach'][value='0']").attr("checked", true);
+                $("input[name='IsGroupTeach'][value='1']").attr("checked", false);
+            }
+            if('@(Model.IsGroupTeach)'=='2') {
+                $("input[name='IsGroupTeach'][value='0']").attr("checked", false);
+                $("input[name='IsGroupTeach'][value='1']").attr("checked", true);
+            }
+            if('@(Model.IsGroupTeach)'=='3') {
+                $("input[name='IsGroupTeach'][value='0']").attr("checked", true);
+                $("input[name='IsGroupTeach'][value='1']").attr("checked", true);
+            }
+            if ('@(((LiXinModels.NewCourseManage.New_CoursePaper)ViewBag.CoursePaper).PaperId)' != '0') {
+                $("input[name='IsTest'][value='1']").attr("checked", true);
+            } else {
+                $("input[name='IsTest'][value='0']").attr("checked", true);
+                $("#div_showPaperSetting").hide();
+            }
+
+            
+            showBtn();
+        }
+        //注册页面加载事件,解决flash的bug
+        addEvent(window, init, "load", "集中授课课程开设");
+
+        //渲染编辑器
+        editor = new baidu.editor.ui.Editor({
+            toolbars: [['FontSize', 'FontFamily', 'ForeColor', 'Bold', 'UnderLine', 'StrikeThrough', 'JustifyLeft', 'JustifyRight',
+                'JustifyCenter', 'InsertOrderedList', 'InsertUnorderedList']],
+            wordCount: false,
+            autoHeightEnabled: false,
+            elementPathEnabled: false,
+            minFrameHeight: 250
+        });
+        editor.render("txt_Memo");
+        
+        //上传附件
+        $('#uploadResource').uploadify({
+            'formData': { 'folder': "@(System.Configuration.ConfigurationManager.AppSettings["NewCourseFile"])" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',//此处因需要增加了detailFlag字段 其他地方使用请自行移除
+            'auto': false,
+            'multi': true,
+            'onCancel': function(file) {
+            },
+            'onSelect': function(file) {
+                $("#tempAttachQueueId").val(file.id);
+            },
+            'onUploadStart': function(file) {
+            },
+            'onUploadError': function(file, errorCode, errorMsg, errorString) {
+                if (errorCode != -280) {
+                    art.dialog.tips('上传过程中发送异常，请重新选择文件！', 1.5);
+                    $('input[type="submit"]').removeAttr('disabled');
+                }
+            },
+            'onUploadSuccess': function(file, data, response) {
+                var a = data.split('|');
+                if (a.length > 0) {
+                    var RealName = a[0];
+                    var ResourceName = a[1];
+                    var ResourceSize = a[2];
+                    var ResourceType =0;
+                    var CourseId = $("#txtId").val();
+                    $.post("/NewCourseManage/SubmitCourseResource?CourseId=" + CourseId + "&RealName=" + escape(ResourceName) + "&Name=" + escape(RealName) +
+                        "&ResourceSize=" + ResourceSize + "&ResourceType=" + ResourceType, function(data) {
+                            currNum++;
+                        });
+                }
+            },
+            'onAllComplete': function() {
+
+            }
+        });
+    });
+    
+    //选择班级
+    function fnChooseClass() {
+        art.dialog.load("/NewCourseManage/SelectClass?AllUserID=" + $("#txtClass").val() + "&type=checkbox", { title: '选择班级', id: "pop_chooseClass" }, false);
+    }
+
+    //呈现所选的班级
+    function GetClassIDList() {
+        var classids = GetCheckedIdAndName("classList");
+        if (classids == "" || classids == undefined) {
+            art.dialog.tips('请选择班级！', 1.5);
+            return;
+        }
+        var ids = '';
+        var classarr = [];
+        var arr = classids.split(';');
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] != '') {
+                var subarr = arr[i].split(',');
+                ids += ids == '' ? (subarr[0]) : (',' + subarr[0]);
+                classarr.push({ id: subarr[0], name: subarr[1],type:'class' });
+            }
+        }
+        //存入隐藏域
+        if ($("#txtClass").val() == '') {
+            $("#txtClass").val(ids);
+        } else {
+            $("#txtClass").val($("#txtClass").val() + (ids != '' ? (',' + ids) : ''));
+        }
+        //呈现
+        $("#classlist").append($("#listTeachTemplate").render(classarr));
+        art.dialog.list["pop_chooseClass"].close();
+        if ($("#classlist li").length == 0) {
+            $("#classlist").parent().hide();
+        } else {
+            $("#classlist").parent().show();
+        }
+        $("#txtClass").parent().find(".Validform_wrong").html('').hide();
+    }
+    
+    //移除班级
+    function fnRemoveclass(liid,id) {
+        $("#" + liid).remove();
+        var old = $("#txtClass").val();
+        var newids = (',' + old + ',').replace((',' + id + ','), ',');
+        if (newids.length > 1) {
+            newids = newids.substring(0, newids.length - 1).substring(1, newids.length - 1);
+        } else {
+            newids = '';
+        }
+        $("#txtClass").val(newids);
+        if ($("#classlist li").length == 0) {
+            $("#classlist").parent().hide();
+        }
+    }
+
+    //选择试卷
+    function fnShowChoosePaper(obj)
+    {
+        if (obj == 1) {
+            art.dialog.load("/Exampaper/ExampaperSelect?selectType=radio", {
+                title: "选择试卷",
+                id: "pop_SelExam"
+            }, false);
+        }else {
+            $("#div_showPaperSetting,#div_showPaperSetting .seled-list").hide();
+            $("#messagetest").html('').hide();
+            $("#hid_PaperId").val('0');
+        }
+    }
+    
+    //显示选择的试卷
+    function ExamIDList(str) {
+        $("#hid_PaperId").val(str);
+        var paperName = $("#paper_" + $('#hid_PaperId').val()).attr("title");
+        var paperTotalScore = $("#paper_" + $('#hid_PaperId').val()).attr("pop_totalsocre");
+        $("#lbl_PaperName").html(paperName);
+        $("#lbl_TotalScore").html(paperTotalScore);
+        art.dialog.list['pop_SelExam'].close();
+        $("#div_showPaperSetting,#div_showPaperSetting .seled-list").show();
+        $("#messagetest").html('').hide();
+    }    
+    
+    function fnRemoveCourseResource(liid, id) {
+        $("#" + liid).remove();
+        var ids = $("#deleteFile").val();
+        ids += ids == "" ? id : (',' + id);
+        $("#deleteFile").val(ids);
+        if ($("#resourseIds li").length == 0) {
+            $("#resourseIds").parent().hide();
+        }
+    }
+
+</script>

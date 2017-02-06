@@ -1,0 +1,110 @@
+﻿@model LiXinModels.DepCourseManage.Dep_Course
+@{
+    Layout = null;
+}
+
+<div>
+    <form method="post" id="DoCheckForm">
+        <table class="tab-Form">
+            <tr>
+                <td >
+                    审批结果：
+                    <input type="hidden" id="hidCourseId" name="Id" value="@Model.Id"/>
+                    <input type="hidden" id="hidIsOpenOthers" name="IsOpenOthers" value="@Model.IsOpenOthers"/>
+                </td>
+                <td>
+                    <input type="radio" name="rdoCheck" id="rdoPass"  checked="checked"  /><label>审批通过</label>
+                    <input type="radio" name="rdoCheck"  id="rdoRefuse"    /><label>审批拒绝</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    审批理由：
+                </td>
+                <td>
+                    <textarea cols="10" id="txtOpenReason" name="OpenReason" rows="10" class="all">@Model.OpenReason</textarea>
+                </td>
+            </tr>
+            <tr>
+            <td>
+                通知类型：
+            </td>
+            <td>
+                <span class="sel">
+                    <input type="hidden" id="hidIsSendMessage" name="IsSendMessage" value="@Model.IsSendMessage"/>
+                    <input type="checkbox" name="popIsSendMessage" id="chbIsSendMessage1" value="1" /><label>邮件</label>
+                    <input type="checkbox" name="popIsSendMessage" id="chbIsSendMessage2" value="2" /><label>短信</label>
+                </span>
+            </td>
+        </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <a class="btn" id="save" onclick=" $('#DoCheckForm').submit(); ">保存</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<script type="text/javascript">
+    
+    $(document).ready(function() {
+        $("#DoCheckForm").validate({
+            submitHandler: submitDoCheckForm,
+            event: "blur"
+        });
+    });
+
+    function submitDoCheckForm() {
+        var rdoPassFlag = ($("#rdoPass").attr("checked") == true || $("#rdoPass").attr("checked") == "checked") ? true : false;
+        var rdoRefuseFlag = ($("#rdoRefuse").attr("checked") == true || $("#rdoRefuse").attr("checked") == "checked") ? true : false;
+        var txtOpenReason = $("#txtOpenReason").val().trim();
+        if (rdoRefuseFlag) {
+            $("#hidIsOpenOthers").val(3);
+            if(txtOpenReason=="") {
+                art.dialog.tips("请填写审批理由！", 3);
+                return;
+            }
+            else if(txtOpenReason.length>100) {
+                art.dialog.tips("审批理由字数不能大于100！", 3);
+                return;
+            }
+        }else if(!rdoPassFlag) {
+            art.dialog.tips("请选择审批结果！", 3);
+            return;
+        }
+        else {
+            $("#hidIsOpenOthers").val(2);
+        }
+
+        //发送1-邮件/2-短信 0-不发送 -1：邮件+短信
+        var chbIsSendMessage1 = ($("#chbIsSendMessage1").attr("checked") == true || $("#chbIsSendMessage1").attr("checked") == "checked") ? true : false;
+        var chbIsSendMessage2 = ($("#chbIsSendMessage2").attr("checked") == true || $("#chbIsSendMessage2").attr("checked") == "checked") ? true : false;
+        if (chbIsSendMessage1 && chbIsSendMessage2) {
+            $("#hidIsSendMessage").val(-1);
+        } else if (chbIsSendMessage1) {
+            $("#hidIsSendMessage").val(1);
+        } else if (chbIsSendMessage2) {
+            $("#hidIsSendMessage").val(2);
+        } else {
+            $("#hidIsSendMessage").val(0);
+        }
+        
+        $.post("/DepCourseOpenOthersCheck/SaveDoCheck", $("#DoCheckForm").formSerialize(), function (data) {
+            if (data.result == 1) {
+                art.dialog.tips("操作成功！", 3);
+                
+                if (@ViewBag.Type == 1)
+                {
+                    location.href = "DepCourseOpenOthersCheck/DepCourseOpenOthersCheck?p=1";
+                    return;
+                }
+            } else {
+                art.dialog.tips("操作失败！", 3);
+            }
+            closeDialog("art_DoCheck");
+            InitData(1);
+        });
+        
+    }
+</script>

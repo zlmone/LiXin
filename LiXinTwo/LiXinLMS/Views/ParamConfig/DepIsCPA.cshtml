@@ -1,0 +1,53 @@
+﻿@{
+    Layout = null;
+    var configValue = ViewBag.depcpa as String;
+}
+
+<!DOCTYPE html>
+<form>
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">部门/分所课程学时CPA折算</span>
+    </h2>
+    <table class="tab-Form mt20">
+        <tr>
+            <td class="Tit span20">
+                部门开设的课程是否进行CPA折算：
+            </td>
+            <td>
+                <input type="radio" name="setDepCPA" value="0" class="ml20" />否
+                <input type="radio" name="setDepCPA" value="1" />是
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span16">
+                分所开设的课程是否进行CPA折算：
+            </td>
+            <td>
+                <input type="radio" name="setDeptCPA" value="0" class="ml20" />否
+                <input type="radio" name="setDeptCPA" value="1"  />是
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc"><input type="button" value="确定" id="btn_Add" name="btn_Add" class="btn" onclick="btnClick()"/></td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () { 
+        $("input[name='setDepCPA']").eq(@(configValue.Split(',')[0])).attr("checked",true);
+        $("input[name='setDeptCPA']").eq(@(configValue.Split(',')[1])).attr("checked", true);
+    });
+
+    function btnClick() {
+        var depcpa = $('input[name="setDepCPA"]:checked').val();
+        var deptcpa = $('input[name="setDeptCPA"]:checked').val();
+        var flagData=depcpa+","+deptcpa;
+        $.post("/ParamConfig/fUpdateParamConfig?configType=55&configValue=" + flagData, function(data) {
+            if (data.result == 1) {
+                art.dialog.tips("配置成功");
+            } else {
+                art.dialog.tips("配置失败");
+            }
+        });
+    }
+</script>

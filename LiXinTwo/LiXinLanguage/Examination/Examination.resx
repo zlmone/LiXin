@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Examination_Add" xml:space="preserve">
+    <value>新增考试</value>
+    <comment>新增考试</comment>
+  </data>
+  <data name="Examination_AddStudent" xml:space="preserve">
+    <value>添加考生</value>
+    <comment>添加考生</comment>
+  </data>
+  <data name="Examination_BaseInformation" xml:space="preserve">
+    <value>考试基本信息</value>
+    <comment>考试基本信息</comment>
+  </data>
+  <data name="Examination_Creater" xml:space="preserve">
+    <value>创建者</value>
+    <comment>创建人</comment>
+  </data>
+  <data name="Examination_Delete" xml:space="preserve">
+    <value>删除考试</value>
+    <comment>删除考试</comment>
+  </data>
+  <data name="Examination_EmailMessage" xml:space="preserve">
+    <value>邮件</value>
+    <comment>邮件</comment>
+  </data>
+  <data name="Examination_ExamApproval" xml:space="preserve">
+    <value>考试评估</value>
+    <comment>考试评估</comment>
+  </data>
+  <data name="Examination_ExaminationLength" xml:space="preserve">
+    <value>考试时长</value>
+    <comment>考试时长</comment>
+  </data>
+  <data name="Examination_ExaminationTitleNotNull" xml:space="preserve">
+    <value>考试标题不可以为空</value>
+    <comment>考试标题不可以为空</comment>
+  </data>
+  <data name="Examination_ExamOrder" xml:space="preserve">
+    <value>考试安排</value>
+    <comment>考试安排</comment>
+  </data>
+  <data name="Examination_Exampaper" xml:space="preserve">
+    <value>关联试卷</value>
+    <comment>关联试卷</comment>
+  </data>
+  <data name="Examination_Grade" xml:space="preserve">
+    <value>成绩</value>
+    <comment>成绩</comment>
+  </data>
+  <data name="Examination_IsPass" xml:space="preserve">
+    <value>是否通过</value>
+    <comment>是否通过</comment>
+  </data>
+  <data name="Examination_JoinExam" xml:space="preserve">
+    <value>参加考试</value>
+    <comment>参加考试</comment>
+  </data>
+  <data name="Examination_MessageType" xml:space="preserve">
+    <value>通知方式</value>
+    <comment>通知方式</comment>
+  </data>
+  <data name="Examination_Minite" xml:space="preserve">
+    <value>分钟</value>
+    <comment>分钟</comment>
+  </data>
+  <data name="Examination_Modify" xml:space="preserve">
+    <value>编辑考试</value>
+    <comment>编辑考试</comment>
+  </data>
+  <data name="Examination_NoRecord" xml:space="preserve">
+    <value>暂无相关记录</value>
+    <comment>暂无相关记录</comment>
+  </data>
+  <data name="Examination_PassScore" xml:space="preserve">
+    <value>及格线</value>
+    <comment>及格线</comment>
+  </data>
+  <data name="Examination_PleaseInputNumber" xml:space="preserve">
+    <value>请输入正整数数字</value>
+    <comment>请输入正整数数字</comment>
+  </data>
+  <data name="Examination_PleaseSelectStudent" xml:space="preserve">
+    <value>请添加考试人员</value>
+    <comment>请添加考试参与人员</comment>
+  </data>
+  <data name="Examination_SearchName" xml:space="preserve">
+    <value>考试名称</value>
+    <comment>考试名称</comment>
+  </data>
+  <data name="Examination_SelectDeleteExamination" xml:space="preserve">
+    <value>请选择要删除的考试</value>
+    <comment>请选择要删除的考试</comment>
+  </data>
+  <data name="Examination_SelectDeleteStudent" xml:space="preserve">
+    <value>请选择要删除的人员</value>
+    <comment>请选择要删除的人员</comment>
+  </data>
+  <data name="Examination_SelectExampaper" xml:space="preserve">
+    <value>请选中添加的试卷</value>
+    <comment>请选中添加的试卷</comment>
+  </data>
+  <data name="Examination_SelectExamper" xml:space="preserve">
+    <value>请选择试卷</value>
+    <comment>请选择试卷</comment>
+  </data>
+  <data name="Examination_ShowAll" xml:space="preserve">
+    <value>整体显示</value>
+    <comment>整体显示</comment>
+  </data>
+  <data name="Examination_ShowSingleBack" xml:space="preserve">
+    <value>单题可逆</value>
+    <comment>单题可逆</comment>
+  </data>
+  <data name="Examination_ShowSingleNoBack" xml:space="preserve">
+    <value>单题不可逆</value>
+    <comment>单题不可逆</comment>
+  </data>
+  <data name="Examination_ShowType" xml:space="preserve">
+    <value>显示方式</value>
+    <comment>显示方式</comment>
+  </data>
+  <data name="Examination_Status" xml:space="preserve">
+    <value>状态</value>
+    <comment>状态</comment>
+  </data>
+  <data name="Examination_SureDeleteStudent" xml:space="preserve">
+    <value>确定删除人员吗？</value>
+    <comment>确定删除人员吗？</comment>
+  </data>
+  <data name="Examination_SystemMessage" xml:space="preserve">
+    <value>站内信</value>
+    <comment>站内信</comment>
+  </data>
+  <data name="Examination_TotalScore" xml:space="preserve">
+    <value>试卷总分</value>
+    <comment>试卷总分</comment>
+  </data>
+  <data name="Examination_UpdateTime" xml:space="preserve">
+    <value>更新时间</value>
+    <comment>更新时间</comment>
+  </data>
+  <data name="Examination_UserName" xml:space="preserve">
+    <value>人员姓名</value>
+    <comment>人员姓名</comment>
+  </data>
+  <data name="Examination_ExamPaperInformation" xml:space="preserve">
+    <value>试卷信息</value>
+    <comment>试卷信息</comment>
+  </data>
+  <data name="Examination_ExamUser" xml:space="preserve">
+    <value>考试人员</value>
+    <comment>考试人员</comment>
+  </data>
+  <data name="Examination_Learn" xml:space="preserve">
+    <value>学习</value>
+    <comment>学习</comment>
+  </data>
+  <data name="Examination_DeleteStudent" xml:space="preserve">
+    <value>删除考生</value>
+    <comment>删除考生</comment>
+  </data>
+</root>

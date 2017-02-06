@@ -1,0 +1,387 @@
+﻿@using LiXinLanguage
+@using LiXinModels.Examination.DBModel
+@{
+    Layout = null;
+    Response.Expires = 0;
+    string id = Request.QueryString["id"];
+    var questonInfor = ViewData["QuestionInfor"] as List<QuestionAnswer>;
+    var baseInfor = ViewData["BaseInfor"] as tbQuestion;
+    int fileType = 0; //文件类型
+    int answerType = 0; //选项类型
+    if (baseInfor._id > 0 && baseInfor.FileUpload.Count > 0)
+    {
+        fileType = baseInfor.FileUpload[0].FileType;
+    }
+    if (baseInfor._id > 0 && questonInfor.Count > 0)
+    {
+        answerType = questonInfor[0].AnswerType;
+    }
+}
+@*情景题*@
+<table class="tab-Form">
+    <tr>
+        <td class="Tit all15"><span title="必填项" class="must">*</span>@Question.Question_QuestionManage_QuestionContent：</td>
+        <td><textarea id="txtQuestionContent" class="all80" name="txtQuestionContent" istype="text" isnull="0" message="@Question.Question_QuestionManage_QueationContentNotNull">@(baseInfor.QuestionContent)</textarea></td>
+    </tr>
+    <tr>
+        <td class="Tit"><span title="必填项" class="must">*</span>@Question.Question_QuestionManage_Files：</td>
+        <td><input type="hidden" id="textFileType" name="textFileType" value="0" />
+        <select id="fileType" name="fileType">
+            <option value="0" @(fileType == 0 ? "selected='selected'" : "")>@Question.Question_QuestionManage_FileType_Picture</option>
+            <option value="1" @(fileType == 1 ? "selected='selected'" : "")>@Question.Question_QuestionManage_FileType_Audio</option>
+            <option value="2" @(fileType == 2 ? "selected='selected'" : "")>@Question.Question_QuestionManage_FileType_Vidio</option>
+        </select>
+        <input id="btnAddFile" type="button" class="btn btn-co" value="@Question.Question_QuestionManage_AddFiles" style="margin-top:0;@(fileType == 0 ? "" : "display:none;")" />
+        <input type="hidden" id="noUpdateFile" name="noUpdateFile" />
+        <span name="tishi" class="Validform_checktip Validform_wrong"></span>
+        <div id="fileCollection" class="seled-list line_h24" style="width:50%;">
+            @{
+                if (id != "0")
+                {
+                        for (int i = 0; i < baseInfor.FileUpload.Count; i++)
+                      {
+                        <div name="file">
+                                <span id="name" value="@(baseInfor.FileUpload[i].FileName)">
+                                    <span id="realName">@(baseInfor.FileUpload[i].RealName)</span>
+                                </span>
+                                <a id="deleteFile" class="fr icon idel mt5" onclick=" deleteFile(this); " title="@CommonLanguage.Common_Delete"></a>
+                        </div>
+                      }
+                }
+            }
+        </div></td>
+    </tr>
+    <tr>
+        <td class="Tit"><span title="必填项" class="must">*</span>
+            <input type="hidden" id="txtQuestionAnswerType" name="txtQuestionAnswerType" value="@(answerType)" />正确答案：</td>
+         <td>
+            <p>
+            <select id="answerType">
+                <option value="0" @(answerType == 0 ? "selected=selected" : "")>@Question.Question_QuestionManage_Subject</option>
+                <option value="1" @(answerType == 1 ? "selected=selected" : "")>@Question.Question_QuestionManage_Single</option>
+                <option value="2" @(answerType == 2 ? "selected=selected" : "")>@Question.Question_QuestionManage_Mulitple</option>
+            </select>
+            <input type="button" id="btnAddAnswer" value="@Question.Question_QuestionManage_AddItemAnswer" style="@(answerType == 0 ? " display:none; " : "");margin-top:0;" class="btn btn-co" />
+            </p>
+            <table class="tab-List fl mt5" style="width:80%;">
+                <thead id="answerHead" style="display:none;">
+                    <tr>
+                        <th>@Question.Question_QuestionManage_ItemContent</th>
+                        <th class="all15">@Question.Question_QuestionManage_RightAnswer</th>
+                        <th class="all10">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="answerCollection">
+                @{
+                    if (baseInfor._id > 0)
+                    {
+                        foreach (var answer in questonInfor.OrderBy(p=>p.Order))
+                        {
+                            if (answer.AnswerType == 0)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="tl"><span title="必填项" class="must">*</span><textarea class="all60" istype="text" isnull="0" onkeyup=" TextearaMaxlength(this); " onkeydown=" TextearaMaxlength(this); " message="@Question.Question_QuestionManage_ItemContentNotNull">@(id == "0" ? "" : questonInfor[0].Answer)</textarea></div>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="tl"><span title="必填项" class="must">*</span><input type="text" class="all60" isType="text" isnull="0" maxlength="200" message="@Question.Question_QuestionManage_ItemContentNotNull" value="@(answer.Answer)"/></div>
+                                    </td>
+                                    <td>
+                                        <input style="margin-top:7px;" type="@(answer.AnswerType == 1 ? "radio" : "checkbox")" name="answer" @(answer.AnswerFlag == 1 ? " value=1 " : " value=0 ") @(answer.AnswerFlag == 1 ? "checked='checked'" : "") onclick=" checkRadio(this); " />
+                                    </td>
+                                    <td >
+                                        <a title="@CommonLanguage.Common_Delete" onclick=" delAnswer(this); " class="icon idel" title="删除" style="margin-top:7px;"></a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>
+                                <div class="tl"><span title="必填项" class="must">*</span><textarea class="all60" istype="text" isnull="0" onkeyup=" TextearaMaxlength(this); " onkeydown=" TextearaMaxlength(this); " message="@Question.Question_QuestionManage_QueationAnswerNotNull">@(id == "0" ? "" : questonInfor[0].Answer)</textarea></div>
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    <tr id="answerKey" style="display: none;">
+        <td class="Tit"><span title="必填项" class="must">*</span>关键词：</td>
+        <td>
+        <p class="charleft originalTextareaInfo mb5">( 可以有多个关键词，每个关键词之间用空格隔开，如: AA BB CC )</p>
+        <input id="txtQuestionAnswerKeys" class="all80" name="txtQuestionAnswerKeys" type="text" isType="text" isnull="1" maxlength="30" onkeydown=" TextearaMaxlength(this); " onkeyup=" TextearaMaxlength(this); " onpropertychange="TextearaMaxlength(this);" message="试题关键字不可以为空" value="@(id == "0" ? "" : baseInfor.QuestionAnswerKeys)" /></td>
+    </tr>
+    <tr>
+        <td class="Tit">试题解析：</td>
+        <td><textarea id="txtQuestionAnalysis" class="all80" name="txtQuestionAnalysis"  message="试题解析不可以为空">@(id == "0" ? "" : baseInfor.QuestionAnalysis)</textarea></td>
+    </tr>
+</table>
+<script type="text/javascript">
+	//判断信息是否完整
+    function isCheck() {
+        //修改时，附件是否修改的验证
+        var fileStr = '';
+        $("#fileCollection div[id='name']").each(function() {
+            if ($(this).css("display") != "none") {
+                fileStr += fileStr == "" ? ($(this).attr("value")) : (';' + $(this).attr("value"));
+            }
+        });
+        $("#noUpdateFile").val(fileStr);
+        if ($("#answerType").val() == "0") {
+            $("#hiddenQuestionAnswer").val($("#answerCollection textarea").eq(0).val().trim());
+        } else {
+            var answerStr = '';
+            var answers = $("#answerCollection tr");
+            var flag = true;
+            var rightAnswerCount = 0;
+            if (answers.length > 1) {
+                for (var i = 0; i < answers.length; i++) {
+                    var checkstr = $("#answerType").val() == "1" ? $(answers[i]).find("input[type='radio']").eq(0).attr("value") : $(answers[i]).find("input[type='checkbox']").eq(0).attr("value");
+                    var str = $(answers[i]).find("input[type='text']").eq(0).val().trim() + '***!!***' + checkstr;
+                    answerStr += answerStr == "" ? str : ("!!%!%!%!!" + str);
+                    if ($(answers[i]).find("input[type='text']").eq(0).val().trim() == "")
+                        flag = false;
+                    if (($("#answerType").val() == "1" && $(answers[i]).find("input[type='radio']").eq(0).attr("value") == "1") || ($("#answerType").val() == "2" && $(answers[i]).find("input[type='checkbox']").eq(0).attr("value") == "1"))
+                        rightAnswerCount++;
+                }
+
+                if (flag && rightAnswerCount > 0) {
+                    $("#hiddenQuestionAnswer").val(answerStr);
+                    return true;
+                } else {
+                    if (rightAnswerCount == 0)
+                        //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '@Question.Question_QuestionManage_MustOneRightItem', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                        art.dialog.tips("@Question.Question_QuestionManage_MustOneRightItem", 3);
+                    return false;
+                }
+            } else {
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '@Question.Question_QuestionManage_MustOneItem', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                art.dialog.tips("@Question.Question_QuestionManage_MustOneItem", 3);
+                return false;
+            }
+
+        }
+        if ($("#hiddenQuestionAnswer").val().trim() != "")
+            return true;
+        else
+            return false;
+    }
+
+    //删除本附件
+
+    function deleteFile(obj) {
+        $(obj).parent().remove();
+        if ($("#fileCollection div[name='file']").length < 1) {
+            $("#fileCollection").html("");
+            $("#fileCollection").append('<div name="file">' +
+                '   <span title="必填项" class="must">*</span><input type="file" id="fileName" name="fileName" istype="text" isnull="0" message="@Question.Question_QuestionManage_FileNotNull" />' +
+                '   ' +
+                ($("#fileType").val() == 0 ? '<a class="fr icon idel mt5" id="deleteFile" onclick="deleteFile(this);" title="@CommonLanguage.Common_Delete"></a>' : '') +
+                '</div>');
+            switch ($("#fileType").val()) {
+            case "0":
+                $("span[name='tishi']").eq(0).html("@Question.Question_QuestionManage_Tip_FileType_PictureFormat");
+                $("#btnAddFile").show();
+                $("#deleteFile").show();
+                break;
+            case "1":
+                $("span[name='tishi']").eq(0).html("@Question.Question_QuestionManage_Tip_FileType_AudioFormat");
+                $("#btnAddFile").hide();
+                $("#deleteFile").show();
+                break;
+            case "2":
+                $("span[name='tishi']").eq(0).html("上传格式：wmv,avi,rmvb,flv 大小在8M以内");
+                $("#btnAddFile").hide();
+                $("#deleteFile").show();
+                break;
+            }
+        }
+    }
+
+    $(document).ready(function() {
+        switch ($("#fileType").val()) {
+            case "0":
+                $("span[name='tishi']").html("@Question.Question_QuestionManage_Tip_FileType_PictureFormat");
+
+                break;
+            case "1":
+                $("span[name='tishi']").html("@Question.Question_QuestionManage_Tip_FileType_AudioFormat");
+                break;
+            case "2":
+                $("span[name='tishi']").html("上传格式：wmv,avi,rmvb,flv 大小在8M以内");
+                break;
+            }
+        if ($("#txtQuestionAnswerType").val() == '0') {
+            $("#answerKey").show();
+            $("#txtQuestionAnswerKeys").attr("isnull", "0");
+        }
+        switch (@answerType) {
+            case "0":
+                $("span[name='tishi']").html("@Question.Question_QuestionManage_Tip_FileType_PictureFormat");
+
+                break;
+            case "1":
+                $("span[name='tishi']").html("@Question.Question_QuestionManage_Tip_FileType_AudioFormat");
+                break;
+            case "2":
+                $("span[name='tishi']").html("上传格式：wmv,avi,rmvb,flv 大小在8M以内");
+                break;
+            }
+
+        $("#fileType").bind("change", function() {
+            
+            $("#fileCollection").html("");
+            $("#fileCollection").append('<div name="file">' +
+                '   <span title="必填项" class="must">*</span><input type="file" id="fileName" name="fileName" istype="text" isnull="0" message="@Question.Question_QuestionManage_FileNotNull" />' +
+                '   ' +
+                ($("#fileType").val() == 0 ? '<a class="fr icon idel mt5" id="deleteFile" onclick="deleteFile(this);" title="@CommonLanguage.Common_Delete"></a>' : '') +
+                '</div>');
+            $("#submitQuestionForm").PreCheckForm();
+            switch ($("#fileType").val()) {
+            case "0":
+                $("span[name='tishi']").eq(0).html("@Question.Question_QuestionManage_Tip_FileType_PictureFormat");
+                $("#btnAddFile").show();
+                $("#deleteFile").show();
+                break;
+            case "1":
+                $("span[name='tishi']").eq(0).html("@Question.Question_QuestionManage_Tip_FileType_AudioFormat");
+                $("#btnAddFile").hide();
+                $("#deleteFile").show();
+                break;
+            case "2":
+                $("span[name='tishi']").eq(0).html("上传格式：wmv,avi,rmvb,flv 大小在8M以内");
+                $("#btnAddFile").hide();
+                $("#deleteFile").show();
+                break;
+            }
+        });
+        if (@(baseInfor._id) == 0) {
+            $("#fileType").change();
+        }else {
+            if($("#answerType").val()=='0')
+                $("#answerHead").hide();
+            else 
+                $("#answerHead").show();
+        }
+
+        $("#btnAddFile").bind("click", function() {
+            if ($("#fileCollection div[name='file']").length < 5) {
+                $("#fileCollection").append('<div name="file">' +
+                    '    <span title="必填项" class="must">*</span><input type="file" id="fileName" name="fileName" istype="text" isnull="0" message="上传附件不可以为空" />' +
+                    '    ' +
+                    '    <a class="fr icon idel mt5" id="deleteFile" onclick="deleteFile(this);" title="@CommonLanguage.Common_Delete"></a>' +
+                    '</div>');
+                $("#submitQuestionForm").PreCheckForm();
+            } else {
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '@Question.Question_QuestionManage_Tip_FileCountLimit', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                art.dialog.tips("@Question.Question_QuestionManage_Tip_FileCountLimit", 3);
+            }
+        });
+
+        $("#answerType").change(function() {
+            $("#txtQuestionAnswerType").val($("#answerType").val());
+            if ($("#txtQuestionAnswerType").val() == '0') {
+                $("#answerKey").show();
+                $("#txtQuestionAnswerKeys").attr("isnull", "0");
+            } else {
+                $("#answerKey").hide();
+                $("#txtQuestionAnswerKeys").attr("isnull", "1");
+            }
+            $("#answerCollection").html("");
+            switch ($("#answerType").val()) {
+            case "0":
+                {
+                    $("#answerHead").hide();
+                    $("#btnAddAnswer").hide();
+                    $("#answerCollection").append('<tr>' +
+                        '  <td>' +
+                        '   <div class="tl"><span title="必填项" class="must">*</span><textarea class="all60" istype="text" isnull="0" onkeyup="TextearaMaxlength(this);" onkeydown="TextearaMaxlength(this);" message="@Question.Question_QuestionManage_QueationAnswerNotNull"></textarea></div>' +
+                        '  </td>' +
+                        '</tr>');
+                    break;
+                }
+            case "1":
+            case "2":
+                {
+                    $("#answerHead").show();
+                    $("#btnAddAnswer").show();
+                    $("#answerCollection").append('<tr>' +
+                        '     <td>' +
+                        '         <div class="tl"><span title="必填项" class="must">*</span><input type="text" class="Box all60" isType="text" isnull="0" maxlength="200" message="@Question.Question_QuestionManage_ItemContentNotNull" value=""/></div>' +
+                        '     </td>' +
+                        '     <td class="all15">' +
+                        '         <input style="margin-top:7px;" type="' + ($("#answerType").val() == "1" ? "radio" : "checkbox") + '" name="answer" value="0" onclick="checkRadio(this);" />' +
+                        '     </td>' +
+                        '     <td class="all10">' +
+                        '         <a title="@CommonLanguage.Common_Delete" onclick="delAnswer(this);" style="margin-top:7px;" class="icon idel"></a>' +
+                        '     </td>' +
+                        '</tr>');
+                    break;
+                }
+            }
+            $("#submitQuestionForm").PreCheckForm();
+        });
+
+        $("#btnAddAnswer").bind("click", function() {
+            if ($("#answerCollection tr").length < 26) {
+                $("#answerCollection").append('<tr>' +
+                    '     <td>' +
+                    '         <div class="tl"><span title="必填项" class="must">*</span><input type="text" class="all60" isType="text" isnull="0" maxlength="200" message="@Question.Question_QuestionManage_ItemContentNotNull" value=""/></div>' +
+                    '     </td>' +
+                    '     <td class="all15">' +
+                    '         <input style="margin-top:7px;" type="' + ($("#answerType").val() == "1" ? "radio" : "checkbox") + '" name="answer" value="0" onclick="checkRadio(this);" />' +
+                    '     </td>' +
+                    '     <td class="all10">' +
+                    '         <a title="@CommonLanguage.Common_Delete" onclick="delAnswer(this);" style="margin-top:7px;" class="icon idel"></a>' +
+                    '     </td>' +
+                    '</tr>');
+            } else {
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '@Question.Question_QuestionManage_ItemCountLimit', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                art.dialog.tips("@Question.Question_QuestionManage_ItemCountLimit", 3);
+            }
+            $("#submitQuestionForm").PreCheckForm();
+        });
+
+        $("#submitQuestionForm").PreCheckForm();
+    });
+
+    function getStr(type) {
+        switch (type) {
+        case "0":
+            return "@Question.Question_QuestionManage_Tip_FileType_PictureFormat @string.Format(CommonLanguage.Comon_SuggestPictureSize, 300, 300)";
+            break;
+        case "1":
+            return "@Question.Question_QuestionManage_Tip_FileType_AudioFormat";
+            break;
+        case "2":
+            return "@Question.Question_QuestionManage_Tip_FileType_VidioFormat";
+            break;
+        }
+    }
+
+    //删除选项
+
+    function delAnswer(obj) {
+        $(obj).parent().parent().remove();
+    }
+
+    //设置正确答案
+
+    function checkRadio(obj) {
+        if ($("#answerType").val() == "1") {
+            $("#answerCollection input[name='answer']").attr("value", 0);
+            $(obj).attr("value", 1);
+        } else {
+            $(obj).attr("value", 1);
+        }
+    }
+</script>

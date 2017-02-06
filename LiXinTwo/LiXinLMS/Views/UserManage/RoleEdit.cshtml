@@ -1,0 +1,118 @@
+﻿@using System.Web.Mvc.Html
+@using LiXinLanguage
+@using LiXinModels.User
+@{
+    ViewBag.Title = NavigateMenuLanguage.RoleEdit;
+    var role = ViewBag.model as Sys_Roles;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "RoleEdit" }))
+    <form id="roleForm" method="post">
+    <table class="tab-Form mt20">
+        <tr>
+            <td class="Tit span40">
+                <span class="must">*</span>角色名称:
+            </td>
+            <td>
+                <input type="text" id="roleName" name="roleName" class="span30" />
+            </td>
+        </tr>
+        @*@{
+            if (role.IsDefault == 0)
+            {
+            <tr>
+                <td class="Tit">
+                    <span class="redstar" title="必填项">必填</span>是否默认:
+                </td>
+                <td>
+                    <input id="rdYes" type="radio" name="rdDefault" value="1" /><label>是</label>
+                    <input id="rdNo" type="radio" name="rdDefault" value="0"  checked="checked"/><label>否</label>
+                </td>
+            </tr>
+            }
+        }*@
+        <tr>
+            <td class="Tit" style="vertical-align: top;">
+                角色描述:
+            </td>
+            <td>
+                <textarea id="txtDesc" name="txtDesc"  cols="20" rows="2" class="span30"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+            </td>
+            <td>
+                <input type="submit" id="btnSave" class="btn" value="确定" />
+                <input type="button" class="btn btn-cancel" onclick=" window.location.href = '/UserManage/RoleManage'; "
+                    value="返回" />
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+<input id="derole" type="hidden" value="@role.IsDefault"/>
+<input type="hidden" id="hidId" value="0" />
+<script language="javascript" type="text/javascript">
+    $(document).ready(function() {
+        if (@role.RoleId > 0) {
+            $("#roleName").val("@Html.Raw(role.RoleName.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#txtDesc").val("@Html.Raw(role.RoleDesc.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#hidId").val("@role.RoleId");
+            if (@role.IsDefault > 0) {
+                $("#rdYes").attr("checked", true);
+            } else {
+                $("#rdNo").attr("checked", true);
+            }
+        }
+
+        $("#txtDesc").textareaCount({maxCharacterSize:200});
+
+        $("#roleForm").validate({
+            submitHandler:  Save,
+            event: "blur",
+            rules: {
+                roleName: {required:true,maxlength:30}
+            },
+            messages: {
+                roleName: {required:"请输入角色名称！",maxlength:"角色名称最多30个字符"}
+            }
+        });
+    });
+
+    function Save() {
+        var id = $("#hidId").val();
+        var roleName = $("#roleName").val();
+        if ($.trim(roleName) == "") {
+            art.dialog.tips("角色名称不能为空！", 3);
+            return;
+        }
+        var isDefault =parseInt($("#derole").val());
+        if ($("#rdYes").attr("checked")) {
+            isDefault = 1;
+        }
+
+        var desc = $("#txtDesc").val();
+        if (desc.length > 200) {
+            art.dialog.tips("角色描述不能超过200个字符！", 3);
+            return;
+        }
+
+        $.post("/UserManage/SaveRole",
+            {
+                roleId: id,
+                roleName: roleName,
+                isDefault: isDefault,
+                roleDesc: desc
+            },
+            function(data) {
+                if (data.result == 1) {
+                    art.dialog.tips(data.content, 3);
+                    window.location.href = "/UserManage/RoleManage";
+                } else {
+                    art.dialog.tips(data.content, 3);
+                }
+            }
+        );
+    }
+</script>

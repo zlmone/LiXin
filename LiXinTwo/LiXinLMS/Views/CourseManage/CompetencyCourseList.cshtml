@@ -1,0 +1,249 @@
+﻿@{
+    ViewBag.Title = "胜任力课程列表";
+    Layout = null;
+}
+
+
+<div id="div_Search" class="so-set">
+    <input type="hidden" id="txtSys_PayGrade" value="@ViewBag.SysPayGradeList" />
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">课程名称：</td>
+            <td>
+                <input type="text" id="txtCourseName" value="" class="span20" /></td>
+            <td class="Tit span6">选/必修：</td>
+            <td class="span21">
+                <div class="sel">
+                    <input type="checkbox" name="popIsMust" id="chbIsMust0" value="1" /><label>选修</label>
+                    <input type="checkbox" name="popIsMust" id="chbIsMust1" value="0" /><label>必修</label>
+                </div>
+            </td>
+            @if (ViewBag.showGrade == 1)
+            {
+
+                if (ViewBag.SysPayGradeList != null)
+                {
+                <td class="so-do" rowspan="2">
+                    <input type="button" value="查询" onclick="fnPopSearch()" class="btn" />
+                    @if (ViewBag.showAddCCButton == 1)
+                    {
+                        <a href="EditCompetencyCourse" class="btn btn-co">课程开设</a>
+                    }
+                </td>
+                }
+            }
+            else
+            {
+                <td class="so-do">
+                    <input type="button" value="查询" onclick="fnPopSearch()" class="btn" />
+                    @if (ViewBag.showAddCCButton == 1)
+                    {
+                        <a href="EditCompetencyCourse" class="btn btn-co">课程开设</a>
+                    }
+                </td>
+            }
+        </tr>
+        @if (ViewBag.showGrade == 1)
+        {
+
+            if (ViewBag.SysPayGradeList != null)
+            {       
+            <tr>
+                <td class="Tit">薪酬级别：</td>
+                <td colspan="3">
+                    <span>
+                        <input type="checkbox" name="sys_PayGrade" /><label title="全部">全部</label></span>
+                    @*<div class="sel salary">
+                   
+                    @foreach (var item in (List<LiXinModels.CourseManage.Sys_PayGrade>)ViewBag.SysPayGradeList)
+                    {
+                        <span><input type="checkbox" name="sys_PayGrade" value="@item.Id" /><label title="@item.GradeName">@item.GradeName</label></span>
+                    }
+                    </div>*@
+                </td>
+            </tr>
+            }
+        }
+    </table>
+</div>
+@*@if ((ViewBag.showAddCCButton == 1) && (ViewBag.showCCSureButton ! == 1))
+{
+    <div class="so-seq">
+        <div class="list-do">
+            <a href="EditCompetencyCourse">课程开设</a>
+        </div>
+    </div>
+}
+@if ((ViewBag.showAddCCButton !== 1) && (ViewBag.showCCSureButton == 1))
+{
+    <div class="so-seq">
+        <div class="list-do">
+            <input type="button" value="确认" onclick="fnChooseSelectCourse()" />
+        </div>
+    </div>
+}*@
+
+
+
+
+<table class="tab-List mt10">
+    <thead>
+        <tr>
+            @{
+                if (ViewBag.showCCCheckbox == 1)
+                {
+                <th>
+                    <input type="checkbox" id="pop_selectall" />
+                </th> 
+                }
+                else if (ViewBag.showCCCheckbox == 2)
+                {
+                <th></th> 
+                }
+            }
+            <th>课程名称
+            </th>
+            <th>开放级别
+            </th>
+            <th>选/必修
+            </th>
+            <th class="span10">培训形式
+            </th>
+            @if (ViewBag.showCCManage == 1)
+            {
+                <th class="span8">操作</th>
+            }
+        </tr>
+    </thead>
+    <tbody id="tbCourseList">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+
+
+@if (ViewBag.showCCSureButton == 1)
+{
+    <center class="mt10">
+        <input type="button" value="确认" class="btn btn-co" onclick="fnChooseSelectCourse()" />
+    </center>
+}
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+             @if (ViewBag.showCCCheckbox == 1)
+             {
+             <td><input type="checkbox" name="popchbCourse" value="{{:Id}}" /></td>
+             }
+             else if (ViewBag.showCCCheckbox == 2)
+             {
+             <td><input type="radio" name="popchbCourse" value="{{:Id}}" /></td>
+             }
+             <td><div class="ovh tl">{{:Name}}</div></td>
+             <td>{{:OpenLeavel}}</td>
+             <td>{{:IsMust}}</td>
+             <td>{{:Type}}</td>
+             @if (ViewBag.showCCManage == 1)
+             {
+                <td>
+                   <a onclick="fnModifyCourse({{:Id}})" title="修改" class="icon iedit"></a>
+                    <a onclick="fnDeleteCourse({{:Id}})" title="删除" class="icon idel"></a>
+                </td>
+             }
+            
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        fnGetCourseList();
+    });
+
+    function fnGetCourseList()
+    {
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "courseListTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox('pop_selectall', 'tbCourseList');
+            }
+        });
+    }
+
+    function GetPopParameters()
+    {
+        var url = "/CourseManage/GetCompetencyCourseList?t=" + new Date();
+        url += "&courseName=" + escape($.trim($("#txtCourseName").val()));
+        if (($("#chbIsMust0").is(':checked') && $("#chbIsMust1").is(':checked')) || ($("input[name=popIsMust]:checked").length == 0))
+        {
+            url += "&IsMust=-1";
+        }
+        else
+        {
+            url += "&IsMust=" + $("input[name=popIsMust]:checked").val();
+        }
+        if ($("input[name=chbCourseSystem]:checked").length > 0)
+        {
+            var sysIds = "";
+            $("input[name=chbCourseSystem]:checked").each(function ()
+            {
+                sysIds += $(this).val() + ",";
+            });
+            if (sysIds.length > 0)
+            {
+                sysIds = sysIds.substring(0, sysIds.length - 1);
+            }
+            url += "&sortIds=" + sysIds;
+        }
+
+        if ($("input[name=sys_PayGrade]:checked").length > 0 || "@ViewBag.showtype" == "1")
+        {
+            url += "&gradeIds=" + $("#txtSys_PayGrade").val();
+        }
+        //alert(url)
+        return url + "&showtype=@ViewBag.showtype";
+
+    }
+    function fnPopSearch()
+    {
+        fnGetCourseList();
+    }
+
+    function fnModifyCourse(Id)
+    {
+        window.location.href = '/CourseManage/EditCompetencyCourse?Id=' + Id;
+    }
+    function fnDeleteCourse(Id)
+    {
+        art.dialog({
+            lock: false,
+            content: "确定要删除该课程吗？",
+            ok: function ()
+            {
+                $.post("/CourseManage/DeleteCompetencyCourse?Id=" + Id, function (data)
+                {
+                    art.dialog.tips(data.content, 3, function ()
+                    {
+                        if (data.result == 1)
+                        {
+                            fnGetCourseList();
+                        }
+                    });
+
+
+                });
+            },
+
+            cancel: function ()
+            {
+                return;
+            }
+        });
+    }
+
+</script>

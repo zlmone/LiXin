@@ -1,0 +1,309 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "班级人员调整";
+}
+@model List<LixinModels.NewClassManage.New_Group>
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "班级人员调整" }))
+    <input type="hidden" id="selUserId" value=""/>@*批量调整使用*@
+    <input type="hidden" id="personids" value="" />@*新增人员使用*@
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tbody>
+                <tr>
+                    <td class="span20">
+                        &nbsp;所在班级：<strong>@ViewBag.className</strong>
+                    </td>
+                    <td class="Tit span6">
+                        姓名：
+                    </td>
+                    <td>
+                        <input type="text" class="span15  searchclass" value="请输入姓名" id="realName" info="" />
+                    </td>
+                    <td class="Tit span6">
+                        所在小组：
+                    </td>
+                    <td>
+                        <select id="selGroup1" onchange=" InitData();">
+                            <option value="-1" selected="selected">--全部小组--</option>
+                            @foreach(var c in Model)
+                            {
+                                <option value="@c.Id">@(c.GroupName)</option>
+                            }
+                        </select>
+                    </td>
+                    <td class="so-do">
+                        <input type="button" class="btn" id="btnSearch" name="搜索" value="搜索" onclick=" InitData(); " />
+                        <a onclick="BatchDeletePerson(GetChecked('classPersonManageList'));" class="btn btn-co">批量删除</a>
+                        <a onclick="PersonChange(GetChecked('classPersonManageList'));" class="btn btn-co">批量调整班组</a>
+                        <a onclick="AddPerson();" class="btn btn-co">新增学员</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="Content">
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span3">
+                        <input type="checkbox" value="0" id="selectall" />
+                    </th>
+                    <th class="span4">
+                        序号
+                    </th>
+                    <th class="span10">
+                        学号
+                    </th>
+                    <th class="span4">
+                        姓名
+                    </th>
+                    <th class="span6">
+                        所在小组
+                    </th>
+                    <th>
+                        所在部门
+                    </th>
+                    <th class="span10">
+                        毕业院校
+                    </th>
+                    <th class="span8">
+                        毕业专业
+                    </th>
+                    <th class="span7">
+                        是否有事务<br />所实习经验
+                    </th>
+                    <th class="span8">
+                        是否在我<br />所进行实习
+                    </th>
+                    <th class="span10">
+                        实习部门
+                    </th>
+                    <th class="span8">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="classPersonManageList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <div class="lh30 tc">
+        <input type="button" class="btn btn-cancel" onclick="  window.location.href = '/NewClassManage/NewClassManage'; " value="返回" />
+    </div>
+</div>
+<script id="classPersonManageListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td class="tc">
+                <input type="checkbox" id='{{:UserId}}' value='{{:UserId}}' />
+            </td>
+            <td>{{:#index+1}}</td>
+            <td  class="tl span10">
+                {{:NumberIDStr}}
+            </td>
+            <td  class="tl span10">
+                <div class="ovh span10" title="{{>Realname}}">
+                    {{if Sex==0}}
+                        <span style="color:blue">♂</span>
+                    {{else}}
+                        <span style="color:red">♀</span>      
+                    {{/if}}
+                    <strong>{{>Realname}}</strong>
+                </div>
+            </td>
+            <td class="tc span8">
+                <div class="tc ovh span8" title="{{>GroupName}}">{{>GroupName}}</div>
+            </td>
+            <td class="tl span8">
+                <div class="tl ovh span8" title="{{>DeptName}}">{{>DeptName}}</div>
+            </td>
+            
+            <td>{{>GraduateSchoolStr}}</td>
+            <td>{{>MajorStr}}</td>
+            <td>{{>IsInternExpStr}}</td>
+            <td>{{>IsOurInternStr}}</td>
+            <td>  <div class="tl ovh span10" title="{{>InternDeptStr}}">{{>InternDeptStr}}</div></td>
+            <td  class="tc span16">
+               <div class="tc ovh span16">
+                 <a class="icon irole-as" title="人员调整" onclick="PersonChange({{:UserId}});"></a>  
+                 <a title="删除" class="icon idel" onclick="BatchDeletePerson('{{:UserId}}');"></a>
+               </div>
+            </td>
+        </tr>
+    {{/for}}
+</script>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        InitData(); //初始列表
+    });
+    //初始列表
+    function InitData(pageindex)
+    {
+        if (pageindex == undefined)
+        {
+            pageindex = 1;
+        }
+        var v = "realName=" + escape(getSearchWord("realName"))
+            + "&groupId=" + $("#selGroup1").val()
+                + "&classId=@ViewBag.classId";
+        $("#classPersonManageList").JsRenderData({
+            sourceUrl: '/NewClassManage/GetClassPersonManageList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: pageindex,
+            //jsRenderSortField: "Sys_Roles.RoleId",
+            //jsRenderASC: "desc",
+            templateID: "classPersonManageListTemplate",
+            funCallback: function () {
+                SetCheckBox('selectall', 'classPersonManageList');
+            }
+        });
+    }
+
+    //批量删除人员
+    function BatchDeletePerson(id)
+    {
+        
+        if (id == "") {
+           // art.dialog({ content: "请选择人员！", time: 3 });
+            art.dialog.tips("请选择人员！", 3);
+            return;
+        }
+        art.dialog({
+            content: "确认删除？",
+            ok: function() {
+                $.post("/NewClassManage/DeleteBatchByUserAndClass", { userIds: id, classId: '@ViewBag.classId' }, function(data) {
+                    if (data.result == 1) {
+                        art.dialog.tips("操作成功！", 3);
+//                        art.dialog({
+//                            content: '操作成功！',
+//                            time: 3,
+//                            close: function() {
+//                                InitData(); //初始化列表
+//                            }
+//                        });
+                    } else {
+                        art.dialog.tips("操作失败！", 3);
+//                        art.dialog({
+//                            content: '操作失败！',
+//                            time: 3,
+//                            close: function() {
+//                                InitData(); //初始化列表
+//                            }
+//                        });
+
+                    }
+                    InitData(); //初始化列表
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //批量调整人员
+    function PersonChange(id) {
+        if (id == "") {
+            //art.dialog({ content: "请选择人员！", time: 3 });
+            art.dialog.tips("请选择人员！", 3);
+            return;
+        }
+        $("#selUserId").val(id);
+        art.dialog.load("/NewClassManage/JoinClassManage?userIds" + id,
+            {
+                title: '调整班组',
+                id: 'art_PersonChange',
+                width: 600
+            });
+        }
+
+        //获取选择的人员ID
+        function GetUserIDList() {
+            var userIds = $("#commonSelectedIdStr").val();
+            if (userIds == "") {
+                //art.dialog({ content: "请选择人员！", time: 3 });
+                art.dialog.tips("请选择人员！", 3);
+                return;
+            }
+            $("#personids").val(userIds);
+            var groupId = $("#selGroup1").val();
+            $.post("/NewClassManage/InsertClassByIsNew", {
+                userIds: userIds,
+                classId: '@ViewBag.classId',
+                groupId: groupId,
+                classNo: "",
+                groupNo: "",
+                flag:1
+            },
+            function (data) {
+                if (data.result == 1) {
+                    art.dialog.tips("操作成功！", 3);
+
+                } else {
+                    art.dialog.tips("操作失败！", 3);
+                }
+                closeDialog("art_selUser");
+             
+                InitData(); //初始化列表
+            });
+           
+        }
+        //新增学员按钮
+        function AddPerson() {
+            var groupId = $("#selGroup1").val();
+            if (groupId == "-1") {
+               // art.dialog({ content: "请选择组！", time: 3 });
+                art.dialog.tips("请选择组！", 3);
+                return;
+            } else {
+                art.dialog.load("/NewClassManage/SelectNewPersonList", {
+                    title: '新增学员',
+                    id: 'art_selUser',
+                    width: 800,
+                    height: 600
+                });
+            }
+        }
+</script>
+
+<script type="text/javascript">
+    function SaveClassGroup() {
+        var classid = $("#selClass").val();
+        var groupid = $("#selGroup").val();
+        if (classid == "-1") {
+            //art.dialog({ content: "请选择班级！", time: 3 });
+            art.dialog.tips("请选择班级！", 3);
+            return;
+        }
+        if (groupid == "-1") {
+            //art.dialog({ content: "请选择组！", time: 3 });
+            art.dialog.tips("请选择组！", 3);
+            return;
+        }
+        var classNo = $("#selClass").find("option:selected").attr("classNo");
+        var groupNo = $("#selGroup").find("option:selected").attr("groupNo");
+        $.post("/NewClassManage/ChangeClassGroupByOldUser", {
+            userIds: $("#selUserId").val(),
+            newClassId: classid,
+            newGroupId: groupid,
+            newClassNo: classNo,
+            newGroupNo: groupNo,
+            oldClassId: '@ViewBag.classId'
+        },
+            function (data) {
+                if (data.result == 1) {
+                    art.dialog.tips("操作成功！", 3);
+
+                } else {
+                    art.dialog.tips("操作失败！", 3);
+
+                }
+                closeDialog("art_PersonChange");
+                //var pageindex = $("#classPersonManageList").next().find("#listPage .status-on").html().replace(/&nbsp;/g, "");
+                InitData(); //初始化列表
+            });
+    }
+</script>

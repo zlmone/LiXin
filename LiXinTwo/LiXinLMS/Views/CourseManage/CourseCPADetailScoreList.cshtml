@@ -1,0 +1,61 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "CPA成绩详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "CPA成绩详情" }))
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th>姓名</th>
+                <th>所属部门/分所</th>
+                <th>注册会计师编号</th>
+                <th class="span12" jsrendersortfield="GetLength" sort="desc">获取学时</th>
+            </tr>
+        </thead>
+        <tbody id="tbCourseCPAScoreList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<center class="mt10"><a href="/CourseManage/CourseCPAListImportScore" class="btn btn-cancel">返回</a></center>
+<script id="courseCPAScoreListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+             <td>{{:#index+1}}</td>
+             <td>{{:Realname}}</td>
+             <td>{{:DeptName}}</td>
+             <td>{{:CPANO}}</td>
+             <td>{{:GetLength}}</td>            
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        fnGetCourseList();
+    });
+
+    function fnGetCourseList() {
+        $("#tbCourseCPAScoreList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 20,
+            pageIndex: 1,
+            jsRenderSortField: "GetLength",
+            jsRenderASC: "ASC",
+            templateID: "courseCPAScoreListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function GetPopParameters() {
+        var url = "/CourseManage/GetCPACourseScoreList?t=" + new Date() + "&CourseId=@ViewBag.CourseId"
+        return url;
+
+    }
+</script>

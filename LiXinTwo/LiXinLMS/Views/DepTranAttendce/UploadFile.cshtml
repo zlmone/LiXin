@@ -1,0 +1,100 @@
+﻿@{
+    Layout = null;
+    string cid = Request.QueryString["id"] == null ? "0" : Request.QueryString["id"];
+    string did = Request.QueryString["did"] == null ? "0" : Request.QueryString["did"];
+}
+<link href="@Url.Content("~/Scripts/plupload/js/jquery.plupload.queue/css/jquery.plupload.queue.css")" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../Scripts/plupload/js/browserplus-min.js"></script>
+<script type="text/javascript" src="../../Scripts/plupload/js/plupload.full.js"></script>
+<script type="text/javascript" src="../../Scripts/plupload/js/i18n/cn.js"></script>
+<script type="text/javascript" src="../../Scripts/plupload/js/jquery.plupload.queue/jquery.plupload.queue.js"></script>
+<form id="formupload" method="post" action="">
+	<div id="uploader" style="width: 450px; height: 330px;"></div>
+</form>
+<input id="hidfile" type="hidden" />
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#uploader").pluploadQueue({
+            // General settings
+            runtimes: 'html4',
+            url: '/DepTranAttendce/UploadFiles?t=' + new Date(),
+            max_file_size: '5mb',//单个文件大小
+            chunk_size: '1mb',//文件分块大小
+            unique_names: true,
+//            filters : [
+//            {title : "图片文件", extensions : "jpg,gif,png"},
+//            { title: "压缩文件", extensions: "zip,rar" }
+//            ],
+            resize: { width: 320, height: 240, quality: 90 },
+//            flash_swf_url: '../../Scripts/plupload/js/plupload.flash.swf',
+//            silverlight_xap_url: '../../Scripts/plupload/js/plupload.silverlight.xap',
+            init: {
+                StateChanged: function (up) {
+                    //全部上传成功
+                    if (up.state != plupload.STARTED) {
+                       Submitfile();
+                    }
+                },
+                FileUploaded: function (up, file, info) {
+                    //单个上传回调
+                    if (info.response != "error") {
+                        $('#hidfile').val($('#hidfile').val() + info.response + "㉿");
+                    } else {
+                        art.dialog.tips("文件上传失败", 3);
+                        $('#hidfile').val("");
+                        Endupload();
+                    }
+                },
+                Error: function (up, args) {
+                    if (args.code=="-600") {
+                        art.dialog.tips("单个文件不能超过5M，请重新选择", 3);
+                    } else if (args.code=="-601") {
+                        art.dialog.tips("文件格式不正确，请重新选择", 3);
+                    }else{
+                        art.dialog.tips("文件不正确，请重新选择", 3);
+                    }
+                }
+            }
+        });
+        //上传附件
+        $("#formupload").submitForm(function (e) {
+            var uploader = $('#uploader').pluploadQueue();
+            if (uploader.files.length > 0) {
+                uploader.start();
+            } else {
+                art.dialog.tips("请添加文件", 3);
+            }
+            return false;
+        });
+
+    });
+    //插入数据库
+    function Submitfile(){
+        if($('#hidfile').val()!=""){
+            $.post('/DepTranAttendce/SubmitFile?t=' + new Date(), {
+                cid: @(cid),
+                did: @(did),
+                file: $('#hidfile').val()
+            }, function (data) {
+                if (data.result == 1) {
+                    art.dialog.list['uploadfile'].close();
+                    art.dialog.tips("文件上传成功", 3);
+                    }else{
+                    art.dialog.tips("文件上传失败", 3);
+                    $('#hidfile').val("");
+                    Endupload();
+                    }
+                });
+        }else{
+            art.dialog.tips("文件上传失败", 3);
+            Endupload();
+        }
+    }
+    //结束队列
+    function Endupload(){
+		$("#uploader").pluploadQueue().splice();
+        $(".plupload_buttons").show();
+        $(".plupload_upload_status").hide();
+    }
+</script>
+

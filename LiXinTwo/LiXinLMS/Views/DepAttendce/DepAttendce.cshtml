@@ -1,0 +1,461 @@
+﻿@using LiXinLanguage
+@using LiXinModels.CourseManage
+@{
+    ViewBag.Title = "考勤详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var fromflag = Request.QueryString["fromflag"] ?? "0";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DepAttendceDetail" }))
+    <div class="clb">
+        <div class="tab-bk mt10">
+            <ul id="tags">
+                <li id="tag0" class="On">考勤管理</li>
+                <li id="tag1">审批记录</li>
+            </ul>
+        </div>
+        <div id="attRecord" style="display: none;">
+            <table class="tab-List mt10">
+                <thead>
+                    <tr>
+                        <th class="span8">序号</th>
+                        <th class="span12">提交人</th>
+                        <th class="span20">提交时间</th>
+                        <th class="span12">审批人</th>
+                        <th class="span20">审批时间</th>
+                        <th class="span10">审批状态</th>
+                        <th>审批原因</th>
+                    </tr>
+                </thead>
+                <tbody id="DeptAttRecordList"></tbody>
+                <tfoot></tfoot>
+            </table>
+        </div>
+        <div id="attUser">
+            <table id="attdetail" class="tab-Form">
+                <tr>
+                    <td class="Tit span10">考勤人数：</td>
+                    <td><strong id="actual">0</strong></td>
+                    <td class="Tit span10">报名人数：</td>
+                    <td><strong id="Ordersum">0</strong></td>
+                </tr>
+            </table>
+            <div id="Search" class="so-set mt10">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span4">姓名：</td>
+                        <td class="span11">
+                            <input type="text" class="span10 searchclass" id="Username" value="请输入搜索内容" info="" /></td>
+                        <td class="so-do">
+                            <input type="button" value="查询" class="btn" id="ibtnSearch" onclick="stateChange();" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="so-seq">
+                <select id="Atttype" name="Atttype" onchange="stateChange();">
+                    <option value="-1">考勤状态</option>
+                    <option value="0">待考勤</option>
+                    <option value="1">正常</option>
+                    <option value="2">缺勤</option>
+                    <option value="3">迟到</option>
+                    <option value="4">早退</option>
+                    <option value="5">迟到且早退</option>
+                </select>
+                <div class="list-do">
+                    <a id="btnuser">添加人员</a>
+                    <a id="btninput">导入考勤表</a>
+                    <a id="btnfile">上传考勤附件</a>
+                    <a id="btnatt">批量考勤</a>
+                    <a id="btnend">提交考勤</a>
+                    <a id="btn_execl">导出EXCEL</a>
+                </div>
+            </div>
+            <table class="tab-List mt10">
+                <thead>
+                    <tr>
+                        <th>
+                            <input id="selAll" type="checkbox" /></th>
+                        <th>序号</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>部门/分所</th>
+                        <th>是否预订</th>
+                        <th>考勤状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="DeptAttendceList"></tbody>
+                <tfoot></tfoot>
+            </table>
+
+            <h3 class="tit-h3">附件</h3>
+            <table class="tab-List mt10">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>附件名称</th>
+                        <th>上传时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="FileList"></tbody>
+                <tfoot></tfoot>
+            </table>
+        </div>
+        <div class="mt10 tc">
+            <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+        </div>
+    </div>
+</div>
+<input type="hidden" id="AllUserID" name="AllUserID" />
+<input type="hidden" id="seldept" value="@(ViewBag.did)" />
+<input type="hidden" id="SuFlag" value="@(ViewBag.flag)" />
+<script id="DeptAttendceTemplate" type="text/x-jsrender">
+   {{for #data}}
+    <tr>
+        <td class="tl">
+        {{if AttFlag==0}}
+            <input id="{{:UserId}}" type="checkbox" name="checkatt" value="{{:UserId}}_{{:DepartSetId}}" />
+        {{/if}}
+        </td>
+        <td class="tc">{{:#index+1}}</td>
+        <td class="tc" id="user{{:UserId}}">{{:Realname}}</td>
+        <td class="tc">{{:SexStr}}</td>
+        <td class="tc" id="dep{{:UserId}}">{{:DeptName}}</td>
+        <td class="tc">
+        {{if IsAppoint==2}}
+        否
+        {{else}}
+        是
+        {{/if}}
+        </td>
+        <td class="tc">{{:StatusStr}}</td>
+        <td class="tc">
+        {{if AttFlag==0}}
+            <a title="考勤" onclick="EditDeptAttendce({{:CourseId}},{{:UserId}},{{:DepartSetId}},{{:Status}});" class="icon iatt-in"></a>
+             
+            
+       {{/if}}
+          {{if AttFlag==0}}
+            {{if IsAppoint==2}}
+                <a title="删除人员" onclick="fdeleteTr({{:CourseId}},{{:UserId}})" class="icon idel "></a>
+            {{else}}
+                <a title="删除人员"  class="icon idel idis"></a>
+            {{/if}}
+         {{/if}}
+        </td>
+    </tr>
+   {{/for}}
+</script>
+<script id="DeptAttRecordTemplate" type="text/x-jsrender">
+   {{for #data}}
+    <tr>
+        <td class="tc">{{:#index+1}}</td>
+        <td class="tc">{{:SubmitRealname}}</td>
+        <td class="tc">{{:SubmitTimeStr}}</td>
+        <td class="tc">{{:Realname}}</td>
+        <td class="tc">{{:ApprovalTimeStr}}</td>
+        <td class="tc">{{:ApprovalFlag ==1?"审批通过":"审批拒绝"}}</td>
+        <td><div class="ovh tl span20" title="{{:Reason}}">{{:Reason}}</div></td>
+    </tr>
+   {{/for}}
+</script>
+<script id="FileListTemplate" type="text/x-jsrender">
+   {{for #data}}
+    <tr>
+        <td class="tc">{{:#index+1}}</td>
+        <td class="tc">{{:RealName}}</td>
+        <td class="tc">{{:CreateTimeStr}}</td>
+        <td class="tc"><span class="icon idel" title="删除" onclick="DeleteFile({{:Id}})"></span></td>
+    </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        InitList(getUrl());
+        InitFileList();
+        $("#tags li").bind("click", function () {
+            var index = $(this).index();
+            $("#tags li").removeClass("On");
+            $("#tags #tag" + index).addClass("On");
+            $("#attRecord,#attUser").hide();
+            switch (index) {
+                case 0:
+                    $("#attUser").show();
+                    $("#attRecord").hide();
+                    InitList(getUrl());
+                    break;
+                case 1:
+                    $("#attRecord").show();
+                    $("#attUser").hide();
+                    InitRecordList();
+                    break;
+            }
+        });
+
+
+        //导出execl
+        $("#btn_execl").click(function(){               
+            art.dialog({
+                content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+                ok: function() {
+                    var v = "id=@(ViewBag.cid)&uname=" + escape(getSearchWord("Username")) + "&deptId="+$("#seldept").val()+"&AState=" + $("#Atttype").val() + "&t=" + new Date();
+                    window.location.href = "/DepAttendce/ExportAttendceList?" + v;
+                },
+                cancel: true
+            });
+        });
+
+        //返回
+        $("#btnback").bind("click", function () {
+            if('@(fromflag)'=='1') {
+                window.location.href = "/Home/DepManageIndex";
+            }else {
+                window.location.href = "/DepAttendce/DepAttendceList?t="+new Date();
+            }
+        });
+
+        //添加人员
+        $("#btnuser").bind("click", function() {
+            if($("#SuFlag").val()==0){
+                art.dialog.load("/DepAttendce/SelectUser?pageSize=10&id=@(ViewBag.cid)&did="+$("#seldept").val()+"&t=" + new Date(), { title: "人员选择", id: "selUser" });
+            }else{
+                art.dialog.tips("上报截止时间已过，不能进行操作", 3);
+            }
+        });
+
+        //导入
+        $("#btninput").bind("click", function () {
+            if($("#SuFlag").val()==0){
+                art.dialog.load("/DepAttendce/ImportDepAttend?id=@(ViewBag.cid)&way=@(ViewBag.way)&did="+$("#seldept").val()+"&t="+new Date(), { title: "导入考勤", id: "Inputatt", width: 440});
+            }else{
+                art.dialog.tips("上报截止时间已过，不能进行操作", 3);
+            }
+        });
+
+        //上传附件
+        $("#btnfile").bind("click", function () {
+            if($("#SuFlag").val()==0){
+                art.dialog.load("/DepAttendce/UploadFile?id=@(ViewBag.cid)&did="+$("#seldept").val()+"&t="+new Date(), { title: "上传附件", id: "uploadfile",padding: 0});
+            }else{
+                art.dialog.tips("上报截止时间已过，不能进行操作", 3);
+            }
+        });
+
+        //批量考勤
+        $("#btnatt").bind("click", function () {
+            if($("#SuFlag").val()==0){
+                var flag = false;
+                var check = document.getElementsByName("checkatt");
+                var checkList = "";
+                for (var i = 0; i < check.length; i++) {
+                    if (check[i].checked) {
+                        checkList = checkList + check[i].value + ",";
+                        flag = true;
+                    }
+                }
+                checkList = checkList.substring(0, checkList.length - 1);
+                if (!flag) {
+                    art.dialog.tips("请选择人员", 3);
+                    return false;
+                } else {
+                    art.dialog.load("/DepAttendce/AttendceStatus?cid=@(ViewBag.cid)&way=@(ViewBag.way)&uid=0&did="+$("#seldept").val()+"&IsAttFlag=1&uids="+checkList+"&t="+new Date(), { title: "考勤", id: "AttendStatus", width: 200 });
+                }
+            }else{
+                art.dialog.tips("上报截止时间已过，不能进行操作", 3);
+            }
+        });
+
+        //考勤发布
+        $("#btnend").bind("click", function () { 
+            
+            if($("#FileList tr td div").text()=="暂无数据")
+            {
+                art.dialog.tips("提交考勤前请先上传附件",3);
+                return;
+            }
+            if($("#SuFlag").val()==0){
+                art.dialog({
+                    content: "您确认提交考勤信息吗？一旦提交将不能进行任何改动",
+                    ok: function () {
+                        $.post("/DepAttendce/AttendEnd?t=" + new Date(), { courseid: @(ViewBag.cid),did:$("#seldept").val() }, function (data) {
+                            if (data.result == 1) 
+                            {
+                                art.dialog.tips("提交成功",3);
+                                InitList(getUrl());
+                            }
+                            else if(data.result == 2){
+                                art.dialog.tips("提交失败，存在待考勤的人员",3);
+                            }
+                            else {
+                                art.dialog.tips("提交失败",3);
+                            }
+                        });
+                    },
+                    cancel: true
+                });
+            }else{
+                art.dialog.tips("上报截止时间已过，不能进行操作", 3);
+            }
+        });
+    });
+    //审批记录
+    function InitRecordList() {
+        var templateId = 'DeptAttRecordTemplate';
+        $("#DeptAttRecordList").JsRenderData({
+            sourceUrl: "/DepAttendce/GetDeptAttendRecordList?id=@(ViewBag.cid)&deptId="+$("#seldept").val()+"&t=" + new Date(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function (data) {
+            }
+        });
+    }
+
+    //显示考勤人员列表
+    function InitList(url,index) {
+        if(index==undefined)
+        {
+            index=1;
+        }
+        var templateId = 'DeptAttendceTemplate';
+        $("#DeptAttendceList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: index,
+            templateID: templateId,
+            funCallback: function (data) {
+                SetCheckBox('selAll', 'DeptAttendceList');
+                if (data.dataList.length != 0) {
+                    $("#actual").html(data.dataList[0].AttCount);
+                    $("#Ordersum").html(data.dataList[0].OrderCount);
+                    if(data.subflag==1){
+                        $("#btnuser").hide();
+                        $("#btninput").hide();
+                        $("#btnfile").hide();
+                        $("#btnatt").hide();
+                        $("#btnend").hide();
+                        //$("#btn_execl").hide();
+                    }else{
+                        $("#btnuser").show();
+                        $("#btninput").show();
+                        $("#btnfile").show();
+                        $("#btnatt").show();
+                        $("#btnend").show();
+                        //$("#btn_execl").show();
+                    }
+                }else{
+                    $("#actual").html(0);
+                    $("#Ordersum").html(0);
+                    if(data.subflag==1){
+                        $("#btnuser").hide();
+                        $("#btninput").hide();
+                        $("#btnfile").hide();
+                        $("#btnatt").hide();
+                        $("#btnend").hide();
+                        //$("#btn_execl").hide();
+                    }else{
+                        $("#btnuser").show();
+                        $("#btninput").show();
+                        $("#btnfile").show();
+                        $("#btnatt").show();
+                        $("#btnend").hide();
+                        //$("#btn_execl").show();
+                    }
+                }
+            }
+        });
+    }
+
+    //相关的url
+    function getUrl() {
+        var url = "/DepAttendce/GetDeptAttendUserList?id=@(ViewBag.cid)&uname=" + escape(getSearchWord("Username")) + "&deptId="+$("#seldept").val()+"&AState=" + $("#Atttype").val() + "&t=" + new Date();
+        return url;
+    }
+
+    function stateChange() {
+        InitList(getUrl());
+    }
+
+    //考勤
+    function EditDeptAttendce(cid,uid,did,isatt) {
+        if($("#SuFlag").val()==0){
+            art.dialog.load("/DepAttendce/AttendceStatus?way=@(ViewBag.way)&cid="+cid+"&uid="+uid+"&did="+did+"&IsAttFlag="+isatt+"&uids=0&t="+new Date(), { title: "考勤", id: "AttendStatus", width: 200 });
+        }else{
+            art.dialog.tips("上报截止时间已过，不能进行操作", 3);
+        }
+    }
+
+    //人员选择
+    function GetUserIDList() {
+        //var userIds = GetChecked('pop_userList');
+        var userIds =$("#commonSelectedIdStr").val();
+        if (userIds == "") {
+            art.dialog.tips("请选择人员", 3);
+            return;
+        }
+        
+        $.post("/DepAttendce/SubmitUser?t=" + new Date(), { courseid: @(ViewBag.cid),userids:userIds,Way:@(ViewBag.way) }, function (data) {
+            if (data.result == 1) 
+            {
+                art.dialog.tips("操作成功"+data.content+"条",3);
+                InitList(getUrl());
+            }
+            else {
+                art.dialog.tips("操作失败",3);
+            }
+        });
+        art.dialog.list['selUser'].close(); 
+    }
+
+
+    //附件列表
+    function InitFileList() {
+        var templateId = 'DeptAttRecordTemplate';
+        $("#FileList").JsRenderData({
+            sourceUrl: "/DepAttendce/GetFileList?courseId=@(ViewBag.cid)&deptId=@(ViewBag.did)&t=" + new Date(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "FileListTemplate",
+            funCallback: function (data) {
+            }
+        });
+    }
+
+    //删除附件
+    function DeleteFile(id)
+    {
+        art.dialog({
+            content: "您确认删除附件么？",
+            ok: function () {
+                $.post("/DepAttendce/DeleteFile?id=" + id, function (data) {
+                    if (data.result == 1) 
+                    {
+                        InitFileList();
+                    }
+                    else {
+                        art.dialog.tips("删除失败",3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    function fdeleteTr(c,u)
+    {
+        $.post("/DepAttendce/fDeleteUser?courseid="+c+"&userid="+u,function(data){
+            if(data.result==1)
+            {
+                art.dialog.tips("删除成功",3);
+                InitList(getUrl());
+            }
+            
+        })
+    }
+</script>
+

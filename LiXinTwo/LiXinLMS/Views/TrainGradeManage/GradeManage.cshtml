@@ -1,0 +1,171 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.GradeManage;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "GradeManage"
+}))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">姓名：</td>
+                <td class="span11"><input type="text" class="span10 Box searchclass" id="textRealName" value="请输入搜索姓名" info="" /></td>
+                <td class="Tit span7">部门/分所：</td>
+                <td><input type="text" class="span30 searchclass" id="textDeptName" value="请输入搜索部门/分所" info="" /></td>
+                <td class="so-do"><input class="btn" type="button" value="搜索" id="btnSearch" onclick=" Getdata();" /></td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selPayGrade" onchange=" Getdata();">
+            <option value="">薪酬级别</option>
+            @{
+                foreach (var item in @ViewBag.payGrade)
+                {
+                <option value="@item">@item</option>
+                }   
+            }
+        </select>
+        <select id="selStatus" onchange=" Getdata();">
+            <option value="-1">变更状态</option>
+            <option value="0">未变更</option>
+            <option value="1">已变更</option>
+        </select>
+        <div class="list-do">
+            <input class="btn" type="button" value="批量变更" onclick="AllUpdate()" />
+        </div>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">
+                    <input id="selectAll" type="checkbox" />
+                </th>
+                <th class="span4">
+                    序号
+                </th>
+                <th class="span10">
+                    姓名
+                </th>
+                <th class="span8">
+                    性别
+                </th>
+                <th class="span10">
+                    薪酬级别
+                </th>
+                <th class="span8">
+                    培训级别
+                </th>
+                <th>
+                    部门/分所
+                </th>
+                <th class="span10">
+                    提交人
+                </th>
+                <th class="span10">
+                    变更状态
+                </th>
+                <th class="span6">
+                    操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="trainGradeList" class="tc">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="monthPlanTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+          <td> <input id="{{:ID}}" {{:Status==0?"":"disabled='disabled'"}}  type="checkbox" /></td>
+          <td >{{:#index+1}}</td>
+          <td >{{:Realname}}</td>
+          <td >{{:SexStr}}</td>
+          <td >{{:PayGrade}}</td>
+          <td>{{:TrainGrade}}</td>
+          <td><div class="ovh span20 tl" title="{{:DeptName}}">{{:DeptName}}</div></td>
+          <td>{{:CreateName}}</td>
+          <td>{{:StatusStr}}</td>
+          <td>
+            {{if Status==0}}
+                <a onclick="Gradeupdate({{:ID}},{{:UserId}})" class="icon iedit-ch" title="级别变更"></a>
+            {{else}}
+                <span class="icon iedit-ch idis" title="级别变更"></span>
+            {{/if}}
+          </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        Getdata();
+    });
+    //基础信息
+    function Getdata()
+    {
+        $("#trainGradeList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "monthPlanTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox('selectAll', 'trainGradeList');
+            }
+        });
+    }
+
+    function getParamUrl()
+    {
+        return "/TrainGradeManage/GetTarinUpdate?realName=" + escape($.trim(getSearchWord("textRealName")))
+        + "&DeptName=" + escape($.trim(getSearchWord("textDeptName"))) + "&payGrade=" + escape($.trim(getSearchWord("selPayGrade")))
+        + "&status=" + $("#selStatus").val() + "&t=" + Date();
+    }
+
+    function Gradeupdate(ID, UserId)
+    {
+        art.dialog.load("/TrainGradeManage/GradeUpdate?ID=" + ID + "&userID=" + UserId, { title: '级别变更', id: "art_UpdateSingle" ,height:300,width:600});
+
+    }
+
+    function AllUpdate()
+    {
+        var trainIDs = GetChecked("trainGradeList");
+        if (trainIDs == "")
+        {
+            art.dialog.tips("请选择要变更的人员", 3);
+            return false;
+        }
+     art.dialog({
+            content: "您确认变更么？",
+            ok: function ()
+            {
+                $.getJSON("/TrainGradeManage/AllUpdate?tIDs=" + trainIDs, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        art.dialog({
+                            content: data.content,
+                            time: 3
+                        });
+                    }
+                });
+            },
+            cancel: true
+        });
+        
+    }
+</script>

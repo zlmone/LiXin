@@ -1,0 +1,336 @@
+﻿@using LiXinLanguage
+@using LiXinModels.User
+@{
+    ViewBag.Title = NavigateMenuLanguage.ExampaperManage;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var sortID = Request.QueryString["sortID"] ?? "0";
+    var deptId = Request.QueryString["deptId"] ?? "0";
+    var depList = ViewBag.Departments as List<Sys_Department>;
+}
+<script src="@Url.Content("~/Scripts/jquery.contextmenu.r2.js")" type="text/javascript"> </script>
+<input type="hidden" id="selExampaperSort" value="@sortID" />
+<div id="contentInfor" class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = ViewBag.Flag == 0 ? "ExampaperManage" : "DepExampaperManage" }))
+    <div class="clb">
+        <div class="fl span29">
+            <div class="menu-list">
+                <h3>试卷分类<i class="il"></i><i class="ir"></i></h3>
+                <div class="list-con">
+                    <div class="list-do" style="padding-bottom: 5px;">
+                        <input type="button" id="btnAddExampaperSort" value="@Exampaper.ExampaperSort_Add" class="btn btn-co"/>
+                        <input type="button" id="btnModifyExampaperSort" value="@Exampaper.ExampaperSort_Modify" class="btn btn-co"/>
+                        <input type="button" id="btnDeleteExampaperSort" value="@Exampaper.ExampaperSortDelete" class="btn btn-cancel"/>
+                    </div>
+                    <input type="hidden" id="selectDeptID" value="0"/>
+                    @{
+                    if (ViewBag.Flag ==1)
+                    {
+                        <table class="tab-Form mb10">
+                            <tr>
+                                <td class="Tit span6">所管部门：</td>
+                                <td>
+                            
+                                    <select id="deptList" class="span20">
+                                        @{
+                                            foreach (var de in depList)
+                                            {
+                                                <option value="@(de.DepartmentId)">@(de.DeptName)</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                    }
+                }
+                </div>
+            </div>
+            <div class="treeview-box"><div id="sortList" class="tree-list"></div></div>
+        </div>
+        <div class="fr span70">
+            <div id="Search" class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span6">@Exampaper.ExampaperTitle：</td><td class="span21">
+                            <input type="text" class="span20 searchclass" id="tbPaperTitle" value="请输入搜索内容" info="" /></td>
+                        <td class="Tit span5">创建者：</td><td><input type="text" class="span10 searchclass" id="tbuser" value="请输入搜索内容" info="" /></td>
+                        <td class="so-do">
+                            <input type="button" class="btn" id="ibtnSearch" name="搜索" value="搜索" />
+                            <a id="btnadd" class="btn btn-co">@Exampaper.ExampaperAdd</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="so-seq">
+                <select id="selExamType" onchange="ExamTypeChange(); ">
+                    <option value="3">试卷类型</option>
+                    <option value="0">普通</option>
+                    <option value="1">随机</option>
+                </select>
+                <div class="list-do"><a id="btndelete">@Exampaper.ExampaperDelete</a></div>
+            </div>
+            <div id="Content">
+                <table class="tab-List mt10">
+                    <thead>
+                        <tr>
+                            <th class="span4"><input type="checkbox" id="selectExampaperall" /></th>
+                            <th>试卷名称</th>
+                            <th>题型(数量)</th>
+                            <th class="span8">发布时间</th>
+                            <th class="span6">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ExampaperList"></tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="openUrl" style="display: none;"></div>
+</div>
+<div class="clear"></div>
+<script id="ExampaperListTemplate" type="text/x-jsrender">
+    {{for #data}}
+     <tr>
+        <td><input id="{{:id}}" type="checkbox" name="checkExam" value="{{:id}}" /></td>
+        <td>
+            <div class="tl">
+                <p title="{{:ExampaperTitle}}"><strong>{{:ExampaperTitle.length>15?(ExampaperTitle.substring(0,15)+"…"):ExampaperTitle}}</strong></p>
+                <p class="Info"><strong>{{:Creater}}</strong> 发布<i>|</i>试卷库：<span title="{{:ExamSortTitle}}">{{:ExamSortTitle.length>8?(ExamSortTitle.substring(0,8)+"…"):ExamSortTitle}}</span><i>|</i>{{:ExamType}}</p>
+            </div>
+         </td>
+         <td><div class="tl">{{:QuestionTypeList}}</div></td>
+         <td>{{:LastUpdateTime}}</td>
+         <td>
+            <a onclick="Modify({{:id}},{{:ExamSortID}});" title="编辑" class="icon iedit"></a>
+            <a onclick="Detail({{:id}},{{:ExamSortID}});" title="查看详情" class="icon iview"></a>
+         </td>
+      </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    //初始化试卷库
+    function initExampaperSort() {
+        $.getJSON("/Exampaper/GetAllExampaperSort?deptId="+$("#selectDeptID").val()+"&t="+new Date(), function(data) {
+            $("#sortList").html(data);
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#navigation>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+    //试卷库树点击事件
+    function selectSort(id,obj) {
+        $("#selExampaperSort").val(id);
+        postNodeClickSelect(obj);
+        InitializeTargetList(getUrlParms());
+    }
+    function postNodeClickSelect(obj) {
+        $("#sortList").find("a").each(function () {
+            $(this).removeClass("On");
+        });
+        $(obj).addClass("On");
+    }
+    //显示所有试卷
+
+    function InitializeTargetList(url) {
+        $("#ExampaperList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'ExampaperListTemplate',
+            funCallback: function() {
+                SetCheckBox("selectExampaperall", "ExampaperList");
+                $("#selectExampaperall").removeAttr("checked");
+            }
+        });
+
+    }
+
+    function getUrlParms() {
+        return '/Exampaper/GetAllExampaperList?type=1&eSortID=' + $("#selExampaperSort").val() + '&eTitle=' + escape(getSearchWord("tbPaperTitle")) + '&eUser=' + escape(getSearchWord("tbuser")) + '&eExamType=' + $("#selExamType").val() + '&deptId=' + $("#selectDeptID").val() + '&t=' + new Date();
+    }
+
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        
+        //当部门分所时，初始化部门
+        if (@(ViewBag.Flag) ==1 && $("#deptList option").length > 0) {
+            if(@deptId==0) {
+                $("#selectDeptID").val($("#deptList option:first").attr("value"));
+            } else {
+                $("#deptList").val(@deptId);
+                $("#selectDeptID").val(@deptId);
+            }
+        }
+        
+        //部门下拉框事件
+        $("#deptList").bind("change", function() {
+            $("#selectDeptID").val($(this).val());
+            $("#selExampaperSort").val(0);
+            //初始化试卷库
+            initExampaperSort();
+            //初始化列表
+            InitializeTargetList(getUrlParms());
+        });
+
+        //初始化试卷库
+        initExampaperSort();
+        //初始化列表
+        InitializeTargetList(getUrlParms());
+
+        //新增库
+        $("#btnAddExampaperSort").bind("click", function () {
+            art.dialog.load("/Exampaper/ExampaperSortEdit?id=0&fatherID=" + $("#selExampaperSort").val() +"&deptId="+$("#selectDeptID").val() + "&t=" + new Date(), { title: "@Exampaper.ExampaperSort_Add", id: "SortEdit", width: 500, height: 250 });
+        });
+
+        //修改库
+        $("#btnModifyExampaperSort").bind("click", function () {
+            if ($("#selExampaperSort").val() != "0") {
+                art.dialog.load("/Exampaper/ExampaperSortEdit?id=" + $("#selExampaperSort").val() + "&deptId=" + $("#selectDeptID").val() + "&t=" + new Date(), { title: "@Exampaper.ExampaperSort_Modify", id: "SortEdit", width: 500, height: 350 });
+            } else {
+                art.dialog.tips("@Exampaper.Prompt_One");
+            }
+        });
+
+        //删除库
+        $("#btnDeleteExampaperSort").bind("click", function () {
+            if ($("#selExampaperSort").val() != "0") {
+                art.dialog({
+                    title: "@CommonLanguage.Common_Tip",
+                    content: "@CommonLanguage.Common_Confirm_Delete",
+                    width: 300,
+                    okValue: '@CommonLanguage.Common_Sure',
+                    cancelValue: '@CommonLanguage.Common_Cancel',
+                    height: 50,
+                    fixed: true,
+                    lock: true,
+                    ok: function () {
+                        $.getJSON("/Exampaper/DeleteExampaperSortByID?id=" + $("#selExampaperSort").val(), function (data) {
+                            if (data.result == 1) {
+                                art.dialog.tips(data.content, 3); 
+                                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 300, height: 100, fixed: true, lock: true, time: 3 });
+                                initExampaperSort();
+                            } else {
+                                art.dialog.tips(data.content, 3);
+                                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 300, height: 100, fixed: true, lock: true, time: 3 });
+                            }
+                        });
+                    },
+                    cancel: function () {
+                    }
+                });
+            } else {
+                art.dialog.tips("@Exampaper.Prompt_One", 3);
+            }
+        });
+
+        //新增试卷
+        $("#btnadd").bind("click", function() {
+            if ($("#selExampaperSort").val() != "0") {
+                var direturl = "ExampaperEdit";
+                if(@ViewBag.Flag==1) {
+                    direturl = "DepExampaperEdit";
+                }
+                window.location.href = "/Exampaper/"+direturl+"?id=0&sortID=" + $("#selExampaperSort").val()+"&deptId="+$("#selectDeptID").val();
+            } else {
+                art.dialog.tips("@Exampaper.Prompt_One", 3);
+            }
+        });
+
+        //删除试卷
+        $("#btndelete").bind("click", function() {
+            var flag = false;
+            var check = document.getElementsByName("checkExam");
+            var checkList = "";
+            for (var i = 0; i < check.length; i++) {
+                if (check[i].checked) {
+                    checkList = checkList + check[i].value + ",";
+                    flag = true;
+                }
+            }
+
+            if (!flag) {
+                art.dialog.tips("@Exampaper.Prompt_Two", 3);
+                return false;
+            } else {
+                if (checkList != "") {
+                    art.dialog({
+                        title: "@CommonLanguage.Common_Tip",
+                        content: '@Exampaper.Prompt_Three',
+                        width: 200,
+                        okValue: '@CommonLanguage.Common_Sure',
+                        cancelValue: '@CommonLanguage.Common_Cancel',
+                        height: 50,
+                        fixed: true,
+                        lock: true,
+                        ok: function() {
+                            $.getJSON("/Exampaper/DeleteExampaer?IDlist=" + checkList, function(data) {
+                                if (data.result == 1) {
+                                    art.dialog.tips(data.content, 3);
+                                    //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                                    InitializeTargetList(getUrlParms());
+                                } else {
+                                    art.dialog.tips(data.content, 3);
+                                    //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                                }
+                            });
+                        },
+                        cancel: function() {
+                        }
+                    });
+                } else {
+                    return false;
+                }
+            }
+        });
+        //查询
+        $("#ibtnSearch").bind("click", function() {
+            InitializeTargetList(getUrlParms());
+        });
+    });
+
+    function ExamTypeChange() {
+        InitializeTargetList(getUrlParms());
+    }
+
+//修改试卷
+
+    function Modify(id, sid) {
+        var direturl = "ExampaperEdit";
+        if (@ViewBag.Flag == 1) {
+            direturl = "DepExampaperEdit";
+        }
+        window.location.href = "/Exampaper/" + direturl + "?deptId="+$("#selectDeptID").val()+"&id=" + id + "&sortID=" + sid + "&selectSortID=" + $("#selExampaperSort").val();
+    }
+
+    //查看试卷
+
+    function Detail(id, sid) {
+        var openurl = "/Exampaper/ExampaperDetail?type=1&id=" + id + "&sortID=" + sid;
+        art.dialog({
+            title: "@Exampaper.ExampaerDetail",
+            lock: true,
+            fixed: true,
+            width: 700,
+            height: 450,
+            time: false,
+            content: '<div class="tac mt20"><img src="../Images/loading.gif" alt="loading"/></div>',
+            close: function() {
+                $('#popIframe').hide();
+                $(".aui_content").css({ "height": "auto", "width": "auto", "overflow": "auto" });
+            }
+        });
+        $(".aui_content").css({ "height": "450px", "width": "700px", "overflow": "auto" });
+        $.get(openurl + "&t=" + new Date(), function(data) {
+            $(".aui_content").html(data);
+        });
+    }
+</script>

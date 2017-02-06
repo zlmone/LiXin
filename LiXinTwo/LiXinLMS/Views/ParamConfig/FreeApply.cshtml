@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "免修项目配置";
+    Layout = null;
+}
+<div class="tab-bk" style="border-bottom: 0px;">
+    <ul id="tagFreeItemApply">
+        <li class="On" id="tagFreeItem0">免修项目</li>
+        <li id="tagFreeItem1">自动折算</li>
+    </ul>
+</div>
+<div id="FreeApplyList">
+    正在加载......
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        ShowFreeOther();
+        ShowFreeTable($("#partType").val());
+    });
+
+    function ShowFreeOther()
+    {
+        $("#tagFreeItemApply li").click(function ()
+        {
+            ShowFreeTable($(this).index());
+        });
+    }
+
+    function ShowFreeTable(index)
+    {
+        
+        $("#tagFreeItemApply li").removeClass("On");
+        $("#tagFreeItem" + parseInt(index)).addClass("On");
+        switch (parseInt(index))
+        {
+            case 0:
+                $("#partType").val(0);
+                $("#FreeApplyList").load("FreeItem?year=@ViewBag.year");
+                break;
+            case 1:
+                $("#partType").val(1);
+                $("#FreeApplyList").load("FreeOut?year=@ViewBag.year");
+                break;
+        }
+    }
+</script>

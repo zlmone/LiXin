@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "我的请假申请详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var appFlag = Request.QueryString["appFlag"] ?? "0";
+}
+@(Html.Action("SiteMapLink", "Common", new { linkName = "MyLeaveInfor" }))
+<div class="main-c">
+    <div>
+        <h3 class="tit-h3">人员信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span8">姓名：</td><td><strong>@Model.RealName</strong></td>
+                <td class="Tit span8">性别：</td><td><strong>@(Model.Sex==0?"男":"女")</strong></td>
+                <td class="Tit span8">培训级别：</td><td><strong>@Model.TrainGrade</strong></td>
+                <td class="Tit span8">薪酬级别：</td><td><strong>@Model.PayGrade</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit span8">请假时间：</td>
+                <td colspan="3">@(Model.LeaveTimeShow)</td>
+            </tr>
+            <tr>
+                <td class="Tit span8">请假理由：</td>
+                <td colspan="3">@(Html.Raw(Model.Reason))</td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <h3 class="tit-h3 mt20">课程信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span8">课程编号：</td><td><strong>@Model.CourseCode</strong></td>
+                <td class="Tit span8">课程名称：</td><td><strong>@Model.CourseName</strong></td>
+                <td class="Tit span8">学时：</td><td><strong>@Model.CourseLength</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit">授课讲师：</td><td><strong>@Model.Teacher</strong></td>
+                <td class="Tit">开课时间：</td><td colspan="3"><strong>@Model.StartTimeShow - @Model.EndTimeShow</strong></td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <h3 class="tit-h3 mt20">审批信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span10">审批状态：</td><td><strong>@(Model.LeaveStatus)</strong></td>
+                <td class="Tit span10">审批时间：</td><td><strong>@(Model.AppFlag==0?"——":Model.AppTimeShow)</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit span10">审批人：</td><td colspan="3"><strong>@(Model.AppFlag==0?"——":Model.AppRealName)</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit span10">审批理由：</td><td colspan="3"><strong>@(Model.AppFlag == 0 ? "——" : Model.AppReason)</strong></td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10 tc">
+        <a id="btnBack" class="btn btn-cancel" onclick=" window.location.href = '/DepLeaveApproval/MyLeaveApprovalList?appFlag=@appFlag'; ">返回</a>
+    </div>
+</div>

@@ -1,0 +1,124 @@
+﻿@{
+    ViewBag.Title = "我的考勤";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的考勤"
+}))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td class="span12">
+                    <input type="text" id="txt_courseName" class="span20 searchclass" value="请输入搜索内容"
+                        info="" />
+                </td>
+                <td class="Tit span6">讲师姓名：</td>
+                <td>
+                    <input type="text" class="span20 searchclass" id="teachername" value="请输入搜索内容" info="" />
+                </td>
+                <td rowspan="2" class="so-do">
+                    <input type="button" value="查询" id="btn_Add" class="btn" onclick="InitData();" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">开课时间：</td>
+                <td colspan="2">
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" />
+                        <i></i>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="sel_Status" onchange="InitData();">
+            <option value="-1">考勤情况</option>
+            <option value="0">正常</option>
+            <option value="1">缺勤</option>
+            <option value="2">迟到</option>
+            <option value="3">早退</option>
+            <option value="4">迟到并早退</option>
+            <option value="5">考勤未上传</option>
+        </select>
+        <select id="sel_Way" onchange="InitData();">
+            <option value="-1">授课类型</option>
+            <option value="0">集中授课</option>
+            <option value="1">分组带教</option>
+        </select>
+    </div>
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th class="span8">讲师</th>
+                <th class="span12" jsrendersortfield="ncrr.StartTime" sort="desc">课程时间段</th>
+                <th class="span20">开课教室</th>
+                <th class="span8">授课类型</th>
+                <th class="span12">实际考勤时间</th>
+                <th class="span8">考勤情况</th>
+            </tr>
+        </thead>
+        <tbody id="NewMyAttlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="NewMyAttListTemplate" type="text/x-jsrender">
+{{for #data}}
+<tr>
+    <td>{{:#index+1}}</td>
+    <td style="text-align:left;">
+        <div class="tl ovh span16" title="{{:CourseName}}">{{:CourseName}}</div>
+    </td>
+    <td>{{:teachername}}</td>
+    <td><div class="f11 tl">{{:CoStartTimeStr}} - {{:CoEndTimeStr}}</div></td>   
+    {{if Type==0}}     
+    <td><div class="tl ovh span20" title="{{:RoomName}}">{{:RoomName}}</div></td>
+    {{else}}
+    <td><div class="tl ovh span20" title="{{:RoomName}}({{:GroupName}})">{{:RoomName}}({{:GroupName}})</div></td>
+    {{/if}}
+    <td>{{:Type==0?"集中授课":"分组带教 "}}</td>
+    <td><div class="f11 tl">{{:StartTimeStr}} - {{:EndTimeStr}}</div></td>
+    <td>{{:AttStatusStr}}</td>
+</tr> 
+{{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        InitData();
+    });
+
+    function InitData()
+    {
+        var v = "CourseName=" +escape($.trim(getSearchWord("txt_courseName")))+"&status=" + $("#sel_Status").val() + "&Way=" + $("#sel_Way").val()+ "&teachername=" + escape($.trim(getSearchWord("teachername"))) + "&starttime=" + $("#start").val() + "&endtime=" + $("#end").val()+"&t=" + new Date();
+        $("#NewMyAttlist").JsRenderData({
+            sourceUrl: '/NewMypropose/MyAttendceList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "ncrr.StartTime",
+            jsRenderASC: "desc",
+            templateID: "NewMyAttListTemplate",
+            funCallback: function (){
+            }
+        });
+    }
+
+</script>
+

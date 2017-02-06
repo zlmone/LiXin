@@ -1,0 +1,228 @@
+﻿@using LiXinLanguage
+@{
+    //Layout = null;
+    ViewBag.Title = NavigateMenuLanguage.LogManage;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "LogManage" }))
+    <div class="so-set">
+        <table class="tab-Form tbcommon">
+            <tr>
+                <td class="Tit span6">日志内容：
+                </td>
+                <td class="span15">
+                    <input type="text" class="span15 Box searchclass" id="txtlogContent" value="请输入搜索内容"
+                        info="" />
+                </td>
+                <td class="Tit span4">姓名：
+                </td>
+                <td>
+                    <input type="text" class="span10 Box searchclass" id="txtUserName" value="请输入搜索内容"
+                        info="" />
+                </td>
+                <td class="Tit span6">记录时间：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txtlogTimeEnd\')}' });"
+                            type="text" id="txtlogTimeStart" /><i></i>
+                    </div>
+                    至
+                <div class="time-choose">
+                    <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txtlogTimeStart\')}' });"
+                        id="txtlogTimeEnd" /><i></i>
+                </div>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick="fnSearchLog();" />
+                </td>
+            </tr>
+        </table>
+        <table class="tab-Form tbmessage" style="display: none">
+            <tr>
+                <td class="Tit span6">发送内容：
+                </td>
+                <td class="span33">
+                    <input type="text" class="span30 Box searchclass" id="logContent" value="请输入搜索内容"
+                        info="" />
+                </td>
+                <td class="Tit span4">发送人：
+                </td>
+                <td class="span12">
+                    <input type="text" class="span10 Box searchclass" id="UserName" value="请输入搜索内容"
+                        info="" />
+                </td>
+                <td class="Tit span4">接收人：
+                </td>
+                <td class="span12">
+                    <input type="text" class="span10 Box searchclass" id="acceptName" value="请输入搜索内容"
+                        info="" />
+                </td>
+
+                <td rowspan="2" class="so-do">
+                    <input class="btn" type="button" value="搜索" onclick="fnSearchLog();" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">发送时间：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'logTimeEnd\')}' });"
+                            type="text" id="logTimeStart"  /><i></i>
+                    </div>
+                    至
+                <div class="time-choose">
+                    <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'logTimeStart\')}' });"
+                        id="logTimeEnd" /><i></i>
+                </div>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div class="so-seq">
+        <select id="sel_logType" onchange="fnSearchLog();">
+            <option value="-1">日志类型</option>
+            <option value="0">操作日志</option>
+            <option value="1">登录日志</option>
+            <option value="2">错误日志</option>
+            <option value="3">同步日志</option>
+            <option value="5" selected="selected">短信日志</option>
+            <option value="6">邮件日志</option>
+        </select>
+        <select id="sel_status" onchange="fnSearchLog();" class="tbmessage" style="display: none">
+            <option value="-1">发送状态</option>
+            <option value="0">失败</option>
+            <option value="1">成功</option>
+
+        </select>
+    </div>
+    <div class="mt10 tbcommon">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th>日志内容
+                    </th>
+                    <th class="span10">类型
+                    </th>
+                    <th class="span10">姓名
+                    </th>
+                    <th class="span14">记录时间
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="tbLogList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <div class="mt10 tbmessage" style="display: none">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th>发送人
+                    </th>
+                    <th class="span10">接收人
+                    </th>
+                    <th class="span10">发送内容
+                    </th>
+                    <th class="span10">发送状态
+                    </th>
+                    <th class="span14" jsrendersortfield="LogTime" sort=" asc">发送时间
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="tbmessageList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="logListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td style="text-align: left;">
+                <div class="ovh span50" title="{{:LogContent}}">{{:LogContent}}</div>
+            </td>
+            <td>{{:LogTypeStr}}</td>
+            <td>{{:UserName}}</td>
+            <td>{{:LogTimeStr}}</td>
+        </tr>
+    {{/for}}
+</script>
+<script id="messageListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>{{:UserName}}</td>
+            <td>{{:AcceptName}}</td>
+            <td style="text-align: left;">
+                <div class="ovh span50" title="{{:LogContent}}">{{:LogContent}}</div>
+            </td>
+            <td>{{:StatusStr}}</td>
+            <td>{{:LogTimeStr}}</td>
+        </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+      //  fnGetLogList();
+        fnSearchLog();
+        $.get("SystemLogTrainList", function (data)
+        {
+            $("#trainlog").html(data);
+        });
+    });
+
+    function fnSearchLog()
+    {
+        //$("#lastID").val(0);
+        if ($("#sel_logType").val() < 5)
+        {
+            $(".tbcommon").show();
+            $(".tbmessage").hide();
+            fnGetLogList();
+        }
+        else
+        {
+            $(".tbcommon").hide();
+            $(".tbmessage").show();
+            fnGetMessageList();
+        }
+    }
+
+    function fnGetLogList()
+    {
+        $("#tbLogList").JsRenderData({
+            sourceUrl: "/SystemManage/GetSysLogList?logType=" + $("#sel_logType").val() + "&logTimeStart=" + $("#txtlogTimeStart").val() + "&logTimeEnd=" + $("#txtlogTimeEnd").val() + "&logContent=" + escape(getSearchWord("txtlogContent")) + "&UserName=" + escape(getSearchWord("txtUserName")),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "logListTemplate"
+        });
+    }
+
+    function fnGetMessageList()
+    {
+        $("#tbmessageList").JsRenderData({
+            sourceUrl: "/SystemManage/GetSysLogList?logType=" + $("#sel_logType").val() + "&logTimeStart=" + $("#logTimeStart").val() + "&logTimeEnd=" + $("#logTimeEnd").val() + "&logContent=" + escape(getSearchWord("logContent")) + "&UserName=" + escape(getSearchWord("UserName")) + "&acceptName=" + escape(getSearchWord("acceptName")) + "&status=" + $("#sel_status").val(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "LogTime",
+            jsRenderASC: "desc",
+            templateID: "messageListTemplate"
+        });
+    }
+</script>

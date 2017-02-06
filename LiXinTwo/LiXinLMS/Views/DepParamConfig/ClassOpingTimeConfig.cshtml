@@ -1,0 +1,81 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+}
+
+<form id="fnSumitConfig">
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">课前建议、课后评估的开放时间</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">课程开始：</td>
+            <td>
+                 <div class="fl">
+                 <input type="text" class="span16" id="level_A" name="Anumber" value="@(Model.ConfigValue.Split(';')[0])"/>小时之前开放建议 （限制在0.1~999.9之间）
+                 </div>
+                
+            </td>
+        </tr>
+         <tr>
+            <td class="Tit">课程结束：</td>
+             <td>
+               <div class="fl">
+                <input type="text" class="span16" id="level_B" name="Bnumber"  value="@(Model.ConfigValue.Split(';')[1])"/>小时之内开放评估 （限制在0.1~999.9之间）
+
+                </div>
+                
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td><input type="submit" value="确定" id="btn_Add" class="btn"/></td>
+        </tr>
+    </table>
+</form>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            jQuery.validator.addMethod("decimal_1", function (value, element) {
+                var decimal = /^-?\d+(\.\d{1})?$/;
+                return this.optional(element) || (decimal.test(value));
+            }, $.validator.format("请输入正确的格式！"));
+
+            $("#fnSumitConfig").validate({
+                event: "blur",
+                rules: {
+                    Anumber: { required: true, min: 0, max: 999.9, decimal_1: true },
+                    Bnumber: { required: true, min: 0, max: 999.9, decimal_1: true }
+                },
+                messages: {
+                    Anumber: { required: "请输入正确的格式！", min: "请输入正确的格式！", max: "请输入正确的格式！" },
+                    Bnumber: { required: "请输入正确的格式！", min: "请输入正确的格式！", max: "请输入正确的格式！" }
+                },
+                errorPlacement: function (error, element) {
+                    var eid = element.attr('name');
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        $('input[name=' + eid + ']:last').next().after(error);
+                    } else {
+
+                        error.insertAfter(element.parent());
+                    }
+
+                },
+
+                submitHandler: fnSumitConfig
+            });
+        });
+
+        function fnSumitConfig() {
+            var t = $("#level_A").val() + ";" + $("#level_B").val();
+            $.post("/DepParamConfig/UpdateConfig?type=2&value=" + t + "&deptID=" + $("#depart").val(), function (data)
+            {
+                if (data.result == 1) {
+                    art.dialog.tips('配置成功', 3);
+                } else {
+                    art.dialog.tips('配置失败', 3);
+                }
+            });
+        }
+    </script>

@@ -1,0 +1,64 @@
+﻿@{
+    ViewBag.Title = "ClassPro";
+    Layout=null;
+}
+<script src="../../Scripts/extend.js" type="text/javascript"></script>
+    <div class="main-c">
+        <input type="hidden" id="txt_CourseId" value="@(ViewBag.courseid)"/><!--存放课程id-->
+        <div id="CourseAdviceList" class="course-pro">
+        </div>
+        <center class="mt10">@Html.ActionLink("返回", "CourseList", "NewTeacherCourse", new { @class = "btn btn-cancel" })</center>
+        @*<center class="mt10">@Html.ActionLink("返回", "TeacherCourseList", "NewTeacherCourse", new { p = "1" }, new { @class = "btn btn-cancel" })</center>*@
+    </div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {     
+        Onload();
+    });
+
+    function FReply(a) {
+        var t = $(a).attr("type");
+        if (t == 1) {
+            $(a).parent("div").siblings("#Reply_div").show();
+            $(a).attr("type", 2);
+        } else {
+            $(a).parent("div").siblings("#Reply_div").hide();
+            $(a).attr("type", 1);
+        }
+    }
+
+    function FAnswer(a) {
+        var t = $(a).parents(".list").attr("id"); //当前编号
+        var b = $(a).parents("#Reply_div").siblings("div").children(".p_Reply");
+        var txt = $(a).parents("tr").siblings("tr:eq(1)").children("td:eq(1)").children("#txt_AnswerContent");   
+        var content = $(a).parents("tr").siblings("tr:eq(1)").children("td:eq(1)").children("#txt_AnswerContent").val();
+        var tt = $(a).parents("tr").siblings("tr:eq(0)").children("td:eq(1)").children(".sel").children("input[name='tt']:checked");
+
+       
+        if ($.trim(content) == "") {
+            art.dialog.tips('请输入反馈内容', 3);
+            return;
+        }
+        if (tt.val() == undefined) {
+            art.dialog.tips('请选择分享范围', 3);
+            return;
+        }
+        $.post("/NewMyCourse/ReplyCl_CourseAdvice?id=" + t + "&AnserContent=" + encodeURIComponent(content) + "&CourseId=" + $("#txt_CourseId").val() + "&VisibleFlag=" + tt.val(), function (data) {
+            b.remove();
+            txt.remove();
+            $(a).parents(".list-info").append(data.innerhtml);
+            $(a).parents(".pro-back").remove();
+            //$(a).parents(".list-info")
+            $(a).remove();
+        });
+    }
+
+    function Onload() {
+        $.post("/NewTeacherCourse/OnLoadCl_CourseAdvice?id=" + $("#txt_CourseId").val(), function (data)
+        {
+            $("#CourseAdviceList").append(data.content);
+        });
+
+    }
+
+</script>

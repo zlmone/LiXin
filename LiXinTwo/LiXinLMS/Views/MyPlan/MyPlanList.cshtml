@@ -1,0 +1,273 @@
+﻿@{
+    ViewBag.Title = "我的培训计划";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的培训计划"
+}))
+    <div class="tab-bk mt10">
+        <ul id="ul_menu">
+            <li class="On" id="tag0">年度培训</li>
+            <li id="tag1">月度培训</li>
+        </ul>
+    </div>
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span3">课程名称：
+                </td>
+                <td>
+                    <input type="text" class="span10 Box searchclass" id="courseName" value="请输入搜索内容" info="" />
+                </td>
+                <td class="Tit span6">选修/必修：
+                </td>
+                <td>
+                    <input name="isMaster" type="checkbox" value="0" />必修
+                    <input name="isMaster" type="checkbox" value="1" />选修
+                </td>
+                <td class="Tit span6">讲师姓名：
+                </td>
+                <td>
+                    <input type="text" class="span20 searchclass" id="teachername" value="请输入搜索内容" info="" />
+                </td>
+                <td rowspan="2" class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="yearSearch">
+        <div class="so-seq">
+            <select id="selYear" onchange="Getdata(0);" class="span10">
+                <option value="-1">请选择年度</option>
+                @{
+                    foreach (var year in ViewBag.year)
+                    {
+                    <option value="@year">@year</option>
+                    }
+                }
+            </select>
+            <select id="pop_Way_0" name="pop_Way" onchange="Getdata(0);">
+                <option value="-1">请选择培训形式</option>
+                <option value="1">集中授课</option>
+                <option value="2">视频课程</option>
+                <option value="4">部门自学</option>
+            </select>
+            <div class="list-do mt8">
+                <label>合计总学时：</label><span id="ysumLength">0</span>
+            </div>
+        </div>
+
+    </div>
+    <div class="so-seq" id="monthSearch" style="display: none">
+        @Html.Action("YearMonthSelect", "PlanManage", new
+        {
+            viewType = 0,
+            dataType = 1
+        })
+        <select id="pop_Way_1" name="pop_Way" onchange="Getdata(1);">
+            <option value="-1">请选择培训形式</option>
+            <option value="1">集中授课</option>
+            <option value="2">视频课程</option>
+            <option value="4">部门自学</option>
+        </select>
+        <div class="list-do mt8">
+            <label>合计总学时：</label><span id="msumLength">0</span>
+        </div>
+    </div>
+
+    <div class="mt10">
+        <table class="tab-List" id="tbmonthCourse" style="display: none">
+            <thead>
+                <tr>
+                    <th class="span6">序号
+                    </th>
+                    <th>课程名称
+                    </th>
+                    <th class="span16" jsrendersortfield="PreCourseTime" sort="asc">预计开课时间
+                    </th>
+                    <th class="span8">培训形式
+                    </th>
+                    <th class="span8" jsrendersortfield="CourseLength" sort="asc">学时</th>
+                    <th class="span8">地点</th>
+                    <th class="span15">讲师姓名
+                    </th>
+                   @* <th class="span15">薪酬级别
+                    </th>*@
+                    <th class="span8">必修/选修
+                    </th>
+                    <th class="span10">是否折算CPA学时</th>
+                    <th class="span8">框架内/外
+                    </th>
+
+                </tr>
+            </thead>
+            <tbody id="CourseList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+        <table class="tab-List" id="tbyearCourse">
+            <thead>
+                <tr>
+                    <th class="span6">序号
+                    </th>
+                    <th>课程名称
+                    </th>
+                    <th class="span16" jsrendersortfield="Month" sort="asc">预计开课时间
+                    </th>
+                    <th class="span8">培训形式
+                    </th>
+                    <th class="span8" jsrendersortfield="CourseLength" sort="asc">学时</th>
+
+                    <th class="span15">讲师姓名
+                    </th>
+                  @*  <th class="span15">薪酬级别
+                    </th>*@
+                    <th class="span8">必修/选修
+                    </th>
+                    <th class="span10">是否可折算CPA学时</th>
+                    <th class="span8">框架内/外
+                    </th>
+
+                </tr>
+            </thead>
+            <tbody id="yCourseList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="yearCourseTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr class="child">
+            <td>{{:#index+1}}</td>
+            <td><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>{{:OpenTime}}</td>
+            <td>{{:WayStr}} </td>
+            <td>{{:CourseLength}}</td>
+            <td><div class="ovh span15 tl" title="{{:Realname}}">{{:Realname}}</div></td>
+            <td>{{:IsMustStr}} </td>
+            <td>{{:IsCPAStr}} </td>
+            <td>{{:IsSystemStr}} </td>
+            </tr>
+   {{/for}}
+</script>
+<script id="monthCourseTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr class="child">
+           <td>{{:#index+1}}</td>
+            <td><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>{{:PreCourseTimeStr}}</td>
+            <td>{{:WayStr}} </td>
+            <td>{{:CourseLength}}</td>
+            <td><div class="ovh span8 tl" title=" {{:RoomNamestr}}"> {{:RoomNamestr}}</div></td>
+            <td><div class="ovh span10 tl" title="{{:Realname}}">{{:Realname}}</div></td>
+            <td>{{:IsMustStr}} </td>
+            <td>{{:IsCPAStr}} </td>
+            <td>{{:IsSystemStr}} </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        Getdata(0);
+        $("#btnSearch").bind("click", function () { Getdata(0) });
+        $("#ul_menu li").click(function () {
+            $("#ul_menu li").removeClass("On");
+            $(this).addClass("On");
+
+            var index = $(this).index();
+            if (index == 0)
+            {
+                $("#monthSearch").css("display", "none");
+                $("#yearSearch").css("display", "");
+                $("#btnSearch").bind("click", function () { Getdata(0) });
+                Getdata(0);
+            }
+            else
+            {
+                $("#monthSearch").css("display", "");
+                $("#yearSearch").css("display", "none");
+                $("#btnSearch").bind("click", function () { Getdata(1) });
+                Getdata(1);
+            }
+        });
+    });
+
+    //0 年度课程 1 月度课程
+    function Getdata(type) {
+        $("#tbyearCourse").show();
+        $("#tbmonthCourse").hide();
+        getyear();
+        if (type == 1 || type == undefined)
+        {
+            $("#tbyearCourse").hide();
+            $("#tbmonthCourse").show();
+            getmonth();
+        }
+
+    }
+
+    function getyear() {
+
+        var isMaster = -1;
+        var obj = $("input[name='isMaster']:checked");
+        isMaster = (obj.length == 1) ? obj.val() : -1;
+
+        //debugger;
+        var url = "/MyPlan/GetMyYearPlan?year=" + $("#selYear").val() + "&pop_Way=" + $("#pop_Way_0").val();
+        $("#yCourseList").JsRenderData({
+            sourceUrl: url + "&courseName=" + escape(getSearchWord("courseName")) + "&teachername=" + escape(getSearchWord("teachername")) + "&isMaster=" + isMaster,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "yearCourseTemplate",
+            jsRenderSortField: "Month",
+            jsRenderASC: "desc",
+            funCallback: function (data) {
+                if (data.dataList.length > 0)
+                {
+                    $("#ysumLength").html(data.dataList[0].sumLength);
+                }
+                else
+                {
+                    $("#ysumLength").html("0");
+                }
+            }
+        });
+    }
+
+    function getmonth() {
+        var isMaster = -1;
+        var obj = $("input[name='isMaster']:checked");
+        isMaster = (obj.length == 1) ? obj.val() : -1;
+        var year = $("#year").val();
+        var month = year == -1 ? -1 : $("#month").val();
+        url = "/MyPlan/GetMyMonthPlan?year=" + year + "&month=" + month + "&pop_Way=" + $("#pop_Way_1").val();
+        $("#CourseList").JsRenderData({
+            sourceUrl: url + "&courseName=" + escape(getSearchWord("courseName")) + "&teachername=" + escape(getSearchWord("teachername")) + "&isMaster=" + isMaster,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "monthCourseTemplate",
+            jsRenderSortField: "PreCourseTime",
+            jsRenderASC: "desc",
+            funCallback: function (data) {
+                if (data.dataList.length > 0)
+                {
+                    $("#msumLength").html(data.dataList[0].sumLength);
+                }
+                else
+                {
+                    $("#msumLength").html("0");
+                }
+            }
+        });
+    }
+
+</script>

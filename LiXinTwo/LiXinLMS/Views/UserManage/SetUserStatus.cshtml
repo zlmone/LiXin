@@ -1,0 +1,93 @@
+﻿@using LiXinLanguage.UserManage
+@{
+
+    Layout = null;
+}
+    <table class="tabForm cen all80">
+        <tr>
+            <td class="Tit all30">
+                <input type="radio" class="pointer" id="rad_SetUserStatusTemporarily" name="rad_SetUserStatus" value="0" />
+            </td>
+            <td>
+                <div id="div_SetUserStatusTemporarily">临时冻结</div>
+            </td>
+        </tr>
+        <tr id="div_time" style="display: none;">
+            <td class="Tit"></td>
+            <td>
+                <span>冻结周期: </span>
+                <input type="text" id="txt_SetUserStatusTemporarily_Time" onclick=" WdatePicker({ el: 'txt_SetUserStatusTemporarily_Time' }); " class="inp Raster_10" readonly="readonly" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <input class="pointer" type="radio" id="rad_SetUserStatusForever" name="rad_SetUserStatus" value="1" checked="checked" />
+            </td>
+            <td>
+                <div id="div_SetUserStatusForeve">永久冻结</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td>
+                <input type="button" id="btn_Save" class="Btn Btn_blue" value="确定" />
+            </td>
+        </tr>
+    </table>
+<script type="text/javascript">
+
+    function SetDivDisplay() {
+        $("#rad_SetUserStatusTemporarily").change(function() {
+            $("#div_time").show(500);
+        });
+        $("#rad_SetUserStatusForever").change(function() {
+            $("#div_time").hide(500);
+        });
+    }
+
+    function SetUserStatus() {
+        var freeTmp = $("#rad_SetUserStatusTemporarily").attr("checked");
+        if (freeTmp) {
+            //临时冻结
+            var time = $("#txt_SetUserStatusTemporarily_Time").val();
+            if (!time) {
+                art.dialog({ content: "请输入冻结时间", time: 3, lock: true });
+                return;
+            }
+            var freeUrl = "/UserManage/CloseUser?userId=@ViewBag.userId&time=" + time + "&t=" + (new Date().valueOf());
+            $.getJSON(freeUrl, function (data) {
+                if (data.result == 1) {
+                    art.dialog({ content: "@UserManageLanguage.UserManage_Freeze_Success", time: 3 });
+                    InitData();
+                    closeDialog("art_UpdateStatus");
+                } else {
+                    art.dialog({ content: data.content, time: 3, lock: true });
+                }
+            });
+        } else {
+            //永久冻结
+            var freezeUrl = "/UserManage/CloseUser?userId=@ViewBag.userId&time=&t=" + (new Date().valueOf());
+            $.getJSON(freezeUrl, function(data) {
+                if (data.result == 1) {
+                    art.dialog({ content: "@UserManageLanguage.UserManage_Freeze_Success", time: 3 });
+                    InitData();
+                    closeDialog("art_UpdateStatus");
+                } else {
+                    art.dialog({ content: data.content, time: 3, lock: true });
+                }
+            });
+        }
+    }
+
+    function SelectUserStatus() {
+        $("#rad_SetUserStatusForever").attr("checked", "checked");
+        $("#div_time").hide(500);
+    }
+
+    $(document).ready(function() {
+        SetDivDisplay();
+        SelectUserStatus();
+        $("#btn_Save").click(SetUserStatus);
+    });
+
+</script>

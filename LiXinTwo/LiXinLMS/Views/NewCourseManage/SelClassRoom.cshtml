@@ -1,0 +1,131 @@
+﻿@*
+在调本页面时，要注意，页面载入方法中有一个参数，可传可不传都有默认值
+type            ''：啥不带；'checkbox'：带checkbox；'radio'带radio；默认为'radio'
+
+    加入方法，形如：
+    获取选择到的userID
+	方法名不要改
+	function GetUserIDList()
+	{
+		var userIds = GetChecked('pop_userList');
+		...
+        ...
+        ...
+		closePopWindow();
+	}
+*@
+@{
+    ViewBag.Title = "选择教室";
+    Layout = null;
+    var havedClassID = Request.QueryString["AllUserID"] ?? "";
+    var type = Request.QueryString["type"] ?? "checkbox";
+    var rtype = Request.QueryString["rtype"] ?? "0";
+}
+<input type="hidden" value="@havedClassID" id="havedClassID"/>
+<div class="so-set">
+    <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">教室名称： </td>
+                <td><input type="text" class="span30 Box searchclass" id="searchName" maxlength="50" value="请输入搜索内容" info=""/></td>
+                <td class="Tit span6">容纳人数： </td>
+                <td>
+                    <select name="roomCapacity" id="roomCapacity" onclick="Getdata();">
+                        <option value="-1">请选择人数范围</option>
+                        <option value="0">0~30</option>
+                        <option value="1">31~60</option>
+                        <option value="2">61~90</option>
+                        <option value="3">91~120</option>
+                        <option value="4">121以上</option>
+                    </select>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="查询" id="btnSearch" />
+                </td>
+            </tr>
+        </table>
+</div>
+<div id="allRoom">
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span3">
+                    @{
+                        if (type == "checkbox")
+                        {
+                            <input type="checkbox" value="0" id="selectAllRoom" />
+                        }
+                    }
+                </th>
+                <th class="span4">序号</th>
+                <th>教室名称</th>
+                <th class="span6">教室类型</th>
+                <th class="span10">座位行数/列数</th>
+                <th class="span6">容纳人数</th>
+            </tr>
+        </thead>
+        <tbody id="roomList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<div class="mt10 tc"><input type="button" value="添加" onclick="GetroomIDList();" class="btn btn-co" /></div>
+<script id="roomListTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+            <td>
+            {{if '@type'=='radio'}}
+                <input type='radio' id='{{:Id}}' value='{{:Id}}' username="{{:RoomName}}" row="{{:RowNumber}}" col="{{:ColumnNumber}}" number="{{:RoomNumber}}" seatty="{{:SeatType}}" ppc="{{:PrePersonCount}}" dis="{{:DisSeat}}" name='class' />
+            {{else}}
+                <input type='checkbox' id='{{:Id}}' value='{{:Id}}' name="{{:RoomName}}"/>
+            {{/if}}
+            </td>
+            <td>{{:#index+1}}</td>
+            <td>
+                <div class="span30 ovh" title="{{:RoomName}}">{{:RoomName}}</div> 
+            </td>
+            <td>{{:SeatType==1?"分组带教":(SeatType==0?"集中授课":"考试")}}</td>
+            <td>{{:RowNumber}}/{{:ColumnNumber}}</td>
+            <td>{{:RoomNumber}}</td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        Getdata();
+        //查询
+        $("#btnSearch").bind("click", function () {
+            Getdata();
+        });
+    });
+    //获取数据
+    function Getdata() {
+        $("#roomList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "roomListTemplate",
+            funCallback: function () {
+                SetCheckBox('selectAllRoom', 'roomList');
+                HiddenSelectRoom("@type");
+            }
+        });
+    }
+    //获取url
+    function getParamUrl() {
+        return "/NewClassRoom/GetAllClassRoom?roomName=" + escape(getSearchWord("searchName")) + '&num=' + escape(getSearchWord("roomCapacity")) + '&rtype=@(rtype)&t=' + new Date();
+    }
+    function HiddenSelectRoom(obj) {
+        if ($("#havedRoomID") != undefined && $("#havedRoomID") != null) {
+            $("#allRoom tbody input[type='" + obj + "']").each(function () {
+                if ((',' + $("#havedRoomID").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+        }
+    }
+</script>
+
+

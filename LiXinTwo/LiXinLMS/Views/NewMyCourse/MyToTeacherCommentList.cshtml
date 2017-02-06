@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "MyToTeacherCommentList";
+}
+
+<div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_CourseName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">讲师姓名：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_TeacherName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">开课时间：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" id="txt_StartTime" value="" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  "/>
+                        <i></i>
+                    </div>
+                   
+                    至
+                    <div class="time-choose">
+                        <input type="text" id="txt_EndTime" value="" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })"/>
+                        <i></i>
+                    </div>                 
+                </td>             
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                </td>
+            </tr>
+        </table>
+    </div>
+ <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th>序号
+                    </th>
+                    <th class="">讲师姓名
+                    </th>
+                    <th class="span5">课程名称
+                    </th>
+                    <th class="span7">课程时间
+                    </th>                    
+                    <th class="span8">评价得分
+                    </th>
+                    <th class="span7">操作
+                    </th> 
+                </tr>
+            </thead>
+            <tbody id="Courstlist">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+
+    })
+
+
+    function fOnload() {
+        $("#Courstlist").JsRenderData({
+            sourceUrl: geturl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    function geturl() {
+        return "coursename=" + escape(getSearchWord('txt_CourseName')) + "&teacher=" + escape(getSearchWord('txt_TeacherName')) + "&starttime=" + $("#txt_StartTime").val() + "&endtime=" + $("#txt_EndTime").val();
+    }
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr class="{{:IsAppoint>0?"top":""}}">
+            <td>
+            {{:#index+1}}
+            </td>       
+            <td>
+                讲师姓名
+            </td>
+            <td>
+                课程名称
+            </td>
+            <td class="f11" style="text-align:left;">
+                课程时间
+            </td>            
+            <td>
+                评价得分
+            </td>             
+             <td>
+                <a href="/NewMyCourse/MyToTeacherComment">评价</a>
+            </td>         
+             
+        </tr> 
+        {{/for}}
+</script>

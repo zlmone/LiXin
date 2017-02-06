@@ -1,0 +1,226 @@
+﻿@{
+    ViewBag.Title = "课程详情";
+    var course = ViewBag.Course as LiXinModels.DepCourseManage.Dep_Course;
+    var courseorder = ViewBag.courseorder as LiXinModels.DepCourseManage.Dep_CourseOrder;
+}
+<div class="course-top">
+     @* @(Html.Action("SiteMapLink", "Common", new { linkName = "MyDepCourseList" }))*@
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "课程详情" }))
+        <div class="pic">
+            <img src="../../Images/course-pic.jpg" />
+        </div>
+        <div class="info">
+            <h3 class="ovh" title="@course.CourseName">@course.CourseName</h3>
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span9">
+                        授课讲师：
+                    </td>
+                    <td>@course.TeacherName
+                    </td>
+                    <td class="Tit span6">
+                        开课时间：
+                    </td>
+                    <td colspan="3">@course.TeacherCourseTime
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        课程开放级别：
+                    </td>
+                    <td>@course.OpenLevel
+                    </td>
+                    <td class="Tit">
+                        开课地点：
+                    </td>
+                    <td>
+                        <div class="ovh span30" title="@course.RoomName">@course.RoomName</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        课程学时：
+                    </td>
+                    <td>@course.CourseLength
+                    </td>
+                    <td class="Tit">
+                        课程状态：
+                    </td>
+                    <td>@course.CourseStatus
+                    </td>
+                    <td>
+                         @{
+                        if (course.MyDoStatus == 1 || course.MyDoStatus == 2)
+                        {
+                        <input type="button" class="btn btn-co" value="退订"  onclick="  Unsubscribe(@course.Id ,@course.YearPlan);"/>
+                        }
+                        if (course.MyDoStatus == 1 || course.MyDoStatus == 4)
+                        {
+                        <input type="button" class="btn btn-co" value="请假" id="btn_qj" onclick="  LeaveMemoShow(@course.Id,@course.courseOrderId);"/>
+                        }
+
+                    }
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+   
+    <div class="tab-bk mt10">
+        <ul id="ul_menu">
+            <li class="On" onclick="fonclick(0)">
+                课程详情        
+            </li>
+            <li onclick="fonclick(1)">
+                课前建议          
+            </li>
+            <li onclick="fonclick(2)">
+                考勤详情           
+            </li>
+            <li onclick="fonclick(3)"> 
+                课后评估
+            </li>
+            <li onclick="fonclick(4)">
+                在线测试           
+            </li>
+        </ul>
+    </div>
+    <div id="div_CourseCommonList">
+
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {       
+        fonclick(@ViewBag.tp);
+        //fonclick(0);
+    })
+
+    function fonclick(t)
+    {
+        switch(t)
+        {
+            case 0:                   
+                $.get("/DepMyCourse/CourseMain?courseid="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                    $("#ul_menu li:eq(0)").addClass("On").siblings("li").removeClass("On");
+                    break;
+                case 1:
+                    $.get("/DepMyCourse/ClassPro?courseid="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(1)").addClass("On").siblings("li").removeClass("On");
+                break;
+            case 2: 
+                $.get("/DepMyCourse/Attendance?courseid="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(2)").addClass("On").siblings("li").removeClass("On");
+                break;
+            case 3:                 
+                $.get("/DepMyCourse/AfterCourseNewList?id="+@course.Id+"&backurl=/DepMyCourse/MyCourseList", function (data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(3)").addClass("On").siblings("li").removeClass("On");
+                break;
+            case 4:
+                $.get("/DepMyCourse/OnlineTest?courseid="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                $("#ul_menu li:eq(4)").addClass("On").siblings("li").removeClass("On");
+               
+                break;          
+            default:
+        }
+    }
+
+
+    function Unsubscribe(id)
+    {//退订
+        $.getJSON("/DepMyCourse/Unsubscribe?id=" + id, function (da)
+        {
+            if (da.result == 1)
+            {
+                //art.dialog.tips(da.content, 1.5);
+                //InitData(1);
+                art.dialog({
+                    content: da.content,
+                    ok: function ()
+                    {
+                        $.getJSON("/DepMyCourse/UnsubscribeLine/" + id, function (data)
+                        {
+                            if (data.result == 1)
+                            {
+                                art.dialog.tips("退订成功！", 3);
+                                window.location.href = "/DepMyCourse/MyCourseList";
+                            } else
+                            {
+                                art.dialog.tips("退订失败！", 3);
+                            }
+                        });
+                    },
+                    cancel: true
+                });
+            } else
+            {
+                art.dialog.tips(da.content, 3);
+                if (da.result == 4)
+                {
+                    //InitData(da.indexpage);
+                    window.location.href = "/DepMyCourse/MyCourseList";
+                }
+            }
+        });
+    }
+
+    function Leave(id) {//请假
+        var str = "";
+        var flag = 1;
+        $("#div_LeaveMemo input[type='text']").each(function () {
+            if ($.trim($(this).val()) != "") {
+                str = str + "♣" + $.trim($(this).val());
+            } else {
+                flag = 0;
+            }
+        });
+        if (flag == 0) {
+            art.dialog.tips("请假理由不能为空！", 3);
+        } else {
+            $.post("/DepMyCourse/Leave/", { id: id, memo: str }, function (da) {
+                if (da.result == 1) {
+                    closeDialog("art_Leave");
+                    $("#btn_qj").css("display","none");
+                    //art.dialog.tips(da.content, 3);
+                    //InitData();
+                    art.dialog({
+                        width: 500,
+                        content: "消息内容：" + da.memo + "<br/>" + "确认发送邮件吗？",
+                        ok: function () {
+                            $.post("/DepMyCourse/SendLeaveMessage/", { memo: da.memo }, function (data) {
+                                if (data == 1) {
+                                    art.dialog.tips("发送成功！", 3);
+                                    window.location.href = "/MyCourse/MyCourseList";
+                                } else {
+                                    art.dialog.tips("发送失败！", 3);
+                                }
+                            });
+                        },
+                        cancel: function () {
+                            window.location.href = "/DepMyCourse/MyCourseList";
+                            //InitData(da.indexpage);
+                        }
+                    });
+                } else {
+                    art.dialog.tips(da.content,3);
+                  
+                }
+            });
+        }
+    }
+
+    function LeaveMemoShow(courseId, id) {
+        $.getJSON("/DepMyCourse/GetSystemLeaveMemo/" + courseId, function (da) {
+            //var div = '<div id="div_Leave" class="all80 cen"><textarea id="txtLeaveMemo" cols="20" rows="2">' + da + '</textarea><input type="button" class="Btn Btn_blue" onclick="Leave(' + id + ');" value="提交" /></div>';
+            var div = '<div id="div_Leave"><div id="div_LeaveMemo">' + da + '</div><div class="tc mt10"><input type="button" class="btn" onclick="Leave(' + id + ');" value="提交" /></div></div>';
+            art.dialog({
+                content: div,
+                title: '请假理由',
+                id: 'art_Leave',
+                width: 500,
+                init: function () {
+                    //$("#txtLeaveMemo").textareaCount({ maxCharacterSize: 500 });
+                }
+            });
+        });
+    }
+    </script>

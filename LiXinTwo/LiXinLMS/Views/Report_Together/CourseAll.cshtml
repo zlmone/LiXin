@@ -1,0 +1,309 @@
+﻿@{
+    ViewBag.Title = "所有课程的综合统计";
+    Layout = null;
+}
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">课程名称：</td>
+            <td class="span22">
+                <input type="text" id="txtCourseName" class="span20 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="Tit span6">讲师名称：</td>
+            <td class="span22">
+                <input type="text" id="txtRealName" class="span20 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="Tit">是否可折算CPA学时：
+            </td>
+            <td>
+                <input type="checkbox" value="1" name="IsCPA" />是
+                <input type="checkbox" value="0" name="IsCPA" />否
+            </td>
+
+
+            <td class="so-do">
+                <input type="button" class="btn btn-co" value="同步" onclick="RefreshAll()" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">薪酬级别：</td>
+            <td>
+                <input type="button" class="btn btn-co" value="选择薪酬级别" id="selPayGrade" /></td>
+            <td class="Tit">培训级别：</td>
+            <td>
+                <select id="LevelType">
+                    <option value="0" selected="selected">模糊搜索</option>
+                    <option value="1">精确搜索</option>
+                </select>
+                @foreach (var item in @ViewBag.allTraGrade)
+                {
+                    <input type="checkbox" value="@item" name="OpenLevel" /><label class="mr10">@item</label>   
+                }
+            </td>
+            <td class="Tit span6">是否有课后在线测试：</td>
+            <td>
+                <input type="checkbox" value="1" name="IsTest" />是
+                <input type="checkbox" value="0" name="IsTest" />否
+            </td>
+
+            <td class="so-do" colspan="3" style="text-align: left; padding-left: 38px;">
+                <input class="btn" type="button" value="搜索" onclick="InitAllData(); " />
+                <input type="button" class="btn btn-co" value="导出EXCEL" onclick="outCourseInfoList()" />
+            </td>
+        </tr>
+
+    </table>
+</div>
+<div class="so-seq">
+    年度：@(Html.Action("ReportYear", "Common", new { id = "sel_cyear" }))
+    <select class="span8" id="IsMust" onchange="InitAllData()">
+        <option value="-1">课程属性</option>
+        <option value="0">必修</option>
+        <option value="1">选修</option>
+    </select>
+    <select class="span8" id="IsDelete" onchange="InitAllData()">
+        <option value="-1">课程状态</option>
+        <option value="0" selected="selected">正常</option>
+        <option value="1">删除</option>
+    </select>
+</div>
+<div class="mt10">
+    <table class="tab-List" id="tbCourseInfo">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th class="span7">课程属性</th>
+                <th class="span14" jsrendersortfield="StartTime" sort="desc">开课时间</th>
+                <th class="span8">讲师</th>
+                <th class="span8" style="text-align: left">薪酬级别/职务</th>
+                <th class="span8" jsrendersortfield="reallyJoin" sort="desc">报名人数/实际参与人数</th>
+                <th class="span8" jsrendersortfield="surveyNumber" sort="desc">参与评估人数/未参与人数</th>
+                <th class="span8" jsrendersortfield="Survey_AllScoreDouble" sort="desc" style="text-align:left">综合评分（均值）</th>
+                <th class="span8" jsrendersortfield="Survey_CourseScoreDouble" sort="desc" style="text-align:left">课程评分（均值）</th>
+                <th class="span8" jsrendersortfield="Survey_TeacherScoreDouble" sort="desc" style="text-align:left">讲师评分（均值） </th>
+                <th class="span4">操作</th>
+            </tr>
+            <tr>
+                <th>合计</th>
+                <th>--</th>
+                <th>--</th>
+                <th>--</th>
+                <th>--</th>
+                <th>--</th>
+                <th class="span10" id="SumApply">0/0</th>
+                <th id="SumSurvey">0/0</th>
+                <th id="sumScore">0</th>
+                <th id="sumCourseScore">0</th>
+                <th id="sumTeacherScore">0</th>
+                <th>--</th>
+                <tr>
+        </thead>
+        <tbody id="CourseInfoList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<input id="cpa_PayGrade" type="hidden" />
+<script>
+    $(document).ready(function ()
+    {
+
+        //初始化查询条件
+        initSearch();
+
+        initShow();
+
+
+
+        $("#selPayGrade").bind("click", function ()
+        {
+            art.dialog.load("/Common/ReportPayGrade?type=2", {
+                title: '选择薪酬级别', id: "pop_AttendPayGrade", width: 600, height: 200,
+                close: function ()
+                {
+                }
+            }, false);
+        });
+
+        $("#sel_cyear").bind("change", function ()
+        {
+
+            InitAllData();
+        });
+    });
+
+    function initShow()
+    {
+        if ("@ViewBag.type" == "1")
+        {
+            $("#txtCourseName").val("@ViewBag.courseName");
+            $("#txtRealName").val("@ViewBag.teacherName");
+            $("#sel_cyear option[value='@ViewBag.year']").attr("selected", true);
+            $("#cpa_PayGrade").val("@ViewBag.payGrade");
+            if ("@ViewBag.IsCPA" == "2")
+            {
+                $("input[name='IsCPA']").attr("checked", true);
+            }
+            else
+            {
+                $("input[name='IsCPA'][value='@ViewBag.isCPA']").attr("checked", true);
+            }
+            if ("@ViewBag.IsTest" == "2")
+            {
+                $("input[name='IsTest']").attr("checked", true);
+            }
+            else
+            {
+                $("input[name='IsTest'][value='@ViewBag.IsTest']").attr("checked", true);
+            }
+            $("#IsMust option[value='@ViewBag.IsMUst']").attr("selected", true);
+
+            $("#LevelType option[value='@ViewBag.LevelType']").attr("selected", true);
+
+            var openLevel="@ViewBag.openLevel";
+            if(openLevel!="")
+            {
+                $("input[name='OpenLevel']").each(function(){
+                    if($.inArray($(this).val(), openLevel.split(','))>=0)
+                    {
+                        $(this).attr("checked",true);
+                    }
+                });
+            }
+        }
+        var page =@ViewBag.pageInex;
+        InitAllData(page);
+    }
+
+
+    function InitAllData(page)
+    {
+
+
+        var param = { PayGrade: $("#cpa_PayGrade").val() };
+        $("#CourseInfoList").JsRenderData({
+            sourceUrl: geturl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            wait: 1,
+            templateID: "CourseInfoListTemplate",
+            jsRenderSortField: "Survey_AllScoreDouble ",
+            jsRenderASC: "desc",
+            ajaxtype: "post",
+            ajaxParam: param,
+            funCallback: function (data)
+            {
+                if (data.result == 1)
+                {
+                    //closewait();
+                    $("#SumApply").html(data.allreally);
+                    $("#SumSurvey").html(data.allsurvey);
+                    $("#sumScore").html(data.allSurvey_AllScore);
+                    $("#sumCourseScore").html(data.allSurvey_CourseScore);
+                    $("#sumTeacherScore").html(data.allSurvey_TeacherScore);
+                }
+
+            }
+        });
+        //if ($("#CourseInfoList tr td").length > 0)
+        //{
+        //    closewait();
+        //}
+        // closewait();
+    }
+
+    function geturl()
+    {
+        var IsCPA = -1;
+        IsCPA = $("input[name='IsCPA']:checked").val();
+
+        if ($("input[name='IsCPA']:checked").length > 1)
+        {
+            IsCPA = 2;
+        }
+
+        var IsTest = -1;
+        IsTest=$("input[name='IsTest']:checked").val();
+        if ($("input[name='IsTest']:checked").length > 1)
+        {
+            IsTest = 2;
+        }
+
+        var openLevel = "";
+        $("input[name='OpenLevel']:checked").each(function ()
+        {
+            openLevel = openLevel + "," + $(this).val();
+        });
+
+        var v = "year=" + $("#sel_cyear").val() + "&courseName=" + escape(getSearchWord('txtCourseName'))
+            + "&teacherName=" + escape(getSearchWord('txtRealName')) + "&IsCPA=" + IsCPA + "&IsTest=" + IsTest
+            + "&IsMust=" + $("#IsMust").val() + "&openLevel=" + openLevel + "&IsDelete=" + $("#IsDelete").val()+"&LevelType="+$("#LevelType").val();
+        return "/Report_Together/GetCourseInfoList?" + v;
+    }
+
+    function outCourseInfoList()
+    {
+        window.location.href = "outCourseInfoList?start=" + $("#sel_cyear").val();
+    }
+
+    function GetPayGradeList()
+    {
+        var pays = "";
+        $("#pop_cpaPayGradeList input[type='checkbox']:checked").each(function ()
+        {
+            {
+                pays = pays == "" ? "'" + $(this).val() + "'" : pays + ",'" + $(this).val() + "'";
+            }
+            if (pays == "")
+            {
+                art.dialog.tips("请选择薪酬级别！", 3);
+                return;
+            }
+        });
+        $("#cpa_PayGrade").val(pays);
+        InitAllData();
+        art.dialog.list["pop_AttendPayGrade"].close();
+
+    }
+
+    function viewSingle(Id)
+    {
+        window.location.href = "SingleTogether?courseID=" + Id;
+    }
+
+    function RefreshAll()
+    {
+        zhezaowait();
+        $.get("RefreshCourseInfo", function ()
+        {
+            closewait();
+            art.dialog.tips("更新成功", 3);
+
+            InitAllData();
+
+        });
+    }
+</script>
+<!--参与、贡献度情况-->
+<script id="CourseInfoListTemplate" type="text/x-jsrender">
+  {{for #data}}
+        <tr>
+             <td>{{:#index+1}}</td>
+             <td><div class="ovh tl span15" title="{{:courseName}}"  style="cursor:pointer">
+               <a onclick="viewSingle({{:CourseId}})">{{:courseName}}</a>  
+            </div></td>
+             <td>{{:IsMustStr}}</td>
+             <td style="text-align: left">{{:CourseTime}}</td>
+             <td style="text-align:left">{{:teacher}}</td>
+             <td style="text-align: left">{{:PayGrade}}</td>
+             <td>{{:reallyApply}}/{{:reallyJoin}}
+             </td>
+             <td>{{:surveyStr}}</td>
+             <td>{{:Survey_AllScore}}</td>
+             <td>{{:Survey_CourseScore}}</td>
+             <td>{{:Survey_TeacherScore}}</td>
+             <td><a onclick="viewSingle({{:CourseId}})" class="icon iview" title="查看详情"></a></td>
+         </tr>    
+  {{/for}}
+</script>

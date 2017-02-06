@@ -1,0 +1,291 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.DepCourseLearnSelfList;
+}
+<div class="main-c">
+    @if (ViewBag.show == 0)
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "DepCourseLearnSelfList" }))
+    }
+    else
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "FDepCourseLearnSelfList" }))
+    }
+
+    <div class="tab-bk mt10">
+        <input type="hidden" id="hidDeptFlag" value="0" />
+        <ul id="tagDeptFlag">
+            <li class="On" id="tagDeptFlag_0" style="cursor: default;">实际开课详情</li>
+            <li id="tagDeptFlag_1" onclick="DeptFlagOn();">计划开课详情</li>
+        </ul>
+    </div>
+    <div class="tab-bk mt10">
+        <ul id="tagOpenOthers">
+            <li class="On" id="tagOpenOthers_0" style="cursor: default;">部门自学</li>
+            <li id="tagOpenOthers_1" onclick="ToDeptSelf();">开放至全所</li>
+        </ul>
+    </div>
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span8">课程名称：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_CourseName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+
+                <td class="Tit  span8">计划内/外：</td>
+                <td class="span17">
+                    <div class="sel">
+                        <input type="hidden" id="hidIsYearPlan" value="-1" />
+                        <input type="checkbox" name="popIsYearPlan" value="1" id="chkIsYearPlan1" /><label>内</label>
+                        <input type="checkbox" name="popIsYearPlan" value="0" id="chkIsYearPlan0" /><label>外</label>
+                    </div>
+                </td>
+
+                <td class="so-do">
+                    <input type="button" value="搜索" id="btn_Select" class="btn" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    @if (ViewBag.type > 0)
+    {
+        <div class="so-seq">
+            <select class="span10" id="selCourseType" onchange="InitData(1)">
+                <option value="-1">全部课程</option>
+                <option value="0">本部门课程</option>
+                <option value="1">联合的课程</option>
+            </select>
+        </div>
+    }
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th class="span10">课程名称</th>
+                <th class="span5" jsrendersortfield="bb_yxt.CourseLength" sort="desc">学时</th>
+                <th class="span7">讲师</th>
+                <th class="span7">计划内/外</th>
+                <th class="span10" jsrendersortfield="bb_yxt.StartTime" sort="desc">开课时间</th>
+                <th class="span11">预订/指定/出勤人数</th>
+                <th class="span10">课后评估人数</th>
+                <th class="span8">在线测试人数</th>
+                <th class="span8">审批状态</th>
+                 @if (ViewBag.type >0)
+                 {
+                     <th class="span8">课程来源</th>
+                 }
+                <th class="span8">操作</th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+
+    <div class="mt10 tc">
+        <a id="btn_back" class="btn btn-cancel">返回</a>
+    </div>
+</div>
+
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+            {{:#index+1}}
+            </td>
+            <td class="tl">
+                <div class="ovh span10" title="{{>CourseName}}">{{>CourseName}}</div>
+            </td>
+            <td>
+                {{:CourseLength}}
+            </td>
+            <td>
+                {{>TeacherName}}
+            </td>      
+            <td>{{:IsPlanStr}}</td>
+            <td>                
+                {{:CourseTime}}
+            </td>  
+            <td>                
+                {{:YuDingUserCount}}/{{:ZhiDingUserCount}}/{{:ChuQinUserCount}}
+            </td>  
+            <td>    
+                {{if IsPing==1}}
+                    {{:HasPingUserCount}}
+                {{else}}
+                    N/A
+                {{/if}}
+            </td>  
+            <td>    
+                {{if IsTest==1}}
+                    {{:OnlineTestUserCount}}
+                {{else}}
+                    N/A
+                {{/if}}
+            </td>  
+            <td>{{:DeptApprovalFlagStr}}</td>
+              @if (ViewBag.type > 0)
+                 {
+                     <td>{{:CourseTypeFrom}}</td>
+                 }
+            <td>      
+              <a onclick="details({{:Id}})" title="查看详情" class="icon iview"></a>             
+            </td>
+        </tr> 
+        {{/for}}
+</script>
+
+<script type="text/javascript">
+    //链接到计划开课tag页
+    function DeptFlagOn() {
+        if (@ViewBag.show == 0)
+        {
+            window.location.href = '/DepCourseOpenOthersCheck/DepPlanOpenYearCourse?yearPlan=@ViewBag.Attyearplan&deptId=@ViewBag.Attdeptid&isDeptFlag=@ViewBag.isDeptFlag&type=@ViewBag.type';
+        }
+        else
+        {
+
+            window.location.href = '/DepCourseOpenOthersCheck/FDepPlanOpenYearCourse?yearPlan=@ViewBag.Attyearplan&deptId=@ViewBag.Attdeptid&isDeptFlag=@ViewBag.isDeptFlag&type=@ViewBag.type';
+        }
+        
+    }
+
+    //加载页面时初始化复选框
+    function ReadyInitHiddenValue() {
+        //计划内外
+        var hidIsYearPlan = parseInt($("#hidIsYearPlan").val());
+        switch (hidIsYearPlan) {
+            case -2:
+                $("#chkIsYearPlan0").attr("checked", true);
+                $("#chkIsYearPlan1").attr("checked", true);
+                break;
+            case 0:
+                $("#chkIsYearPlan0").attr("checked", true);
+                $("#chkIsYearPlan1").attr("checked", false);
+                break;
+            case 1:
+                $("#chkIsYearPlan0").attr("checked", false);
+                $("#chkIsYearPlan1").attr("checked", true);
+                break;
+            default:
+                $("#chkIsYearPlan0").attr("checked", false);
+                $("#chkIsYearPlan1").attr("checked", false);
+                break;
+        }
+
+        //        //部门分所tab
+        //        var hidDeptFlag = parseInt($("#hidDeptFlag").val());
+        //        $("#tagDeptFlag li").removeClass("On");
+        //        $("#tagDeptFlag_" + hidDeptFlag).addClass("On");
+        //        $("#hidDeptFlag").val(hidDeptFlag);
+    }
+</script>
+
+<script type="text/javascript">    
+    
+    $(document).ready(function(e) {
+        initSearch();
+        $("#txt_CourseName").val('@(ViewBag.Attname)');
+        $("#hidIsYearPlan").val('@(ViewBag.Attisyearplan)');
+        // $("#hidDeptFlag").val('@(ViewBag.Attdeptflag)');
+        ReadyInitHiddenValue();
+        InitData(@(ViewBag.page)); //加载
+        $("#btn_Select").click(function() {
+            InitData(1);
+        });
+
+        $("#btn_back").click(function ()
+        {
+            if(@ViewBag.type == 1)
+            {
+                window.location.href = "/Report_DepCourse/Report_DepCourseALL?cp=1";
+            }
+            else if (@ViewBag.type == 2)
+            {
+                window.location.href = "/Report_DepCourse/fReport_DepCourseALL?cp=1";
+            }
+            else
+            {
+                window.location.href = "/DepCourseOpenOthersCheck/DepOpenCourseFollowing?p=1";
+            }
+        });
+    });
+
+
+    function geturl()
+    {
+        InitHiddenValue();
+        return '/DepCourseOpenOthersCheck/GetDepCourseLearnSelfList?'
+            + "courseName=" + escape(getSearchWord("txt_CourseName"))
+                + "&isYearPlan=" + $("#hidIsYearPlan").val()
+                    + "&yearPlan=@ViewBag.Attyearplan&deptId=@ViewBag.Attdeptid&type=@ViewBag.type&CourseType="+$("#selCourseType").val()+"&isYearStatus=@ViewBag.isYearStatus";
+    }
+
+    function InitData(page)
+    {
+        $("#Courstlist").JsRenderData({
+            sourceUrl: geturl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "bb_yxt.Id",
+            jsRenderASC: " desc",
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    //查询时给隐藏域赋值
+
+    function InitHiddenValue()
+    {
+        //计划内外
+        var chkIsYearPlan0 = ($("#chkIsYearPlan0").attr("checked") == true || $("#chkIsYearPlan0").attr("checked") == "checked") ? true : false;
+        var chkIsYearPlan1 = ($("#chkIsYearPlan1").attr("checked") == true || $("#chkIsYearPlan1").attr("checked") == "checked") ? true : false;
+        if (chkIsYearPlan0 && chkIsYearPlan1)
+        {
+            $("#hidIsYearPlan").val(-2);
+        }
+        else if (chkIsYearPlan0)
+        {
+            $("#hidIsYearPlan").val(0);
+        }
+        else if (chkIsYearPlan1)
+        {
+            $("#hidIsYearPlan").val(1);
+        }
+        else
+        {
+            $("#hidIsYearPlan").val(-1);
+        }
+    }
+
+    //连接到部门开放至全所
+
+    function ToDeptSelf()
+    {
+        if (@ViewBag.show == 0)
+        {
+            window.location.href = '/DepCourseOpenOthersCheck/DepCourseOpenOthersList?yearPlan=@ViewBag.Attyearplan&deptId=@ViewBag.Attdeptid&isDeptFlag=@ViewBag.isDeptFlag&type=@ViewBag.type&isYearStatus=@ViewBag.isYearStatus';
+        }
+        else
+        {
+            window.location.href = '/DepCourseOpenOthersCheck/FDepCourseOpenOthersList?yearPlan=@ViewBag.Attyearplan&deptId=@ViewBag.Attdeptid&isDeptFlag=@ViewBag.isDeptFlag&type=@ViewBag.type&isYearStatus=@ViewBag.isYearStatus';
+        }
+    }
+
+    function details(Id)
+    {
+        if (@ViewBag.show == 0)
+        {
+            window.location.href="/DepCourseOpenOthersCheck/DepSelfCourse?depCourseId="+Id+"&isDeptFlag=@ViewBag.isDeptFlag&type=@ViewBag.type&deptId=@ViewBag.Attdeptid&isYearStatus=@ViewBag.isYearStatus";
+        }
+        else
+        {
+            window.location.href="/DepCourseOpenOthersCheck/FDepSelfCourse?depCourseId="+Id+"&isDeptFlag=@ViewBag.isDeptFlag&deptId=@ViewBag.Attdeptid&year=@ViewBag.Attyearplan&isYearStatus=@ViewBag.isYearStatus";
+        }
+    }
+</script>
+

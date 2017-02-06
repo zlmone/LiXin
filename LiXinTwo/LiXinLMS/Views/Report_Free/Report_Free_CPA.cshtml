@@ -1,0 +1,180 @@
+﻿@{
+    ViewBag.Title = "Report_Free_CPA";
+    Layout = null;
+}
+
+
+
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">姓名：
+            </td>
+            <td class="span15">
+                <input type="text" class="span10 searchclass" id="txt_UserName" value="请输入姓名" info="请输入姓名" />
+            </td>
+             <td class="Tit span4">免修项目：
+            </td>
+            <td class="span4 Tit">
+                <input type="button" value="选择免修项目" id="btn_chooseFree" class="btn btn-co"/>
+            </td>
+            <td class="Tit">CPA编号：
+            </td>
+            <td>
+                <input type="text" class="span10 searchclass" id="txt_UserCPA" value="" info="" />
+            </td>
+
+            <td>
+                <input type="button" value="搜索" class="btn"  id="btn_find" />
+                <input type="button" value="导出Excel" class="btn btn-co" onclick="ExportExcel()"  />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span6">培训级别：
+            </td>
+            <td class="span18">
+               <div id="TrainGrade">
+                            @{
+                                foreach (var item in @ViewBag.allTrainGrade)
+                                {
+                                <input type="checkbox" value="@item" name="OpenLevel" /><label>@item</label>
+                                } 
+                            }
+                        </div>
+            </td>
+            <td class="Tit span6">部门：
+            </td>
+            <td class="span4 Tit">
+                <input type="button" value="选择部门/分所" id="btn_chooseDept" class="btn btn-co"/>
+            </td>
+            <td  class="span4 Tit">
+                <select id="select_type">
+                    <option value="-1">全部获取方式</option>
+                    <option value="4">自动折算</option>
+                    <option value="0">自行申报</option>
+                    <option value="1">批量导入</option>
+                </select>
+            </td>
+             <td colspan="2">
+                    <select id="year" onchange="GetdataApply();">
+                        <option value="0">申请年度</option>
+                        @foreach (var item in ViewBag.yearList)
+                        {
+                            <option value="@item" @(item == DateTime.Now.Year ? "selected='selected'" : "")>@item</option>
+                        }
+                    </select>
+                </td>
+        </tr>
+    </table>
+</div>
+<div class="mt10">
+    <table class="tab-List" id="tborder">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span8">姓名
+                </th>
+                <th class="span8">部门</th>
+                <th class="span4">培训级别</th>
+                <th class="span8">CPA编号</th>
+                <th class="span10">免修项目</th>
+                <th class="span4" jsrendersortfield="GetCPAScore" sort="desc">CPA免修学时</th>     
+                </tr>           
+        </thead>
+        <tbody id="freeList"></tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+<input id="txt_applyid_list" type="hidden" />
+<input id="txt_deptid_list" type="hidden" />
+ 
+<script type="text/javascript">
+    $(document).ready(function () {      
+
+        initSearch();
+
+        GetdataApply();
+
+        $("#btn_chooseFree").click(function () {
+            art.dialog.load("/Report_Free/Repoet_Free_Choose", { title: '选择免修项目', id: "win_Apply" }, false);
+        })
+
+        $("#btn_chooseDept").click(function () {
+
+            art.dialog.load("/Report_zAttendce/SelectDept?deptid=0&ReportType=0&naru=", { title: '选择部门/分所', id: "win_deptmanage" }, false);
+        });
+
+        $("#tagTCPA li").click(function () {
+            $(this).addClass("On").siblings("li").removeClass("On");            
+            GetdataApply()
+        })
+
+        $("#btn_find").click(function () {
+            GetdataApply();
+        })
+        $("#select_type").change(function () {
+            GetdataApply();
+        })
+    });
+
+    function searchByDept() {        
+        art.dialog.list['win_deptmanage'].close();      
+        GetdataApply();
+    }
+
+    function searchByApply() {
+        art.dialog.list['win_Apply'].close();
+        GetdataApply();
+    }
+
+    //type 0:是CPA，1:非CPA
+    function GetdataApply() {
+        var openLevel = "";
+        $("input[name='OpenLevel']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                openLevel = openLevel == "" ? $(this).val() : openLevel + "," + $(this).val();
+            }
+        });
+
+        $("#freeList").JsRenderData({
+            sourceUrl: "/Report_Free/GetReport_Free_CPA?realname=" + escape(getSearchWord("txt_UserName")) + "&applyids=" + $("#txt_applyid_list").val()
+                       + "&cpanum=" + $("#txt_UserCPA").val() + "&TrainGradeids=" + openLevel + "&deptids=" + $("#txt_deptid_list").val()
+                       + "&typeForm=" + $("#select_type").val() + "&cpa=0" + "&year=" + $("#year").val(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: " typeForm,DeptId,TrainGrade",
+            jsRenderASC: " ASC",
+            templateID: "freeListTemplate"           
+
+        });
+    }
+
+    function ExportExcel()
+    {
+        var openLevel = "";
+        $("input[name='OpenLevel']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                openLevel = openLevel == "" ? $(this).val() : openLevel + "," + $(this).val();
+            }
+        });               
+        window.location.href = "/Report_Free/GetReport_Free_CPA_Report?realname=" + escape(getSearchWord("txt_UserName")) + "&applyids=" + $("#txt_applyid_list").val()
+                       + "&cpanum=" + $("#txt_UserCPA").val() + "&TrainGradeids=" + openLevel + "&deptids=" + $("#txt_deptid_list").val() + "&typeForm=" + $("#select_type").val()+"&cpa=0";
+    }
+
+ </script>
+
+<script id="freeListTemplate" type="text/x-jsrender">
+    {{for #data}}
+      <tr>
+        <td>{{:#index+1}}</td>
+        <td>{{:Realname}}</td>
+        <td>{{:DeptName}}</td>
+        <td>{{:TrainGrade}}</td>
+        <td>{{:CPANo}}</td>
+        <td style="text-align:left;">{{:ApplyName_New}}</td>
+        <td>{{:GetCPAScore}}</td>        
+      </tr>
+    {{/for}}
+</script>

@@ -1,0 +1,279 @@
+﻿@using LiXinModels.DepPlanManage
+@{
+    ViewBag.Title = "年度计划管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var StrYear = ViewData["StrYear"] as List<int>;
+}
+<div class="main-c">
+   @(Html.Action("SiteMapLink", "Common", new { linkName = "DepYearPlan" }))
+<div class="clb">
+<input type="hidden" id="seldept" value="@(ViewBag.did)" />
+<div class="fl span20">
+    <div class="menu-list">
+        <h3>                       
+            @if(ViewBag.DepOrBranch)
+            {
+                <span>部门</span>
+            }
+            else
+            {
+                <span>分所</span>
+            }
+            <i class="il"></i><i class="ir"></i></h3>
+    </div>
+    <div class="treeview-box"><div id="deptList" class="tree-list"></div></div>
+</div>
+<div class="fr span79">
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">创建时间：</td>
+                <td>
+                    <div class="data-choose">
+                        <input type="text" name="beginTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'endTime\')}' }) " id="beginTime" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="data-choose">
+                        <input type="text" name="endTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'beginTime\')}' }) " id="endTime" />
+                        <i></i>
+                    </div>
+                </td>
+                <td>
+                <input type="radio" value="0" name="IsAll" text="只显示本部门" /><label>只显示本部门</label>
+                <input type="radio" value="1" name="IsAll" text="显示所有子部门" checked="checked" /><label>显示所有子部门</label>
+                </td>
+                <td class="so-do">
+                    <input type="button" value="搜索" class="btn" id="ibtnSearch" />
+                    <a id="btnAdd" onclick="javascript:void(0);" class="btn btn-co">新增年度计划</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selyear" onchange="selChange();">
+            <option value="0">请选择年度</option>
+            @{ 
+                for (int i = 0; i < StrYear.Count; i++)
+                {
+                    <option value="@(StrYear[i])">@(StrYear[i])</option>
+                }
+            }
+        </select>
+        <select id="openType" onchange="selChange();">
+            <option value="0">上报类型</option>
+            <option value="1">单体上报</option>
+            <option value="2">联合上报</option>
+            <option value="3">被联合上报</option>
+        </select>
+        <div class="list-do">
+            <a id="btnDelete">批量删除</a> 
+        </div>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th><input id="selAll" type="checkbox" /></th>
+                <th>序号</th>
+                <th>年度</th>
+                <th>包含课程</th>
+                <th>课程学时</th>
+                <th>创建人</th>
+                <th>主办部门</th>
+                <th>创建时间</th>
+                <th>上报方式</th>
+                <th>联合部门/成功联合</th>
+                <th class="tc Raster_10">操作</th> 
+            </tr>
+        </thead>
+        <tbody id="yearList">
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+</div>
+</div>
+<script id="yearListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>
+            {{if PublishFlag==0 && EditFlag==1 && eidt==1}}
+                <input id="G{{:Id}}" type="checkbox" name="checkyear" value="{{:Id}}" />
+            {{/if}}
+            </td>
+            <td>{{:#index+1}}</td>
+            <td>{{:Year}}</td>
+            <td>{{:courseCount}}</td>
+            <td>{{:courseLength}}</td>
+            <td>{{:Realname}}</td>
+            <td>{{:DeptName}}</td>
+            <td>{{:CreateTimeStr}}</td>
+            <td>{{:OpenTypeStr}}</td>
+            {{if IsOpen==1}}
+            <td>{{:linkCount}}/{{:linkYesCount}}</td>
+            {{else}}
+            <td>——</td>
+            {{/if}}
+            <td class="tc">
+            {{if EditFlag==1 && eidt==1}}
+                <a title="编辑" onclick="EditYear({{:Id}});" class="icon iedit"></a>
+            {{else}}
+                <span class="icon iedit idis" title="编辑"></span>
+            {{/if}}
+            {{if PublishFlag==0}}
+                {{if EditFlag==1 && eidt==1}}
+                <a title="删除" onclick="Delete({{:Id}});" class="icon idel"></a>
+                <a title="发布" onclick="Publish({{:Id}});" class="icon ipub"></a>
+                {{else}}
+                <span class="icon idel idis" title="删除"></span>
+                <span class="icon ipub idis" title="发布"></span>
+                {{/if}}
+            {{else}}
+                <span class="icon idel idis" title="删除"></span>
+                <span class="icon ipub" disabled="disabled" title="发布"></span>
+            {{/if}}
+                <a title="查看详情" onclick="LookYear({{:Id}},{{:linkdepID==0?DeptId:linkdepID}});" class="icon iview"></a>
+            </td>
+        </tr>  
+    {{/for}}
+</script>
+<script type="text/javascript">
+    //初始化分所
+    function initdept() {
+        $.getJSON("/DeptPlanManage/GetDeptSort?t=" + new Date(), function (data) {
+            $("#deptList").html(data);
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#navigation>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+            var obj= $("#tree0 a[dir='dir']").eq(0);
+            selectSort(obj.attr("id"),obj);
+        });
+        
+    }
+    //分所点击事件
+    function selectSort(id, obj) {
+        $("#seldept").val(id);
+        postNodeClickSelect(obj);
+        InitYearList(getParamUrl());
+    }
+    function postNodeClickSelect(obj) {
+        $("#deptList").find("a").each(function () {
+            $(this).removeClass("On");
+        });
+        $(obj).addClass("On");
+    }
+    
+    $(document).ready(function () {
+        initdept();
+        
+        if(@(ViewBag.eidt)==1){
+            $("#btnAdd").attr("onclick", "AddYear();");
+        }else{
+            $("#btnAdd").attr("onclick", "art.dialog.tips('上报截止时间已过，不能进行操作',3);");
+        }
+        //InitYearList(getParamUrl());
+        //查询
+        $("#ibtnSearch").bind("click", function () {
+            InitYearList(getParamUrl());
+        });
+        //批量删除
+        $("#btnDelete").bind("click", function () {
+            var flag = false;
+            var check = document.getElementsByName("checkyear");
+            var checkList = "";
+            for (var i = 0; i < check.length; i++) {
+                if (check[i].checked) {
+                    checkList = checkList + check[i].value + ",";
+                    flag = true;
+                }
+            }
+            checkList = checkList.substring(0, checkList.length - 1);
+            if (!flag) {
+                art.dialog.tips("请选择年度计划", 3);
+                return false;
+            } else {
+                Delete(checkList);
+            }
+        });
+    });
+
+    //显示年度计划列表
+    function InitYearList(url) {
+        var templateId = 'yearListTemplate';
+        $("#yearList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function () {
+                SetCheckBox("selAll", "yearList");
+                $("#selAll").removeAttr("checked");
+            }
+        });
+    }
+
+    function getParamUrl() {
+        return "/DeptPlanManage/GetAllYearList?id=" + $("#selyear").val() + "&did=" + $("#seldept").val() + "&startTime=" + $("#beginTime").val() + "&endTime=" + $("#endTime").val() + "&isopen=" + $("#openType").val() + "&IsAll=" + $('input[name="IsAll"]:checked').val() + "&t=" + new Date();
+    }
+
+    function selChange() {
+        InitYearList(getParamUrl());
+    }
+    //新增
+    function AddYear() {
+        window.location.href = "/DeptPlanManage/YearPlanAdd?did=" + $("#seldept").val() + "&t=" + new Date();
+    }
+    //修改
+    function EditYear(id) {
+        window.location.href = "/DeptPlanManage/YearPlanEdit?id=" + id + "&did=" + $("#seldept").val() +"&t=" + new Date();
+    }
+    //预览
+    function LookYear(id,did) {
+        window.location.href = "/DeptPlanManage/YearPlanDetail?id=" + id + "&did=" + did + "&t=" + new Date();
+    }
+    //发布
+    function Publish(id) {
+        art.dialog({
+            content: "您确认发布吗？",
+            ok: function () {
+                $.post("/DeptPlanManage/PublishYear?id=" + id+"&did=" + $("#seldept").val(), function (data) {
+                    if (data.result == 1) {
+                        InitYearList(getParamUrl());
+                    }
+                    else {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //删除
+    function Delete(id) {
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function () {
+                $.post("/DeptPlanManage/DeleteYear?ids=" + id, function (data) {
+                    if (data.result == 1) {
+                        InitYearList(getParamUrl());
+                    }
+                    else {
+                        art.dialog({
+                            content: data.content,
+                            time: 3
+                        });
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+</script>

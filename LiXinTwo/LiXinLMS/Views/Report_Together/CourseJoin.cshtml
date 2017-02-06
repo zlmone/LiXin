@@ -1,0 +1,206 @@
+﻿@{
+    ViewBag.Title = "所有课程的参与、贡献度情况";
+    Layout = null;
+}
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">部门/分所：</td>
+            <td>
+                <input type="button" id="btn_deptid" value="选择部门/分所" class="btn  btn-co" />
+            </td>
+            <td class="Tit span6">选择年度：
+            </td>
+            <td>
+                @Html.Action("ReportYear", "Common", new { id = "sel_year" })
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick="InitAllData();" />
+                <input type="button" class="btn btn-co" value="导出EXCEL" id="btnout" onclick="outScore()" />
+                <input type="button" class="btn btn-co" value="同步" onclick="RefreshJoin()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="mt10">
+    <table class="tab-List" id="tbtogetherJoin">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th>部门/分所</th>
+                <th jsrendersortfield="ApplyRate" sort="desc">课程报名率</th>
+                <th jsrendersortfield="JoinRate" sort="desc">课程参与率</th>
+                <th jsrendersortfield="GetScore" sort="desc">人均获取学时</th>
+                <th jsrendersortfield="SurveyRate" sort="desc">课程评估参与率</th>
+                <th jsrendersortfield="ExamJoinRate" sort="desc">测试参与率</th>
+                <th jsrendersortfield="ExamPassRate" sort="desc">测试通过率</th>
+                @*                <th>讲师贡献课程次数</th>
+                <th>讲义贡献课程次数</th>*@
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="togetherJoinList" data-status="0">
+            @*<tr class="7">
+                <td colspan="10">
+                    <div class="tc c38 line_h30">正在努力加载....</div>
+                </td>
+
+            </tr>*@
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <input id="txt_deptid_list" type="hidden" />
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        InitAllData();
+
+        MyTablesort("tbtogetherJoin", InitAllData);
+        $("#btn_deptid").bind("click", function ()
+        {
+            art.dialog.load("/Report_zAttendce/SelectDept?deptid=0&ReportType=0&naru=1&cpa=-1", { title: '选择部门/分所', id: "win_deptmanage" }, false);
+        });
+
+        $("#sel_year").bind("change", function ()
+        {
+            InitAllData();
+        });
+    });
+
+    //合计
+    function InitAllData(jsRenderSortField)
+    {
+
+        var type = 0;
+        if (jsRenderSortField == undefined)
+        {
+            jsRenderSortField = " JoinRate desc";
+        }
+        else
+        {
+            jsRenderSortField = jsRenderSortField;
+        }
+
+        var html = "";
+        zhezaowait(); //等待提示
+        $.post("/Report_Together/GetTogetherList?year=" + $("#sel_year").val() + "&jsRenderSortField=" + jsRenderSortField, { deptIDs: $("#txt_deptid_list").val() }, function (data)
+        {
+            closewait();
+            if (data.result == 1)
+            {
+                html = html + $("#AllListTemplate").render(data.all);
+                var flength = data.fenList.length;
+                var zlength = data.zongList.length;
+                if (zlength > 0)
+                {
+                    html = html + $("#AllListTemplate").render(data.zong);
+                    html = html + $("#togetherJoinListTemplate").render(data.zongList);
+                }
+                if (flength > 0)
+                {
+                    html = html + $("#AllListTemplate").render(data.fen);
+                    html = html + $("#togetherJoinListTemplate").render(data.fenList);
+                }
+
+                if (flength == 0 && zlength == 0)
+                {
+                    html = html + "<tr class='11'><td colspan='10'><div class='tc c38 line_h30'>暂无数据</div></td></tr>";
+                }
+            }
+            $("#togetherJoinList").html(html);
+
+            if ($("#togetherJoinList").attr("data-status") == '0')
+            {
+                $("#togetherJoinList").attr("data-status", 1);
+
+            } else
+            {
+                $("#togetherJoinList tr").show();
+                $("#togetherJoinList tr .btnshow").attr("class", "buttonshow btnshow");
+            }
+        });
+    }
+
+    //显示隐藏  2分所  1总所
+    function showHide(type, obj)
+    {
+
+        var ismian = type == 2 ? 1 : 0;
+        if ($(obj).hasClass("buttonshow"))
+        {
+
+            $(".report_" + ismian).hide();
+            $(obj).removeClass('buttonshow').addClass('buttonhide');
+        }
+        else
+        {
+            $(".report_" + ismian).show();
+            $(obj).removeClass('buttonhide').addClass('buttonshow');
+        }
+
+    }
+
+    function outScore()
+    {
+        window.location.href = "outTogetherJoinScore?start=" + $("#sel_year").val();
+    }
+
+    function RefreshJoin()
+    {
+        zhezaowait();
+        $.get("Refresh?year="+$("#sel_year").val(), function ()
+        {
+            closewait();
+            art.dialog.tips("更新成功", 3);
+
+            InitAllData();
+
+        });
+    }
+
+    function searchByDept()
+    {
+        art.dialog.list['win_deptmanage'].close();
+        InitAllData();
+    }
+
+</script>
+<!--参与、贡献度情况-->
+<script id="togetherJoinListTemplate" type="text/x-jsrender">
+  {{for #data}}
+        <tr class="report_{{:IsMain}}" style="display:none">
+             <td>{{:#index+1}}</td>
+             <td>{{:DeptName}}</td>
+             <td>{{:ApplyRateStr}}</td>
+             <td>{{:JoinRateStr}}</td>
+             <td>{{:GetScoreStr}}</td>
+             <td>{{:SurveyRateStr}}</td>
+             <td>{{:ExamJoinRateStr}}</td>
+             <td>{{:ExamPassRateStr}}</td>
+             <td></td>
+         </tr>    
+  {{/for}}
+</script>
+<!--合计-->
+<script id="AllListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+             <td></td>
+             <td>{{:allNumer}}</td>
+             <td>{{:allApplyRateStr}}</td>
+             <td>{{:allJoinRateStr}}</td>
+             <td>{{:allGetScore}}</td>
+             <td>{{:allSurveyRateStr}}</td>
+             <td>{{:allExamJoinRateStr}}</td>
+             <td>{{:allExamPassRateStr}}</td>
+             <td>
+              {{if type>0}}
+                 <a class="buttonhide btnshow" id="btn_{{:type}}"  onclick="showHide({{:type}},this)"><a>
+              {{/if}}
+             <td>
+         </tr>
+    
+    {{/for}}
+</script>

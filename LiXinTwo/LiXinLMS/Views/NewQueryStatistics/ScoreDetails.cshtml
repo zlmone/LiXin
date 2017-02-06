@@ -1,0 +1,200 @@
+﻿@{
+    ViewBag.Title = "ScoreDetails";
+    Layout = null;
+    var type = ViewBag.type;
+        /* 参数说明：
+        type:0 集中授课现场评分
+         1 分组带教现场评分
+         2 考勤得分
+         3 评估奖励
+         4  混合考试得分 
+         6  视频考试得分
+         if (ViewBag.type == 4)
+        {
+      
+        }   
+         */
+}
+<div style="color: red">
+    @{
+        @:温馨提示：
+    if (ViewBag.type == 0)
+    {
+        @:集中授课现场评分=(参与的所有集中授课课程现场评分综合/所有参与集中授课课程评分总基准分)*综合评定集中授课现场评分单项分值
+    }
+    else if (ViewBag.type == 1)
+    {
+        @:分组带教现场评分=(参与的所有集中分组带教课程现场评分综合/所有参与分组带教课程评分总基准分)*综合评定分组带教现场评分单项分值
+    }
+    else if (ViewBag.type == 2)
+    {
+        @:考勤分值=考勤扣除分值扣到综合评定中单项设置的分值到0为止（范围/累加）
+    }
+    else if (ViewBag.type == 3)
+    {
+        @:奖励分值=评价的次数*配置中的分数（范围/累加）
+    }
+    else if (ViewBag.type == 4)
+    {
+        @:课程分值=(参与的所有课程学员所得课程考试成绩综合/所有参与课程考试成绩总分)*综合评定中课程考试成绩的百分比*综合评定中考试成绩单项分值<br />
+       
+    }
+    else if (ViewBag.type == 5)
+    {
+        @: 独立考试分值=(参与的所有课程学员所得独立考试成绩综合/所有参与独立考试成绩总分)*综合评定中独立考试成绩的百分比*综合评定中考试成绩单项分值<br />
+    }
+    else if (ViewBag.type == 6)
+    {
+         @:课程分值=(参与的所有课程学员所得课程考试成绩综合/所有参与课程考试成绩总分)*综合评定中课程考试成绩的百分比*综合评定中考试成绩单项分值
+    }
+ 
+    }
+</div>
+
+<div style="height: 400px">
+
+    <table class="tab-List mt10" id="pop_CourseInfo">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th class="span15">课程名称
+                </th>
+                <th class="span40">课程时间段
+                </th>
+                <th class="span15">@ViewBag.thead</th>
+            </tr>
+        </thead>
+        <tbody id="pop_CourseList"></tbody>
+        <tfoot></tfoot>
+    </table>
+    <table class="tab-List mt10" id="pop_AttendceInfo">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th class="span20">课程名称
+                </th>
+                <th class="span40">课程时间段
+                </th>
+                <th class="span15">考勤状态</th>
+            </tr>
+        </thead>
+        <tbody id="pop_AttendceList"></tbody>
+        <tfoot></tfoot>
+    </table>
+    <table class="tab-List mt10" id="pop_ExamInfo" style="display:none">
+          <thead>
+            <tr>
+                <th class="span15">姓名
+                </th>
+                <th class="span40">独立考试得分
+                </th>
+               <th class="span40">独立考试总分
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@ViewBag.realname</td>
+                <td>@ViewBag.Score</td>
+                <td>@ViewBag.SumScore</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="tc">
+        <input type="button" class="btn  btn-cancel" value="关闭" id="close" onclick="closeDialog('pop_ScoreDetail');" />
+    </div>
+
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        Init();
+        InitData();
+    });
+
+    function InitData()
+    {
+        //考勤分值
+        if ("@ViewBag.type" == "2")
+        {
+            $("#pop_ExamInfo").hide();
+            $("#pop_AttendceList").JsRenderData({
+                sourceUrl: 'GetAttedceDetails?userID=@ViewBag.userID',
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: "pop_AttendceListTemplate"
+            });
+        }
+        //独立考试
+        else if ("@ViewBag.type" == "5")
+        {
+            $("#pop_CourseInfo").hide();
+            $("#pop_ExamInfo").show();
+        }
+        else
+        {
+            $("#pop_ExamInfo").hide();
+            $("#pop_CourseList").JsRenderData({
+                sourceUrl: 'GetScoreDetails?userID=@ViewBag.userID&type=@ViewBag.type',
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: "pop_CourseListTemplate"
+            });
+        }
+    }
+
+    function Init()
+    {
+        if ("@ViewBag.type" == "2")
+        {
+            $("#pop_AttendceInfo").show();
+            $("#pop_CourseInfo").hide();
+        }
+        else
+        {
+            $("#pop_AttendceInfo").hide();
+            $("#pop_CourseInfo").show();
+        }
+    }
+</script>
+<script id="pop_CourseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>
+         {{:#index+1}}
+       </td>
+        <td><div class="ovh span15 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+        <td>{{:CourseTimeStr}}</td>
+        <td>
+            {{if @ViewBag.type==0}}
+                {{:TogetherScore}}
+            {{/if}}
+            {{if @ViewBag.type==1}}   
+                {{:GroupScore}}
+            {{/if}}
+             {{if @ViewBag.type==3}}   
+                {{:RewardStr}}
+            {{/if}}
+            {{if @ViewBag.type==4||@ViewBag.type==6}}   
+               {{:CourseExamScore}}/{{:CourseExamSumScore}}
+            {{/if}}
+        </td>
+    </tr> 
+    {{/for}}
+</script>
+<script id="pop_AttendceListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+     <td>
+         {{:#index+1}}
+       </td>
+        <td><div class="ovh span15 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+        <td>{{:CoTimeStr}}</td>
+        <td>
+          {{:AttStatusStr}}
+        </td>
+    </tr> 
+    {{/for}}
+</script>

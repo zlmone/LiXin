@@ -1,0 +1,102 @@
+﻿@model LiXinModels.User.Sys_User
+@{
+    ViewBag.Title = "NewUserEdit";
+    Layout = null;
+}
+<form id="formNewUser">
+    <table class="tab-Form" style="width: 520px">
+        <tr>
+            <td class="Tit span6">姓名：</td>
+            <td>@(Model.Realname)</td>
+        </tr>
+        <tr>
+            <td class="Tit span6">毕业院校：</td>
+            <td>@(Model.GraduateSchoolStr)</td>
+        </tr>
+        <tr>
+            <td class="Tit span6">所学专业：</td>
+            <td>@(Model.MajorStr)</td>
+        </tr>
+        <tr>
+            <td class="Tit span6">培训级别：</td>
+            <td>
+                <select id="pop_TrainGrade">
+                    <option value="-1">请选择级别</option>
+                    @foreach (var item in ViewBag.trainGrade)
+                    {
+                        <option value="@(item)">@(item)</option>
+                    }
+                </select>
+
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span16">是否有事务所实习经验：</td>
+            <td>
+                <input type="radio" name="pop_IsInternExp" value="1" />是
+            <input type="radio" name="pop_IsInternExp" value="0" />否
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span16">是否在我所进行过实习：</td>
+            <td>
+                <input type="radio" name="pop_IsOurIntern" value="1" />是
+            <input type="radio" name="pop_IsOurIntern" value="0" />否
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span13">实习部门：</td>
+            <td>
+                <input id="pop_InternDept" name="pop_InternDept" type="text" class="span16" value="@(String.IsNullOrEmpty(Model.InternDept) ? "" : Model.InternDept)" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="submit" class="btn" value="确定" id="btn_OK" />
+                <input type="button" class="btn  btn-cancel" value="取消" id="close" onclick="closeDialog('pop_NewUserEdit');" />
+            </td>
+        </tr>
+    </table>
+</form>
+<script>
+    $(document).ready(function ()
+    {
+        $("input[name='pop_IsInternExp'][value=@(Model.IsInternExp)]").attr("checked", true);
+        $("input[name='pop_IsOurIntern'][value=@(Model.IsOurIntern)]").attr("checked", true);
+        $("#pop_TrainGrade option[value='@Model.TrainGrade']").attr("selected",true);
+        $("#formNewUser").validate(
+           {
+               event: "blur",
+               rules: {
+                   pop_InternDept: { maxlength: 50 }
+               },
+               messages: {
+                   pop_InternDept: { maxlength: "实习部门不能多于50个字符" }
+               },
+               errorPlacement: function (error, element)
+               {
+                   error.insertAfter(element);
+
+               },
+               submitHandler: pop_UpdateNewUser
+           });
+    });
+
+    function pop_UpdateNewUser()
+    {
+        $.post("Update",
+            {
+                IsInternExp: $("input[name='pop_IsInternExp']:checked").val(),
+                IsOurIntern: $("input[name='pop_IsOurIntern']:checked").val(),
+                userID:@ViewBag.userID,
+                InternDept:$("#pop_InternDept").val(),
+                TrainGrade:$("#pop_TrainGrade").val()=="-1"?"T":$("#pop_TrainGrade").val()
+            }, function (data)
+            {
+                InitData();
+                closeDialog('pop_NewUserEdit');
+            });
+        }
+
+
+</script>

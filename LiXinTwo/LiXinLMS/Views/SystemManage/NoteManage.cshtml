@@ -1,0 +1,270 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "公告管理";
+    Layout = "../Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "公告管理" }))
+    <div>
+        <div class="fl span20">
+            <div id="div_NoteSortManage">
+            </div>
+        </div>
+        <div class="fr span79">
+            <div class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span4">创建人：</td>
+                        <td class="span11">
+                            <input type="text" class="span10 Box searchclass" id="txtName" value="请输入搜索内容" info="" /></td>
+                        <td class="Tit span4">标题：</td>
+                        <td>
+                            <input type="text" class="span20 Box searchclass" id="txtTitle" value="请输入搜索内容" info="" /></td>
+                        <td class="so-do">
+                            <input class="btn" type="button" value="搜索" id="btnSearch" onclick="Getdata();" />
+                            <input class="btn btn-co" type="button" onclick="EditNote(0);" value="新增公告" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="so-seq">
+                <select id="selPublish" class="span8" onchange="Getdata();">
+                    <option value="-1">发布状态</option>
+                    <option value="0">未发布</option>
+                    <option value="1">已发布</option>
+                </select>
+                <select id="selTop" class="span8" onchange="Getdata();">
+                    <option value="-1">是否置顶</option>
+                    <option value="1">是</option>
+                    <option value="0">否</option>
+                </select>
+                <div class="list-do">
+                    <input type="button" onclick="DeleteAllNote();" value="批量删除" /></div>
+            </div>
+            <div class="mt10">
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th class="span4">
+                                <input id="selectAll" type="checkbox" /></th>
+                            <th class="span4">序号</th>
+                            <th class="span10">标题</th>
+                            <th class="span6">创建人</th>
+                            <th class="span8">发布状态</th>
+                            <th class="span14">创建时间</th>
+                            <th class="span5">是否内训首页显示</th>
+                            <th class="span3">是否置顶</th>
+                            <th class="span10">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="noteList">
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="noteListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+             <td class="tc">
+                 <input id="{{:NoteId}}" type="checkbox" />
+             </td>
+             <td>{{:#index+1}}</td>
+             <td style="text-align:left;"><div class="ovh span13" title="{{:NoteTitle}}"><a href="/SystemManage/NoteManageDetail?noteId={{:NoteId}}&&flag=1&&show=1">{{:NoteTitle}}</a></div></td>
+             <td class="tc">{{:Realname}}</td>
+             <td class="tc">{{:publishFlagStr}}</td>
+             <td class="tc">{{:CreateTimeStr}}</td>
+             <td class="tc">{{:AdFlagStr}}</td>
+             <td class="tc">{{:isTopShow==1?"是":"否"}}</td>
+             <td class="tc">
+               {{if publishflag>0}}
+                   {{if isTopShow==1}}
+                       <a class="icon iNotTop" onclick="SetTopShow(0,{{:NoteId}})" title="撤销置顶"></a>   
+                  {{else}}
+                       <a class="icon iTop" onclick="SetTopShow(1,{{:NoteId}})" title="置顶"></a>
+                  {{/if}}   
+                  {{if AdFlag==0}}
+                       <a class="icon icheck idis" style="cursor: pointer" onclick="showindex({{:NoteId}},1)"  title="首页显示"></a>
+                  {{else}}
+                       <a class="icon icheck" onclick="showindex({{:NoteId}},0)"  title="撤销首页显示"></a> 
+                  {{/if}}
+                   <span class="icon ipub idis" title="已发布"></span>   
+                   
+               {{else}}
+                   <a class="icon iTop" disabled="disabled"  title="未发布,无法置顶"></a>
+                   <a class="icon icheck" disabled="disabled" title="未发布,无法修改"></a>
+                   <a class="icon ipub" title="发布" onclick="PublishNote({{:NoteId}})"></a>
+                
+               {{/if}}
+                    <a class="icon iedit" title="编辑" onclick="EditNote({{:NoteId}})">编辑</a>
+                   <a class="icon idel" title="删除" onclick="DeleteNote({{:NoteId}})">删除</a>
+             </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        Getdata();
+    });
+
+    function Getdata()
+    {
+        $("#noteList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "noteListTemplate",
+            funCallback: function ()
+            {
+                if ($("#txthidNoteSortId").length == 0)
+                {
+                    $.get("/SystemManage/Sys_NoteSortList?showManage=1", function (data)
+                    {
+                        $("#div_NoteSortManage").html(data);
+
+                    });
+                }
+                SetCheckBox('selectAll', 'noteList');
+            }
+        });
+    }
+
+    //发布
+    function PublishNote(noteID)
+    {
+
+        art.dialog({
+            content: "您确认发布吗？",
+            ok: function ()
+            {
+                $.post("/SystemManage/PublishNote?noteID=" + noteID, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        art.dialog.tips(data.content, 3);
+                        Getdata();
+                    }
+                    else
+                    {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //批量删除
+    function DeleteAllNote()
+    {
+
+        var noteids = GetChecked('noteList');
+        if (noteids == "")
+        {
+            art.dialog({
+                content: "请选择要删除的公告",
+                time: 3
+            });
+            return;
+        }
+        DeleteNote(noteids);
+    }
+
+    //删除
+    function DeleteNote(noteids)
+    {
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function ()
+            {
+                $.post("/SystemManage/DeleteNote?noteID=" + noteids, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    function EditNote(noteID)
+    {
+        window.location.href = "/SystemManage/EditNote?noteID=" + noteID;
+        // art.dialog.load("/SystemManage/EditNote?noteID=" + noteID, { title: '新加公告', id: "", width: 400, height: 300 });
+    }
+
+    function getParamUrl()
+    {
+        var SortID = 0;
+        if ($("#txthidNoteSortId").length != 0)
+        {
+            if ($("#txthidNoteSortId").val() != 0)
+            {
+                SortID = $("#txthidNoteSortId").val();
+            }
+        }
+        var istopshow = $("#selTop").val();
+        
+
+        return "/SystemManage/GetNoteList/?title=" + escape($.trim(getSearchWord("txtTitle"))) + "&realName=" + escape($.trim(getSearchWord("txtName"))) + "&Publish=" + $("#selPublish").val() + "&SortID=" + SortID + "&istopshow=" + istopshow + "&t=" + new Date();
+    }
+
+    //0撤销 1显示
+    function showindex(NoteId,index)
+    {
+        art.dialog({
+            content: index == 1 ? "您确认将此公告设置为首页显示？" : "您确认将此公告撤销首页显示？",
+            ok: function ()
+            {
+                $.post("/SystemManage/UpdateNoteAdFlag?NoteID=" + NoteId + "&AdFlag=" + index, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    function SetTopShow(type,NoteId)
+    {
+
+        art.dialog({
+            content: type == 1 ? "您确认将此公告设置为置顶？" : "您确认将此公告撤销撤销置顶？",
+            ok: function ()
+            {
+                $.post("/SystemManage/UpdateTopShow?NoteID=" + NoteId + "&isTop=" + type, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+</script>

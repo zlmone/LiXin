@@ -1,0 +1,50 @@
+﻿@using LiXinModels.CourseLearn
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "转播课程跟踪详情";
+}
+
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "转播课程跟踪详情" }))
+        @Html.Action("DeptCourse", "DeptCourseManage", new { id = @ViewBag.id, showFlag = 2 })
+        <input type="hidden" id="txt_CourseId" value="@ViewBag.Id"/>
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th class="span12">姓名</th>
+                    <th class="tc">部门/分所</th>
+                    <th class="span16">考勤状态</th>
+                </tr>
+            </thead>
+            <tbody id="userlist">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+        <center class="mt10">   <a  class="btn btn-cancel" href="/DeptCourseManage/DeptAllCourseManage">返回</a></center>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            fOnload();
+        });
+        function fOnload() {
+            $("#userlist").JsRenderData({
+                sourceUrl: '/DeptCourseManage/GetAttendceUserList?courseId=' + $("#txt_CourseId").val(),
+                isPage: true,
+                pageSize: 20,
+                pageIndex: 1,
+                templateID: "CourseListTemplate",
+            }); 
+        }
+    </script>
+    <script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+         <tr>
+            <td>{{:#index+1}}</td>               
+            <td>{{:Realname}}</td>
+            <td><div class="ovh span36 tl" title="{{:DeptName}}">{{:DeptName}}</div></td>
+            <td>{{:StatusStr}}</td>           
+        </tr> 
+        {{/for}}
+</script>

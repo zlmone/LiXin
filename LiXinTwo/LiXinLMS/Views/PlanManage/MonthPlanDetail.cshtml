@@ -1,0 +1,208 @@
+﻿@using LiXinModels.PlanManage
+@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.MonthPlanDetail;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "MonthPlanDetail" }))
+
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span4">年度：</td>
+            <td><strong>@(ViewBag.monplan.Year)</strong></td>
+            <td class="Tit span4">月份：</td>
+            <td><strong>@(ViewBag.monplan.Month)</strong></td>
+            <td class="Tit span6">包含课程：</td>
+            <td><strong>@(ViewBag.monplan.courseCount)</strong></td>
+            <td class="Tit span6">创建时间：</td>
+            <td><strong>@(ViewBag.monplan.LastUpdateTime)</strong></td>
+            <td class="Tit span6">创建人：</td>
+            <td><strong>@(ViewBag.monplan.RealName)</strong></td>
+        </tr>
+    </table>
+    <div id="Search" class="so-set mt10">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：
+                </td>
+                <td class="span31">
+                    <input type="text" class="span30 searchclass" id="CourseName" value="请输入搜索内容" info="" />
+                </td>
+                <td class="Tit span6">开放级别：
+                </td>
+                <td colspan="3">
+                    <div class="sel">
+                        @{
+                            foreach (var item in @ViewBag.trainGrade)
+                            {
+                            <input type="checkbox" value="@item" name="OpenLevel" /><label>@item</label>
+                            }      
+                        }
+                    </div>
+                </td>
+                <td class="so-do" rowspan="2">
+                    <input type="button" value="查询" id="ibtnSearch" class="btn" onclick="Getdata();" />
+                    <input type="button" class="btn btn-co" value="导出EXCEL" id="btnout" onclick="OutData(@ViewBag.id)" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">讲师：
+                </td>
+                <td class="span31">
+                    <input type="text" class="span30 searchclass" id="TearchName" value="请输入搜索内容" info=""  />
+                </td>
+                <td class="Tit span6">选/必修：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="checkbox" value="0" name="IsMust" /><label>必修</label>
+                        <input type="checkbox" value="1" name="IsMust" /><label>选修</label>
+                    </div>
+                </td>
+                <td class="Tit span6">框架内/外：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="checkbox" value="0" name="IsSystem" /><label>外</label>
+                        <input type="checkbox" value="1" name="IsSystem" /><label>内</label>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="Way" name="Way" onchange="Getdata();">
+            <option value="-1">请选择培训形式</option>
+            <option value="1">集中授课</option>
+            <option value="2">视频课程</option>
+            <option value="4">部门自学</option>
+        </select>
+        <div class="list-do">
+        </div>
+    </div>
+
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th>课程名称
+                </th>
+                <th jsrendersortfield="PreCourseTime" sort="asc" class="span16">预计开课时间
+                </th>
+                <th class="span12">开放级别
+                </th>
+                <th class="span8">培训形式
+                </th>
+                <th class="span8" jsrendersortfield="CourseLength" sort="asc" >学时</th>
+                <th class="span8">是否可折算CPA学时</th>
+                <th class="span8">地点</th>
+                <th class="span7">讲师姓名
+                </th>
+                <th class="span12">讲师薪酬
+                </th>
+                <th class="span8">必修/选修
+                </th>
+                <th class="span4">框架内/外
+                </th>
+            </tr>
+        </thead>
+        <tbody id="monthCourseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+
+    <div class="mt10 tc">
+        <input type="button" class="btn btn-cancel" value="返回" onclick="back()" />
+    </div>
+</div>
+<script id="monthCourseTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>{{:PreCourseTimeStr}}</td>
+            <td>{{:OpenLevel}}</td>
+            <td>{{:WayStr}} </td>
+            <td>{{:CourseLength}}</td>
+            <td>{{:IsCPAstr}}</td>
+            <td>
+                <div class="ovh span8 tl" title=" {{:RoomNamestr}}"> {{:RoomNamestr}}</div>
+            </td>
+            <td>
+               <div class="ovh span8 tl" title="{{:Realname}}">{{:Realname}}</div>
+            </td>
+            <td>
+              <div class="ovh span10 tl" title="{{:PayGrade}}">{{:PayGrade}}</div>
+            </td>
+            <td>{{:IsMustStr}} </td>
+            <td>{{:IsSystemStr}} </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        Getdata();
+    });
+
+    //月度课程
+    function Getdata()
+    {
+        $("#monthCourseList").JsRenderData({
+            sourceUrl: getmonthUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "PreCourseTime",
+            jsRenderASC: "desc",
+            templateID: "monthCourseTemplate"
+        });
+    }
+    //月度的课程相关的url
+    function getmonthUrl()
+    {
+        var openLevel = "";
+        $("input[name='OpenLevel']").each(function (index)
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                openLevel = openLevel == "" ? $(this).val() : openLevel + "," + $(this).val();
+            }
+        });
+        var isMust = "";
+        $("input[name='IsMust']").each(function (index) {
+            if ($(this).attr("checked") == "checked") {
+                isMust = isMust == "" ? $(this).val() : isMust + "," + $(this).val();
+            }
+        });
+        if (isMust.length > 1) {
+            isMust = "";
+        }
+
+        var isSystem = "";
+        $("input[name='IsSystem']").each(function (index) {
+            if ($(this).attr("checked") == "checked") {
+                isSystem = isSystem == "" ? $(this).val() : isSystem + "," + $(this).val();
+            }
+        });
+        if (isSystem.length > 1) {
+            isSystem = "";
+        }
+        var url = "/PlanManage/GetMonthplanDetailsCourse?id=@ViewBag.id&name=" + escape($.trim(getSearchWord("CourseName"))) + "&Way=" + $("#Way").val() + "&openLevel=" + openLevel + "&Teaname=" + escape($.trim(getSearchWord("TearchName"))) + "&isMust=" + isMust + "&isSystem=" + isSystem + "&Order=" + $("#selOrder").val() + "&t=" + new Date();
+        return url;
+    }
+
+    function OutData(id)
+    {
+        window.location.href = "/PlanManage/OutMonthCourse?id=@ViewBag.id&month=@(ViewBag.monplan.Month)&t=" + new Date();
+    }
+
+    function back()
+    {
+        window.location.href = "MonthPlan";
+    }
+</script>

@@ -1,0 +1,67 @@
+﻿@{
+    ViewBag.Title = "集中授课课程汇总统计详情";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "集中授课课程汇总统计详情"
+}))
+</div>
+@(Html.Action("TogetherCourseBaseInfo", "Report_Together", new { courseId = ViewBag.courseID }))
+<div class="tab-bk  mt10">
+    <ul id="pop_tag">
+        <li class="On" id="pop_tag0">各部门/分所单门课程报名、参与情况表</li>
+        <li id="pop_tag1">各部门/分所单门课程评估、测试情况表</li>
+        <li id="pop_tag2">员工单门课程报名、参与情况明细表</li>
+    </ul>
+</div>
+<!--单门课程-->
+<div id="SinglecourseList">
+</div>
+
+<script>
+    $(document).ready(function ()
+    {
+        ShowData(0);
+        $("#pop_tag li").click(function ()
+        {
+            var index = $(this).index();
+            flag = index;
+            ShowData(index);
+        });
+        if ($("#hidisTest").val() == 0 && $("#hidisPing").val() == 0)
+        {
+            $("#pop_tag1").hide();
+        }
+
+    });
+
+    //显示那个tab页下的数据
+    function ShowData(index, cp)
+    {
+        cp = cp == undefined ? 0 : cp;
+        $("#hidType").val(index);
+        $("#pop_tag li").removeClass("On");
+        $("#pop_tag" + index).addClass("On");
+        switch (index)
+        {
+            case 0:
+                $("#SinglecourseList").load("SingleCoursePation?courseid=@ViewBag.courseID&cp=" + cp);
+                break;
+            case 1:
+                $("#SinglecourseList").load("SingleTogetherSurvey?courseID=@ViewBag.courseID&cp=" + cp);
+                break;
+            case 2:
+                $("#SinglecourseList").load("SingleTogetherCourseUsersDetail?courseId=@ViewBag.courseID");
+                break;
+        }
+    }
+
+    function viewDetails(deptIds, index)
+    {
+        $("#pop_tag li").removeClass("On");
+        $("#pop_tag2").addClass("On");
+        $("#SinglecourseList").load("SingleTogetherCourseUsersDetail?courseId=@ViewBag.courseID&index=" + index + "&deptIds=" + deptIds);
+    }
+</script>
+

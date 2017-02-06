@@ -1,0 +1,260 @@
+﻿@{
+    Layout = null;
+}
+
+<style type="text/css">
+    .treeview-box {
+        width: 100%;
+    }
+
+    .tree-list {
+        height: 420px;
+    }
+</style>
+<div class="clb" id="pop_deptUser">
+    <input type="hidden" id="commonSelectedIdStr" value="" />
+    <input type="hidden" id="commonSelectedNameStr" value="" />
+    <div id="deptUser" class="fr span70 ml10" style="height: 450px;">
+        <div class="so-set">
+            <table class="tab-Form">
+                <tbody>
+                    <tr>
+                        <td class="Tit span4">姓名：
+                        </td>
+                        <td class="span11">
+                            <input type="text" class="span10 searchclass" value="请输入搜索姓名" info="" id="pop_realName" />
+                        </td>
+                        <td class="so-do">
+                            <input type="button" id="btnSearch" class="btn" value="搜索" onclick="Btnpop_InitUserData();" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="sel_deptid" onchange="Btnpop_InitUserData();">
+
+                @* foreach (var item in (IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.DeptList)
+             {
+                 <option value="@item.DepartmentId">@item.DeptName</option>             
+             }
+         }*@
+
+            </select>
+            <select id="pop_sltSex" onchange="Btnpop_InitUserData();">
+                <option value="99">性别</option>
+                <option value="0">男</option>
+                <option value="1">女</option>
+            </select>
+            <select id="pop_sltTrainGrade" onchange="Btnpop_InitUserData();">
+                <option value="">培训级别</option>
+                @{
+                    foreach (var item in ViewBag.TrainGrade)
+                    {
+                    <option value="@item">@item</option>
+                    }
+                }
+            </select>
+
+        </div>
+        <!-- 列表 -->
+        <div id="pop_deptUserTemplateList" class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th>
+                            @{
+                               
+                                <input type="checkbox" value="0" id="pop_selectAllUser" />
+                                
+                            }
+                        </th>
+                        <th>姓名
+                        </th>
+                        <th>性别
+                        </th>
+                        <th>培训级别
+                        </th>
+                        <th>部门/分所
+                        </th>
+                        <th class="span8">是否CPA
+                        </th>
+                        <th>账号状态
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="pop_deptUserList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="mt10 tc">
+    <input type="button" id="pop_btnSure" class="btn btn-co" value="确定" onclick="GetUserIDList(); " />
+    <input id="pop_hidDeptID" type="hidden" />
+</div>
+<script id="pop_deptUserTemplate" type="text/x-jsrender"> 
+{{for #data}}
+<tr> 
+    <td> 
+    {{if '@ViewBag.type'=='radio'}}
+        <input type='radio' id='{{:UserId}}' value='{{:UserId}}' username='{{:Realname}}' name='radioUser' /> 
+    {{else}} 
+        <input type='checkbox' id='{{:UserId}}' username='{{:Realname}}' value='{{:UserId}}' /> 
+    {{/if}} 
+    </td> 
+    <td title="{{:Realname}}">{{:Realname}}</td>
+    <td>{{:SexStr}}</td> 
+    <td>{{:TrainGrade}}</td> 
+    <td title="{{:DeptName}}">{{:DeptName}}</td> 
+    <td>{{:CPA}}</td>
+    <td>{{:StatusStr}}</td>
+</tr> 
+{{/for}} 
+</script>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("#pop_hidDeptID").val($("#hidDeptID").val());
+        initSearch("pop_deptUser");
+        BindDept();
+        pop_InitUserData();
+    });
+
+    function BindDept()
+    {
+        var html = "<option value=" + $("#pop_hidDeptID").val() + ">选择全部</option>"
+        $.post("/UserManage/GetAllDepartment", { deptId: $("#hidDeptID").val() }, function (data)
+        {
+            if (data.dataList.length > 0)
+            {
+                html = html + $("#PostTemplate").render(data.dataList)
+
+            }
+            $("#sel_deptid").append(html);
+        });
+    }
+
+    function pop_deptNodeClick(obj)
+    { //获取具体的分类信息 
+        var ids = $(obj).attr("id");
+        var id = ids.split("_")[0];
+        var pid = ids.split("_")[1];
+        var Name = $(obj).text();
+        $("#pop_hidDeptID").val(id);
+        pop_deptNodeClickSelect(obj);
+        pop_InitUserData();
+    }
+
+
+    function NodeDeptClick()
+    {
+        pop_InitUserData();
+    }
+
+    //初始化列表
+    function pop_InitUserData()
+    {
+        var paramdata = {
+            flag: 0, jobNum: "", deptName: "", sex: $("#pop_sltSex").val(),
+            status: 0, deptId: $("#pop_hidDeptID").val(), cpa: $("#pop_sltCPA").val(),
+            realName: escape(getSearchWord("pop_realName")), email: "", trainGrade: $("#pop_sltTrainGrade").val()
+        };
+        //var v = "flag=0&jobNum=&deptName=&sex=" + $("#pop_sltSex").val()
+        //+ "&status=0&deptId=" + $("#pop_hidDeptID").val() + "&cpa=" + $("#pop_sltCPA").val()
+        //+ "&realName=" + escape(getSearchWord("pop_realName")) + "&email=&trainGrade=" + $("#pop_sltTrainGrade").val();
+        $("#pop_deptUserList").JsRenderData({
+            sourceUrl: '/DepCourseManage/GetUserInfoList',
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'pop_deptUserTemplate',
+            jsRenderSortField: " Sys_user.DeptName,Sys_User.TrainGrade",
+            jsRenderASC: " ASC",
+            ajaxtype: "post",
+            ajaxParam: paramdata,
+            funCallback: function ()
+            {
+                SetCheckBox('pop_selectAllUser', 'pop_deptUserList');
+                HiddenSelectUser("checkbox");
+                try
+                {
+                    fnCallBackInvokeByRichter();
+                } catch (e)
+                {
+                }
+            }
+        });
+    }
+
+
+    //搜索
+    function Btnpop_InitUserData()
+    {
+        //var v = "flag=0&jobNum=&deptName=&sex=" + $("#pop_sltSex").val()
+        //+ "&status=0&deptId=" + $("#sel_deptid").val() + "&cpa" + $("#pop_sltCPA").val()
+        //+ "&realName=" + escape(getSearchWord("pop_realName")) + "&email=&trainGrade=" + $("#pop_sltTrainGrade").val();
+        var data = {
+            flag: 0, jobNum: "", deptName: "", sex: $("#pop_sltSex").val(),
+            status: 0, deptId: $("#sel_deptid").val(), cpa: $("#pop_sltCPA").val(),
+            realName: getSearchWord("pop_realName"), email: "", trainGrade: $("#pop_sltTrainGrade").val()
+        };
+        $("#pop_deptUserList").JsRenderData({
+            sourceUrl: '/DepCourseManage/GetUserInfoList',
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'pop_deptUserTemplate',
+            jsRenderSortField: " Sys_user.DeptName,Sys_User.TrainGrade",
+            jsRenderASC: " ASC",
+            ajaxtype: "post",
+            ajaxParam: data,
+            funCallback: function ()
+            {
+                SetCheckBox('pop_selectAllUser', 'pop_deptUserList');
+                HiddenSelectUser("checkbox");
+                try
+                {
+                    fnCallBackInvokeByRichter();
+                } catch (e)
+                {
+                }
+            }
+        });
+    }
+
+    function HiddenSelectUser(obj, ID)
+    {
+        if ($("#" + ID) != undefined && $("#" + ID) != null)
+        {
+            $("#pop_deptUserTemplateList tbody input[type='" + obj + "']").each(function ()
+            {
+                if ((',' + $("#" + ID).val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0)
+                {
+                    $(this).attr('disabled', 'disabled');
+                }
+                if ($("#commonSelectedIdStr").length > 0)
+                {
+                    if ((',' + $("#commonSelectedIdStr").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0)
+                    {
+                        $(this).attr('checked', true);
+                    }
+                }
+                if ($("#commonSelectedNameStr").length > 0)
+                {
+                    if ((';' + $("#commonSelectedNameStr").val() + ';').indexOf(';' + $(this).attr('id') + ',' + $(this).attr('username') + ';') >= 0)
+                    {
+                        $(this).attr('checked', true);
+                    }
+                }
+            });
+        }
+    }
+</script>
+<script id="PostTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <option value="{{:DepartmentId}}">{{:DeptName}}</option>  
+   {{/for}}
+</script>

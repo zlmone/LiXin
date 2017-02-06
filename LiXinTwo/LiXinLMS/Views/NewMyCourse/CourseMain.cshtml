@@ -1,0 +1,143 @@
+﻿@using LiXinControllers
+@{
+    ViewBag.Title = "MyCourseMain";
+    var CourseResourceList = ViewBag.CourseResourceList as List<LiXinModels.NewCourseManage.New_CourseFiles>;
+    var Resourceurl = BaseController.NewCourseFile as string;
+
+    var New_CourseOrderDetaillist = ViewBag.New_CourseOrderDetaillist as List<LiXinModels.NewCourseManage.New_CourseOrderDetail>;
+    Layout = null;
+}
+<div class="main-c">
+    <table class="tab-List">
+                <thead>
+                        <tr>
+                        <th>资源名称</th>
+                        <th>资源类型</th>
+                        <th>资源大小</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (CourseResourceList != null)
+                    {
+                        foreach (var coCourseResource in CourseResourceList)
+                        {
+                            if (coCourseResource.Type == 0)
+                            { 
+                                <tr>
+                                    <td><div class="tl">@coCourseResource.Name</div></td>
+                                    <td>@coCourseResource.ExtendName</td>
+                                    <td>@coCourseResource.ResourceSize K</td>
+                                    <td><a onclick="ziyuanload('@Url.Content(Resourceurl + coCourseResource.RealName)','@(coCourseResource.Name)','@(coCourseResource.Id)')" target="_Blank" class="icon idown" title="我要下载"></a></td>
+                                   
+                                </tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="tc">暂无资源</td></tr>
+                    }
+                </tbody>
+            </table>
+    <div class="mt10">
+        <h2 class="tit-h2">
+            <span class="tit-con">座位信息</span>
+        </h2> 
+        <div class="co-memo  do_warp" >
+            @{
+                if (New_CourseOrderDetaillist.Where(p => p.Type == 0).Count() > 0)
+                {
+                    <fieldset style="border:1px solid silver; padding:5px;">
+                        <legend style="font-weight:bold;">集中授课座位信息</legend>
+                        <ul class="coursetype">
+                            @foreach (var item in New_CourseOrderDetaillist.Where(p => p.Type == 0))
+                            {
+                                <li style="cursor:default;" type="type_@(item.Type)">
+                                    <table class="tab-Form">
+                                        <tr>
+                                            <td class="Tit span8">开课教室：</td>
+                                            <td class="span30">@item.RoomName</td>
+                                            <td rowspan="3"><div class="tc" style="margin-top: 30px;">
+                                                                <a style="cursor:pointer; color:green; font-size:16px;font-weight:bold;" onclick="fshowzuowei(@(item.Id))">@item.SeatDetailName</a>
+                                                            </div></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="Tit span8">开课时间：</td>
+                                            <td>@item.StartTimeStr -- @item.EndTimeStr </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="Tit span8">讲师：</td>
+                                            <td>@item.teachername</td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            }
+                        </ul>
+                    </fieldset>
+                }
+            }
+            @{
+                if (New_CourseOrderDetaillist.Where(p => p.Type == 1).Count() > 0)
+                {
+                    <fieldset style="border:1px solid silver; padding:5px;">
+                        <legend style="font-weight:bold;">分组带教座位信息</legend>
+                        <ul class="coursetype">
+                            @foreach (var item in New_CourseOrderDetaillist.Where(p => p.Type == 1))
+                            {
+                                <li style="cursor:default;" type="type_@(item.Type)">
+                                    <table class="tab-Form">
+                                        <tr>
+                                            <td class="Tit span8">开课教室：</td>
+                                            <td class="span30">@item.RoomName</td>
+                                            <td rowspan="3">
+                                                <div class="tc" style="margin-top: 30px;">
+                                                          <a style="cursor:pointer; color:green; font-size:16px;font-weight:bold;" onclick="fshowzuowei(@(item.Id))">查看我的座位</a>
+                                                      </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="Tit span8">开课时间：</td>
+                                            <td>@item.StartTimeStr -- @item.EndTimeStr </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="Tit span8">讲师：</td>
+                                            <td>@item.teachername</td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            }
+                        </ul>
+                    </fieldset>
+                }
+            }
+        </div>
+    </div>
+    <div class="mt10">
+            <h2 class="tit-h2">
+                <span class="tit-con">课程大纲</span>
+            </h2>
+            <div style="width:1000px; overflow:auto;">
+                @Html.Raw((string.IsNullOrEmpty(ViewBag.Memo) ? "无" : ViewBag.Memo))
+            </div>
+        </div>
+  <center class="mt10">@Html.ActionLink("返回", "CourseList", "NewMyCourse", new { p = "1" }, new { @class = "btn btn-cancel" })</center>
+</div>
+
+<script type="text/javascript">
+    function fshowzuowei(t)
+    {
+        art.dialog.load("/NewCourseManage/ShowUserSeatDetail?id=" + t + "&print=1", {
+            title: '查看座位', id: "pop_chooseTeacher", close: function () { }
+        }, false);
+    }
+   
+    function ziyuanload(url, name,id)
+    {
+        //alert(url+"|"+name);
+        window.location.href = "/NewMyCourse/LoadPrincipleFile?path=" + escape(url) + "&name=" + escape(name) + "&id=" + id;
+        
+            
+       
+    }
+</script>

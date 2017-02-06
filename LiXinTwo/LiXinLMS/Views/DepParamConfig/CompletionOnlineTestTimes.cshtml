@@ -1,0 +1,64 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+}
+<form id="fnSumitConfig">
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">全年在线测试完成次数</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span20">全年在线测试完成次数：</td>
+            <td>
+                <div class="fl">
+                <input type="text" class="span16" id="level_A" name="Anumber" maxlength="4" value="@(Model.ConfigValue)"/>次
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td><input type="submit" value="确定" id="btn_Add" class="btn"/></td>
+        </tr>
+    </table>
+</form>
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#fnSumitConfig").validate({
+                event: "blur",
+                rules: {
+                    Anumber: { required: true, number: true, min: -1}
+                },
+                messages: {
+                    Anumber: { required: "请输入次数", number: "请输入大于0的整数", min: "请输入大于等于-1的整数" }
+                },
+                errorPlacement: function (error, element) {
+                    var eid = element.attr('name');
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        $('input[name=' + eid + ']:last').next().after(error);
+                    } else {
+
+                        error.insertAfter(element.parent());
+                    }
+                },
+                submitHandler: fnSumitConfig
+            });
+        });
+
+        function fnSumitConfig() {
+            var t = $("#level_A").val();
+            if (t.indexOf(".") >= 0) {
+                art.dialog.tips('请输入整数', 3);
+            } else {
+                $.post("/DepParamConfig/UpdateConfig?type=5&value=" + t + "&deptID=" + $("#depart").val(), function (data)
+                {
+                    if (data.result == 1) {
+                        art.dialog.tips('配置成功', 3);
+                    } else {
+                        art.dialog.tips('配置失败', 3);
+                    }
+                });
+            }
+        }
+    </script>

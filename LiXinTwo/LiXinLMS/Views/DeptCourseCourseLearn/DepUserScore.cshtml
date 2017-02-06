@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "部门/分所员工学时及考勤获取";
+    Layout = null;
+}
+<div id="Search" class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span3">姓名：
+            </td>
+            <td>
+                <input type="text" class="span16 Box searchclass" id="realName" value="请输入搜索内容" info="" />
+            </td>
+            <td class="Tit span6">培训级别：
+            </td>
+            <td>
+                <div class="sel span28">
+                    @{
+                        foreach (var item in @ViewBag.trainGrade)
+                        {
+                        <input type="checkbox" value="@item" name="TrainGrade" /><label>@item</label>
+                        }      
+                    }
+                </div>
+            </td>
+            <td rowspan="2" class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <select id="selSex" onchange=" InitData();">
+        <option value="-1">选择性别</option>
+        <option value="0">男</option>
+        <option value="1">女</option>
+    </select>
+     <select id="selYear" onchange=" InitData();">
+        <option value="-1">选择年度</option>
+         @foreach (var item in ViewBag.listYear)
+         {
+              <option value="@(item)"  @(item==DateTime.Now.Year?"selected='selected'":"")>@item</option>
+         }
+    </select>
+</div>
+<div class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span8">姓名
+                </th>
+                <th class="span5">性别
+                </th>
+                <th class="span7" jsrendersortfield="TrainGrade" sort="asc">培训级别
+                </th>
+                <th class="span8">是否是CPA
+                </th>
+                <th class="span16">手机
+                </th>
+                <th class="span7">邮箱
+                </th>
+                <th class="span8"  jsrendersortfield="GetScore" sort="desc">总学时
+                </th>
+                <th class="span7">操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="userList"></tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化搜索条件
+        initSearch();
+
+        //加载列表
+        InitData();
+    });
+
+    //初始化列表
+    function InitData()
+    {
+        $("#userList").JsRenderData({
+            sourceUrl: getURL(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "TrainGrade",
+            jsRenderASC: " ASC",
+            templateID: "userListTemplate"
+        });
+    }
+
+    function getURL()
+    {
+        var TrainGrade = "";
+        $("input[name='TrainGrade']:checked").each(function (index)
+        {
+            TrainGrade = TrainGrade == "" ? $(this).val() : TrainGrade + "," + $(this).val();
+        });
+        var param = "realName=" + escape(getSearchWord("realName")) + "&Sex=" + $("#selSex").val() + "&TrainGrade=" + TrainGrade + "&year=" + $("#selYear").val();
+        return "/DeptCourseCourseLearn/GetAllUserList?" + param;
+    }
+
+    function View(userID)
+    {
+        window.location.href = "DepUserScoreDetails?userID=" + userID + "&year=" + $("#selYear").val();
+    }
+</script>
+
+<script id="userListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+            {{:#index+1}}
+            </td>
+            <td>{{:Realname}}</td>  
+            <td>{{:SexStr}}</td>
+            <td>{{:TrainGrade}}</td>
+            <td>{{:CPA}}</td>
+            <td>{{:MobileNum}}</td>  
+            <td>{{:Emailstr}}</td>  
+            <td>{{:GetScore}}</td> 
+            <td> <a class="icon iview" title="查看详情" onclick="View({{:UserId}})" ></a></td>  
+        </tr> 
+        {{/for}}
+</script>

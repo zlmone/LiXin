@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "ReportOtherMain";
+    Layout = null;
+}
+<div class="tab-bk mt10">
+    <ul id="tagTeacher">
+        <li class="On" id="tt0">授课人</li>
+        <li id="tt1">其他项目</li>
+    </ul>
+</div>
+<div id="div_Other">
+</div>
+<script>
+    $(document).ready(function ()
+    {
+        $.get("ReportTeacher", function (data)
+        {
+            $("#div_Other").html(data);
+        });
+
+        $("#tagTeacher li").click(function ()
+        {
+            var index = $(this).index();
+            $("#tagTeacher li").removeClass("On");
+            $("#tt" + index).addClass("On");
+            switch (index)
+            {
+                case 0:
+                    $("#div_Other").load("");
+                    // $("#div_Other").load("ReportTeacher");
+                    $.get("ReportTeacher", function (data)
+                    {
+                        $("#div_Other").html(data);
+                    });
+                    break;
+                case 1:
+                    $.get("ReportOther", function (data)
+                    {
+                        $("#div_Other").html(data);
+                    });
+                    break;
+            }
+
+        });
+    });
+</script>

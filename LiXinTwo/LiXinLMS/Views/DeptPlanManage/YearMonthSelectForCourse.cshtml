@@ -1,0 +1,194 @@
+﻿@{
+    ViewBag.Title = "YearMonthSelectForCourse";
+    Layout = null;
+}
+
+
+
+
+@{
+    if (ViewBag.viewType == 0)
+    {
+    <label>
+        年度：</label>
+    }   
+}
+<select id="sel_pop_year" name="sel_pop_year" onchange="GetMonth()" >
+    @{ 
+        if (ViewBag.viewType == 0)
+        {
+        <option value="-1">请选择年度</option>
+        }
+        else
+        {
+        <option value="-1">年</option>
+        }
+
+        if (ViewBag.dataType == 1)
+        {
+            foreach (var year in ViewBag.year)
+            {
+        <option value="@year">@year</option>
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 5; i++)
+            {
+        <option value="@(ViewBag.year + i)">@(ViewBag.year + i)</option>
+            }
+        }
+       
+    }
+</select>
+@{
+    if (ViewBag.viewType == 0)
+    {
+    <label>月度：</label>
+    }   
+}
+<select id="sel_pop_month" onchange="fnLoadMonthCourse(this)" name="sel_pop_month" >
+    @{
+        if (ViewBag.viewType == 0)
+        {
+        <option value="-1">请选择月份</option>
+        }
+        else
+        {
+        <option value="-1">月</option>
+        }
+    }
+</select>
+@{
+    if (ViewBag.viewType == 1)
+    {
+    <select id="Day" name="Day">
+        <option value="1">上旬</option>
+        <option value="2">中旬</option>
+        <option value="3">下旬</option>
+    </select>
+    }   
+}
+<script id="monthListTemplate" type="text/x-jsrender">
+   {{for monthList}}
+       <option value="{{:#data}} ">{{:#data}}</option>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+
+    });
+
+    function GetMonth()
+    {
+        var flag=0;
+
+        if($("#div_showDept").children(".seled-list").length>0)
+        //if($("div[name='year-seled-list']").length>0)
+        {
+            flag=1;
+        }
+
+    var selstr="";
+         if (@ViewBag.viewType == 0)
+        {
+            selstr="请选择月份";
+        }
+        else
+        {
+             selstr="月";
+        }
+        var year = $("#sel_pop_year").val();
+      
+        if (year != -1)
+        {
+            //alert($("#txtDeptId").val());
+            $.getJSON("/DeptPlanManage/GetMonthByYear?year=" + year+"&IsPublishMonth=1&DepOrBranch="+@ViewBag.DepOrBranch+"&flag="+flag+"&depitd="+$("#txtDeptId").val(), function (data)
+            {
+                $("#sel_pop_month").html("");
+                $("#sel_pop_month").append("<option value='-1' >"+selstr+"</option>"+$("#monthListTemplate").render(data));   
+                 
+                if(data.monthList=="")
+                {
+                    $("#sle_CourseList").html("");
+                    $("#sle_CourseList").append("<option value='-1' >请选择课程</option>" + $("#courseListTemplate").render(data.dataList));
+                }
+                
+                @*if(@ViewBag.DepOrBranch==1)
+                {*@
+                    $("input[name='chbIsOrder'][value='1']").attr("checked",true);
+                    $("input[name='chbOpenFlag']").removeAttr("disabled"); 
+                    //alert(data.html);
+                    //$("#seled-list").remove();
+                    //$("#div_showDept").append(data.html);
+                    //$("#div_showDept").children(".seled-list").remove();
+                    //alert($("li[name='year-seled-li']").html());
+
+                    //var oldGroupIds=$("#txtOpenDepartObject").val();
+                    //alert(oldGroupIds);
+                 
+
+                    $("li[name='year-seled-li']").remove();
+                    if(flag==0)
+                    {
+                        $("#div_showDept").append(data.html);
+                        //alert("1");
+                    }
+                    else
+                    {
+                        //alert("2");
+                        $("#div_showDept").find("ul").eq(0).append(data.html);
+                    }
+                    $("#txt_year_ids").val(data.idlist);
+                    $("#txtOpenFlag").val(2);
+                    //var ids = $("#txtOpenDepartObject").val();
+                
+                    //$("#txtOpenDepartObject").val(data.idlist);
+                    ////$("#txtOpenDepartObject").val(oldGroupIds);
+                    //if($("#txtOpenDepartObject").val()=="")
+                    //{
+                    //    $("#txtOpenDepartObject").val(data.idlist);
+                    //}
+                    //else
+                    //{
+                    //    $("#txtOpenDepartObject").val($("#txtOpenDepartObject").val()+","+data.idlist);
+                    //}
+                //}
+            });
+        }
+        else
+        {
+            $("#sel_pop_month").html("");
+            $("#sel_pop_month").append("<option value='-1' >"+selstr+"</option>");
+            $("#div_showDept").html("");
+            $("#txtOpenDepartObject").val("");
+            $("input[name='chbIsOrder'][value='1']").attr("checked",false);
+            $("input[name='chbOpenFlag']").attr("disabled","disabled");    
+
+        } 
+    }
+
+    function GetDept_ParamConfig()
+    {       
+
+        $.getJSON("/DeptPlanManage/GetDeptParamConfig?deptid="+$("#sel_pop_dept").val(),function(data){
+            $("#sel_pop_year").html("");
+            $("#sel_pop_year").append("<option value='-1' >请选择年度</option>"+data.deptlist+"");
+            $("#txtDeptId").val($("#sel_pop_dept").val());
+
+            $("#txtLength").val(data.RefLength);
+            $("#txtHour").val(data.RefHour);
+            $("#txtTestTimes").val(data.MaxTestTimes);
+            $("input[name='PreAdviceConfigTime']").val(data.RefPreAdviceConfigTime);
+            $("#txtAfterEvlutionConfigTime").val(data.RefAfterEvlutionConfigTime);
+
+
+            $("#sel_RoomId").html("");
+            $("#sel_RoomId").append("<option value='0' num='0'>请选择开课地点</option>"+data.roomhtml+"");
+            
+        })
+    }
+
+</script>

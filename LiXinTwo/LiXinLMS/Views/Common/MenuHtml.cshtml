@@ -1,0 +1,19 @@
+﻿@{
+    Layout = null;
+}
+<ul class="menu-con">
+    @Html.Raw(ViewBag.MenuStr)
+</ul>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var totalwidth = 0;
+        $(".menu-con>li").each(function () {
+            totalwidth += $(this).width();
+        });
+        if (totalwidth > 870) {
+            $(".menu-con").parent().css("height", "110px");
+        } else {
+            $(".menu-con").parent().css("height", "70px");
+        }
+    });
+</script>

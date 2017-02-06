@@ -1,0 +1,151 @@
+﻿@using LiXinModels.CourseManage
+@using LiXinModels.Survey
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var afterquestion = ViewBag.afterquestion as List<Survey_Question>;
+    var afterteacherquestion = ViewBag.afterteacherquestion as List<Survey_Question>;
+    var firsthtml = ViewBag.firsthtml as string;
+    var firstafterteacherhtml = ViewBag.firstafterteacherhtml as string;
+    int courseid = Convert.ToInt32(ViewBag.id);
+    string SurveyPaperId = ViewBag.SurveyPaperId as string;
+    ViewBag.Title = "我的授课课程详情";
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DepTeacherCourseDetail" }))
+    @Html.Action("TeacherCourse", "DepTeacherCourse", new { id = @ViewBag.id, showFlag = 3 })
+    <input type="hidden" id="txt_SurveyPaperId" value="@ViewBag.SurveyPaperId"/>
+    <div class="tab-red">
+        <ul id="ul_main">
+
+            @*   <li class="On">课程评估<i></i></li>
+            <li>讲师评估<i></i></li> *@
+            @if (afterquestion != null && afterteacherquestion != null)
+            {
+                <li class="On">课程评估<i></i></li>
+                <li>讲师评估<i></i></li>
+            }
+            @if (afterquestion != null && afterteacherquestion == null)
+            {
+                <li class="On">课程评估<i></i></li>
+            }
+            @if (afterquestion == null && afterteacherquestion != null)
+            {
+                <li class="On">讲师评估<i></i></li>
+            }
+        </ul>
+    </div>
+    <div id="div_list">
+        <table class="tab-ass">
+            @if (@afterquestion != null)
+            {
+                <tr>
+                    <td id="first_left" class="ass-tit" rowspan="2">
+                        <h5 class="tit-h5 mb10"><span>评估标题</span></h5>
+                        @{ int i = 1; }
+                        @foreach (Survey_Question surveyQuestionAndAnswer in afterquestion)
+                        {
+                           <div class="question_div" QuestionId="@surveyQuestionAndAnswer.QuestionID" ExampaperID="@surveyQuestionAndAnswer.ExampaperID" questiontype="@surveyQuestionAndAnswer.QuestionType">
+                                @*<span>@surveyQuestionAndAnswer.QuestionOrder .</span>*@
+                                <span>@(i++) .</span>
+                                <strong class="ovh" title="@surveyQuestionAndAnswer.QuestionContent">@surveyQuestionAndAnswer.QuestionContent</strong>
+                                <i></i>
+                            </div>
+                        }
+                    </td>
+                    <td>
+                        <h5 class="tit-h5 mb10"><span>评估内容</span></h5>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ass-con" id="first_right">
+                        @if (@firsthtml != null)
+                        {
+                            @Html.Raw(firsthtml)
+                        }
+                    </td>
+                </tr>
+            }
+        </table>
+        <table class="tab-ass" style="display: none">
+            @if (@afterteacherquestion != null)
+            {
+                <tr>
+                    <td id="second_left" class="ass-tit" rowspan="2">
+                        <h5 class="tit-h5 mb10"><span>评估标题</span></h5>
+                        @foreach (Survey_Question surveyQuestionAndAnswer in afterteacherquestion)
+                        {
+                            <div class="teacherquestion_div" QuestionId="@surveyQuestionAndAnswer.QuestionID" ExampaperID="@surveyQuestionAndAnswer.ExampaperID" questiontype="@surveyQuestionAndAnswer.QuestionType">
+                                <span>@surveyQuestionAndAnswer.QuestionOrder .</span>
+                                <strong class="ovh" title="@surveyQuestionAndAnswer.QuestionContent">@surveyQuestionAndAnswer.QuestionContent</strong>
+                                <i></i>
+                            </div>
+                        }
+                    </td>
+                    <td>
+                        <h5 class="tit-h5 mb10"><span>评估内容</span></h5>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="second_right" class="ass-con">
+                        @if (@firstafterteacherhtml != null)
+                        {
+                            @Html.Raw(firstafterteacherhtml);
+                        }
+                    </td>
+                </tr>
+            }
+        </table>
+        <center class="mt10">
+            <a  href="/DepTeacherCourse/TeacherCourseList" class = "btn btn-cancel">返回</a>
+        </center>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(".question_div:eq(0)").addClass("On");
+        $(".teacherquestion_div:eq(0)").addClass("On");
+
+        if ($("#txt_SurveyPaperId").val().split(';')[0] == "" && $("#txt_SurveyPaperId").val().split(';')[1] != "") {
+            $("#div_list").children("table:eq(1)").css("display", "");
+        }
+
+        $("#ul_main li").click(function () {
+            if($("#ul_main li").size()>1)
+                {
+            var index = $(this).index();
+            $("#div_list").children("table:eq(" + index + ")").css("display", "").siblings("table").css("display", "none");
+            $("#ul_main li").removeClass("On");
+            $(this).addClass("On");}
+
+        });
+
+        $(".question_div").click(function () {
+            var questiontype = $(this).attr("questiontype");
+            var ExampaperID = $(this).attr("ExampaperID");
+            var QuestionID = $(this).attr("QuestionId");
+            $(this).addClass("On").siblings(".question_div").removeClass("On");
+            $.post("/DepTeacherCourse/FindAnswer?courseid=" +@(courseid) +"&ExampaperID=" + ExampaperID + "&questiontype=" + questiontype + "&QuestionID=" + QuestionID, function (data)
+            {
+                $("#first_right").html(data.List);
+            });
+
+
+        });
+
+        $(".teacherquestion_div").click(function () {
+            var questiontype = $(this).attr("questiontype");
+            var ExampaperID = $(this).attr("ExampaperID");
+            var QuestionID = $(this).attr("QuestionId");
+            $(this).addClass("On").siblings(".teacherquestion_div").removeClass("On");
+            $.post("/DepTeacherCourse/FindAnswer?courseid=" +@(courseid) +"&ExampaperID=" + ExampaperID + "&questiontype=" + questiontype + "&QuestionID=" + QuestionID, function (data)
+            {
+                $("#second_right").html(data.List);
+            });
+
+        });
+
+    })
+</script>

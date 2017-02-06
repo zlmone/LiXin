@@ -1,0 +1,168 @@
+﻿@{
+    ViewBag.Title = "MyCourseList";
+    Layout = null;
+    var start = Request.QueryString["s"] ?? "";
+}
+ <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_CourseName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">开课教室：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_RoomNmae"  value="请输入搜索内容" info="" class="Box span16 searchclass"  />
+                </td>
+                <td class="Tit span6">开课时间：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" id="txt_StartTime" value="@(start == "" ? "" : Convert.ToDateTime(start).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  "/>
+                        <i></i>
+                    </div>
+                   
+                    至
+                    <div class="time-choose">
+                        <input type="text" id="txt_EndTime" value="@(start == "" ? "" : Convert.ToDateTime(start).AddDays(1).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })"/>
+                        <i></i>
+                    </div>                 
+                </td>
+                
+            </tr>
+            <tr>                
+                <td class="Tit span6">课程状态：
+                </td>
+                <td class="span17">
+                    <select id="sel_coursestatus">
+                        <option value="3">全部状态</option>
+                        <option value="0">未开始</option>
+                        <option value="1">进行中</option>
+                        <option value="2">已结束</option>
+                    </select>
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                </td>
+
+            </tr>
+        </table>
+    </div>
+    <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th class="span14">课程名称
+                    </th>
+                     <th class="span8">授课类型
+                    </th>   
+                    <th class="span14">讲师
+                    </th>
+                    @*<th class="span12">开放班级
+                    </th>*@
+                    <th class="span14" jsrendersortfield="New_Course.StartTime" sort="desc">课程时间段
+                    </th>
+                    <th class="span12">开课教室
+                    </th>        
+                    <th class="span7">课程状态
+                    </th>                  
+                    <th class="span4">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="Courstlist">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+
+        $("#txt_CourseName").val('@(ViewBag.coursename)');
+        $("#txt_RoomNmae").val('@(ViewBag.roomname)');
+        $("#txt_StartTime").val('@(ViewBag.starttime)');
+        $("#txt_EndTime").val('@(ViewBag.endtime)');
+        $("#sel_coursestatus").val('@(ViewBag.stat)');
+
+        fOnload(@(ViewBag.page));
+
+        $("#btn_Select").click(function () {
+            fOnload(1);
+        })
+        $("#sel_coursestatus").change(function () {
+            fOnload(1);
+        })
+    })
+
+    function fOnload(page)
+    {
+        $("#Courstlist").JsRenderData({
+            sourceUrl: geturl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "New_Course.StartTime",
+            jsRenderASC: "desc",
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    function geturl()
+    {
+        
+        return "/NewMyCourse/GetNewMyCourseList?coursename=" + escape(getSearchWord('txt_CourseName')) + "&room=" + escape(getSearchWord('txt_RoomNmae')) + "&starttime=" + $("#txt_StartTime").val() + "&endtime=" + $("#txt_EndTime").val() + "&coursestatus=" + $("#sel_coursestatus").val();
+    }
+
+
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr class="{{:IsAppoint>0?"top":""}}">
+            <td>
+            {{:#index+1}}
+            </td>       
+            <td>
+                <div class="tl ovh span20" title="{{:CourseName}}">{{:CourseName}}</div>
+            </td>
+            <td>
+                {{if IsGroupTeach==1}}
+                    集中授课
+                {{/if}}
+                {{if IsGroupTeach==2}}
+                    分组带教
+                {{/if}}
+                {{if IsGroupTeach==3}}
+                    集中授课，分组带教
+                {{/if}}
+            </td>  
+            <td>
+                {{:teachername}}
+            </td>
+           @* <td>
+                {{:ClassName}}
+            </td>*@
+            <td>
+              <div class="tl">{{:CourseTimeStr}}</div>
+             </td>
+            <td>
+                {{:roomname}}
+            </td>             
+                    
+             <td>                
+                {{:CourseStatus}}
+            </td>            
+            <td>                   
+                {{if Way==1}}
+                <a href="/NewMyCourse/MyCourse?courseid={{:Id}}" title="查看详情" class="icon iview"></a>       
+                {{else}}
+                <a href="/NewMyCourse/StudyMyCourse?courseid={{:Id}}" title="查看详情" class="icon iview"></a> 
+                {{/if}}      
+            </td>
+        </tr> 
+        {{/for}}
+</script>

@@ -1,0 +1,51 @@
+﻿@{
+    Layout = null;
+}
+<div>
+<table class="tab-Form" style="width:400px">
+    <tr>
+        <td class="Tit">考勤状态：</td>
+        <td>
+            <div class="sel">
+                <input type="radio" value="1" name="IsStatus" text="正常" checked="checked" /><label>正常</label>
+                <input type="radio" value="2" name="IsStatus" text="缺勤" /><label>缺勤</label>
+                <input type="radio" value="3" name="IsStatus" text="迟到" /><label>迟到</label>
+                <input type="radio" value="4" name="IsStatus" text="早退" /><label>早退</label>
+                <input type="radio" value="5" name="IsStatus" text="迟到且早退" /><label>迟到且早退</label>
+            </div>
+        </td>
+    </tr>
+</table>      
+</div>
+<div class="mt10 tc"><input type="button" value="确定" class="btn" onclick="SubmitStatus();" /></div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("input[name='IsStatus']").eq(@(ViewBag.isatt)-1).attr("checked",true);
+    });
+
+    function SubmitStatus() {
+        //当前页码
+        var pageindex=$("#DeptAttendceList").next().find("#listPage .status-on").html().replace(/&nbsp;/g,"");
+        if(pageindex==undefined)
+        {
+            pageindex=1;
+        }
+        $.post("/DepAttendce/SubmitStatus?uids=@(ViewBag.uids)&t=" + new Date(),{ 
+        courseid: @(ViewBag.cid),
+        userid:@(ViewBag.uid),
+        departSetId:@(ViewBag.did),
+        isAttFlag:$('input[name="IsStatus"]:checked').val(),
+        Way:@(ViewBag.way)
+        },function (data) {
+            if (data.result == 1) 
+            {
+                art.dialog.tips("操作成功",3);
+                InitList(getUrl(),pageindex);
+            }
+            else {
+                art.dialog.tips("操作失败",3);
+            }
+        });
+        art.dialog.list['AttendStatus'].close(); 
+    }
+</script>

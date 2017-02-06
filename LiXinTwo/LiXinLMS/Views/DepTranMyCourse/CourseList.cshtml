@@ -1,0 +1,337 @@
+﻿@{
+    ViewBag.Title = "CourseList";
+    var start = Request.QueryString["s"] ?? "";
+}
+
+<div class="main-c">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_CourseName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">讲师：
+                </td>
+                <td class="span17">
+                    <input type="text" id="txt_TeacherName" value="请输入搜索内容" info="" class="Box span16 searchclass" />
+                </td>
+                <td class="Tit span6">开课时间：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" id="txt_StartTime" value="@(start == "" ? "" : Convert.ToDateTime(start).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  "/>
+                        <i></i>
+                    </div>                    
+                    至
+                    <div class="time-choose">
+                        <input type="text" id="txt_EndTime" value="@(start == "" ? "" : Convert.ToDateTime(start).AddDays(1).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })"/>
+                        <i></i>
+                    </div>                   
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btn_Select" class="btn" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="sel_IsMust">
+            <option value="2">请选择选修状态</option>
+            <option value="0">必修</option>
+            <option value="1">选修</option>
+        </select>
+        <select id="sel_LearnStatus">
+            <option value="3">请选择课程状态</option>
+            <option value="0">预订中</option>
+            <option value="1">进行中</option>
+            <option value="2">已结束</option>
+        </select>
+        <select id="sltSubscribeType">
+            <option value="99">预订状态</option>
+            <option value="1">预订成功</option>
+            <option value="2">请假成功</option>
+            <option value="6">补预订</option>
+            <option value="4">部门指定</option>
+            <option value="5">总所指定</option>
+        </select>
+        <select id="sle_Sort">
+            <option value="0">所有课程类型</option>
+            <option value="1">内部培训</option>
+            <option value="2">社会招聘</option>
+            <option value="3">新进员工</option>
+            <option value="4">实习生</option>
+        </select>
+        <div class="course-tysel">
+            <span class="c-it">内部培训<i></i></span>
+            <span class="c-sr">社会招聘<i></i></span>
+            <span class="c-ne">新进员工<i></i></span>
+            <span class="c-tr">实习生<i></i></span>
+            <span style="float: right; color: orangered;">温馨提示：底纹为粉红色的代表指定课程。</span>
+        </div>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="">课程名称
+                </th>
+                <th class="span5">学时
+                </th>
+                <th class="span7">选/必修
+                </th>
+                <th class="span12">开课时间
+                </th>
+                <th class="span8">开设课次
+                </th>
+                <th class="span7">讲师
+                </th>
+                <th class="span8">授课地点
+                </th>
+                <th class="span5">是否在<br />线测试
+                </th>
+                <th class="span7">课程状态
+                </th>
+                <th class="span7">预订状态
+                </th>
+                <th class="span7">获得学时
+                </th>
+                <th class="span8">操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function (e) {
+        initSearch();
+
+        $("#txt_CourseName").val('@(ViewBag.Attname)');
+        $("#txt_TeacherName").val('@(ViewBag.Atttea)');
+
+        if ("@(ViewBag.AttstartTime)" != "") {
+            $("#txt_StartTime").val('@(ViewBag.AttstartTime)');
+        }
+        if ("@(ViewBag.AttendTime)" != "") {
+            $("#txt_EndTime").val('@(ViewBag.AttendTime)');
+        }
+        $("#sel_IsMust").val('@(ViewBag.Attmust)');
+        $("#sel_LearnStatus").val('@(ViewBag.Attstate)');
+        $("#sltSubscribeType").val('@(ViewBag.AttType)');
+        $("#sle_Sort").val('@(ViewBag.Attsort)');
+        InitData(@(ViewBag.page)); //加载
+
+        //            $("#sle_Sort>ul>li").click(function () {
+        //                var sort = $(this).attr("sort");
+        //                var tt = $(this).html();
+        //                var classzhi = "course-tysel " + $(this).attr("class");
+        //                $("#sle_Sort").children("a").children("span").html(tt);
+        //                $("#sle_Sort").attr({ "class": classzhi,"sort":sort });
+
+        //                $("#Courstlist").JsRenderData({
+        //                    sourceUrl: geturl(),
+        //                    isPage: true,
+        //                    pageSize: 10,
+        //                    pageIndex: 1,
+        //                    templateID: "CourseListTemplate"
+        //                });
+
+        //            });
+        $("#btn_Select").click(function () {
+            InitData(1);
+        });
+        $("#sltSubscribeType,#sle_Sort,#sel_IsMust,#sel_LearnStatus").change(function () {
+            $("#Courstlist").JsRenderData({
+                sourceUrl: geturl(),
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: "CourseListTemplate"
+            });
+        });
+    });
+
+    function geturl() {
+        return '/MyCourse/CourseList?' + "teachername=" + escape(getSearchWord('txt_TeacherName')) + "&CourseName=" + escape(getSearchWord("txt_CourseName")) + "&IsMust=" + $("#sel_IsMust").val() + "&LearnStatus=" + $("#sel_LearnStatus").val() + "&Sort=" + $("#sle_Sort").val() + "&subscribeType=" + $("#sltSubscribeType").val() + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val();
+    }
+
+    function InitData(page) {
+        var v = "teachername=" + escape(getSearchWord('txt_TeacherName')) + "&CourseName=" + escape(getSearchWord("txt_CourseName")) + "&IsMust=" + $("#sel_IsMust").val() + "&LearnStatus=" + $("#sel_LearnStatus").val() + "&Sort=" + $("#sle_Sort").val() + "&subscribeType=" + $("#sltSubscribeType").val() + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val();
+        //'/MyCourse/CourseList?' + v,  
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/DepTranMyCourse/CourseList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    function Unsubscribe(id, year) {//退订
+        $.getJSON("/CourseLearn/Unsubscribe?id=" + id + "&year=" + year, function (da) {
+            if (da.result == 1) {
+                //art.dialog.tips(da.content, 1.5);
+                //InitData();
+                art.dialog({
+                    content: da.content,
+                    ok: function () {
+                        $.getJSON("/CourseLearn/UnsubscribeLine/" + id, function (data) {
+                            if (data.result == 1) {
+                                art.dialog.tips("退订成功！", 3);
+                                InitData(da.indexpage);
+                            } else {
+                                art.dialog.tips("退订失败！", 3);
+                            }
+                        });
+                    },
+                    cancel: true
+                });
+            } else {
+                art.dialog.tips(da.content, 3);
+                if (da.result == 4) {
+                    InitData(da.indexpage);
+                }
+            }
+        });
+    }
+
+    function Leave(id) {//请假
+        var str = "";
+        var flag = 1;
+        $("#div_LeaveMemo input[type='text']").each(function () {
+            if ($.trim($(this).val()) != "") {
+                str = str + "♣" + $.trim($(this).val());
+            } else {
+                flag = 0;
+            }
+        });
+        if (flag == 0) {
+            art.dialog.tips("请假理由不能为空！", 3);
+        } else {
+            $.post("/CourseLearn/Leave/", { id: id, memo: str }, function (da) {
+                if (da.result == 1) {
+                    closeDialog("art_Leave");
+                    //art.dialog.tips(da.content, 3);
+                    //InitData();
+                    art.dialog({
+                        width: 500,
+                        content: "消息内容：" + da.memo + "<br/>" + "确认发送邮件吗？",
+                        ok: function () {
+                            $.post("/CourseLearn/SendLeaveMessage/", { memo: da.memo }, function (data) {
+                                if (data == 1) {
+                                    art.dialog.tips("发送成功！", 3);
+                                    InitData(da.indexpage);
+                                } else {
+                                    art.dialog.tips("发送失败！", 3);
+                                }
+                            });
+                        },
+                        cancel: function () {
+                            InitData(da.indexpage);
+                        }
+                    });
+                } else {
+                    art.dialog.tips(da.content, 3);
+                }
+            });
+        }
+    }
+
+    function LeaveMemoShow(courseId, id) {
+        $.getJSON("/CourseLearn/GetSystemLeaveMemo/" + courseId, function (da) {
+            //var div = '<div id="div_Leave" class="all80 cen"><textarea id="txtLeaveMemo" cols="20" rows="2">' + da + '</textarea><input type="button" class="Btn Btn_blue" onclick="Leave(' + id + ');" value="提交" /></div>';
+            var div = '<div id="div_Leave"><div id="div_LeaveMemo">' + da + '</div><div class="tc mt10"><input type="button" class="btn" onclick="Leave(' + id + ');" value="提交" /></div></div>';
+            art.dialog({
+                content: div,
+                title: '请假理由',
+                id: 'art_Leave',
+                width: 500,
+                init: function () {
+                    //$("#txtLeaveMemo").textareaCount({ maxCharacterSize: 500 });
+                }
+            });
+        });
+    }
+    function showTags(flag) {
+        switch (flag) {
+            case 0: //在线测试
+                location.href = "/MyCourse/MyCourseList";
+                break;
+            case 1: //在线测试
+                location.href = "/MyCourse/VideoCourseList";
+                break;
+            case 2: //课后评估
+                location.href = "/MyCourse/CPACourseList";
+                break;
+            default:
+        }
+    }
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr class="{{:IsAppoint>0?"top":""}}">
+            <td>
+            {{:#index+1}}
+            </td>
+            <td style="text-align:left;">
+                <div class="course-type" title="课程类型：{{:SortStr==""?"无":SortStr}}">
+                     <i class="c-it {{:SortStr.indexOf('内部培训')>=0?"":"c-no"}}">内部培训</i>
+                     <i class="c-sr {{:SortStr.indexOf('社会招聘')>=0?"":"c-no"}}" title="">社会招聘</i>
+                     <i class="c-ne {{:SortStr.indexOf('新进员工')>=0?"":"c-no"}}">新进员工</i>
+                     <i class="c-tr {{:SortStr.indexOf('实习生')>=0?"":"c-no"}}">实习生</i>
+                 </div>
+                <div class="ovh span16" title="{{:CourseNameStr}}">{{:CourseNameStr}}</div>
+            </td>
+            <td>
+                {{:CourseLength}}
+            </td>
+            <td>
+                {{:IsMust=="0"?"必修":"选修"}}
+            </td>
+            <td class="f11" style="text-align:left;">
+                {{:TeacherCourseTime}} 
+            </td>
+            <td>
+               {{:CourseTimesOrder}}/{{:CourseTimes}}
+             </td>
+            <td>
+                {{:TeacherName}}
+            </td>             
+             <td>
+                <div class="ovh span8" title="{{:RoomName}}">{{:RoomName}}</div>
+            </td>  
+            <td>
+                <div class="ovh span8">{{:IsTest==0?"否":"是"}}</div>
+            </td>         
+             <td>                
+                {{:CourseStatus}}
+            </td> 
+            <td>                
+                {{:MyStatusStr}}
+            </td>                 
+            <td>
+               {{:GetScore}}
+            </td>
+            <td>   
+                {{if MyDoStatus == 1 || MyDoStatus == 2}}
+                    <a onclick="Unsubscribe({{:courseOrderId}},{{:YearPlan}});" class="icon ibook-un" title="退订"></a>
+                {{else}}
+                    <a class="icon ibook-un idis" title="退订">退订</a>
+                {{/if}}
+                {{if MyDoStatus == 1 || MyDoStatus == 4}}
+                    <a onclick="LeaveMemoShow({{:CourseId}},{{:courseOrderId}});" class="icon iatt-lea" title="请假"></a>
+                {{else}}
+                    <a class="icon iatt-lea idis" title="请假"></a>
+                {{/if}}         
+              <a href="/MyCourse/CourseMain?id={{:CourseId}}" title="查看详情" class="icon iview"></a>             
+            </td>
+        </tr> 
+        {{/for}}
+</script>

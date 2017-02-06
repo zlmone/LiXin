@@ -1,0 +1,73 @@
+﻿@{
+    ViewBag.Title = "Attendance";
+    Layout = null;
+    var courseid = Convert.ToInt32(ViewBag.courseid);
+}
+<script src="../../Scripts/extend.js" type="text/javascript"></script>
+<div class="main-c">
+          <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span8">课程类型</th>
+                    <th class="span12">上课时间</th>
+                    <th class="span12">学号</th>
+                    <th class="span8">姓名</th>
+                    <th class="span16">上课考勤</th>
+                    <th class="span16">下课考勤</th>
+                    <th class="span8">考勤状态</th>
+                </tr>
+            </thead>
+            <tbody id="userlist">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+            <center class="mt10">@Html.ActionLink("返回", "CourseList", "NewTeacherCourse", new { p = "1" }, new { @class = "btn btn-cancel" })</center>
+   
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        fOnload();
+        
+    })
+    function fOnload() {
+        $("#userlist").JsRenderData({
+            sourceUrl: geturl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    function geturl() {
+        return "/NewTeacherCourse/GetNew_Attend?courseid=@(courseid)";
+    }
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>                 
+            <td>
+                {{:CourseType}}
+            </td>
+            <td>
+                {{:CourseTime}}
+            </td>
+            <td>
+                {{:UserNum}}
+            </td>
+            <td>
+              {{:UserRealName}}
+             </td>
+            <td>
+                {{:AttendceStartTime}}
+            </td>             
+             <td>
+                {{:AttendceEndTime}}
+            </td>         
+             <td>                
+                {{:AttStatusStr}}
+            </td>
+        </tr> 
+        {{/for}}
+</script>

@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "其他形式、免修报表";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "其他形式、免修报表" }))
+    <div class="tab-bk mt10">
+        <ul id="tagorder">
+            <li class="On" id="order0">其他形式</li>
+            <li id="order1">免修</li>
+            <li id="order2">其他有组织形式</li>
+        </ul>
+    </div>
+    <div id="otherfrom">
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        showfromTable(0);
+
+        $("#tagorder li").click(function ()
+        {
+            showfromTable($(this).index())
+        });
+    });
+
+    function showfromTable(index)
+    {
+        $("#tagorder li").removeClass("On");
+        $("#order" + index).addClass("On");
+
+        switch (parseInt(index))
+        {
+            case 0:
+                $("#otherfrom").html("");
+                $("#otherfrom").load("ReportOtherMain");
+                break;
+            case 1:
+                $("#otherfrom").html("");
+                $("#otherfrom").load("Report_Free");
+                break;
+            case 2:
+                $("#otherfrom").html("");
+                $("#otherfrom").load("Report_OtherOrganization_Main");
+                break;
+
+        }
+    }
+</script>
+

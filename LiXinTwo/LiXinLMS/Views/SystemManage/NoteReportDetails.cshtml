@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "公告统计详情";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "公告统计详情" }))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">姓名：</td>
+                <td class="span11">
+                    <input type="text" class="span16 Box searchclass" id="txtRealname" value="请输入搜索内容" info="" /></td>
+                <td class="Tit span6">下载/阅读时间：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) " name="StartTime" id="txt_StartTime" value="">
+                        <i></i>
+                    </div>
+                    至
+                <div class="time-choose">
+                    <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) " id="txt_EndTime" value="">
+                    <i></i>
+                </div>
+                </td>
+                <td class="Tit span4">类型：</td>
+                <td class="span10">
+                    <select class="sel" onchange="Getdata();" id="selType">
+                        <option value="-1">选择类型</option>
+                        <option value="1">阅读</option>
+                        <option value="2">下载</option>
+                    </select>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick="Getdata();" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th class="span8">姓名</th>
+                    <th class="span8">部门</th>
+                    <th class="span8">培训级别</th>
+                    <th class="span8">类型</th>
+                    <th class="span8">时间</th>
+                </tr>
+            </thead>
+            <tbody id="noteList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <center class="mt10">
+        <input type="button" class="btn btn-cancel" value="返回" onclick="back()" />
+    </center>
+</div>
+<script id="noteListTemplate" type="text/x-jsrender">
+   {{for #data}}
+      <tr>
+           <td>{{:#index+1}}</td>
+           <td>{{:Realname}}</td>
+           <td>{{:DeptName}}</td>
+           <td>{{:TrainGrade}}</td>
+           <td>{{:typeStr}}</td>
+           <td>{{:LookTimeStr}}</td>
+       </tr>
+   {{/for}}
+</script>
+<script>
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        Getdata();
+    });
+    function back()
+    {
+        window.location.href = "NoteReport";
+    }
+
+    function Getdata()
+    {
+        $("#noteList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "noteListTemplate",
+            jsRenderSortField: " PublishTime",
+            jsRenderASC: "desc"
+        });
+    }
+
+    function getParamUrl()
+    {
+
+        return "/SystemManage/GetNoteReportDetails?noteID=@ViewBag.NoteID&Realname=" + escape($.trim(getSearchWord("txtRealname")))
+               + "&type=" + $("#selType").val() + "&start=" + $("#txt_StartTime").val() + "&end=" + $("#txt_EndTime").val();
+    }
+</script>

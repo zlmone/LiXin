@@ -1,0 +1,690 @@
+﻿@{
+    ViewBag.Title = "编辑新进员工教室";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="../../Content/roomseat.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.dragsort-0.4.min.js")"> </script>
+<script src="../../Scripts/createSeat.js" type="text/javascript"></script>
+<style type="text/css">
+    .signf{position:absolute;top:1px;right:1px;width:10px;height:10px;display:block;background-color:#FFF;text-decoration:none;cursor: pointer;}
+    .signt{position:absolute;top:1px;right:1px;width:10px;height:10px;display:block;background-color:red;text-decoration: none;cursor: pointer;}
+    .zuoweiposition{ line-height: 14px;}
+.mycharleft {
+        background: none repeat scroll 0 0 #E7F1FF;
+    border: 1px solid #BACFEB;
+    color: #5684C5;
+    display: block;
+    padding: 0 3px;
+    vertical-align: top;
+    white-space: nowrap;
+}
+</style>
+
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "编辑新进员工教室" }))
+
+
+    <div class="centerbody all">
+        <form method="post" action="" id="roomForm">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span10">
+                        <span class="must">*</span>教室名称：</td>
+                    <td>
+                        <input type="text" id="roomName" maxlength="30" name="roomName" class="span26" value="@(Model.RoomName)"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit"><span class="must">*</span>选择班级：</td>
+                    <td>
+                        <input type="hidden" name="Classes" id="txtClass" value="@Model.Classes" />
+                        <input id="btnSelClass" class="btn btn-co" type="button" onclick="fnChooseClass();" value="选择班级" name="btnSelClass"/>
+                        <span class="ml10">当前总人数：<b id="personCount">@(ViewBag.PersonCount)</b>人</span>
+                        <span class="Validform_checktip Validform_wrong" style="display:none;"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">班级排序：</td>
+                    <td class="qorder">
+                        <ul id="classlist" class="clb">
+                            @foreach (var item in (IEnumerable<LixinModels.NewClassManage.New_Class>)ViewBag.ClassList)
+                            {
+                                <li id="class@(item.Id)" data="@item.Id">
+                                    @item.ClassName
+                                    <input class="btn btn-cancel"  type="button" name="btn" title="移除" value="X" onclick="fnRemoveclass('class@(item.Id)',@(item.Id));" />
+                                </li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        <span class="must">*</span>最大人数：
+                    </td>
+                    <td>
+                        <input type="text" id="roomNumber" maxlength="4" name="roomNumber" class="span5" value="@(Model.RoomNumber == 0 ? 1 : Model.RoomNumber)"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">教室类型：</td>
+                    <td>
+                        <input type="radio" id="SeatType0" @(Model.SeatType==0?"checked=checked":"") name="SeatType" value="0" />集中授课
+                        <input type="radio" id="SeatType1" @(Model.SeatType==1?"checked=checked":"") name="SeatType" value="1" class="ml20" />分组带教
+                        <input type="radio" id="SeatType2" @(Model.SeatType==2?"checked=checked":"") name="SeatType" value="2" class="ml20" />考试
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        <span class="must">*</span>教室规格：
+                    </td>
+                    <td>
+                        <input type="text" id="roomRow" maxlength="2" name="roomRow" class="span5" value="@(Model.RowNumber == 0 ? 1 : Model.RowNumber)"/>行
+                        <input type="text" id="roomCol" maxlength="2" name="roomCol" class="span5" value="@(Model.ColumnNumber == 0 ? 1 : Model.ColumnNumber)"/>列
+                        <span class="ml20">每个桌子</span>
+                        <input type="text" class="span2" id="PrePersonCount" @(Model.SeatType == 1 ? "" : "disabled=disabled") maxlength="1" name="PrePersonCount" value="@((Model.PrePersonCount==null ||Model.PrePersonCount==0)?2:Model.PrePersonCount)"/>个人
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        <span class="must">*</span>教室座位图：
+                    </td>  
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="showSeat">
+                            <div class="mt10 mb5 clb" style="padding-right:30px;">
+                                <div class="fl ml30">
+                                    <span class="ml20">排座规则：</span>
+                                    <input type="checkbox" value="0" class="ml5" data-type="seatrule"/><label>邻座性别不同</label>
+                                    <input type="checkbox" value="1" class="ml5" data-type="seatrule"/><label>邻座实习经验不同</label>
+                                    <input type="checkbox" value="2" class="ml5" data-type="seatrule"/><label>邻座院校不同</label>
+                                    <input type="checkbox" value="3" class="ml5" data-type="seatrule"/><label>邻座专业不同</label>
+                                    <input type="checkbox" value="4" class="ml5" data-type="seatrule"/><label>同小组相邻</label>
+                                </div>
+                                <div class="fr">
+                                    <input type="text" id="roomSeat" name="roomSeat" value="@(Model.DisSeat == "" ? "" : Model.DisSeat)" class="span26" style="display: none"/>
+                                    <input type="button" value="生成座位" class="btn btn-co" onclick="btnCreateSeat(this);"/>
+                                    <input type="button" value="批量禁用座位" class="btn btn-co" onclick="btnStopSeat(this);"/>
+                                    <input type="button" value="批量启用座位" class="btn btn-co" onclick="btnStartSeat(this);"/>
+                                </div>
+                            </div>
+                            <div class="bg" id="roombg">
+                                <div id="room" class="room">
+                                    <div id="zhuoziMain" style="position: relative;">
+                                    </div>
+                                </div>
+                            </div>         
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        <span class="must">*</span>教室地址：
+                    </td>
+                    <td>
+                        <input type="text" id="Address" maxlength="100" name="Address" value="@(Model.Address)" class="span26"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        <span class="must"></span>教室资源：
+                    </td>
+                    <td>
+                        <input type="hidden" name="classRoomID" value="" id="classRoomID" />
+                        <input type="file" name="roomResource" value="" id="uploadResource" />
+                        <input type="hidden" name="hidDelResourceIds" value="" id="hidDelResourceIds" />
+                        @if (ViewBag.ClassRoomResources != null && ((IEnumerable<LiXinModels.Sys_ClassRoomResource>) ViewBag.ClassRoomResources).Count() > 0)
+                        {
+                            int countNumber = 0;
+                            <div>
+                                <ul>
+                                    @foreach (var item in (IEnumerable<LiXinModels.Sys_ClassRoomResource>) ViewBag.ClassRoomResources)
+                                    {
+
+                                        if (@item.Name.EndsWith(".jpg") || @item.Name.EndsWith(".JPG"))
+                                        {
+                                            <li id="div_roomRes_@(item.Id)">
+                                                <span title="@item.Name"> @item.Name</span>&nbsp;
+                                                @* <a title="查看" href="javascript:;" onclick=" fnShowRoomResource('@(item.RealName)') ">[查看]</a> 
+                                                <a title="移除" href="javascript:;" onclick=" fnRemoveRoomResource('div_roomRes_@(item.Id)', @item.Id) ">[移除]</a>*@
+                                                <input type="button" onclick="fnShowRoomResource('@(item.RealName)') "value="查看" class="btn"/>
+                                                <input type="button" onclick="fnRemoveRoomResource('div_roomRes_@(item.Id)', @item.Id) " value="移除" class="btn"/>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li id="div_roomRes_@(item.Id)">
+                                                <span title="@item.Name"> @item.Name</span>&nbsp;
+                                                @*                                                <a title="移除" href="javascript:;" onclick=" fnRemoveRoomResource('div_roomRes_@(item.Id)', @item.Id) ">[移除]</a>*@
+                                                <input type="button" onclick="fnRemoveRoomResource('div_roomRes_@(item.Id)', @item.Id) " value="移除" class="btn"/>
+                                            </li>
+                                        }
+                                        countNumber = countNumber + 1;
+                                    }
+                                </ul>
+                            </div>
+                            <input type="hidden" id="fileResources" name ="fileResources" value=@countNumber class="span26"/>
+                        }
+                        else
+                        {
+                            <input type="hidden" id="fileResources" name ="fileResources" value="0" class="span26"/>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">备注：
+                    </td>
+                    <td>
+                        <textarea id="roomMemo" name="roomMemo" class="span50">@(Model.Memo)</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="tc">
+                        <input type="button" id="btnAdd" name="btnAdd" value="确定" class="btn"/>
+                        <a class="btn" href="/NewClassRoom/ClassRoomManage">返回</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+<!-- 班级模板 -->
+<script id="listTeachTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <li id="class{{:id}}" data="{{:id}}">
+            {{:name}}
+            <input class="btn btn-cancel"  type="button" name="btn" title="移除" value="X" onclick="fnRemove{{:type}}('{{:type}}{{:id}}',{{:id}});" />
+        </li>
+    {{/for}}
+</script>
+<!--方桌单个座位的模板-->
+<script id="singleSeatTemplate" type="text/x-jsrender">
+   <div class="{{:divclass}}" freeze="{{:freeze}}" data-position="{{:row}},{{:col}}" order="{{:order}}" ishave="0" type="zuowei" status="0" id="dengzi{{:order}}" style="left:{{:left}}px; top:{{:top}}px; width:{{:width}}px;" userID="0">
+        <div class="name"></div>
+        <div class="gender"></div>
+        <div class="zuoweiposition">{{:row+1}}行,{{:col+1}}列</div>
+        <a sign="sign" class="signf" signflag="0" onclick="if($(this).attr('signflag')=='0'){$(this).attr('signflag','1').removeClass('signf').addClass('signt');}else{$(this).attr('signflag','0').removeClass('signt').addClass('signf');}">&nbsp;</a>
+        <div class="seatselected">&nbsp;</div>
+    </div>
+</script>
+<!--圆桌单个桌子的模板-->
+<script id="singleDeskSeatTemplate" type="text/x-jsrender">
+   <div class='circle yz1' style="left:{{:left}}px;top:{{:top}}px;" order={{:number}}"">
+        {{for orderlist}}
+        <div type='zuowei' status='0' id="dengzi_{{:row}}_{{:col}}_{{:order}}" data-position="{{:row}},{{:col}},{{:order}}" order="{{:order}}" class="yizi1" ishave="0" freeze="{{:freeze}}" userID="0">
+            <div class="name" style="line-height:12px;text-align:left;"></div><div class="gender"></div>
+            <a sign="sign" class="signf" signflag="0" onclick="if($(this).attr('signflag')=='0'){$(this).attr('signflag','1').removeClass('signf').addClass('signt');}else{$(this).attr('signflag','0').removeClass('signt').addClass('signf');}">&nbsp;</a>
+            <div class="seatselected" style="width:50px;height:35px;">&nbsp;</div>
+        </div>
+        {{/for}}
+        <a class="deskNumber">{{:number}}</a>
+   </div>
+</script>
+<script type="text/javascript">
+    //生成座位
+    function btnCreateSeat() {
+        var personCount = parseInt($("#personCount").text());
+        var seatpersonCount = $("#zhuoziMain div[freeze='0']").length;
+        if(personCount>seatpersonCount) {
+            art.dialog.tips('教室可用座位总数小于总人数！', 1.5);
+            return ;
+        }
+        if (parseInt($("#roomNumber").val()) < personCount) {
+            art.dialog.tips('教室最大人数小于所选班级的总人数！', 1.5);
+            return ;
+        }
+        //获取班级的排序顺序
+        var classes = '';
+        $("#classlist li").each(function() {
+            classes += (classes == "" ? $(this).attr('data') : (',' + $(this).attr('data')));   
+        });
+        if(classes=="") {
+            art.dialog.tips('课程下没有班级，请向课程里添加班级！', 1.5);
+            return;
+        }
+        //获取每个教室的排座规则
+        var rules = '';
+        $("input[data-type='seatrule']").each(function() {
+            rules += (rules == "" ? ($(this).attr('checked') ? "1" : "0") : (',' + ($(this).attr('checked') ? "1" : "0")));
+        });
+        //获取禁用的座位
+        var disseat = '';
+        $("#zhuoziMain").find("div[type='zuowei'][freeze='1']").each(function() {
+            disseat += (disseat == "" ? $(this).attr('data-position') : (';' + $(this).attr('data-position')));
+        });
+        var roomtype=$("input[name='SeatType']:checked").attr('value');
+        var row = roomtype == '1' ? ($("#roomRow").val() * $("#roomCol").val()): $("#roomRow").val();
+        var col = roomtype == '1' ? $("#PrePersonCount").val():$("#roomCol").val();
+        $.post('/Common/ArrangeSeat?t='+new Date(), {roomIds:"",classIds:classes,disableSeats:disseat,rules:rules,rowcount:row,colcount:col,roomType:roomtype},function(data) {
+            //后续
+            if(data.message=="") {
+                //把人放到座位上
+                $("#zhuoziMain div[type='zuowei'],#zhuoziMain div[type='zuowei']").attr("userID", 0).find(".name").html('');
+                $("#zhuoziMain div[type='zuowei'],#zhuoziMain div[type='zuowei']").find(".gender").html('');
+                if(data.result.length>0) {
+                    var c = 0;
+                    
+                    //循环教室座位
+                    if (roomtype == '1') {
+                        //圆桌
+                        $("#zhuoziMain .circle").each(function() {
+                            $(this).find("div[type='zuowei']").each(function() {
+                                if ($(this).attr('freeze') == '0') {
+                                    if (c < data.result.length) {
+                                        $(this).find(".name").html(data.result[c].Realname);
+                                        $(this).find(".gender").html(data.result[c].Sex == 0 ? "男" : "女");
+                                        $(this).attr("userID", data.result[c].UserId);
+                                        c++;
+                                    }
+                                }
+                            });
+                        });
+                        exportchangeSeat($("#zhuoziMain"),1);
+                    } else {
+                        //方桌
+                        $("#zhuoziMain").find("div[type='zuowei']").each(function() {
+                            if ($(this).attr('freeze') == '0') {
+                                if (c < data.result.length) {
+                                    $(this).find(".name").html(data.result[c].Realname);
+                                    $(this).find(".gender").html(data.result[c].Sex == 0 ? "男" : "女");
+                                    $(this).attr("userID", data.result[c].UserId);
+                                    c++;
+                                }
+                            }
+                        });
+                        exportchangeSeat($("#zhuoziMain"),0);
+                    } 
+                    $("#btnAdd").removeAttr("disabled");
+                 
+                }
+            }else {
+                art.dialog.tips(data.message, 1.5);
+            }
+        });
+    }
+    //选择班级
+    function fnChooseClass() {
+        art.dialog.load("/NewCourseManage/SelectClass?AllUserID=" + $("#txtClass").val() + "&type=checkbox", { title: '选择班级', id: "pop_chooseClass" }, false);
+    }
+    //呈现所选的班级
+    function GetClassIDList() {
+        var classids = GetCheckedIdAndName("classList");
+        if (classids == "" || classids == undefined) {
+            art.dialog.tips('请选择班级！', 1.5);
+            return;
+        }
+        var classarr = [];
+        //先取出原来的班级
+        $("#classlist li").each(function() {
+            classarr.push({ id: $(this).attr('data'), name: $(this).text(), type: 'class' });
+        });
+        var ids = '';
+        
+        var arr = classids.split(';');
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] != '') {
+                var subarr = arr[i].split(',');
+                ids += ids == '' ? (subarr[0]) : (',' + subarr[0]);
+                classarr.push({ id: subarr[0], name: subarr[1],type:'class' });
+            }
+        }
+        //存入隐藏域
+        if ($("#txtClass").val() == '') {
+            $("#txtClass").val(ids);
+        } else {
+            $("#txtClass").val($("#txtClass").val() + (ids != '' ? (',' + ids) : ''));
+        }
+        
+        //呈现
+        $("#classlist").html($("#listTeachTemplate").render(classarr));
+        art.dialog.list["pop_chooseClass"].close();
+        if ($("#classlist li").length == 0) {
+            $("#classlist").parent().hide();
+        } else {
+            $("#classlist").parent().show();
+        }
+        $("#txtClass").parent().find(".Validform_wrong").html('').hide();
+        //获取当前所选班级的人数
+        $.getJSON('/NewClassRoom/GetClassPersonCount?cId='+$("#txtClass").val(), function(data) {
+            $("#personCount").text(data);
+        });
+    }
+    
+    //移除班级
+    function fnRemoveclass(liid,id) {
+        $("#" + liid).remove();
+        var old = $("#txtClass").val();
+        var newids = (',' + old + ',').replace((',' + id + ','), ',');
+        if (newids.length > 1) {
+            newids = newids.substring(0, newids.length - 1).substring(1, newids.length - 1);
+        } else {
+            newids = '';
+        }
+        $("#txtClass").val(newids);
+        if ($("#classlist li").length == 0) {
+            $("#classlist").parent().hide();
+        }
+        //获取当前所选班级的人数
+        $.getJSON('/NewClassRoom/GetClassPersonCount?cId='+$("#txtClass").val(), function(data) {
+            $("#personCount").text(data);
+        });
+    }
+
+
+    //排座显示
+    function fnChange() {
+        $("#zhuoziMain").html("");
+        if ($("input[name='SeatType']:checked").attr('value') == '1') {
+            //圆桌
+            exportcreateRoundSeat($("#roombg"), $("#roomRow").val()* $("#roomCol").val() * $("#PrePersonCount").val(), $("#roomRow").val(), $("#roomCol").val(),$("#PrePersonCount").val(),$("#roomSeat").val(),1);
+        } else {
+            //方桌
+            exportcreateSeat($("#roombg"), $("#roomRow").val() * $("#roomCol").val(), $("#roomRow").val(), $("#roomCol").val(),$("#roomSeat").val(),1);
+        }
+    }
+
+    //图片显示
+    function fnShowRoomResource(id) {
+        var item = "@System.Configuration.ConfigurationManager.AppSettings["ClassRoomResource"]";
+        item = ".." + item.substr(1) + id;
+        art.dialog({
+            title:'显示图片',
+            content: "<img src="+item+" alt=\"\"/>",
+            ok:function(){}
+        });
+    }
+    
+    //hidDelResourceIds 需要删除的资源Ids
+    function fnRemoveRoomResource(id,relid){   
+        art.dialog({
+            title:'提示',
+            content:"确认移除？",
+            ok:function(){
+                $("#"+id).remove();
+                var ids= $("#hidDelResourceIds").val();
+                if (ids=="") {
+                    ids=relid;
+                }
+                else if (ids!="") {
+                    ids += "," + relid;
+                }
+                $("#hidDelResourceIds").val(ids);
+                var Number = $("#fileResources").val();
+                Number = Number - 1;
+                $("#fileResources").val(Number);
+            },
+            cancel:function(){}
+        }); 
+    }
+
+    var fileCount = 0; //当前上传的文件数
+    var currNum = 0;
+    var interval = null;
+    var flag = false;
+    $(document).ready(function() {
+
+
+        //班级排序拖动事件
+        $("#classlist").dragsort();
+        //桌子类型切换
+        $("input[name='SeatType']").bind('change', function() {
+            if ($(this).attr('checked')) {
+                if ($(this).attr('value') == '1') {
+                    $('#PrePersonCount').attr('disabled',false);
+                } else {
+                    $('#PrePersonCount').attr('disabled',true);
+                }
+                $("#roomSeat").val('');
+                fnChange();
+            }
+        });
+        //桌子规格变动事件
+        $('#roomRow,#roomCol,#PrePersonCount').bind('change', function() {
+            fnChange();
+        });
+        fnChange();
+        if (@(Model.Id)>0) {
+            if($("input[name='SeatType']:checked").attr('value')==1){
+                exportchangeSeat($("#zhuoziMain"),1);
+            }else{
+                exportchangeSeat($("#zhuoziMain"),0);
+            }
+
+            $("input[name='SeatType']").attr("disabled","true");
+
+        }
+        //上传教室资源
+        $('#uploadResource').uploadify({
+            'formData': { 'folder': "@System.Configuration.ConfigurationManager.AppSettings["ClassRoomResource"]" },
+            'buttonText': '选择资源',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',
+            'auto': false,
+            'multi': true,
+            'onCancel': function (file) {
+            },
+            'onSelect': function (file) {
+            },
+            'onUploadError':function(file, errorCode, errorMsg, errorString)
+            {
+                if (errorCode!=-280) {
+                    art.dialog.tips('上传过程中发送异常，请返回上级页面并重新选择文件！',3);
+                    $("#uploadResource-queue").cancel(file);
+                }
+            },
+            'onUploadStart': function (file) {
+            },
+            'onUploadSuccess': function (file, data, response) {
+                var a = data.split('|');
+                if (a.length>0) {
+                    var ResourceName = a[0];
+                    var RealName = a[1];
+                    var ResourceSize = a[2];
+                    var ResourceType =0; 
+                    var classRoomID = $("#classRoomID").val();
+                    $.post("/NewClassRoom/SubmitAddRoomResource?roomId=" + classRoomID + "&resourceName=" + escape(ResourceName) + "&RealName=" + RealName, 
+                        function(data) {
+                            currNum++;
+                        });
+                }
+            },
+            'onAllComplete':function(){   
+
+            },
+        });
+
+        jQuery.validator.addMethod("IsNum", function(value, element) {       
+            var length = value.length;  
+            var number=/^[1-9]*[1-9][0-9]*$/;
+            return this.optional(element) ||number.test(value) }, "请输入不大于9999的正整数！"); 
+
+        jQuery.validator.addMethod("IsNum_1", function(value, element) {       
+            var length = value.length;  
+            var number=/^[1-9]*[1-9][0-9]*$/;
+            return this.optional(element) ||number.test(value) }, "请输入不大于99的正整数！");
+        
+        $("#roomForm").validate({
+            debug: true,
+            submitHandler: submitform,
+            event: "blur",
+            rules: {
+                roomName: {
+                    required: true,
+                    remote: { type: "post", dataType: "json", url: "/NewClassRoom/IsExsitRoomName?t="+new Date(), data: { roomName: function() { return $("#roomName").val().trim(); }, id: @(Model.Id) } }
+                },
+                Address: {
+                    required: true
+                },
+                roomNumber: {
+                    required: true,
+                    max: 9999,
+                    min: 1,
+                    IsNum: true
+                },
+                roomRow: {
+                    required: true,
+                    max: 99,
+                    min: 1,
+                    IsNum_1: true
+                },
+                roomCol: {
+                    required: true,
+                    max: 99,
+                    min: 1,
+                    IsNum_1: true
+                },
+                PrePersonCount: {
+                    required: true,
+                    max: 9,
+                    min: 1,
+                    IsNum_1: true
+                }
+            },
+            messages: {
+                roomName: {
+                    required: "请输入教室名称！",
+                    remote: "已存在此教室名称！"
+                },
+                Address: {
+                    required: "请输入教室地址！"
+                },
+                roomNumber: {
+                    required: "请输入教室最大容纳人数！",
+                    max: "请输入不大于9999的正整数！",
+                    min: "教室最小容量为1！"
+                },
+                roomRow: {
+                    required: "请输入教室行数！",
+                    max: "请输入不大于99的正整数！",
+                    min: "教室最小行数为1！"
+                },
+                roomCol: {
+                    required: "请输入教室列数！",
+                    max: "请输入不大于99的正整数！",
+                    min: "教室最小列数为1！"
+                },
+                PrePersonCount: {
+                    required: "请输入圆桌每张桌子的人数！",
+                    max: "请输入不大于9的正整数！",
+                    min: "教室每行桌子最小个数为1！"
+                }
+            }
+        });
+
+        $("#btnAdd").click("click", function() {
+
+            $("#roomForm").submit();
+
+        });
+
+        $("#roomMemo").textareaCount({
+            maxCharacterSize: 200,
+            originalStyle: "mycharleft"
+        });
+    });
+
+    function submitform(form) {
+        var roomTotalNumber = $("#roomCol").val() * $("#roomRow").val();       
+        if (roomTotalNumber <= $("#roomNumber").val()) {
+            $("#btnAdd").attr("disabled", "disabled");
+            fileCount = $("#uploadResource-queue").find(".uploadify-queue-item").length;
+            if (fileCount > 0) {
+                saveData();
+                $('#uploadResource').uploadify('upload', '*');
+            } else {
+                saveData();
+            }
+        } else {
+            art.dialog.tips("教室的行和列乘积不可大于教室的最大容纳人数！", 3);
+        }
+    }
+
+    //保存
+    function saveData() {
+        if (fndisSeat()) {
+            $.post("/NewClassRoom/SubmitClassRoom?id=@(Model.Id)", $("#roomForm").formSerialize(), function(data) {
+                if (data.result == 1) {
+                    $("#classRoomID").val(data.classRoomID);
+
+                    if (fileCount > 0) {
+                        if (interval == null || interval == undefined) {
+                            interval = setInterval(function() {
+                                if (currNum == fileCount) {
+                                    location.href = "/NewClassRoom/ClassRoomManage";
+                                    clearInterval(interval);
+                                }
+                            }, 1000);
+                        }
+                    } else {
+                        location.href = "/NewClassRoom/ClassRoomManage";
+                    }
+                } else {
+                    art.dialog.tips(data.content, 3);
+                    return;
+                }
+            });
+        }
+    }
+    
+    //批量禁用座位
+    function btnStopSeat(obj) {
+        var list=$("#zhuoziMain a.signt");
+        if(list.length>0) {
+            var ztype = $("input[name='SeatType']:checked").attr('value');
+            var tempcount = 0;
+            list.each(function() {
+                if(parseInt($(this).parent().attr('userid'))<=0) {
+                    $(this).parent().attr('freeze', '1').removeClass(ztype==1?'yizi1':'dengzi1').removeClass(ztype==1?'yizi0':'dengzi0').addClass(ztype==1?'yizi0':'dengzi0');
+                    $(this).attr('signflag', '0').removeClass('signt').addClass('signf');
+                }else{
+                    $(this).attr('signflag', '0').removeClass('signt').addClass('signf');
+                    tempcount++;
+                }
+            });
+            if(tempcount>0) {
+                art.dialog.tips('已分配人员的座位不可以禁用！', 1.5);
+            }
+        }else {
+            art.dialog.tips('请选择要禁用的座位！', 3);
+        }
+    }
+    
+    //批量启用座位
+    function btnStartSeat(obj) {
+        var list=$("#zhuoziMain a.signt");
+        if(list.length>0) {
+            var ztype = $("input[name='SeatType']:checked").attr('value');
+            list.each(function() {
+                $(this).parent().attr('freeze', '0').removeClass(ztype==1?'yizi0':'dengzi0').removeClass(ztype==1?'yizi1':'dengzi1').addClass(ztype==1?'yizi1':'dengzi1');
+                $(this).attr('signflag', '0').removeClass('signt').addClass('signf');
+            });
+        }else {
+            art.dialog.tips('请选择要启用的座位！', 3);
+        }
+    }
+
+    //禁用座位组
+    function fndisSeat() {
+        var roomtype=$("input[name='SeatType']:checked").attr('value');//教室类型
+        //人员座位
+        var seats = '';
+        var personcount = 0;
+        $("#zhuoziMain").find("div[type='zuowei']").each(function() {
+            var tstr = $(this).attr('data-position') + ',' + $(this).attr('userid') + ',' + $(this).find(".name").text() + ',' + $(this).find('.gender').text();
+            seats += seats == '' ? tstr : (':' + tstr);
+            if (parseInt($(this).attr('userid'))>0) {
+                personcount++;
+            }
+        });
+       
+        $("#roomSeat").val(seats);
+        if(personcount==0)
+            art.dialog.tips('请先将人员进行排座！', 3);           
+        return personcount > 0;
+    }
+</script>

@@ -1,0 +1,195 @@
+﻿@{
+    ViewBag.Title = "培训成绩录入";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "培训成绩录入"
+}))
+
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span3">姓名：
+                </td>
+                <td>
+                    <input type="text" class="span10 Box searchclass" id="realName" value="请输入姓名" info="" />
+                </td>
+                <td class="Tit span6">
+                入职时间：  
+                <td>
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" />
+                        <i></i>
+                    </div>
+                </td>
+                <td class="Tit span6">毕业院校：
+                </td>
+                <td>
+                    <input type="text" class="span10 Box searchclass" id="GraduateSchool" value="请输入搜索内容" info="" /></td>
+                <td rowspan="2" class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+                    <input type="button" class="btn btn-co" value="成绩录入" onclick="ImportScore()">
+                     <a onclick="DownLoadFile()" style="cursor: pointer">下载模板</a>
+                </td>
+            </tr>
+            <tr>
+
+                <td class="Tit">所学专业：
+                </td>
+                <td>
+                    <input type="text" class="span10 Box searchclass" id="Major" value="请输入搜索内容" info="" /></td>
+              
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selIsInternExp" onchange=" InitData(); ">
+            <option value="-1">是否有事务所实习经验</option>
+            <option value="1">是</option>
+            <option value="0">否</option>
+        </select>
+        <select id="selIsOurIntern" onchange=" InitData(); ">
+            <option value="-1">是否在我所进行实习</option>
+            <option value="1">是</option>
+            <option value="0">否</option>
+        </select>
+        <select id="selSex" onchange=" InitData(); ">
+            <option value="-1">选择性别</option>
+            <option value="0">男</option>
+            <option value="1">女</option>
+        </select>
+          <select id="selYear" onchange="InitData();">
+            @foreach (var year in ViewBag.yearList)
+            {
+                <option value="@year"  @(year == ViewBag.nowyear ? "selected='selected'" : "")>@year</option>
+            }
+        </select>
+    </div>
+
+    <!-- 列表 -->
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th class="span8">登录名
+                    </th>
+                    <th class="span5">姓名
+                    </th>
+                    <th class="span14">入职时间
+                    </th>
+                    <th class="span8">毕业院校
+                    </th>
+                    <th class="span8">所学专业
+                    </th>
+                    <th class="span8">是否实习经验
+                    </th>
+                    <th class="span8">是否在我所实习
+                    </th>
+                    <th class="span8">得分
+                    </th>
+                    <th class="span4">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="userList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="userListTemplate" type="text/x-jsrender">
+     {{for #data}}
+        <tr>
+          
+            <td>{{:#index+1}}</td>
+            <td>{{:Username}}</td>
+            <td class="span8">
+              {{if Sex==0}}
+                  <span style="color:blue">♂</span>
+              {{else}}
+                  <span style="color:red">♀</span>      
+              {{/if}}
+              {{:Realname}}
+            </td> 
+            <td>{{:JoinDateStr}}</td>
+            <td>{{:GraduateSchoolStr}}</td>
+            <td>{{:MajorStr}}</td>
+            <td>{{:IsInternExpStr}}</td>
+            <td>{{:IsOurInternStr}}</td>
+           <td>{{:examScore}}/{{:examSumScore}}</td>
+           <td>    
+                <a class="icon ieva-re" title="成绩录入" onclick="inputScore({{:UserId}})"></a>                               
+           </td>
+        </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化搜索条件
+        initSearch();
+
+        //加载列表
+        InitData();
+    });
+
+    //初始化列表
+    function InitData()
+    {
+        $("#userList").JsRenderData({
+            sourceUrl: getUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "UserId",
+            jsRenderASC: "desc",
+            templateID: "userListTemplate",
+            funCallback: function ()
+            {
+                //年度不相同，屏蔽修改删除按钮
+                if ("@ViewBag.nowyear" != $("#selYear").val())
+                {
+                    $("#userList .ieva-re").attr("disabled", true).removeAttr("onclick");
+                }
+             }
+        });
+    }
+
+    function getUrl()
+    {
+        return "/NewUserManage/GetUserList?realName=" + escape(getSearchWord("realName")) + "&starttime=" + $("#start").val()
+        + "&endtime=" + $("#end").val() + "&GraduateSchool=" + escape(getSearchWord("GraduateSchool")) + "&Major=" + escape(getSearchWord("Major"))
+        + "&InternDept=&IsInternExp=" + $("#selIsInternExp").val() + "&IsOurIntern=" + $("#selIsOurIntern").val()
+            + "&sex=" + $("#selSex").val() + "&Year=" + $("#selYear").val();
+    }
+
+
+
+    function inputScore(UserID)
+    {
+        art.dialog.load("inputScore?userID=" + UserID, { title: "录入分数", id: "pop_inputScore", width: 600 });
+    }
+
+    function ImportScore()
+    {
+        art.dialog.load("ImportScore", { title: "成绩导入", id: "pop_inputScore", width: 400 });
+    }
+
+
+    //下载模板
+    function DownLoadFile() {
+        window.location.href = "/Common/DownLoadFile?url=~/TemplateFile/NewUserExamScoreTemplate.xls";
+    }
+</script>

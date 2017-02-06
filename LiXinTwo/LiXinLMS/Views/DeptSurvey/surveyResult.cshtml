@@ -1,0 +1,187 @@
+﻿@{
+    ViewBag.Title = "调查结果明细";
+    Layout = null;
+}
+<script src="../../Scripts/report/highcharts.js" type="text/javascript"></script>
+<script src="../../Scripts/report/column.js" type="text/javascript"></script>
+<script src="../../Scripts/report/pie.js" type="text/javascript"></script>
+<div class="mt10">
+    <div class="fl span50">
+
+            <div class="treeview-box span20 fl">
+                <div id="deptTree" class="tree-list">
+                </div>
+            </div>
+        <div class="span29 fr">
+            <h5 class="tit-h5">
+                <span>问卷试题信息</span></h5>
+            <ul id="questionList" class="que-list">
+            </ul>
+        </div>
+    </div>
+    <div class="fr span48 pl10" style="border-left: 1px dotted #aaa;">
+        <h5 class="tit-h5">
+            <span>答卷信息</span></h5>
+        <div id="pop_answer">
+            <table class="tab-Form" id="searchtab">
+                <tr>
+                    <td class="Tit span12">
+                        关键字：
+                    </td>
+                    <td>
+                        <input id="txtName" type="text" class="all" />
+                    </td>
+                    <td class="span10 tr">
+                        <input type="button" class="btn" value="搜索" onclick="searchResult()" />
+                    </td>
+                </tr>
+            </table>
+            <table id="subjectresult" style="display: none" class="tab-Form">
+            </table>
+            <div id="objectresult" style="display: none">
+                <div id="showpie" class="mt10">
+                </div>
+                <table id="objectlist" class="tab-Form">
+                </table>
+            </div>
+            <div>
+            </div>
+        </div>
+       
+    </div>
+</div>
+<script id="surveyCheckTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <li>
+        {{if useNum>0}}
+          <a onclick="shouwAnswer({{:QuestionID}},{{:QuestionType}},this)" class="pointer"> {{:#index+1}}.<strong>[{{:QuestionTypeStr}}]</strong>{{:QuestionContent}}
+           {{if QuestionType==2}}
+                <div class='sortpayGrade' style='display:inline;'>{{:LinkSortPayGradeNoClick}}</div>
+            {{/if}}
+          <span>({{:useNum}}人回答)</span></a>
+        {{else}}
+           {{:#index+1}}.<strong>[{{:QuestionTypeStr}}]</strong>{{:QuestionContent}}<span>({{:useNum}}人回答)</span>
+        {{/if}}
+        </li>
+   {{/for}}
+</script>
+<script id="subjectresultTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td class="Tit span12">
+                {{:stuName}} 回答：
+            </td>
+            <td>
+                <textarea cols="20" rows="2" class="all"  readonly="readonly">{{:SubjectiveAnswer}}</textarea>
+            </td>
+            
+        </tr>
+   {{/for}}
+</script>
+<script id="xinPresultTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+           <td class='Tit span12'>{{:stuName}}的回答<td>
+           <td><div>理由：{{:QuestionReplyStr}}</div></td>
+          
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $("#txtSubject:enabled").textareaCount({maxCharacterSize:500,displayFormat:"#input/#max"});
+    });
+
+   //显示星评题的平均分
+    function GetXinPAnswers()
+    {
+        $.getJSON(getXinPUrl(), function (data)
+        {
+            if (data.result == 1)
+            {
+               var html="<tr><td class='Tit span12'>平均评价："+data.avgXinP+"</td><td></td></tr>";
+               $("#subjectresult").html(html+$("#xinPresultTemplate").render(data.list));
+            }
+        });
+    }
+
+ //显示主观题
+    function GetSubjectAnswer()
+    {
+        $.getJSON(getSubjectUrl(), function (data)
+        {
+            if (data.result == 1)
+            {
+                if(data.dataList.length>0)
+                {
+                   $("#Allsubject").css("display","");
+                   $("#subjectresult").html($("#subjectresultTemplate").render(data.dataList));
+                }
+                else
+                {
+                    html="<tr><td class='tc'>暂无数据</td></tr>";
+                    $("#Allsubject").css("display","none");
+                    $("#subjectresult").html(html);
+                }
+                
+            }
+        });
+    }
+
+     //显示客观题
+    function GetObjectReplayAnswer(qtype)
+    {
+        var type = qtype == 0 ? "radio" : "checkbox";
+        var html = "";
+        $.getJSON(getObjectUrl(), function (data)
+        {
+            if (data.result == 1)
+            {
+              if(data.rAnswer.length>0)
+              {
+                $("#showpie").css("display","");
+                $("#Allsubject").css("display","");
+                var piechart_value = DrawImagePie(data.pie);
+                var piechart = new Highcharts.Chart(piechart_value);
+                for (var i = 0; i < data.rAnswer.length; i++)
+                {
+                    html += "<tr>";
+                    html += "<td class='Tit span12'>" + data.rAnswer[i].stuName + "的回答：</td>";
+                    html += "<td>";
+                    for (var j = 0; j < data.qAnswer.length; j++)
+                    {
+                        if ($.inArray(data.qAnswer[j].AnswerId.toString(), data.rAnswer[i].objectAnswerList) >= 0)
+                        {
+                            html += "<div><input type='" + type + "' disabled='disabled' checked='checked'  /> " + data.qAnswer[j].ShowOrder + "." + data.qAnswer[j].AnswerContent + "</div>";
+                        }
+                        else
+                        {
+                            html += "<div><input type='" + type + "' disabled='disabled' /> " + data.qAnswer[j].ShowOrder + "." + data.qAnswer[j].AnswerContent + "</div>";
+                        }
+                    }
+                    html += "<div>理由：" + data.rAnswer[i].QuestionReply + "</div></td><td class='span10 tr'>";
+                    
+                    html += "</td></tr>";
+                    }
+
+                }
+                else
+                {
+                   html="<tr><td class='tc'>暂无数据</td></tr>";
+                   $("#Allsubject").css("display","none");
+                    $("#showpie").css("display","none");
+                   
+                }
+                $("#objectlist").html(html);
+            }
+
+        });
+     }
+   
+    //搜索关键字
+    function searchResult() {
+        answerList($("#questionID").val(), parseInt($("#questionType").val()));
+    }
+
+</script>

@@ -1,0 +1,120 @@
+﻿@{
+    ViewBag.Title = "我的新进课程授课详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var course = ViewBag.course as LiXinModels.NewCourseManage.New_Course;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "我的新进课程授课详情" }))  
+<div class="course-top">
+    <div class="pic">
+        <img src="../../Images/course-pic.jpg" />
+    </div>
+    <div class="info">
+        <h3 class="ovh" title="@course.CourseName">@course.CourseName</h3>
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span9">
+                    课程编号：
+                </td>
+                <td>@course.Code
+                </td>
+                @*<td class="Tit span9">
+                    课程开放班级：
+                </td>
+                <td >@course.classnames
+                </td>*@
+                 <td class="Tit span9">
+                    开课时间：
+                </td>
+                <td>
+                    @course.StartTimeStr -- @course.EndTimeStr
+                </td>
+            </tr>
+            <tr>              
+                <td class="Tit">
+                    授课讲师：
+                </td>
+                <td>
+                    @course.Teachers
+                </td>
+                <td class="Tit">
+                    开课教室：
+                </td>
+                <td>
+                    @course.roomnames
+                </td>
+                <td class="Tit">
+                    课程状态：
+                </td>
+                <td>
+                    @if (DateTime.Now < course.StartTime)
+                    {
+                         <span>未开始</span>
+                    }
+                    else if (DateTime.Now >= course.StartTime && DateTime.Now <= course.EndTime)
+                    {
+                        <span>进行中</span> 
+                    }
+                    else if (DateTime.Now > course.EndTime)
+                    {
+                        <span>已结束</span>
+                    }
+                </td>
+            </tr>            
+        </table>
+    </div>
+</div>
+<div class="tab-bk mt10">
+   <ul id="ul_menu">
+        <li class="On" onclick="showTags(0)">
+        课程详情        
+        </li>
+        <li onclick="showTags(1)">
+        课前建议          
+        </li>
+        <li onclick="showTags(2)">
+        学员考勤           
+        </li>
+        <li onclick="showTags(3)"> 
+            课后评估
+        </li>
+        <li  onclick="showTags(4)">
+        在线测试           
+        </li>
+    </ul>
+</div>
+<div id="div_CourseCommonList"></div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        showTags(0);
+    })
+
+    function showTags(flag){
+        switch (flag) {
+            case 0:         
+                
+                $("#ul_menu").children("li:eq(0)").addClass("On").siblings("li").removeClass("On");
+                $.get("/NewTeacherCourse/CourseMain?courseid="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                break;
+            case 1:
+                $("#ul_menu").children("li:eq(1)").addClass("On").siblings("li").removeClass("On");
+                $.get("/NewTeacherCourse/ClassPro?courseid="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                break;
+            case 2: 
+                $("#ul_menu").children("li:eq(2)").addClass("On").siblings("li").removeClass("On");
+                $.get("/NewTeacherCourse/Attendance?courseid="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                break;
+            case 3: 
+                $("#ul_menu").children("li:eq(3)").addClass("On").siblings("li").removeClass("On");
+                $.get("/NewTeacherCourse/AfterCourse?courseid="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                break;
+            case 4:
+                $("#ul_menu").children("li:eq(4)").addClass("On").siblings("li").removeClass("On");
+                $.get("/NewTeacherCourse/OnlineTest?courseid="+@course.Id, function (data) { $("#div_CourseCommonList").html(data); });
+                break;          
+            default:
+        }
+    }
+
+</script>

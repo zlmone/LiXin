@@ -1,0 +1,283 @@
+﻿@{
+    ViewBag.Title = "学习人员明细";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var type = Request.QueryString["type"] ?? "0";
+}
+@*<div class="tab-bk">
+    <ul id="pop_tag">
+        <li class="On" id="pop_tag0">参与情况</li>
+        <li id="pop_tag1">在线测试详情</li>
+        <li id="pop_tag2">学习人员明细</li>
+    </ul>
+</div>*@
+<div class="main-c">
+    @if (type == "1")
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "学习人员明细" }));
+    }
+    else
+    {
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "VedioUserDetails" }));
+    }
+
+
+    
+
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">部门/分所：
+            </td>
+            <td class="span17">
+                <input type="text" id="txt_BullName" value="请输入部门/分所名称" info="" class="Box span16 searchclass" />
+            </td>
+            <td class="Tit span6">姓名：
+            </td>
+            <td class="span17">
+                <input type="text" id="txt_Name" value="请输入姓名" info="" class="Box span16 searchclass" />
+            </td>
+             <td class="Tit span8">是否免修：</td>
+                <td>
+                    <input type="checkbox" name="isFree" value="1" /><label>是</label>
+                    <input type="checkbox" name="isFree" value="0" /><label>否</label>
+                </td>
+            
+            <td class="so-do">
+                <input type="button" value="查询" id="btn_Select" class="btn" />
+                <input type="button" class="btn btn-co" value="导出EXCEL" id="btn_execl"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span6">培训级别：
+            </td>
+            <td colspan="2">
+                @{
+                    foreach (var item in @ViewBag.trainGrade)
+                    {
+                    <input type="checkbox" value="@item" name="OpenLevel" /><label class="mr10">@item</label>
+                            
+                    }      
+                }
+            </td>
+            <td colspan="2">
+                <select id="sltStatus">
+                    <option value="99">请选择考试状态</option>
+                    <option value="1">未参与</option>
+                    <option value="2">考试中</option>
+                    <option value="3">已通过</option>
+                    <option value="4">未通过</option>
+
+                </select>
+                <select id="sltcpa">
+                    <option value="99">是否CPA</option>
+                    <option value="1">CPA</option>
+                    <option value="2">非CPA</option>
+                </select>
+            </td>
+
+        </tr>
+    </table>
+</div>
+<table class="tab-List mt10">
+    <thead>
+        <tr>
+            <th class="span4">序号
+            </th>
+            <th class="" >部门/分所
+            </th>
+            <th class="span5">姓名
+            </th>
+            <th class="span7">培训级别
+            </th>
+            <th class="span12">是否CPA
+            </th>
+            @*<th class="span8">CPA编号
+                </th>*@
+            <th class="span7" jsrendersortfield="LearnTimes" sort="desc">在线观看次数
+            </th>
+            <th class="span8" jsrendersortfield="" sort="desc">在线观看时间<br />
+                （分钟）
+            </th>
+            <th class="span5">考试状态
+            </th>
+            <th class="span7" jsrendersortfield="ExamNum" sort="desc">考试次数
+            </th>
+            <th class="span7" jsrendersortfield="ExamScore" sort="desc">考试成绩
+            </th>
+            <th class="span7" jsrendersortfield="GetLength" sort="desc">获取学时
+            </th>
+        </tr>
+        <tr>
+            <th>合计</th>
+            <th>--</th>
+            <th>--</th>
+            <th>--</th>
+            <th>--</th>
+            @*<td>--</td>*@
+            <th id="td_ALLLearnTimes">@*@ViewBag.ALLLearnTimes*@</th>
+            <th id="td_ALLVedioTimes">@*@ViewBag.ALLVedioTimes*@</th>
+            <th>--</th>
+            <th id="td_ALLExamNum">@*@ViewBag.ALLExamNum*@</th>
+            <th id="td_ALLExamScore">@*@ViewBag.ALLExamScore*@</th>
+            <th id="td_ALLGetLength">@*@ViewBag.ALLGetLength*@</th>
+        </tr>
+    </thead>
+    <tbody id="courseList">
+    </tbody>
+
+    <tfoot>
+    </tfoot>
+</table>
+
+<div class="mt10 tc">
+    <input type="button" id="btnback" class="btn btn-cancel" value="返回">
+</div>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+    
+  {{for #data}}
+    
+        {{:ALLLearnTimes}}
+    
+     <tr>
+         <td>{{:#index+1}}</td>
+         <td>{{:DeptName}}</td>
+         <td>
+           {{if IsFree==0}}
+                 {{:Realname}}
+              {{else}}
+                 <div style="color:red;font-weight: bold;">{{:Realname}}</div>
+              {{/if}}
+         </td>
+         <td>{{:TrainGrade}}</td>
+         <td>{{:CPA}}</td>
+         @*<td>{{:CPANo}}</td>*@
+         <td>{{:LearnTimes}}</td> 
+         <td>{{:VedioTimeByMin}}</td>
+         <td>{{:StrExamStatus}}</td>
+         <td>{{:ExamNum}}</td>
+         <td>{{:ExamScore}}</td>
+         <td>{{if ExamStatus==0}}
+                N/A
+             {{else}}
+             {{:GetLength}}
+             {{/if}}</td>
+     </tr>
+  {{/for}}
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        InitData();
+
+
+        //$("#details_div").html("正在开发");
+        $("#pop_tag li").click(function ()
+        {
+            $("#pop_tag li").removeClass("On");
+            $(this).addClass("On");
+
+            var index = $(this).index();
+            show(index);
+        });
+
+        $("#btnback").bind("click", function ()
+        {
+            if ("@ViewBag.backurl" == "")
+            {
+                window.location.href = "FVedioLearnList";
+            }
+            else
+            {
+                window.location.href = "@ViewBag.backurl" + "&type=" + @ViewBag.type; 
+            }
+        });
+
+
+        $("#btn_Select").click(function ()
+        {
+            InitData();
+        })
+
+        $("#sltStatus,#sltcpa").change(function () { InitData(); })
+        $("#btn_execl").click(function ()
+        {
+
+
+
+            art.dialog({
+                content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+                ok: function ()
+                {
+                    var str = "";
+                    $("input[name='OpenLevel']:checkbox").each(function ()
+                    {
+                        if ($(this).attr("checked"))
+                        {
+                            str += $(this).val() + ","
+                        }
+                    })
+
+                    var isFree = "-1";
+                    if ($("input[name='isFree']:checked").length == 1)
+                    {
+                        isFree = $("input[name='isFree']:checked").val();
+                    }
+                    var t = "courseid=@(ViewBag.courseid)&deptid=@(ViewBag.deptid)&DeptName=" + escape(getSearchWord('txt_BullName')) + "&RealName=" + escape(getSearchWord('txt_Name')) +
+                   "&trainGrade=" + str.substring(0, str.lastIndexOf(',')) + "&sltStatus=" + $("#sltStatus").val() 
+                   + "&sltcpa=" + $("#sltcpa").val()+ "&isFree=" + isFree;;
+                    window.location.href = "/Report_fVedio/GetfOnlineTestDetailForReport?" + t;
+                },
+                cancel: true
+            });
+
+        })
+
+    });
+
+    function InitData()
+    {
+
+        var str = "";
+        $("input[name='OpenLevel']:checkbox").each(function ()
+        {
+            if ($(this).attr("checked"))
+            {
+                str += $(this).val() + ","
+            }
+        })
+
+        var isFree = "-1";
+        if ($("input[name='isFree']:checked").length == 1)
+        {
+            isFree = $("input[name='isFree']:checked").val();
+        }
+        //var v = "DepartmentName=" + escape(getSearchWord("course")) + "&start=" + $("#start").val() + "&end=" + $("#end").val();
+        var t = "courseid=@ViewBag.courseid&deptid=@(ViewBag.deptid)&DeptName=" + escape(getSearchWord('txt_BullName')) + "&RealName=" + escape(getSearchWord('txt_Name')) +
+                    "&trainGrade=" + str.substring(0, str.lastIndexOf(',')) + "&sltStatus=" + $("#sltStatus").val()
+                    + "&sltcpa=" + $("#sltcpa").val()+ "&isFree=" + isFree;;
+
+
+        $("#courseList").JsRenderData({
+            sourceUrl: "/Report_fVedio/GetReport_Detail?" + t,
+            isPage: true,
+            pageIndex: 1,
+            pageSize: 10,
+            jsRenderSortField: "TrainGrade",
+            jsRenderASC: " ASC",
+            templateID: "courseListTemplate",
+            funCallback: function (data)
+            {
+                $("#td_ALLLearnTimes").html(data.ALLLearnTimes);
+                $("#td_ALLVedioTimes").html(data.ALLVedioTimes);
+                $("#td_ALLExamNum").html(data.ALLExamNum);
+                $("#td_ALLExamScore").html(data.ALLExamScore);
+                $("#td_ALLGetLength").html(data.ALLGetLength);
+            }
+        });
+    }
+
+</script>

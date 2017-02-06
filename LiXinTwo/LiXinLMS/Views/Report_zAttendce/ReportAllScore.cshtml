@@ -1,0 +1,107 @@
+﻿@{
+    ViewBag.Title = "培训目标完成情况统计";
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "培训目标完成情况统计"
+}))
+</div>
+<div class="tab-bk  mt10">
+    <ul id="tag">
+        <li class="On" id="tag0">所内培训目标完成情况</li>
+        <li id="tag1">执业CPA继续教育目标完成情况</li>
+        <li id="tag2">全年出勤情况</li>
+        <li id="tag3">员工培训目标完成情况明细表</li>
+    </ul>
+    <input id="hiddeptids" type="hidden" value="" />
+
+</div>
+<div id="details_div"> 
+</div>
+<input name="hidvalue" id="hidOpenLevel" type="hidden" value="" />
+<input name="hidvalue" id="hidPayGrade" type="hidden" value="" />
+<input name="hidvalue" id="hidCPA" type="hidden" value="" />
+<input name="hidvalue" id="hidyear" type="hidden" value="" />
+<input name="hidvalue" id="hidCPARelationship" type="hidden" value="" />
+
+<script>
+    $(document).ready(function ()
+    {
+        show(@(ViewBag.type));
+        $("#tag li").click(function ()
+        {
+            $("#tag li").removeClass("On");
+            $(this).addClass("On");
+
+            var index = $(this).index();
+            show(index);
+        });
+
+    });
+    function show(type, flg)
+    {
+        flg = flg == undefined ? 0 : flg;
+        $("#tag li").removeClass("On");
+        $("#tag" + type).addClass("On");
+        //$("#pop_tag li").eq(type).addClass("On").siblings("li").removeClass("On");
+        Init();
+        $("input[name='hidvalue']").val("");
+        switch (type)
+        {
+            case 0:
+
+                $("#details_div").load("/Report_zAttendce/ReportAllData?flg=" + flg);
+                break;
+            case 1:
+                $("#details_div").load("/Report_zAttendce/CPACompelte?flg=" + flg);
+                break;
+            case 2:
+                $("#details_div").load("/Report_zAttendce/ReZAttendceManageList?flg=" + flg);
+                break;
+            case 3:
+                zhezaowait(); //等待提示
+                $("#details_div").load("/Report_zAttendce/CompletionDetial");
+                break;
+            default:
+                // $("#details_div").load("");
+                break
+        }
+    }
+
+    function Init()
+    {
+        $("#hiddeptids").val("");
+        $("#hidismian").val(0);
+    }
+
+    function fabu(funCallback)
+    {
+        zhezaowait();
+        var year = $("#allyear").length == 0 ? $("#sel_year").val() : $("#allyear").val();
+        $.get("RefreshGetAllCourseScore?year=" + year, function ()
+        {
+            closewait();
+            art.dialog.tips("更新成功", 3);
+
+            funCallback();
+
+        });
+    }
+
+    //跳转到完成情况明细表
+    function ToCompletionDetails(deptids, type, naru, CPA, index)
+    {
+        CPA = CPA == undefined ? 1 : CPA;
+        // type = type == 0 ? 1 : 0;
+        // naru = naru == undefined ? 1 : 0;
+        $("#tag li").removeClass("On");
+        $("#tag3").addClass("On");
+        zhezaowait(); //等待提示
+        $("#details_div").load("/Report_zAttendce/CompletionDetial?Deptid=" + deptids + "&ReportType=" + type + "&naru=" + naru + "&CPA=" + CPA + "&index=" + index+"&show=1");
+        // window.location.href = "Report_zAttendce/CompletionDetial?Deptid=" + deptids + "&ReportType=" + (ismain == 1 ? 0 : 1);
+    }
+
+
+</script>

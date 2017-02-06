@@ -1,0 +1,140 @@
+@charset "utf-8";
+/* CSS Document */
+
+.menu{background:#1c833c;border-bottom:1px solid #006a21;}
+.menu .menu-con li a{border-bottom:6px solid #e6e6e6;}
+.menu .menu-con li a:hover,.menu .menu-con li:hover a{background:#037a28;border-bottom:6px solid #14b045;}
+.menu .menu-con li a.On,.menu .menu-con li a.On:hover{background:#096a27;border-bottom:6px solid #14b045;}
+.menu .menu-con li ul li a,.menu .menu-con li:hover li a,.menu .menu-con li:hover ul{background:#1d823c;}
+#menu .menu-con li ul li a{border-bottom:1px dotted #14b045;}
+.menu .menu-con li ul li a:hover{background:#096929;}
+
+/* input & select & button & textarea ------ */
+.btn-co{background:#1c833c;}
+.btn-co:hover{background:#42ac62;}
+.btn-co.disabled,.btn-co[disabled]{background:#a2c6ac;cursor:default;}
+
+.c_col{color:#1C833C;}
+
+.train-allgra{behavior:url(/content/PIE.htc);}
+
+
+/* TrainManage index --- */
+.cbook-re{width:220px;height:100%;background:#e5e5e5;}
+.cbook-re h4{height:36px;background:#333;text-align:center;font:14px "微软雅黑";color:#fff;line-height:36px;}
+.cbook-re .list{position:relative;margin:0 auto;padding:10px 0;width:200px;border-bottom:1px dotted #aaa;}
+.cbook-re .list:last-child{border:none 0;}
+.cbook-re .list i{position:absolute;top:10px;left:0;width:17px;height:24px;display:block;background-image:url(../images/other-bg.png);background-repeat:no-repeat;color:#fff;text-align:center;font-style: normal;font-family:"微软雅黑";line-height:16px;}
+.cbook-re .list i.l-ji{background-position:-60px -190px;}
+.cbook-re .list i.l-xi{background-position:-80px -190px;}
+.cbook-re .list h5{text-indent:24px;line-height:20px;font-weight:normal;}
+.cbook-re .list .progress-stats{position:relative;margin:10px 0 0 22px;}
+.cbook-re .list .progress-stats .progress{width:130px;display:inline-block;}
+.cbook-re .list .progress-stats span{position:absolute;right:0;top:-2px;}
+
+
+.opera .list{margin:0 5px 10px;padding:10px;width:220px;background:#fff;border:1px solid #e5e5e5;float:left;}
+.opera .list-p{margin-right:10px;width:50px;height:50px;background-image:url(../images/opera-bg.png);background-repeat:no-repeat;overflow:hidden;float:left;}
+.opera h5{line-height:28px;font-size:14px;}
+.opera a{margin-right:5px;text-decoration:underline;}
+.opera .l-xq .list-p{background-color:#3f9c32;background-position:0 0;}
+.opera .l-xq a:hover{color:#3f9c32;}
+.opera .l-jh .list-p{background-color:#ff9c00;background-position:0 -50px;}
+.opera .l-jh a:hover{color:#ff9c00;}
+.opera .l-kc .list-p{background-color:#0a98ae;background-position:0 -100px;}
+.opera .l-kc a:hover{color:#0a98ae;}
+.opera .l-cx .list-p{background-color:#1c55af;background-position:0 -150px;}
+.opera .l-cx a:hover{color:#1c55af;}
+.opera .l-gz .list-p{background-color:#8e29b3;background-position:0 -200px;}
+.opera .l-gz a:hover{color:#8e29b3;}
+.opera .l-tj .list-p{background-color:#c93d3e;background-position:0 -250px;}
+.opera .l-tj a:hover{color:#c93d3e;}
+
+
+/* EditCourseTogether.cshtml -- */
+.seled-list{margin-top:10px;padding:10px;width:80%;background:#e5e5e5;border:1px dotted #aaa;}
+.seled-list ul:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.seled-list ul{zoom:1;}
+.seled-list ul li{float:left;margin:5px 5px 0 0;max-width:120px;padding:3px 26px 3px 3px;height:20px;background:#fff;border:1px solid #aaa;line-height:20px;position:relative;}
+.seled-list ul li span{display:inline-block;text-overflow:ellipsis;-o-text-overflow:ellipsis;white-space:nowrap;overflow:hidden;max-width:120px;}
+.seled-list ul li input,.seled-list ul li a{position:absolute;top:3px;right:3px;padding:0;width:20px;height:20px;font-family:Arial;font-weight:normal;line-height:22px;}
+
+/* surveyResult.cshtml -- */
+.que-list{margin-top:10px;}
+.que-list li{padding:3px 0;line-height:20px;}
+.que-list li strong{padding:0 3px;}
+.que-list li span{margin-left:5px;font-weight:bold;color:#975a23;}
+
+/* studentResult.cshtml -- */
+.stu-list{margin-top:10px;}
+.stu-list .fl{width:19%;}
+.stu-list .fr{width:80%;border-left:1px dotted #aaa;}
+.stu-list .sur-do{margin:0;}
+.stu-list ul{text-align:right;}
+.stu-list ul li{cursor:pointer;}
+
+/* AllAddTrainGrade.cshtml -- */
+.train-allgra{margin:5px;padding-bottom:5px;width:48.5%;border:1px solid #ccc;float:left;box-shadow:2px 2px 0px #dedede;}
+.train-allgra textarea{width:65%;}
+
+/* AfterCouseNew -- */
+.tab-ass{width:100%;}
+.tab-ass tr td{vertical-align:top;}
+.tab-ass .ass-tit{width:40%;}
+.tab-ass .ass-con{width:60%;border:1px solid #ddd;height:300px;}
+.tab-ass .ass-tit div{margin-bottom:3px;padding:5px 3px;width:90%;line-height:20px;cursor:pointer;position:relative;}
+.tab-ass .ass-tit div:hover{background:#e4e4e4;}
+.tab-ass .ass-tit div i{display:none;position:absolute;right:-20px;top:0;width:20px;height:30px;}
+.tab-ass .ass-tit div:hover i{display:block;background:url(../images/other-bg.png) -120px -250px;}
+.tab-ass .ass-tit div.On{background:#f2c9c9;color:#971b22;}
+.tab-ass .ass-tit div.On i{display:block;background:url(../images/other-bg.png) -120px -220px;}
+.tab-ass .ass-tit div strong{margin-bottom:-5px;width:320px;display:inline-block;}
+
+.tab-ass .ass-con p{padding:5px 10px;border-bottom: 1px dotted #CCCCCC;}
+.tab-ass .ass-con p:last-child{border:none 0;}
+.tab-ass .ass-con p strong{margin-left:10px;}
+.tab-ass .ass-con p span{margin-left:10px;color:#999;}
+
+
+
+/* ClassPro.cshtml & Mypropose --*/
+.course-pro h5{margin-top:10px;}
+.course-pro .list:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.course-pro .list{margin-top:10px;zoom:1;}
+.course-pro .list .list-head{position:relative;margin-bottom:30px;padding:3px;width:90px;height:90px;background:url(../images/headpic-bg.jpg) center center #d9d9d9;border:1px solid #e5e5e5;float:left;}
+.course-pro .list .list-info{position:relative;padding:10px;width:860px;min-height:110px;background:#e5e5e5;border:1px solid #cacaca;float:right;}
+
+.course-pro .list .list-head img{width:100%;height:100%;overflow:hidden;}
+.course-pro .list .list-head span{position:absolute;bottom:-25px;left:0;width:100%;display:block;overflow:hidden;}
+
+.course-pro .list .list-info i{position:absolute;top:40px;left:-10px;width:10px;height:20px;background:url(../images/other-bg.png) -40px -190px;overflow:hidden;display:block;}
+.course-pro .list .list-type strong{margin-right:10px;}
+.course-pro .list .list-con{padding-top:10px;line-height:20px;}
+.course-pro .list .list-te{margin-top:10px;padding-top:10px;border-top:1px dotted #aaa;}
+.course-pro .list .list-te span{padding:0 3px;line-height:20px;}
+.course-pro .list .list-te .time{margin-top:5px;text-align:right;}
+
+.pro-do{margin-top:10px;padding-top:10px;border-top:1px solid #333;}
+.pro-do p{margin-top:10px;}
+
+
+/* Free_ApproveHead 2014-05-07 qmz */
+.app-req .new .spo,
+.app-req .new .dep,
+.app-req .new .tol,
+.app-req .new .num span{background:#46a463;}
+.app-req .back .spo,
+.app-req .back .dep,
+.app-req .back .tol{background:#cfe9d7;}
+.app-req .back .status{color:#1c833c;}
+.app-req .item i.back{background-position:-16px -16px;}
+
+.tit-h3-app{color:#1d833a;}
+
+/* MyApply/Free_ExemptionAdd 2014-05-08 qmz */
+.step-app .on{background:#1c833c;color:#fff;}
+.step-app .on span{background:#fff;color:#1c833c;}
+.step-app .on i{background-position:0 -80px;}
+.step-app .ok{background:#a0d9b2;color:#1c833c;}
+.step-app .ok span{background:#1c833c;color:#fff;}
+.step-app .ok i{background-position:-30px -80px;}

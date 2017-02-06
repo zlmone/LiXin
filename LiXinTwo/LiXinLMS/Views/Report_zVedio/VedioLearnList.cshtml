@@ -1,0 +1,398 @@
+﻿@{
+    ViewBag.Title = "视频课程汇总统计";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var tabIndex = Request.QueryString["tabIndex"] ?? "0";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "视频课程汇总统计"
+}))
+</div>
+<div class="tab-bk">
+    <ul id="pop_tag">
+        <li class="On" id="pop_tag0">视频课程汇总统计</li>
+        <li id="pop_tag1">视频课程单门课程统计</li>
+    </ul>
+</div>
+<!--视频课程汇总统计-->
+<div id="courseAll">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td class="span16">
+                    <input id="txtcourseName" type="text" class="span16  searchclass" value="请输入搜索内容"
+                        info="" />
+                </td>
+                <td class="Tit span6">选择年度：
+                </td>
+                <td>
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" />
+                        <i></i>
+                    </div>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitAllData(); " />
+                    <input type="button" class="btn btn-co" value="导出EXCEL" id="btnout" onclick="OutAllData()" />
+                    <input type="button" class="btn btn-co" value="同步" onclick="report_VedioTongbu()" />
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>课程名称</th>
+                    <th jsrendersortfield="LearnNumber" sort="desc">参与学习人数</th>
+                    <th jsrendersortfield="Number" sort="desc">开放总人数</th>
+                    <th jsrendersortfield="ReallyNumber" sort="desc">学习人次</th>
+                    <th jsrendersortfield="JoinRateDouble" sort="desc">参与率</th>
+                    <th jsrendersortfield="PassRateDouble" sort="desc">在线测试通过率</th>
+                    <th jsrendersortfield="Survey_AllScoreDouble" sort="desc">课后评估综合平均分</th>
+                    <th jsrendersortfield="Survey_CourseScoreDouble" sort="desc">课程评估平均分</th>
+                    <th jsrendersortfield="Survey_TeacherScoreDouble" sort="desc">讲师评估平均分</th>
+                </tr>
+            </thead>
+            <tbody id="courseAllList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<!--视频课程单门课程统计-->
+<div id="courseSingle">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">选择年度：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy', maxDate: '#F{$dp.$D(\'singleend\',{m:-1})}' });"
+                            readonly="readonly" id="singlestart" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="time-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy', minDate: '#F{$dp.$D(\'singlestart\',{m:1})}' });"
+                            readonly="readonly" id="singleend" />
+                        <i></i>
+                    </div>
+                </td>
+                <td class="Tit span6">开放对象：</td>
+                <td>
+                    <input type="text" id="txtOpenObject" class="span12 searchclass" value="请输入搜索内容" info="" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td class="span33">
+                    <input type="text" id="txtSingleCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+                <td class="Tit span6">讲师：
+                </td>
+                <td>
+                    <input type="text" id="txtTeacher" class="span12 searchclass" value="请输入搜索内容" info="" />
+                </td>
+
+                <td class="Tit">是否在线测试：</td>
+                <td>
+                    <div class="sel span10">
+                        <input type="checkbox" name="popIsTest" value="1" /><label>是</label>
+                        <input type="checkbox" name="popIsTest" value="0" /><label>N/A</label>
+                    </div>
+                </td>
+
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" onclick=" InitsingleData(); " />
+                    <input type="button" class="btn btn-co" value="导出EXCEL" onclick="OutsingleData()" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">开放时间：</td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                            name="StartTime" id="txt_StartTime" value="" />
+                        <i></i>
+                    </div>
+                    至
+                <div class="time-choose">
+                    <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                        id="txt_EndTime" value="" />
+                    <i></i>
+                </div>
+                </td>
+
+                <td class="Tit span8">选/必修：</td>
+                <td class="span10">
+                    <div class="sel">
+                        <input type="checkbox" name="popIsMust" id="chbIsMust0" value="1" /><label>选修</label>
+                        <input type="checkbox" name="popIsMust" id="chbIsMust1" value="0" /><label>必修</label>
+                    </div>
+                </td>
+                <td class="Tit">是否折算CPA学时：</td>
+                <td>
+                    <div class="sel">
+                        <input type="checkbox" name="popIsCPA" id="chbIsCPA1" value="1" /><label>是</label>
+                        <input type="checkbox" name="popIsCPA" id="chbIsCPA0" value="0" /><label>N/A</label>
+                    </div>
+                </td>
+                <td class="so-do">
+                    <input type="button" class="btn btn-co" value="同步" onclick="report_VedioTongbu(InitsingleData)" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th>课程名称</th>
+                    <th jsrendersortfield="StartTime" sort="desc" class="span14">开放时间</th>
+                    <th class="span6">讲师</th>
+                    <th jsrendersortfield="CourseLength" sort="desc" class="span4">学时</th>
+                    <th>选/必修</th>
+                    <th>开放对象</th>
+                    <th>是否折算CPA学时</th>
+                    <th style="text-align:left">是否有在线测试</th>
+                    <th jsrendersortfield="LearnNumber" sort="desc" style="text-align:left">已参加人数</th>
+                    <th jsrendersortfield="sumNumber" sort="desc" style="text-align:left">开放总人数</th>
+                    <th class="span12">操作</th>
+                </tr>
+            </thead>
+            <tbody id="courseSingleList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<input id="hidType" type="hidden" value="0" />
+<script>
+    $(document).ready(function ()
+    {
+        $("#txtcourseName").val('请输入搜索内容');
+        //初始化查询条件
+        initSearch();
+
+      
+
+        $("#start").val((new Date()).getFullYear());
+        $("#end").val((new Date()).getFullYear());
+        $("#singlestart").val((new Date()).getFullYear());
+        $("#singleend").val((new Date()).getFullYear());
+
+        InitSearchData();
+
+        $("#pop_tag li").click(function ()
+        {
+
+            var index = $(this).index();
+            flag = index;
+
+            ShowData(index);
+
+        });
+        //  $("#pop_tag0").click();
+    });
+
+    //显示那个tab页下的数据
+    function ShowData(index)
+    {
+        $("#hidType").val(index);
+        $("#pop_tag li").removeClass("On");
+        $("#pop_tag" + index).addClass("On");
+        if (index == 0)
+        {
+            $("#courseAll").show();
+            $("#courseSingle").hide();
+            InitAllData("@ViewBag.zpageInex");
+        }
+        else
+        {
+            $("#courseSingle").show();
+            $("#courseAll").hide();
+            InitsingleData("@ViewBag.fpageIndex");
+        }
+    }
+    //绑定数据全部
+    function InitAllData(index)
+    {
+
+        $("#courseAllList").JsRenderData({
+            sourceUrl: "/Report_zVedio/GetVedioList?start=" + $("#start").val() + "&end=" + $("#end").val() + "&courseName=" + escape($.trim(getSearchWord("txtcourseName"))),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: index,
+            jsRenderSortField: "Survey_AllScoreDouble",
+            jsRenderASC: "desc",
+            templateID: "courseAllTemplate"
+        });
+    }
+
+    //导出全部
+    function OutAllData()
+    {
+        window.location.href = "/Report_zVedio/OutVedioList?start=" + $("#start").val() + "&end=" + $("#end").val() + "&courseName=" + escape($.trim(getSearchWord("txtcourseName")));
+    }
+
+    //详情全部
+    function viewSingle(id)
+    {
+        window.location.href = "VedioLearnDetail?courseID=" + id + "&tabIndex=" + $("#hidType").val();
+    }
+
+    //绑定数据 单个
+    function InitsingleData(index)
+    {
+        var startyear = ""; var endyear = ""; var courseName = ""; var teacher = ""; var isMust = -1;
+        var isTest = -1; var IsCPA = -1; var StartTime = ""; var EndTime = "";
+
+        var v = "startyear=" + $("#singlestart").val() + "&endyear=" + $("#singleend").val() +
+                "&courseName=" + escape($.trim(getSearchWord("txtSingleCourseName"))) +
+                "&teacher=" + escape($.trim(getSearchWord("txtTeacher"))) +
+                "&isMust=" + ($("input[name='popIsMust']:checked").length != 1 ? -1 : $("input[name='popIsMust']:checked").val()) +
+                "&isTest=" + ($("input[name='popIsTest']:checked").length != 1 ? -1 : $("input[name='popIsTest']:checked").val()) +
+                "&IsCPA=" + ($("input[name='popIsCPA']:checked").length != 1 ? -1 : $("input[name='popIsCPA']:checked").val()) +
+                "&StartTime=" + $("#txt_StartTime").val() +
+                "&EndTime=" + $("#txt_EndTime").val() +
+                "&OpenObject=" + escape($.trim(getSearchWord("txtOpenObject")));
+        $("#courseSingleList").JsRenderData({
+            sourceUrl: "/Report_zVedio/GetVedioLearnSingle?" + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: index,
+            jsRenderSortField: "StartTime ",
+            jsRenderASC: "desc",
+            templateID: "courseSingleTemplate"
+        });
+    }
+
+    //导出 单个
+    function OutsingleData()
+    {
+        var startyear = ""; var endyear = ""; var courseName = ""; var teacher = ""; var isMust = -1;
+        var isTest = -1; var IsCPA = -1; var StartTime = ""; var EndTime = "";
+
+        var v = "startyear=" + $("#singlestart").val() + "&endyear=" + $("#singleend").val() +
+                "&courseName=" + escape($.trim(getSearchWord("txtSingleCourseName"))) +
+                "&teacher=" + escape($.trim(getSearchWord("txtTeacher"))) +
+                "&isMust=" + ($("input[name='popIsMust']:checked").length != 1 ? -1 : $("input[name='popIsMust']:checked").val()) +
+                "&isTest=" + ($("input[name='popIsTest']:checked").length != 1 ? -1 : $("input[name='popIsTest']:checked").val()) +
+                "&IsCPA=" + ($("input[name='popIsCPA']:checked").length != 1 ? -1 : $("input[name='popIsCPA']:checked").val()) +
+                "&StartTime=" + $("#txt_StartTime").val() +
+                "&EndTime=" + $("#txt_EndTime").val() +
+                "&OpenObject=" + escape($.trim(getSearchWord("txtOpenObject")));
+        window.location.href = "OutVedioSingleList?" + v;
+    }
+
+
+    //查询记住
+    function InitSearchData()
+    {
+
+        if ("@ViewBag.type" == "0")
+        {
+
+            $("#txtcourseName").val('@(ViewBag.Attname)');
+            //  $("#txtCourseName").info('@(ViewBag.Attname)');
+            if ("@tabIndex" == "0")
+            {
+                $("#start").val("@ViewBag.start")
+                $("#end").val("@ViewBag.end")
+                $("#txtcourseName").val("@ViewBag.courseName");
+                // InitAllData("@ViewBag.zpageInex");
+            }
+            else
+            {
+                $("#singlestart").val("@ViewBag.startyear")
+                $("#singleend").val("@ViewBag.endyear")
+                $("#txtSingleCourseName").val("@ViewBag.fcourseName");
+                $("#txtTeacher").val("@ViewBag.teacher");
+                $("#txt_StartTime").val("@ViewBag.StartTime");
+                $("#txt_EndTime").val("@ViewBag.EndTime");
+                $("#txtOpenObject").val("@ViewBag.OpenObject");
+                // InitsingleData("@ViewBag.fpageInex");
+                if ("@ViewBag.isMust" == "2")
+                {
+                    $("input[name='popIsMust']").attr("checked", true)
+                }
+                else
+                {
+                    $("input[name='popIsMust'][value=@ViewBag.isMust]").attr("checked", true)
+                }
+                if ("@ViewBag.isTest" == "2")
+                {
+                    $("input[name='popIsTest']").attr("checked", true)
+                }
+                else
+                {
+                    $("input[name='popIsTest'][value=@ViewBag.isMust]").attr("checked", true)
+                }
+                if ("@ViewBag.IsCPA" == "2")
+                {
+                    $("input[name='popIsCPA']").attr("checked", true)
+                }
+                else
+                {
+                    $("input[name='popIsCPA'][value=@ViewBag.isMust]").attr("checked", true)
+                }
+            }
+        }
+        ShowData(@tabIndex);
+    }
+</script>
+
+<!--视频课程汇总统计-->
+<script id="courseAllTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+         <td>{{:#index+1}}</td>
+         <td><div class="ovh tl span25" title="{{:CourseName}}"  style="cursor:pointer">
+               <a onclick="viewSingle({{:CourseId}})">{{:CourseName}}</a>  
+            </div></td>
+         <td>{{:LearnNumber}}</td>
+         <td>{{:Number}}</td>
+         <td>{{:ReallyNumber}}</td>
+         <td>{{:JoinRate}}</td>
+         <td>{{:PassRate}}</td>
+         <td>{{:Survey_AllScore}}</td> 
+         <td>{{:Survey_CourseScore}}</td>
+         <td>{{:Survey_TeacherScore}}</td>
+     </tr>
+  {{/for}}
+</script>
+<!--视频课程单门课程统计-->
+<script id="courseSingleTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+        <td>{{:#index+1}}</td> 
+        <td><div class="ovh tl span25" title="{{:CourseName}}">{{:CourseName}}</div></td>
+        <td><div class="f11 tl">{{:CourseTime}}</div></td>
+        <td><div class="ovh tl span6" title="{{:Teacher}}">{{:Teacher}}</div></td>
+        <td>{{:CourseLength}}</td>
+        <td>{{:IsMustStr}}</td>
+        <td><div class="ovh tl span10" title="{{:openObjectStr}}">{{:openObjectStr}}</div></td>
+        <td>{{:IsCPAStr}}</td>
+        <td>{{:IsTestStr}}</td>
+        <td>{{:LearnNumber}}</td>
+        <td>{{:sumNumber}}</td>                                 
+        <td><a onclick="viewSingle({{:CourseId}})" class="icon iview" title="查看详情"></a><td>
+     </tr>
+  {{/for}}
+</script>
+

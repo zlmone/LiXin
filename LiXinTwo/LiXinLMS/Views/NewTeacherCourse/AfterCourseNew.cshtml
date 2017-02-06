@@ -1,0 +1,54 @@
+﻿@{
+    ViewBag.Title = "AfterCourseNew";
+    var afterquestion = ViewBag.afterquestion as List<LiXinModels.Survey.Survey_Question>;
+    var firsthtml = ViewBag.firsthtml as string;
+    Layout = null;
+}
+<div style=" vertical-align:top;padding-left:5px;float:left; height:100%">
+                    <div id="first_left" class="ass-tit" rowspan="2" style="width:350px;float:left">
+                        <h5 class="tit-h5 mb10"><span>评估标题</span></h5>
+                        @{ int i = 1; }
+                        @foreach (LiXinModels.Survey.Survey_Question surveyQuestionAndAnswer in afterquestion)
+                        {
+                           <div class="question_div" style="cursor:pointer;word-wrap:break-word; word-break:normal" QuestionId="@surveyQuestionAndAnswer.QuestionID" ExampaperID="@surveyQuestionAndAnswer.ExampaperID" questiontype="@surveyQuestionAndAnswer.QuestionType">
+                                @*<span>@surveyQuestionAndAnswer.QuestionOrder .</span>*@
+                                
+                                <strong class="ovh" title="@surveyQuestionAndAnswer.QuestionContent">
+                                    <span>@(i++) .</span>                                   
+                                    @(surveyQuestionAndAnswer.QuestionContent)
+
+                                </strong>
+                                <i></i>
+                            </div>
+                        }
+                    </div>                   
+                </div>
+<div style=" vertical-align:top;padding-left:5px;float:left">
+    <div class="ass-con" id="first_right" style="width:310px">
+        <h5 class="tit-h5 mb10"><span>评估内容</span></h5>
+        @if (@firsthtml != null)
+        {
+            @Html.Raw(firsthtml)
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+
+        $(".question_div").click(function () {
+            
+            var questiontype = $(this).attr("questiontype");
+            var ExampaperID = $(this).attr("ExampaperID");
+            var QuestionID = $(this).attr("QuestionId");
+            $(this).addClass("On").siblings(".question_div").removeClass("On");
+            $.post("/NewTeacherCourse/FindAnswer?courseid=" +@(ViewBag.courseid) +"&ExampaperID=" + ExampaperID + "&questiontype=" + questiontype + "&QuestionID=" + QuestionID + "&sub="+@(ViewBag.sub), function (data) {
+                        $("#first_right").children("p").remove();
+                        $("#first_right").append(data.List);
+                    });
+             });
+    })
+
+
+</script>

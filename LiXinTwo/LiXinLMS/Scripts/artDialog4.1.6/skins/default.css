@@ -1,0 +1,337 @@
+@charset "utf-8";
+/*
+ * artDialog skin
+ * http://code.google.com/p/artdialog/
+ * (c) 2009-2011 TangBin, http://www.planeArt.cn
+ *
+ * This is licensed under the GNU LGPL, version 2.1 or later.
+ * For details, see: http://creativecommons.org/licenses/LGPL/2.1/
+ */
+ 
+/* common start */
+
+body {
+    _height: 100%;
+    /*IE6 BUG*/
+    _margin: 0;
+}
+
+.aui_outer { text-align: left; }
+
+table.aui_border, table.aui_dialog {
+    border: 0;
+    border-collapse: collapse;
+    margin: 0;
+    width: auto;
+}
+
+.aui_nw, .aui_n, .aui_ne, .aui_w, .aui_c, .aui_e, .aui_sw, .aui_s, .aui_se, .aui_header, .aui_tdIcon, .aui_main, .aui_footer { padding: 0; }
+
+.aui_header, .aui_buttons button {
+    -o-font-family: Tahoma, Arial;
+    font: 12px/1.11 'Microsoft Yahei', Tahoma, Arial, Helvetica, STHeiti;
+    _font-family: Tahoma, Arial, Helvetica, STHeiti;
+}
+
+.aui_title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.aui_state_noTitle .aui_title { display: none; }
+
+.aui_close {
+    display: block;
+    outline: none;
+    position: absolute;
+    text-decoration: none;
+    _cursor: pointer;
+}
+
+.aui_close:hover { text-decoration: none; }
+
+.aui_main {
+    min-width: 9em;
+    min-width: 9em;
+    text-align: center;
+}
+
+.aui_content {
+    border: none 0;
+    /*display: inline-block;*/
+    *display: inline;
+    text-align: left;
+    *zoom: 1;
+}
+
+.aui_content.aui_state_full {
+    display: block;
+    height: 100%;
+    margin: 0;
+    padding: 0!important;
+    width: 100%;
+}
+
+.aui_loading {
+    background: url(icons/loading.gif) no-repeat center center;
+    height: 32px;
+    overflow: hidden;
+    text-align: left;
+    text-indent: -999em;
+    width: 96px;
+}
+
+.aui_icon { vertical-align: middle; }
+
+.aui_icon div {
+    background-position: center center;
+    background-repeat: no-repeat;
+    height: 48px;
+    margin: 10px 0 10px 10px;
+    width: 48px;
+}
+
+.aui_buttons {
+    padding: 8px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.aui_buttons button {
+    -moz-transition: -moz-box-shadow linear .2s;
+    -webkit-transition: -webkit-box-shadow linear .2s;
+    background: #DDD;
+    background: linear-gradient(top, #FFF, #DDD);
+    background: -moz-linear-gradient(top, #FFF, #DDD);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FFF), to(#DDD));
+    border: solid 1px #999;
+    border-radius: 5px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .7), 0 -1px 0 rgba(0, 0, 0, .09);
+    color: #333;
+    cursor: pointer;
+    display: inline-block;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#DDDDDD');
+    font-family: Tahoma, Arial/9!important;
+    *height: 2em;
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-left: 15px;
+    overflow: visible;
+    padding: 6px 8px;
+    *padding: 4px 10px;
+    text-align: center;
+    text-shadow: 0px 1px 1px rgba(255, 255, 255, 1);
+    transition: box-shadow linear .2s;
+    width: auto;
+    *width: 1;
+}
+
+.aui_buttons button::-moz-focus-inner {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.aui_buttons button:focus {
+    border-color: #426DC9;
+    box-shadow: 0 0 8px rgba(66, 109, 201, .9);
+    outline: none 0;
+}
+
+.aui_buttons button:hover {
+    border-color: #666;
+    color: #000;
+}
+
+.aui_buttons button:active {
+    background: linear-gradient(top, #DDD, #FFF);
+    background: -moz-linear-gradient(top, #DDD, #FFF);
+    background: linear-gradient(top, #DDD, #FFF);
+    border-color: #666;
+    box-shadow: inset 0 1px 5px rgba(66, 109, 201, .9), inset 0 1px 1em rgba(0, 0, 0, .3);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#DDDDDD', endColorstr='#FFFFFF');
+}
+
+.aui_buttons button[disabled] {
+    background: #DDD;
+    border: solid 1px #999;
+    box-shadow: none;
+    color: #666;
+    cursor: default;
+    filter: alpha(opacity=50);
+    opacity: .5;
+}
+
+button.aui_state_highlight {
+    background: #2288cc;
+    background: linear-gradient(top, #33bbee, #2288cc);
+    background: #2288cc;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#33bbee), to(#2288cc));
+    border: solid 1px #1c6a9e;
+    color: #FFF;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#33bbee', endColorstr='#2288cc');
+    text-shadow: -1px -1px 1px #1c6a9e;
+}
+
+button.aui_state_highlight:hover {
+    border-color: #0F3A56;
+    color: #FFF;
+}
+
+button.aui_state_highlight:active {
+    background: linear-gradient(top, #33bbee, #2288cc);
+    background: -moz-linear-gradient(top, #33bbee, #2288cc);
+    background: linear-gradient(top, #33bbee, #2288cc);
+    border-color: #1c6a9e;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#33bbee', endColorstr='#2288cc');
+}
+/* common end */
+
+.aui_inner { background: #FFF; }
+
+.aui_outer, .aui_inner {
+    border: 1px solid rgba(0, 0, 0, .7);
+    border: 1px solid#333\9;
+}
+
+.aui_border { box-shadow: inset 0 0 1px rgba(255, 255, 255, .9); }
+
+.aui_nw, .aui_ne, .aui_sw, .aui_se {
+    height: 8px;
+    width: 8px;
+}
+
+.aui_nw, .aui_n, .aui_ne, .aui_w, .aui_e, .aui_sw, .aui_s, .aui_se {
+    background: rgba(0, 0, 0, .4);
+    background: #000\9!important;
+    filter: alpha(opacity=40);
+}
+
+.aui_state_lock .aui_nw, .aui_state_lock .aui_n, .aui_state_lock .aui_ne, .aui_state_lock .aui_w, .aui_state_lock .aui_e, .aui_state_lock .aui_sw, .aui_state_lock .aui_s, .aui_state_lock .aui_se {
+    background: rgba(0, 0, 0, .5);
+    background: #000\9!important;
+    filter: alpha(opacity=50);
+}
+
+.aui_state_focus .aui_dialog { box-shadow: 0 0 3px rgba(0, 0, 0, 0.4); }
+
+.aui_state_focus .aui_outer { box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1); }
+
+.aui_state_lock .aui_border { box-shadow: 0 3px 26px rgba(0, 0, 0, .9); }
+
+.aui_state_drag .aui_outer, .aui_outer:active { box-shadow: none; }
+
+.aui_titleBar {
+    height: 100%;
+    position: relative;
+}
+
+.aui_title {
+    background: linear-gradient(top, #edf5f8, #bdc6cd);
+    background: -moz-linear-gradient(top, #edf5f8, #bdc6cd);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#edf5f8), to(#bdc6cd));
+    background-color: #edf5f8;
+    background-color: #edf5f8;
+    border-bottom: 1px solid #b6bec5;
+    border-top: 1px solid #edf5f8;
+    color: #95a7ae;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#edf5f8', endColorstr='#bdc6cd');
+    font-family: Tahoma, Arial/9!important;
+    font-weight: bold;
+    height: 28px;
+    line-height: 27px;
+    padding: 0 28px 0 10px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+}
+
+.aui_state_focus .aui_title { color: #4c5a5f; }
+
+.aui_state_drag .aui_title {
+    background: linear-gradient(top, #bdc6cd, #edf5f8);
+    background: -moz-linear-gradient(top, #bdc6cd, #edf5f8);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#bdc6cd), to(#edf5f8));
+    box-shadow: none;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bdc6cd', endColorstr='#edf5f8');
+}
+
+.aui_state_drag .aui_titleBar { box-shadow: none; }
+
+.aui_close {
+    color: #68767b;
+    font-family: Helvetica, STHeiti;
+    font-size: 18px;
+    height: 21px;
+    line-height: 21px;
+    padding: 0;
+    right: 4px;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .9);
+    top: 4px;
+    width: 21px;
+    _font-family: Tahoma, '\u9ed1\u4f53', 'Book Antiqua', Palatino;
+}
+
+.aui_close:hover {
+    background: #C72015;
+    color: #FFF;
+}
+
+.aui_close:active { box-shadow: none; }
+
+.aui_content { color: #666; }
+
+.aui_state_focus .aui_content { color: #000; }
+
+.aui_buttons {
+    background-color: #F6F6F6;
+    border-top: solid 1px #DADEE5;
+}
+
+.aui_state_noTitle .aui_nw, .aui_state_noTitle .aui_ne, .aui_state_noTitle .aui_sw, .aui_state_noTitle .aui_se {
+    height: 3px;
+    width: 3px;
+}
+
+.aui_state_noTitle .aui_inner {
+    background: #FFF;
+    border: 1px solid #666;
+}
+
+.aui_state_noTitle .aui_outer {
+    border: none 0;
+    box-shadow: none;
+}
+
+.aui_state_noTitle .aui_nw, .aui_state_noTitle .aui_n, .aui_state_noTitle .aui_ne, .aui_state_noTitle .aui_w, .aui_state_noTitle .aui_e, .aui_state_noTitle .aui_sw, .aui_state_noTitle .aui_s, .aui_state_noTitle .aui_se {
+    background: rgba(0, 0, 0, .05);
+    background: #000\9!important;
+    filter: alpha(opacity=5)!important;
+}
+
+.aui_state_noTitle .aui_titleBar {
+    bottom: 0;
+    _bottom: 0;
+    _margin-top: 0;
+}
+
+.aui_state_noTitle .aui_close {
+    background: none;
+    color: #214FA3;
+    filter: !important;
+    font-size: 18px;
+    height: 18px;
+    line-height: 18px;
+    right: 0;
+    text-align: center;
+    text-decoration: none;
+    text-indent: 0;
+    top: 0;
+    width: 18px;
+}
+
+.aui_state_noTitle .aui_close:hover, .aui_state_noTitle .aui_close:active {
+    color: #900;
+    text-decoration: none;
+}
+
+.aui_state_noTitle .aui_dialog { box-shadow: none; }

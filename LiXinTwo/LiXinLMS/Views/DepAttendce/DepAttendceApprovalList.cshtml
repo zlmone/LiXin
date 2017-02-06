@@ -1,0 +1,184 @@
+﻿@{
+    ViewBag.Title = "考勤审批管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DepAttendceApprovalList" }))
+    <div id="div_CourseCommonList"></div>
+</div>
+<div id="div_Search" class="so-set">
+    <input type="hidden" id="info" name="info"/>
+    <input type="hidden" id="infoShow" name="infoShow"/>
+    <table class="tab-Form">
+              <tr>
+                  <td class="Tit span6">课程名称：</td>
+                  <td class="span25"><input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+                  <td class="Tit">开课时间：</td>
+                  <td>
+                      <div class="time-choose">
+                          <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                                 name="StartTime" id="txt_StartTime" value="" />
+                          <i></i>
+                      </div>
+                      至
+                      <div class="time-choose">
+                          <input  type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                                  id="txt_EndTime" value="" />
+                          <i></i>
+                      </div>
+                  </td>
+                  <td class="so-do">
+                      <input class="btn" type="button" value="搜索" id="btnSearch" onclick="SearchData() " />
+                  </td>
+              </tr>
+          </table>
+</div>
+<div class="so-seq">
+    <select id="ismust">
+        <option value="-1">选/必修</option>
+        <option value="0">必修</option>
+        <option value="1">选修</option>
+    </select>
+    <select id="isapproval">
+        <option value="0">审批状态</option>
+        <option value="1">未审批</option>
+        <option value="2">审批通过</option>
+        <option value="3">审批拒绝</option>
+    </select>
+</div>
+
+<!-- 列表 -->
+<div id="Content" class="mt10">
+    <div align="right">
+        <input class="btn span10" value="批量审批" onclick="isAllowedAll()" type="button"/>
+    </div>
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4"><input type="checkbox" id="SelectedAll" name="SelectedAll" onclick="SelectedItems()"/></th>
+                <th class="span4">序号</th>
+                <th class="span16">课程名称</th>
+                <th class="span4">学时</th>
+                <th class="span6">选/必修</th>
+                <th class="span14">开课时间</th>
+                <th class="span6">讲师</th>
+                <th class="span12">地点</th>
+                <th class="span12">提交部门</th>
+                <th class="span12">提交时间</th>
+                <th class="span12">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbCourseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            {{if AttFlag==1 && ApprovalFlag==0 }}
+            <td><input type="checkbox" id="SelectedAllItems" name="SelectedAllItems" value="{{:CourseID}},{{:DepartID}}"/></td>
+            {{else}}
+            <td><input type="checkbox" disabled="disabled"/></td>
+            {{/if}}
+            <td>{{:#index+1}}</td>
+            <td>
+            <div class="ovh tl span16" title="{{>CourseName}}">{{>CourseName}}</div>
+            </td>
+            <td><div class="ovh tl span4" title="{{:CourseLength}}">{{:CourseLength}}</div></td>
+            <td>
+                {{:IsMust==0?"必修":"选修"}}
+            </td>
+            <td><div class="f11 tl">{{:CourseTimeStr}}</div></td>
+            <td>{{:TeacherName}}</td>
+            <td><div class="ovh tl span6" title="{{>RoomName}}">{{>RoomName}}</div></td>
+            <td>{{:DeptName}}</td>
+            <td>{{:SubmitTimeStr}}</td>
+            <td>
+            {{if AttFlag==1 && ApprovalFlag==0 }}
+             <a onclick="singleIsAllowedAll({{:CourseID}},{{:DepartID}})" class="icon iatt-in" title="审批"></a>
+             {{else AttFlag==1 && ApprovalFlag==1}}
+             <a class="icon iatt-in" disabled="disabled" title="审批通过"></a>
+             {{else AttFlag==0 && ApprovalFlag==1}}
+             <a class="icon iatt-in" disabled="disabled" title="审批拒绝"></a>
+            {{/if}}
+                <a onclick="fnCourseDetial({{:DepartID}},{{:CourseID}},{{:AttFlag}},{{:ApprovalFlag}})" class="icon iview" title="查看详情"></a>
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+
+        //初始化数据
+        InitCourseList(0);
+
+        //绑定下拉框事件
+        $("#ismust,#isopen,#isapproval").bind("change", function () {
+            InitCourseList(0);
+        });
+    });
+
+    //初始化数据
+    function InitCourseList(flag) {
+        var v = 'courseName=' + escape(getSearchWord("txtCourseName")) + '&ismust=' + $("#ismust").val() + '&isopen=-1' + '&appFlag=' + flag + '&startTime=' + $("#txt_StartTime").val() + '&endTime=' + $("#txt_EndTime").val() + '&kind=' + $("#isapproval").val();
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: '/DepAttendce/GetDepAttendceApprovalList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "courseListTemplate"
+        });
+    }
+
+    //查看详情
+    function fnCourseDetial(depId, courseId, AttFlag, ApprovalFlag) {
+        window.location.href = '/DepAttendce/DepAttendceApprovalCourseInfor?depID=' + depId + '&courseID=' + courseId + '&AttFlag=' + AttFlag + '&ApprovalFlag=' + ApprovalFlag;
+    }
+
+    function SearchData() {
+        var flag = 0;
+        flag = $("#isapproval").val();
+        InitCourseList(0);
+    }
+
+    function SelectedItems() {
+        if ($("#SelectedAll").attr("checked") == "checked") {
+            $("input[name='SelectedAllItems']").attr("checked", true);
+        } else {
+            $("input[name='SelectedAllItems']").attr("checked", false);
+        }
+    }
+
+    function singleIsAllowedAll(courseId, departId) {
+        var singleOne = courseId + "," + departId + ";";
+        $("#info").val(singleOne);
+        art.dialog.load('/DepAttendce/DepAttendceApprovalAllowed?type=1', { title: '考勤审批', id: 'Allowed', height: 320, width: 550 });
+    }
+
+    function isAllowedAll() {
+        var count = $("input[name='SelectedAllItems']");
+        var temp = "";
+        var i;
+        for (i = 0; i < count.length; i++) {
+            if (count[i].checked) {
+                temp += count[i].value + ";";
+            }
+        }
+        $("#info").val(temp);
+        if (temp != "") {
+            art.dialog.load('/DepAttendce/DepAttendceApprovalAllowed?type=1', { title: '考勤审批', id: 'Allowed', height: 320, width: 550 });
+        } else {
+            art.dialog.tips("未选择课程！", 3);
+        }
+    }
+
+    function DepTran_AttendceApprovalRecordShow(courseId, departId) {
+        var tempValue = courseId + "," + departId;
+        $("#infoShow").val(tempValue);
+        art.dialog.load('/DepAttendce/DepAttendceApprovalResource', { title: '审批详情', id: 'Record', height: 600, width: 800 });
+    }
+</script>

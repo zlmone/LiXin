@@ -1,0 +1,83 @@
+﻿@{
+    ViewBag.Title = "FreeApplyConfig";
+    Layout = null;
+    var listyear = ViewBag.listYear as List<int>; 
+}
+<div class="main-c">
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">其他形式、免修申请项目配置</span>
+    </h2>
+    <select id="selYear" onchange="ShowFeeConfig()">
+       
+        @for (int i = 0; i < 10; i++)
+        {
+            var year =2014 + i;
+            <option value="@(year)" @(year == DateTime.Now.Year ? "selected='selected'" : "")>@(year)</option>
+        }
+    </select>
+    <div class="tab-bk mt20">
+        <ul id="tagFreeApply">
+            <li class="On" id="tagFreeApply0">其他形式申请项目配置</li>
+            <li id="tagFreeApply1">免修申请项目配置</li>
+            <li id="tagFreeApply2">其他有组织形式申请项目配置</li>
+        </ul>
+    </div>
+    <div id="ApplyList" class="mt10">
+        正在加载......
+    </div>
+    <input id="manType" type="hidden" value="@ViewBag.manType" /><!--大Tab页-->
+    <input id="partType" type="hidden" value="@ViewBag.partType" /><!--小Tab页-->
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        ShowContent();
+        ShowIndex(@ViewBag.manType);
+    });
+
+    function ShowContent()
+    {
+        $("#tagFreeApply li").click(function ()
+        {
+            var index = $(this).index();
+            ShowIndex(index);
+        });
+    }
+
+    function ShowIndex(index)
+    {
+
+        $("#tagFreeApply li").removeClass("On");
+        $("#tagFreeApply" + index).addClass("On");
+
+        switch (parseInt(index))
+        {
+            case 0://其他形式申请项目配置
+                $("#manType").val(0);
+                $("#partType").val(0)
+                $.get("FreeOtherApply?year=" + $("#selYear").val() + "&partType=@ViewBag.partType", function (data)
+                {
+                    $("#ApplyList").html(data);
+                });
+                break;
+            case 1://免修申请项目配置
+                $("#manType").val(1);
+                $("#partType").val(0)
+                $("#ApplyList").load("FreeApply?year=" + $("#selYear").val() + "&partType=@ViewBag.partType");
+                break;
+            case 2://其他有组织形式申请项目配置
+                $("#manType").val(2);
+                $("#partType").val(0)
+                $("#ApplyList").load("OtherFromsProjectConfiguration?year=" + $("#selYear").val());
+                break;
+        }
+        closewait();
+    }
+
+    function ShowFeeConfig()
+    {
+        zhezaowait();
+        ShowIndex($("#manType").val());
+
+    }
+</script>

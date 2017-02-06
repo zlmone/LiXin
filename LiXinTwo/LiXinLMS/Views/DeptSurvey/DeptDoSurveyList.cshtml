@@ -1,0 +1,256 @@
+﻿@{
+    ViewBag.Title = "我的需求";
+    var index = Request.QueryString["index"] ?? "0";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DeptDoSurveyList" }))
+    <div class="tab-bk">
+        <ul id="ul_menu">
+            <li class="On" id="tag0">未做调查</li>
+            <li id="tag1">已做调查</li>
+        </ul>
+    </div>
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">调查名称：
+                </td>
+                <td class="span21">
+                    <input id="txtName" type="text" class="span16  searchclass" value="请输入搜索内容" info="" />
+                </td>
+                <td class="Tit span10">调查时间：
+                </td>
+                <td>
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" />
+                        <i></i>
+                    </div>
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" id="btnSearch" class="btn" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq" id="div_Accessed">
+        <select id="selIsAccessed">
+            <option value="-1">请选择状态</option>
+            <option value="0">未开始</option>
+            <option value="1">进行中</option>
+            <option value="2">已关闭</option>
+        </select>
+    </div>
+    <!--已做--->
+    <div id="havedo" style="display: none">
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span6">序号
+                    </th>
+                    <th>调查名称
+                    </th>
+                     <th class="span8">发布人
+                    </th>
+                    <th class="span10">发布部门
+                    </th>
+                    <th class="span24" jsrendersortfield="starttime" sort="asc">调查时间
+                    </th>
+                    <th class="span10">状态
+                    </th>
+                    <th class="span10">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="havedoList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <!--未做-->
+    <div id="notdo">
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span6">序号
+                    </th>
+                    <th>调查名称
+                    </th>
+                    <th class="span8">发布人
+                    </th>
+                    <th class="span10">发布部门
+                    </th>
+                    <th class="span24" jsrendersortfield="starttime" sort="asc">调查时间
+                    </th>
+                    <th class="span10">状态
+                    </th>
+                    <th class="span10">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="notdoList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<input id="index" type="hidden" value="@index" />
+<script id="havedoListTemplate" type="text/x-jsrender">
+   {{for #data}}
+         <tr>
+            <td>{{:#index+1}}</td>
+            <td style="text-align:left;">
+                <div class="ovh span50" title="{{:Name}}">{{:Name}}</div>
+            </td>
+            <td>{{:Realname}}</td>
+            <td>
+                <div class="tl ovh span10" title="  {{:DeptName}}">  {{:DeptName}}</div>
+            </td>
+            <td>{{:DoTime}}</td>
+            <td>{{:DoStatu}}</td>
+            <td>
+                 {{if IsInDate=="是"}}
+                   <a onclick="DoSurvey({{:Id}},1)" class="icon isur" title="调查"></a>
+                 {{else}}
+                    <span class="icon isur idis" title="调查"></span>
+                 {{/if}}
+              <a onclick="BrowseSurvey({{:Id}},{{:PaperID}})" class="icon iview" title="查看"></a>
+            </td>
+         </tr>
+   {{/for}}
+</script>
+<script id="notdoListTemplate" type="text/x-jsrender">
+   {{for #data}}
+         <tr>
+            <td>{{:#index+1}}</td>
+            <td style="text-align:left;">
+                <div class="ovh span50" title="{{:Name}}">{{:Name}}</div>
+            </td>
+            <td>{{:Realname}}</td>
+            <td>
+                <div class="tl ovh span10" title="  {{:DeptName}}">  {{:DeptName}}</div>
+            </td>
+            <td>{{:DoTime}}</td>
+             <td>{{:DoStatu}}</td>
+            <td>
+             {{if IsInDate=="是"}}
+               <a onclick="DoSurvey({{:Id}},0)" class="icon isur" title="调查"></a>
+             {{else}}
+                <span class="icon isur idis" title="调查"></span>
+             {{/if}}
+            </td>
+         </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+        Init();
+        $("#ul_menu li").click(function ()
+        {
+            $("#txtName").val("请输入搜索内容");
+            $("#start").val("");
+            $("#end").val("");
+
+            var index = $(this).index();
+            tabIndex(index);
+
+        });
+    });
+
+    //初始化
+    function Init()
+    {
+        initSearch();
+        tabIndex($("#index").val());
+        $("#selIsAccessed [value='1']").attr("selected", true);
+        $("#btnSearch").bind("click", function () { Getdata(0) });
+        $("#selIsAccessed").change(function () { Getdata(0) });
+    }
+
+
+    function tabIndex(index)
+    {
+        $("#index").val(index);
+        $("#tag0").removeClass("On");
+        $("#tag1").removeClass("On");
+
+        $("#tag" + index).addClass("On");
+        if (index == 0)
+        {
+            $("#havedo").css("display", "none");
+            $("#notdo").css("display", "");
+            $("#selIsAccessed [value='1']").attr("selected", true);
+            Getdata(0);
+            $("#btnSearch").bind("click", function () { Getdata(0) });
+        }
+        else
+        {
+            //  $("#div_Accessed").css("display", "");
+            $("#selIsAccessed [value='-1']").attr("selected", true);
+            $("#selIsAccessed").css("display", "");
+            $("#havedo").css("display", "");
+            $("#notdo").css("display", "none");
+            Getdata(1);
+            $("#btnSearch").bind("click", function () { Getdata(1) });
+            $("#selIsAccessed").change(function () { Getdata(1) });
+        }
+    }
+
+    function Getdata(type)
+    {
+
+        if ($("#start").val() != "" && $("#end").val() != "" && ($("#start").val() > $("#end").val()))
+        {
+
+            art.dialog.tips("请选择正确时间范围", 3);
+            return false;
+        }
+        var temp = "havedoList";
+        if (type == 0)
+        {
+            temp = "notdoList";
+        }
+        $("#" + temp).JsRenderData({
+            sourceUrl: getParamUrl(type),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "starttime",
+            jsRenderASC: "desc",
+            templateID: temp + "Template"
+        });
+    }
+
+    function getParamUrl(type)
+    {
+
+        return "/DeptSurvey/GetDoSurveylist?type=" + type + "&Name=" + escape($.trim(getSearchWord("txtName"))) + "&startTime=" + $("#start").val()
+               + "&endTime=" + $("#end").val() + "&IsAccessed=" + $("#selIsAccessed").val();
+    }
+
+    //做调查
+    function DoSurvey(surveyID, isdo)
+    {
+        var action = "";
+
+        window.location.href = "DeptDoSurvey?surveyID=" + surveyID + "&isdo=" + isdo + "&flag=@ViewBag.Flag&index=" + $("#index").val();
+    }
+
+    function BrowseSurvey(id, paperID)
+    {
+        var action = "DeptBrowseSurveyResult";
+        var backaction = "DeptDoSurveyList";
+
+        window.location.href = action + "?surveyID=" + id + "&paperID=" + paperID + "&flag=2&backurl=" + backaction + "&index=" + $("#index").val();
+    }
+</script>

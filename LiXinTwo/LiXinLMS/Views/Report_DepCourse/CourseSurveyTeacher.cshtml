@@ -1,0 +1,144 @@
+﻿@{
+    ViewBag.Title = "讲师评估详情";
+    var year = Request.QueryString["year"];
+}
+
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "讲师评估详情" }))
+    <div id="div_Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td class="span33">
+                    <input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+                <td class="Tit span8">选/必修：</td>
+                <td>
+                    <div class="sel">
+                        <input type="checkbox" name="popIsMust" id="chbIsMust0" value="1" /><label>选修</label>
+                        <input type="checkbox" name="popIsMust" id="chbIsMust1" value="0" /><label>必修</label>
+                    </div>
+                </td>
+                <td class="so-do" rowspan="2">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnGetCourseList(); " />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">开课时间：</td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                            name="StartTime" id="txt_StartTime" value="" />
+                        <i></i>
+                    </div>
+                    至
+                <div class="time-choose">
+                    <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                        id="txt_EndTime" value="" />
+                    <i></i>
+                </div>
+                </td>
+
+            </tr>
+        </table>
+    </div>
+
+    <div id="Content" class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th>课程名称</th>
+                    <th class="span8" jsrendersortfield="IsMust" sort="desc">选/必修</th>
+                    <th class="span12" jsrendersortfield="StartTime" sort="desc">开课时间</th>
+                    <th >开放对象</th>
+                    <th jsrendersortfield="Survey_TeacherScoreDouble" sort="desc">讲师评分（均值）</th>
+                    <th class="span12">操作</th>
+                </tr>
+            </thead>
+            <tbody id="CourseAppList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <div class="mt10 tc">
+        <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+    </div>
+</div>
+<script id="courseAppListTemplate" type="text/x-jsrender">
+   {{for #data}}
+     <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+        <td>{{:IsMustStr}}</td>
+        <td><div class="f11 tl span30">{{:CourseTime}}</div></td>
+        <td><div class="ovh tl span20" title="{{:OpenObject}}">{{:OpenObject}}</div></td>
+        <td>{{:Survey_TeacherScore}}</td>
+        <td>
+           {{if IsPing==0}}
+              <a disabled="disabled" class="icon iall" title="汇总"></a>
+              <a disabled="disabled"  class="icon idet" title="明细"></a>
+           {{else}}
+              <a onclick="CollectCourse({{:Id}})" class="icon iall" title="汇总"></a>
+                 <a onclick="DetailCourse({{:Id}})" class="icon idet" title="明细"></a>
+           {{/if}}
+        </td>
+     </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        fnGetCourseList();
+        //返回
+        $("#btnback").bind("click", function ()
+        {
+            window.location.href = "/Report_DepCourse/Report_DepCourseALL?type=2&cp=1";
+        });
+    });
+
+    function fnGetCourseList()
+    {
+        $("#CourseAppList").JsRenderData({
+            sourceUrl: GetURL(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: " Survey_TeacherScoreDouble",
+            jsRenderASC: "asc",
+            templateID: "courseAppListTemplate",
+            funCallback: function ()
+            {
+            }
+        });
+    }
+
+    function GetURL()
+    {
+        var isMust = "";
+        $("input[name='popIsMust']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                isMust = isMust == "" ? $(this).val() : isMust + "," + $(this).val();
+            }
+        });
+
+        var url = "/Report_DepCourse/GetDepCourseSurvey?teacher=@ViewBag.teacher&courseName=" + escape(getSearchWord("txtCourseName"))
+            + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&IsMust=" + isMust + "&year=@year";
+
+        return url;
+
+    }
+
+    function CollectCourse(id)
+    {
+        window.location.href = "/DepCourseAdvice/FAfterCourseMain?id=" + id + "&year=@year" + "&teacher=@ViewBag.teacher&type=1" + "&t=" + new Date();
+    }
+    function DetailCourse(id)
+    {
+        window.location.href = "/DepCourseAdvice/FCourseAppDetial?id=" + id + "&year=@year" + "&teacher=@ViewBag.teacher&type=1" + "&t=" + new Date();
+    }
+</script>

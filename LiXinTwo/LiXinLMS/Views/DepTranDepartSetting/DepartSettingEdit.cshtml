@@ -1,0 +1,357 @@
+﻿@using LiXinModels.User
+@model LiXinModels.DepTranManage.DepTranDepartSetting
+@{
+    ViewBag.Title = "分所群组人员编辑";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userList = ViewBag.UserList as List<Sys_User>;
+}
+<style type="text/css">
+    .deletelead{ padding: 0px 3px;background-color: #888;}
+</style>
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "分所群组人员编辑" }))
+    <form id="groupForm" method="post" action="">
+        <div class="so-set">
+            <input type="hidden" id="selgroup" value="@(Model.Id)" />
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span20"><span class="must">*</span>分所群组名称：</td>
+                    <td>
+                        <input type="text" class="span30" id="txtSortName" name="txtSortName" value="@(Model.DepartSetName)" maxlength="30"  />
+                    </td>
+                    @*<td id="nameTip"></td>*@
+                </tr>
+                <tr>
+                    <td class="Tit">描述：</td>
+                    <td>
+                        <textarea class="span30" id="txtMemo" name="txtMemo" maxlength="200" onkeyup=" TextearaMaxlength(this); ">@(Model.Memo)</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">分所群组负责人<span class="red">（最多50人）</span>：</td>
+                    <td>
+                        <span id="leadlist">
+                        @{
+                            foreach (var u in userList)
+                            {
+                                <span data-type="lead" class="ml5" >@(u.Realname)<span class="deletelead pointer" title="删除" onclick="deleteLead(this,@(u.UserId));">X</span></span>
+                            }
+                        }
+                        </span>
+                        <input type="button" value="指定分所群组负责人" onclick="AddUsers();" class="btn btn-co" />
+                        <input id="leaderID" name="leaderID" type="hidden" value="@(Model.MainUserIDs)" />
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <input type="hidden" id="AllUserID" name="AllUserID" />
+                        <input type="hidden" id="haveUserID" name="haveUserID" />
+                        <input type="hidden" id="haveAllUserID" name="haveAllUserID" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <div class="list-do">
+                <input type="button" id="btAdduser" value="添加人员" />
+                <input type="button" id="btDeluser" value="批量删除" />
+            </div>
+        </div>
+        <table class="tab-List mt10" id="LeaderuserList">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        <input id="selAlluser" type="checkbox" /></th>
+                    <th class="span8">姓名</th>
+                    <th class="span4">性别</th>
+                    <th>分所</th>
+                    <th class="span8">培训级别</th>
+                    <th class="span12">薪酬级别</th>
+                    <th class="span16">联系方式</th>
+                    <th class="span14">邮箱</th>
+                    <th class="span6">操作</th>
+                </tr>
+            </thead>
+            <tbody id="gUserList">
+            </tbody>
+            <tfoot></tfoot>
+        </table>
+        <div class="tc mt10">
+            <input type="submit" id="btnSaveSort" class="btn" value="保存" />
+            <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+        </div>
+
+    </form>
+</div>
+<input id="hidtype" type="hidden" value="0" />
+<input id="hidAllSel" type="hidden" />
+<input id="hidSelT" type="hidden" />
+<div id="rname" style="display: none">
+</div>
+
+<script id="gUserListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr id="tr_{{:UserId}}" >
+            <td><input id="{{:UserId}}" type="checkbox" name="checkUser" value="{{:UserId}}" onclick="changeHref(this);" /></td>
+            <td>{{:Realname}}</td>
+            <td>{{:SexStr}}</td>
+            <td title="{{:DeptPath}}" style="text-align:left;"><div class="ovh span28 ml10">{{:DeptPath}}</div></td>
+            <td>{{:TrainGradeStr}}</td>
+            <td>{{:PayGradeStr}}</td>
+            <td>{{:MobileNum}}</td>
+            <td title="{{:EmailStr}}"><div class="ovh span13">{{:EmailStr}}</div></td>
+            <td>
+                <a title="删除" onclick="Delete({{:UserId}});" class="icon idel"></a>
+            </td>
+        </tr>  
+    {{/for}}
+</script>
+<script type="text/javascript">
+    function InitializeTargetList(url) {
+        var templateId = 'gUserListTemplate';
+        $("#gUserList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 20,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function () {
+                SetCheckBox("selAlluser", "gUserList");
+            }
+        });
+    }
+    function getUrlParms() {
+        return "/DepTranDepartSetting/GetAllLeaderUserList?id=" + $("#selgroup").val() + "&t=" + new Date();
+    }
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        //初始化列表
+        InitializeTargetList(getUrlParms());
+        GetAllUserIDList($("#selgroup").val());
+
+        $("#groupForm").validate({
+            rules: {
+                txtSortName: {
+                    required: true,
+                    maxlength: 30,
+                    remote: {
+                        type: "POST",
+                        dataType: "json",
+                        url: "/DepTranDepartSetting/CheckLeader",
+                        data: { title: function () { return $.trim(jQuery("#txtSortName").val()); }, id: function () { return @(Model.Id); } }
+                    }
+                },
+                txtMemo: {
+                    maxlength: 200
+                },
+                haveUserID: {
+                    required: true
+                },
+                leaderID: { required: true }
+            },
+            messages: {
+                txtSortName: {
+                    required: "请填写名称",
+                    maxlength: "长度必须小于30个字符",
+                    remote: "分所群组已经存在"
+                },
+                txtMemo: {
+                    maxlength: "长度不能超过200个字符"
+                },
+                haveUserID: {
+                    required: "请添加人员"
+                },
+                leaderID: { required: "请选择分所群组负责人" }
+            },
+            submitHandler: function (form) {
+                $.post("/DepTranDepartSetting/Submitleader?id=" + $("#selgroup").val(), $("#groupForm").formSerialize(), function (data) {
+                    if (data.result == 1) {
+                        art.dialog.tips(data.content, 3);
+                        window.location.href = "/DepTranDepartSetting/DepartSettingManage";
+                    } else {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            }
+        });
+        //添加人员
+        $("#btAdduser").bind("click", function () {
+            $("#hidtype").val(1);
+            $("#AllUserID").val($("#haveAllUserID").val());
+            art.dialog.load("/UserCommon/SelectUser?pageSize=20&t=" + new Date(), { title: "选择人员", id: "selUser" });
+        });
+        //批量删除
+        $("#btDeluser").bind("click", function() {
+            var check = GetChecked('LeaderuserList');
+            var users = $("#haveUserID").val();
+            if (check != "") {
+                art.dialog({
+                    title: "提示",
+                    content: "确定删除所选人员吗？",
+                    width: 300,
+                    okValue: '确定',
+                    cancelValue: '删除',
+                    height: 50,
+                    fixed: true,
+                    lock: true,
+                    ok: function() {
+                        $.each(check.split(','), function(index, value) {
+                            ReomveArray("AllUserID", value);
+                            ReomveArray("haveUserID", value);
+                        });
+                        var url = "/DepTranDepartSetting/GetleaderMessage?userIDs=" + $("#haveUserID").val() + "&t=" + new Date();
+                        InitializeTargetList(url);
+                    },
+                    cancel: function() {
+                    }
+                });
+            } else {
+                art.dialog.tips("请选择人员", 3);
+                return false;
+            }
+        });
+
+        //返回
+        $("#btnback").bind("click", function () {
+            window.location.href = "/DepTranDepartSetting/DepartSettingManage";
+        });
+    });
+
+    function stateChange() {
+        InitializeTargetList(getUrlParms());
+    }
+
+    function GetUserIDList() {
+        if ($("#hidtype").val() == 0) {
+            GetleaderID();
+        }
+        else {
+            //var userIds = GetChecked('pop_userList');
+            var userIds = $("#commonSelectedIdStr").val();
+            if (userIds != "") {
+                $("#haveUserID").next().hide();
+            } else {
+                art.dialog.tips("请选择人员", 3);
+                return;
+            }
+
+            var hidduser = $("#haveUserID").val();
+            if (hidduser != "" && hidduser != null) {
+                if (userIds != "" && userIds != null) {
+                    userIds = userIds + "," + hidduser;
+                } else {
+                    userIds = hidduser;
+                }
+
+            }
+            var url = "/DepTranDepartSetting/GetleaderMessage?userIDs=" + userIds + "&t=" + new Date();
+            InitializeTargetList(url);
+            art.dialog.list['selUser'].close();
+            HiddenSelect();
+            $("#AllUserID").val($("#AllUserID").val() + "," + userIds);
+            $("#haveAllUserID").val($("#AllUserID").val());
+            $("#haveUserID").val(userIds);
+        }
+    }
+
+    function GetAllUserIDList(id) {
+        $.getJSON("/DepTranDepartSetting/GetAllUserByleader?t=" + new Date(), function (data) {
+            $("#haveAllUserID").val(data.content); 
+            if(id>0)
+            {
+                $.getJSON("/DepTranDepartSetting/GetUserByleader?id=" + id + "&t=" + new Date(), function (data1) {
+                    $("#haveUserID").val(data1.content);
+                });
+            }
+        });
+    }
+
+    //删除
+    function Delete(index) {
+        art.dialog({
+            title: "提示",
+            content: "确定删除此选人员吗？",
+            width: 300,
+            okValue: '确定',
+            cancelValue: '删除',
+            height: 50,
+            fixed: true,
+            lock: true,
+            ok: function() {
+                var tr = document.getElementById('tr_' + index);
+                tr.parentNode.removeChild(tr);
+
+                ReomveArray("haveUserID", index);
+                ReomveArray("haveAllUserID", index);
+                var url = "/DepTranDepartSetting/GetleaderMessage?userIDs=" + $("#haveUserID").val() + "&t=" + new Date();
+
+                var sss = $("#hidSelGroups").val();
+                if (sss != undefined && sss != null && sss != "") {
+                    var hstr = "," + sss + ",";
+                    var str = "," + index + ",";
+                    if (hstr.indexOf(str) > -1) {
+                        if (hstr == str) {
+                            hstr = hstr.replace(str, "");
+                        } else {
+                            hstr = hstr.replace(str, ",");
+                        }
+                        hstr = hstr.substring(1, hstr.length - 1);
+                        $("#hidSelGroups").val(hstr);
+                    }
+                }
+                InitializeTargetList(url);
+            },
+            cancel: function() {
+            }
+        });
+    }
+
+
+    function HiddenSelect() {
+        if ($("#hidSelGroups") != undefined && $("#hidSelGroups") != null && $("#hidSelGroups") != "") {
+            $("input[name='checkUser']").each(function () {
+                if ((',' + $("#hidSelGroups").val() + ',').indexOf(',' + $(this).attr('value') + ',') >= 0) {
+                    $(this).attr('checked', true);
+                }
+            });
+        }
+    }
+
+    //添加负责人
+    function AddUsers() {
+        $("#hidtype").val(0);
+        $("#AllUserID").val($("#leaderID").val());
+        art.dialog.load("/UserCommon/SelectUser?pageSize=20&t=" + new Date(), { title: "指定分所群组负责人", id: "selUser" });
+    }
+
+    //添加负责人ID
+    function GetleaderID() {
+        var selcount = $("#pop_userList input[type='checkbox']:checked").length;
+        var havedcount = $("#leadlist span[data-type='lead']").length;
+        if(selcount+havedcount<=50) {
+            $("#pop_userList input[type='checkbox']").each(function() {
+                if ($(this).attr("checked") == "checked") {
+                    $("#leadlist").append('<span data-type="lead" class="ml5">' + $(this).attr("username") + '<span  class="deletelead pointer" onclick="deleteLead(this,' + $(this).attr("id") + ');">X</span></span>');
+                    var leadstr = $("#leaderID").val();
+                    $("#leaderID").val(leadstr + (leadstr == "" ? $(this).attr("id") : (',' + $(this).attr("id"))));
+                }
+            });
+            closeDialog("selUser");
+        }else {
+            art.dialog.tips("指定的负责人人数超过最大限制！", 3);
+        }
+    }
+    
+    //删除部门负责人
+    function deleteLead(obj,id) {
+        var leadstr = (',' + $("#leaderID").val() + ',').replace((',' + id + ','), ',');
+        leadstr = leadstr.substring(0, leadstr.length - 1);
+        if(leadstr.length>0) {
+            leadstr=leadstr.substring(1, leadstr.length);
+        }
+        $("#leaderID").val(leadstr);
+        $(obj).parent().remove();
+    }
+</script>

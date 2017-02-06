@@ -1,0 +1,37 @@
+﻿@{
+    ViewBag.Title = "座位安排";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="width:600px;margin:50px auto auto;">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span12">请输入模板课程ID：</td>
+            <td><input type="text" value="请输入课程ID" id="courseID" onfocus="$(this).val('');" onblur="if (isNaN($(this).val()) || !parseInt($(this).val()) > 0) {$(this).val(0);}"/></td>
+        </tr>
+        <tr>
+            <td class="Tit">请输入目标课程ID：</td>
+            <td><input type="text" value="请输入模板课程ID" id="targetCourseID" onfocus="$(this).val('');" onblur="if (isNaN($(this).val()) || !parseInt($(this).val()) > 0) {$(this).val(0);}"/><span class="ml10" style="color:red;">提示：多个请用英文逗号隔开，如：12,33,44</span></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input class="btn btn-co" type="button" id="btnSubmit" value="更新座位安排"/>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnSubmit").bind("click", function () {
+            if ($("#courseID").val() == '0') {
+                art.dialog.tips('请输入课程ID！', 1.5);
+                return;
+            }
+            $.getJSON('/NewCourseManage/SubmitUpdateSeat?id=' + $("#courseID").val() + "&tid=" + $("#targetCourseID").val(), function (data) {
+                if (data.result == 0) {
+                    art.dialog.tips(data.message, 1.5);
+                } else
+                    art.dialog.tips('操作成功！', 1.5);
+            });
+        });
+    });
+</script>

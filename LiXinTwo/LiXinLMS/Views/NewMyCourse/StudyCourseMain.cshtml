@@ -1,0 +1,145 @@
+﻿@using LiXinControllers
+@{
+    ViewBag.Title = "StudyCourseMain";
+    var CourseResourceList = ViewBag.CourseResourceList as List<LiXinModels.NewCourseManage.New_CourseFiles>;
+    var Resourceurl = BaseController.UFCOResource as string;
+    var courseResource = ViewBag.courseResource as List<LiXinModels.NewCourseManage.New_CourseFiles>;
+    Layout = null;
+}
+
+<div class="main-c">
+        <table class="tab-List">
+                <thead>
+                        <tr>
+                        <th>附件名称</th>
+                        <th>附件类型</th>
+                        <th>资源大小</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (CourseResourceList.Find(p => p.Type == 1) != null)
+                    {
+                        foreach (var coCourseResource in CourseResourceList)
+                        {
+                            if (coCourseResource.Type == 1)
+                            { 
+                                <tr>
+                                    <td><div class="tl">@coCourseResource.Name</div></td>
+                                    <td>@coCourseResource.ExtendName</td>
+                                    <td>@coCourseResource.ResourceSize K</td>
+                                    @*<td><a href="@Url.Content(Resourceurl + coCourseResource.RealName)" target="_Blank" class="icon idown" title="我要下载"></a></td>*@
+                                    <td><a onclick="ziyuanload('@Url.Content(Resourceurl + coCourseResource.RealName)','@(coCourseResource.Name)','@(coCourseResource.Id)')" target="_Blank" class="icon idown" title="我要下载"></a></td>
+                                     </tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="tc">暂无资源</td></tr>
+                    }
+
+                </tbody>
+            </table>
+
+        <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th>视频名称</th>                            
+                            <th>学习次数</th>
+                            <th>视频观看进度</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tt in courseResource)
+                        {
+                            <tr>
+                                @if (@tt.Type == 4)
+                                { 
+                                    <td>
+                                        <div class="span18 ovh tl" title="@tt.RealName">@tt.RealName</div>
+                                    </td>
+                                }
+                                @if (@tt.Type == 3)
+                                {
+                                    <td>@tt.Name</td>
+                                }                                
+                                <td>@tt.LearnTimes</td>
+                                @if (@tt.Type == 4)
+                                {
+                                    <td>@(tt.Progress)%</td>
+                                }
+                                else
+                                {
+                                    <td>@(Convert.ToInt32(tt.Progress))%</td>
+                                }
+                                <td>
+                                    @if (@tt.Type == 4)
+                                    {
+                                        <a onclick=" FAddLearnVideoInfor(@ViewBag.courseid,@tt.CourseResourceId, '@tt.Name',4,@tt.VideoManageIsDelete) " class="icon iplay" title="学习"></a>
+                                    }
+                                    else
+                                    {
+                                        <a onclick="FAddLearnVideoInfor(@tt.CourseId,@tt.CourseResourceId,'',3,@tt.VideoManageIsDelete)" class="icon iplay" title="学习"></a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+        <div>
+
+        </div>
+  <center class="mt10">@Html.ActionLink("返回", "StudyCourseList", "NewMyCourse", new { p = "1" }, new { @class = "btn btn-cancel" })</center>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+    });
+    function FAddLearnVideoInfor(courseid, coursecourseid, url, ResourceType, isdelete)
+    {
+        if (isdelete == 0)
+        {
+            $.post("/NewMyCourse/LearnVideoInforAdd?courseid=" + courseid + "&coursecourseid=" + coursecourseid + "&url=" + url + "&ResourceType=" + ResourceType, function (data)
+            {
+                // location.href = "/" + data.learnurl;
+                if (data.result == 0)
+                {
+                    //art.dialog({ title: '温馨提示', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+                    art.dialog.tips(data.content, 3);
+                } else
+                {
+                    if (ResourceType == 4)
+                    {
+                        open(data.learnurl);
+                    } else
+                    {
+                        open(data.URL);
+                    }
+                }
+            });
+        } else
+        {
+            art.dialog.tips("视频已删除，无法观看", 3);
+        }
+    }
+
+    function PlayWare(id, type)
+    {
+        $.getJSON("/MyCourse/PlayCourseware?tp=0&id=" + id, function (data)
+        {
+            if (type == 0)
+            {
+                open(data.URL);
+            } else
+            {
+                open("/MyCourse/NormalCoursePlay?tp=0&id=" + id + "&url=" + data.URL);
+            }
+        });
+    }
+
+    function ziyuanload(url, name, id) {
+        window.location.href = "/NewMyCourse/LoadPrincipleFile?path=" + escape(url) + "&name=" + escape(name) + "&id=" + id;
+    }
+</script>

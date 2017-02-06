@@ -1,0 +1,244 @@
+﻿@{
+    ViewBag.Title = "其他形式、免修管理";
+    var flag = Request.QueryString["flag"] ?? "0";
+    var nextflag = Request.QueryString["nextflag"] ?? "0";
+}
+
+<div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "其他形式、免修管理"
+}))
+    <div class="tab-bk mt10">
+        <input type="hidden" id="tabtype" value="0" />
+        <ul id="tabotherFrom">
+            <li class="On" id="tab0">批量免修</li>
+            <li id="tab1">批量其他形式</li>       
+        </ul>
+    </div>
+    <!--其他形式-->
+    <div id="ordermain">
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">申请内容：
+                    </td>
+                    <td class="span23">
+                        <input type="text" class="span20 searchclass" id="txtOtherName" value="请输入搜索内容" info="" />
+                    </td>
+                    
+                    <td>
+                       申请时间：
+                    </td>
+                    <td>
+                        <div class="time-choose">
+                            <input id="txtPrinStartTime" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txtPrinEndTime\',{m:-1})}' });" />
+                            <i></i>
+                        </div>
+                        至
+                        <div class="time-choose">
+                            <input id="txtPrinEndTime" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txtPrinStartTime\',{m:1})}' });" />
+                            <i></i>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="button" value="搜索" class="btn" id="btn_add"/>
+                        <input type="button" value="批量其他形式导入" class="btn"  id="btn_pl" />
+                    </td>
+                </tr> 
+            </table>
+        </div>
+        <div class="mt10">
+            <table class="tab-List" id="tborder">
+                <thead>
+                    <tr>
+                        <th class="span4">序号
+                        </th>
+                        <th class="span15">申请内容
+                        </th>
+                        <th class="span6" jsrendersortfield="ConvertScore" sort="desc">申请数值
+                        </th>
+                        <th class="span6" jsrendersortfield="ApplyTime" sort="desc">申请年度
+                        </th>
+                        <th class="span6" jsrendersortfield="CreateTime" sort="asc">导入时间
+                        </th>
+                        <th class="span6" >导入者
+                        </th>
+                        <th class="span10">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="orderList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <!--免修-->
+    <div id="freemian">
+    </div>
+     <!--审批-->
+     <div id="Approvemian">
+     </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //查询条件输入框初始化
+        initSearch();
+
+        fonload();
+
+        $("#btn_add").click(function () {
+            fonload();
+        })
+
+        $("#btn_pl").click(function () {
+            location.href = "/MyApply/Free_BatchOtherFromAdd";
+        })
+
+        showfromTable(@flag);
+
+        $("#tabotherFrom li").click(function ()
+        {
+            showfromTable($(this).index())
+        });
+    })
+
+    function fonload(jsRenderSortField) {
+        if (jsRenderSortField == undefined) {
+            jsRenderSortField = "ApplyTime desc";
+        }
+        else {
+            jsRenderSortField = jsRenderSortField;
+        }
+        //approveType = index;
+        var cpa = 2;
+
+        if ($("input[name='cpa']:checked").size() == 1) {
+            cpa = $("input[name='cpa']:checked").val();
+        }
+        else {
+            cpa = 2;
+        }
+        var t = "?othername=" + escape(getSearchWord("txtOtherName")) + "&type=-1" +
+            "&starttime=" + $("#txtPrinStartTime").val() + "&endtime=" + $("#txtPrinEndTime").val()  + "&jsRenderSortField=" + jsRenderSortField;
+        
+        $("#orderList").JsRenderData({
+            sourceUrl: '/MyApply/GetFree_BatchUserOtherApplyList' + t,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "courseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+
+
+    function fedit(id, otherid) {
+  
+        location.href = "/MyApply/Free_BatchOtherFromAdd_Second?id=" + id + "&UserOtherApply_Id=" + otherid;
+    }
+
+    //删除
+    function fdelete(Id) {
+        art.dialog({
+            lock: false,
+            content: "确定要删除该申请内容吗？",
+            ok: function () {
+                $.post("/MyApply/DeleteFree_UserOtherApply?id=" + Id, function (data) {
+                    art.dialog.tips("删除成功！", 3, function () {                      
+                        if (data.result == 1) {
+                            fonload();
+                        }
+                    });
+                });
+            },
+            cancel: function () {
+                return;
+            }
+        });
+    }
+
+    function fSubmit(Id)
+    {       
+        art.dialog({
+            lock: false,
+            content: "确定要发布该申请内容吗？",
+            ok: function () {
+                $.post("/MyApply/PublicFree_UserOtherApply?id=" + Id, function (data) {                  
+                    zhezaowait(); //等待提示
+                    fonload();
+                    //art.dialog.tips(data.content, 3, function () {
+                    closewait();
+                   
+                });
+            },
+            cancel: function () {
+                return;
+            }
+        });
+    }
+
+  
+
+    function find(id, ApplyType) {
+        window.location.href = "/MyApply/Free_BatchOtherFromDetails?ID=" + id + "&type=" + ApplyType;
+    }
+
+
+    function SendMail(Id)
+    {
+        art.dialog.load("/MyApply/Free_SendMessage?Id=" + Id + "&t=" + new Date(), { title: "消息编辑", id: "pop_FreeSendMessage", width: 800 });
+    }
+
+    function showfromTable(index)
+    {
+        $("#tabotherFrom li").removeClass("On");
+        $("#tab" + index).addClass("On");
+
+        switch (parseInt(index))
+        {
+            case 0:
+                $("#ordermain").hide();
+                $("#freemian").show();
+                $("#freemian").load("Free_BatchFree");
+                $("#Approvemian").hide();
+                break;
+            case 1:
+                $("#ordermain").show();
+                $("#freemian").hide();
+                $("#Approvemian").hide();
+            break;
+        }
+    }
+ </script>
+
+
+<script id="courseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td style="text-align: left;" title="{{:ApplyName_New}}"><div>{{:ApplyName_New}}</div></td>   
+        <td>{{:ConvertScore}}</td>
+        <td>{{:Year}}</td>
+        <td>{{:CreateTimeStr}}</td>
+        <td>{{:Realname}}</td>
+        <td>
+             <a onclick="find({{:ID}},{{:ApplyType}})" class='icon iview'  title="查看">查看</a>
+             <a onclick='fedit({{:ApplyID}},{{:ID}})' class='icon iedit'  title="编辑">编辑</a>        
+            {{if Status==0}}
+                <a onclick='fSubmit({{:ID}})' class='icon ipub'  title="发布">发布</a>
+                <a onclick='fdelete({{:ID}})' class='icon idel'  title="删除">删除</a> 
+            {{else}}
+                <a class='icon ipub idis'  title="发布">发布</a>
+                <a class='icon idel idis'  title="删除">删除</a>
+            {{/if}}
+            <a title="消息发送" onclick="SendMail({{:ID}});" class="icon imess-se"></a>     
+        </td>
+    </tr> 
+    {{/for}}
+</script>

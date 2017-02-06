@@ -1,0 +1,176 @@
+﻿@model LiXinModels.Sys_ParamConfig
+@{
+    ViewBag.Title = "NewAllScoreConfig";
+    Layout = null;
+}
+<form id="formNewConfig">
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new
+    {
+        linkName = "综合评定设置"
+    }))
+
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span16"><span class="must">*</span>综合评定总分：</td>
+                <td>
+                    <input type="text" class="span16" name="SumScore" id="SumScore" value="@(Model.ConfigValue == "" ? "0" : (Model.ConfigValue.Split(';')[0].Split(',')[0]))" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span16">奖励分(课后评估)：</td>
+                <td>
+                    <input type="text" class="span16" name="RewardScore" id="RewardScore" value="@(Model.ConfigValue == "" ? "0" : (Model.ConfigValue.Split(';')[0].Split(',')[1]))" />
+                </td>
+            </tr>
+        </table>
+
+        <h3 class="tit-h3">单项分值设置</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span16">考勤：</td>
+                <td>
+                    <input type="text" class="span16" name="AttendanceScore" id="AttendanceScore" value="@(Model.ConfigValue.Split(';')[1] == "" ? "0" : (Model.ConfigValue.Split(';')[1].Split(',')[0]))" />
+                    分
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span16">集中授课现场评分：</td>
+                <td>
+                    <input type="text" class="span16" name="TogtherScore" id="TogtherScore" value="@(Model.ConfigValue.Split(';')[1] == "" ? "0" : (Model.ConfigValue.Split(';')[1].Split(',')[1]))" />
+                    分
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span16">分组带教现场评分：</td>
+                <td>
+                    <input type="text" class="span16" name="GroupScore" id="GroupScore" value="@(Model.ConfigValue.Split(';')[1] == "" ? "0" : (Model.ConfigValue.Split(';')[1].Split(',')[2]))" />
+                    分
+                </td>
+
+            </tr>
+            <tr>
+                <td class="Tit span16">考试成绩：</td>
+                <td>
+                    <input type="text" class="span16" name="ExamScore" id="ExamScore"  value="@(Model.ConfigValue.Split(';')[1] == "" ? "0" : (Model.ConfigValue.Split(';')[1].Split(',')[3]))" />
+                    分
+                </td>
+            </tr>
+
+        </table>
+        <h3 class="tit-h3">考试成绩组成</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span16">混合式课程考试：</td>
+                <td>
+                    <input type="text" class="span16" name="courseScore" id="courseScore" value="@(Model.ConfigValue.Split(';')[2] == "" ? "0" : (Model.ConfigValue.Split(';')[2].Split(',')[0]))" />
+                    %
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span16">视频课程考试：</td>
+                <td>
+                    <input type="text" class="span16" name="courseVideoScore" id="courseVideoScore" value="@(Model.ConfigValue.Split(';')[2] == "" ? "0" : (Model.ConfigValue.Split(';')[2].Split(',').Length >= 2 ? Model.ConfigValue.Split(';')[2].Split(',')[1] : "0"))" />
+                    %
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span16">新员工独立考试:</td>
+                <td>
+                    <input type="text" class="span16" name="courseExamScore" id="courseExamScore" value="@(Model.ConfigValue.Split(';')[2] == "" ? "0" : (Model.ConfigValue.Split(';')[2].Split(',').Length >= 3 ? Model.ConfigValue.Split(';')[2].Split(',')[2] : "0"))" />
+                    %
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="submit" value="确定" class="btn" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <input type="hidden" value="34" id="configType" /><!--区分ID-->
+    <input type="hidden" value="@(Model.ConfigValue.Split(';')[2])" id="examtype"  />
+</form>
+<script>
+    $(document).ready(function ()
+    {
+        $("#formNewConfig").validate(
+            {
+                event: "blur",
+                rules: {
+                    SumScore: { digits: true, min: 1, max: 999 },
+                    RewardScore: { digits: true, min: 1, max: 999 },
+                    AttendanceScore: { digits: true, min: 0, max: 999 },
+                    TogtherScore: { digits: true, min: 0, max: 999 },
+                    GroupScore: { digits: true, min: 0, max: 999 },
+                    ExamScore: { digits: true, min: 0, max: 999 },
+                    courseScore: { digits: true, min: 0, max: 100 },
+                    courseExamScore: { digits: true, min: 0, max: 100 },
+                    courseVideoScore: { digits: true, min: 0, max: 100 }
+                },
+                messages: {
+                    SumScore: { digits: "请输入大于0的正整数", min: "请输入大于0的正整数", max: "请输入小于3位的正整数" },
+                    RewardScore: { digits: "请输入大于0的正整数", min: "请输入大于0的正整数", max: "请输入小于3位的正整数" },
+                    AttendanceScore: { digits: "请输入大于等于0的正整数", min: "请输入大于等于0的正整数", max: "请输入小于3位的正整数" },
+                    TogtherScore: { digits: "请输入大于等于0的正整数", min: "请输入大于等于0的正整数", max: "请输入小于3位的正整数" },
+                    GroupScore: { digits: "请输入大于等于0的正整数", min: "请输入大于等于0的正整数", max: "请输入小于3位的正整数" },
+                    ExamScore: { digits: "请输入大于等于0的正整数", min: "请输入大于等于0的正整数", max: "请输入小于3位的正整数" },
+                    courseScore: { digits: "请输入大于等于0的正整数", min: "请输入大于等于0的正整数", max: "请输入小于100的正整数" },
+                    courseExamScore: { digits: "请输入大于等于0的正整数", min: "请输入大于等于0的正整数", max: "请输入小于100的正整数" },
+                    courseVideoScore: { digits: "请输入大于等于0的正整数", min: "请输入大于等于0的正整数", max: "请输入小于100的正整数" }
+                },
+                errorPlacement: function (error, element)
+                {
+                    if (element.is(':radio') || element.is(':checkbox'))
+                    {
+                        var eid = element.attr('name');
+                        error.appendTo(element.parent());
+                    }
+                    else
+                    {
+                        error.insertAfter(element);
+                    }
+                },
+                submitHandler: AddNewConfig
+            });
+    });
+
+    function AddNewConfig()
+    {
+        var AttendanceScore = $("#AttendanceScore").val();
+        var TogtherScore = $("#TogtherScore").val();
+        var GroupScore = $("#GroupScore").val();
+        var ExamScore = $("#ExamScore").val();
+        var SumScore = $("#SumScore").val();
+        var courseScore = $("#courseScore").val();
+        var courseExamScore = $("#courseExamScore").val();
+        var courseVideoScore = $("#courseVideoScore").val();
+      //  debugger;
+        var Sum = parseInt(AttendanceScore) + parseInt(TogtherScore) + parseInt(GroupScore) + parseInt(ExamScore);
+        if (Sum != SumScore)
+        {
+            art.dialog.tips('单项分值综合应等于综合评定总分', 3);
+            return false;
+        }
+        if (parseInt(courseScore) + parseInt(courseExamScore) + parseInt(courseVideoScore) != 100)
+        {
+            art.dialog.tips('考试成绩组成应等于100%', 3);
+            return false;
+        }
+
+        var exam = $("input[name=exam]:checked").length == 2 ? 2 : $("input[name=exam]:checked").val();
+
+        var tt = SumScore + "," + $("#RewardScore").val() + ";" + AttendanceScore + "," + TogtherScore + "," + GroupScore + "," + ExamScore + ";" + courseScore + "," + courseVideoScore + "," + courseExamScore;
+
+        $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + tt, function (data)
+        {
+            if (data.result == 1)
+            {
+                art.dialog.tips('配置成功', 3);
+            } else
+            {
+                art.dialog.tips('配置失败', 3);
+            }
+        });
+    }
+</script>

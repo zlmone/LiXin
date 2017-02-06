@@ -1,0 +1,75 @@
+﻿@{
+    ViewBag.Title = "OnlineCourse";
+    Layout  = null;
+    var CoCoursePaper = ViewBag.Co_CoursePaper as LiXinModels.DepCourseManage.Dep_Coursepaper;
+    var exap = ViewBag.exap as LiXinModels.Examination.DBModel.tbExamination;
+    var examsendstudent = ViewBag.examsendstudent as LiXinModels.Examination.DBModel.tbExamSendStudent;
+    var exampapger = ViewBag.exampapger as LiXinModels.Examination.DBModel.tbExampaper;
+    var course = ViewBag.course as LiXinModels.DepCourseManage.Dep_Course;
+    ViewBag.Title = "课程详情";
+}
+<div class="main-c">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th>试卷名称</th>
+                <th>考试时长(分钟)</th>
+                <th>考试时间</th>
+                <th>通过分数</th>
+                <th>试卷总分</th>
+                <th>允许(进入)考试次数</th>
+                    
+            </tr>
+        </thead>
+        <tbody>
+            @*&& @exampapger.Status==0*@
+            @if (CoCoursePaper != null && @course.IsTest == 1 && exampapger!=null)
+            { 
+                <tr>
+                    <td>
+                        <div class="tl ovh span30" title="@exampapger.ExampaperTitle">@exampapger.ExampaperTitle</div>
+                    </td>
+                    <td>
+                        @CoCoursePaper.Length
+                    </td>
+                    <td>
+                        课程结束后 @CoCoursePaper.Hour 小时
+                    </td>
+                    <td>                      
+ 
+                        <span>
+                            @(Convert.ToInt32(CoCoursePaper.LevelScore * 0.01 * @exampapger.ExampaperScore))
+                        </span>
+                        
+                    </td>
+                    <td>
+                        <span>
+                            @exampapger.ExampaperScore
+                        </span>
+                    </td>
+                    <td>                           
+                        <span>@CoCoursePaper.TestTimes</span>
+                    </td>                   
+                      
+                </tr>
+            }
+            else
+            {
+                <tr><td colspan="6">暂无数据</td></tr>
+            }
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+    <div class="tc mt10">
+        <a class = "btn btn-cancel" onclick="backpath();">返回</a>
+    </div>
+</div>
+<script type="text/javascript">
+    function backpath() {
+        if ($("#comefrom").val() == "1") {
+            window.location.href = "/Home/MyDepIndex";
+        } else {
+            window.location.href = "/DepCourseCourseLearn/MyCourseSubscribe?tp=0";
+        }
+    }
+</script>

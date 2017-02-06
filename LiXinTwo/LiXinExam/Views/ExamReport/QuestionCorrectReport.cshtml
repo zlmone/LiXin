@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "QuestionCorrectReport";
+    Layout = null;
+}
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/report/highcharts.js")"> </script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/report/line.js")"> </script>
+<table class="dataView">
+    <tr class="Tit">
+        <td><strong>最高正确率: <span id="MaxCorrectRate"></span>%</strong></td>
+        <td><strong>最低正确率: <span id="MinCorrectRate"></span>%</strong></td>
+        <td><strong>平均正确率最高: <span id="AveMaxCorrectRate"></span>%</strong></td>
+        <td><strong>平均正确率最低: <span id="AveMinCorrectRate"></span>%</strong></td>
+    </tr>
+    <tr class="Name">
+        <td><p id="MaxCorrectRateTitle"></p><p class="c66">( <span id="MaxCorrectRateName"></span> )</p></td>
+        <td><p id="MinCorrectRateTitle"></p><p class="c66">( <span id="MinCorrectRateName"></span> )</p></td>
+        <td><p id="AveMaxCorrectRateTitle"></p></td>
+        <td><p id="AveMinCorrectRateTitle"></p></td>
+    </tr>
+</table>
+<center id="QuestionCorrectChart" class="trendgraph" style="height:300px;width:100%; margin:10px 0px;"></center>
+<div id="QuestionCorrectlist" class="mTop_1 btop_so_ce">
+    <table class="blue_table all">
+        <thead>
+            <tr>
+                <th class="tl">考试名称</th>
+                <th>考试时长(分钟)</th>
+                <th>总分</th>
+                <th>单选题</th>
+                <th>多选题</th>
+                <th>判断题</th>
+                <th>情景题</th>
+                <th>填空题</th>
+                <th>问答题</th>
+            </tr>
+        </thead>
+        <tbody id="QuestionCorrectList">
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+
+<script id="QuestionCorrectTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td title="{{:ExaminationTitle}}" class="tl c33"><strong>{{:ExaminationTitle}}</strong></td>
+        <td title="{{:ExamLength}}" class="tc">{{:ExamLength}}</td>
+        {{if PercentFlag == 1}}
+        <td title="{{:ExamPaperTotalScore}}" class="tc">{{:ExamPaperTotalScore}}</td>
+        {{/if}}
+        {{if PercentFlag == 0}}
+        <td title="100" class="tc">100</td>
+        {{/if}}
+        <td title="{{:danxuan}}" class="tc">{{:danxuan}}</td>
+        <td title="{{:duoxuan}}" class="tc">{{:duoxuan}}</td>
+        <td title="{{:panduan}}" class="tc">{{:panduan}}</td>
+        <td title="{{:qingjing}}" class="tc">{{:qingjing}}</td>
+        <td title="{{:tiankong}}" class="tc">{{:tiankong}}</td>
+        <td title="{{:wenda}}" class="tc">{{:wenda}}</td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        InitTable();
+    });
+
+    function InitTable() {
+        $("#QuestionCorrectList").JsRenderData({
+            sourceUrl: '/ExamReport/GetQuestionCorrectReport?ExamName=' + escape($("#examName").val())
+                + '&StartTime=' + $("#startDate").val()
+                + '&EndTime=' + $("#endDate").val()
+                + '&t=' + new Date(),
+            isPage: true,
+            pageSize: 20,
+            pageIndex: 1,
+            templateID: 'QuestionCorrectTemplate',
+            funCallback: function (data) {
+                if (data.MaxRate == null) {
+                    $("#MaxCorrectRate").text("");
+                    $("#MaxCorrectRateName").text("");
+                    $("#MaxCorrectRateTitle").text("");
+                }
+                else {
+                    $("#MaxCorrectRate").text(data.MaxRate.QuesTypeCorrectMaxRate);
+                    $("#MaxCorrectRateName").text(data.MaxRate.QuesTypeCorrectMaxRateName);
+                    $("#MaxCorrectRateTitle").text(data.MaxRate.ExaminationTitle);
+                }
+
+                if (data.MinRate == null) {
+                    $("#MinCorrectRate").text("");
+                    $("#MinCorrectRateName").text("");
+                    $("#MinCorrectRateTitle").text("");
+                }
+                else {
+                    $("#MinCorrectRate").text(data.MinRate.QuesTypeCorrectMinRate);
+                    $("#MinCorrectRateName").text(data.MinRate.QuesTypeCorrectMinRateName);
+                    $("#MinCorrectRateTitle").text(data.MinRate.ExaminationTitle);
+                }
+
+                if (data.MaxAve == null) {
+                    $("#AveMaxCorrectRate").text("");
+                    $("#AveMaxCorrectRateTitle").text("");
+                }
+                else {
+                    $("#AveMaxCorrectRate").text(data.MaxAve.QuesTypeCorrectAverageRate);
+                    $("#AveMaxCorrectRateTitle").text(data.MaxAve.ExaminationTitle);
+                }
+
+                if (data.MinAve == null) {
+                    $("#AveMinCorrectRate").text("");
+                    $("#AveMinCorrectRateTitle").text("");
+                }
+                else {
+                    $("#AveMinCorrectRate").text(data.MinAve.QuesTypeCorrectAverageRate);
+                    $("#AveMinCorrectRateTitle").text(data.MinAve.ExaminationTitle);
+                }
+                var chart_value = DrawImageLine(data.res);
+                var chart = new Highcharts.Chart(chart_value);
+            }
+        });
+    }
+
+    function ExportReportChart() {
+        window.location.href = '/ExamReport/ExportQuestionCorrectChart?ExamName=' + escape($("#examName").val())
+            + '&StartTime=' + $("#startDate").val()
+            + '&EndTime=' + $("#endDate").val()
+            + '&t=' + new Date();
+    }
+</script>

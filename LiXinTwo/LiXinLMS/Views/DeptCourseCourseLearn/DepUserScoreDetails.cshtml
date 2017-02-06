@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "个人学时详情";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DepUserScoreDetails" }))
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td class="span25">
+                    <input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+                <td class="Tit">开课时间：</td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                            name="StartTime" id="txt_StartTime" value="" />
+                        <i></i>
+                    </div>
+                    至
+                <div class="time-choose">
+                    <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                        id="txt_EndTime" value="" />
+                    <i></i>
+                </div>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selAttdence" onchange=" InitData(); ">
+            <option value="-1">选择考勤状态</option>
+            <option value="99">无</option>
+            <option value="0">待考勤</option>
+            <option value="1">正常</option>
+            <option value="2">缺勤</option>
+            <option value="3">迟到</option>
+            <option value="4">早退</option>
+            <option value="5">迟到且早退</option>
+        </select>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th class="span18">课程名称
+                    </th>
+                    <th class="span5">学时
+                    </th>
+                    <th class="span7">选/必修
+                    </th>
+                    <th class="span24">开课时间
+                    </th>
+                    <th class="span7">讲师
+                    </th>
+                    <th class="span8">授课地点
+                    </th>
+                    <th class="span8">计划内/外
+                    </th>
+                    <th class="span7">获得学时
+                    </th>
+                    <th class="span8">考勤状态   
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="DepTranScoreList"></tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+    <div class="tc">
+        <a id="btnBack" class="btn btn-cancel" onclick=" window.location.href ='/DeptCourseCourseLearn/DepScore?index=0'; ">返回</a>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化搜索条件
+        initSearch();
+
+        //加载列表
+        InitData();
+    });
+
+    //初始化列表
+    function InitData()
+    {
+        $("#DepTranScoreList").JsRenderData({
+            sourceUrl: getURL(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate"
+        });
+    }
+
+    function getURL()
+    {
+        var param = "courseName=" + escape(getSearchWord("txtCourseName"))
+                    + "&starttime=" + $("#txt_StartTime").val() + "&endtime=" + $("#txt_EndTime").val()
+                    + "&attdence=" + $("#selAttdence").val() + "&year=@ViewBag.year";
+        return "/DeptCourseCourseLearn/GetDepUserScoreDetails?userID=@ViewBag.userID&" + param;
+    }
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+                {{:#index+1}}
+            </td>
+            <td style="text-align:left;">
+                <div class="ovh span16" title="{{:CourseNameStr}}">{{:CourseNameStr}}</div>
+            </td>
+            <td>
+                {{:CourseLength}}
+            </td>
+            <td>
+                {{:IsMustStr}}
+            </td>
+            <td class="f11" style="text-align:left;">
+                {{:CourseTime}} 
+            </td>
+            <td>
+                {{:TeacherStr}}
+            </td>             
+             <td>
+                <div class="ovh span8" title="{{:RoomName}}">{{:RoomName}}</div>
+            </td>  
+            <td>{{:IsSystemStr}}</td>
+           <td>{{:GetSumScore}}</td>
+            <td>
+               {{:AttdenceSingleFlag}}
+            </td>
+        </tr> 
+        {{/for}}
+</script>
+

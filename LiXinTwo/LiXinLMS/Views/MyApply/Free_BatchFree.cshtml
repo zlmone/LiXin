@@ -1,0 +1,183 @@
+﻿@{
+    ViewBag.Title = "Free_BatchFree";
+    Layout = null;
+}
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">免修项目：
+            </td>
+            <td class="span15">
+                <input type="text" class="span15 searchclass" id="txtFreeName" value="请输入搜索内容" info="请输入搜索内容" />
+            </td>
+            <td class="span4 Tit">
+                <select id="sel_Freetype" onchange="Getdata()">
+                    <option value="2">请选择免修类型</option>
+                    <option value="0">所内免修</option>
+                    <option value="1">CPA免修</option>
+                    <option value="2">两者兼有</option>
+
+                </select>
+            </td>
+            <td class="Tit">导入时间：
+            </td>
+            <td>
+                <div class="time-choose">
+                    <input id="txtStartTime" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txtEndTime\',{m:-1})}' });" />
+                    <i></i>
+                </div>
+                至
+                <div class="time-choose">
+                    <input id="txtEndTime" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txtStartTime\',{m:1})}' });" />
+                    <i></i>
+                </div>
+            </td>
+            <td>
+                <input type="button" value="搜索" class="btn" onclick="Getdata()" />
+                <input type="button" value="批量免修导入" class="btn" onclick="AddFree()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="mt10">
+    <table class="tab-List" id="tborder">
+        <thead>
+            <tr>
+                <th class="span4">序号
+                </th>
+                <th class="span15">免修项目
+                </th>
+                <th>免修类型</th>
+                <th jsrendersortfield="tScore" sort="desc">所内免修学时</th>
+                <th jsrendersortfield="CPAScore" sort="desc">CPA免修学时</th>
+                <th jsrendersortfield="fua.CreateTime" sort="desc">导入时间</th>
+                <th >导入者</th>
+                <th>操作</th>
+        </thead>
+        <tbody id="freeList"></tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+<script type="text/javascript">
+    var findex = 0;
+    $(document).ready(function ()
+    {
+        initSearch();
+        Getdata();
+    });
+
+    function Getdata()
+    {
+        $("#freeList").JsRenderData({
+            sourceUrl: "/MyApply/GetAllFreeDetailsList?FreeName=" + escape(getSearchWord("txtFreeName")) + "&ApplyType=" + $("#sel_Freetype").val()
+                       + "&StartTime=" + $("#txtStartTime").val() + "&EndTime=" + $("#txtEndTime").val(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "freeListTemplate"
+        });
+    }
+
+    function AddFree()
+    {
+        window.location.href = "/MyApply/Free_ExemptionDeptAdd?type=1";
+    }
+
+    function freeSubmit(Id)
+    {
+        art.dialog({
+            lock: false,
+            content: "确定要发布该申请内容吗？",
+            ok: function ()
+            {
+                $.post("/MyApply/PublicFree_UserOtherApply?id=" + Id, function (data)
+                {
+                    zhezaowait(); //等待提示
+                    Getdata();
+                    closewait();
+
+                });
+            },
+            cancel: function ()
+            {
+                return;
+            }
+        });
+    }
+
+
+
+    function freeEdit(id, otherid)
+    {
+        location.href = "/MyApply/Free_BatchFree_Second?ID=" + id + "&UserOtherApply_Id=" + otherid;
+    }
+
+
+    function freedelete(id)
+    {
+        art.dialog({
+            lock: false,
+            content: "确定要删除该申请内容吗？",
+            ok: function ()
+            {
+                $.post("/MyApply/fdeleteUserOtherApply?id=" + id, function (data)
+                {
+                    Getdata();
+                });
+            },
+            cancel: function ()
+            {
+                return;
+            }
+        });
+    }
+    function freeFind(id)
+    {
+        window.location.href = "/MyApply/Free_BatchFreeDetails?ID=" + id;
+    }
+
+
+    function SendMail(Id)
+    {
+        art.dialog.load("/MyApply/Free_SendMessage?Id=" + Id + "&t=" + new Date(), { title: "消息编辑", id: "pop_FreeSendMessage", width: 800 });
+    }
+</script>
+
+<!--其他形式-->
+<script id="freeListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td title="{{:FreeName}}"  style="text-align: left;"><div>{{:FreeName}}</div></td>
+            <td>{{:FreeApproveTypeStr}}</td>
+            <td>
+               {{if ApplyType==1}}
+                     N/A
+               {{else}}
+                    {{:tScore}}
+               {{/if}}
+            </td>
+                <td>
+                    {{if ApplyType==0}}
+                        N/A
+                    {{else}}
+                        {{:CPAScore}}
+                    {{/if}}
+                </td>
+            <td>{{:CreateTimeStr}}</td>
+            <td>{{:CreateUserName}}</td>
+            <td>
+                   <a onclick='freeFind({{:ID}})' class='icon iview' title="查看">查看</a>
+                   <a onclick='freeEdit({{:ApplyID}},{{:ID}},{{:Status}})'  class='icon iedit' title="编辑">编辑</a>
+                {{if Status==0}}
+                   <a onclick='freeSubmit({{:ID}})' class='icon ipub' title="发布">发布</a>
+                   <a onclick='freedelete({{:ID}})' class='icon idel' title="删除">删除</a>  
+                {{else}}
+                    <a  class='icon ipub idis' title="发布">发布</a>
+                    <a  class='icon idel idis' title="删除">删除</a>
+                {{/if}}
+                <a title="消息发送" onclick="SendMail({{:ID}});" class="icon imess-se"></a>
+            </td>
+       </tr>
+   {{/for}}
+</script>

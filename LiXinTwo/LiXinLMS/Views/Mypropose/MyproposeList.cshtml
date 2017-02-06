@@ -1,0 +1,148 @@
+﻿
+@{
+    ViewBag.Title = "我的课前建议与评估";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+  
+}
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "我的课前建议与评估" }))
+        <div class="tab-bk">
+            <ul id="ul_id">
+            <li class="child" onclick="showTags(0)">所有的建议</li>
+            <li class="On" onclick="showTags(1)">已提交建议</li>
+            <li class="child" onclick="showTags(2)">未提交建议</li>
+            <li class="child" onclick="showTags(3)">全部评估</li>
+            <li class="child" onclick="showTags(4)">已参与评估</li>
+            <li class="child" onclick="showTags(5)">未参与评估</li>
+            </ul>
+        </div>
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">课程名称：</td>
+                    <td><input type="text" id="txt_CourseName" class="span30 searchclass" value="请输入课程名称" info=""/></td>
+                    <td class="so-do"><input type="button" id="btn_add" value="查询" class="btn"/></td>
+                </tr>
+            </table>
+        </div>
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th>课程名称</th>
+                    <th class="span8">学时</th>
+                    <th class="span10">讲师</th>
+                    <th class="span25">开课时间</th>
+                    <th class="span8">是否是部门分享
+                </th>
+                    <th class="span8">操作</th>
+                </tr>
+            </thead>
+            <tbody id="Courstlist">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function() {
+        initSearch();
+            InitData();
+
+            $("#btn_add").click(function() {
+                var v = "CourseName=" + encodeURIComponent(getSearchWord("txt_CourseName"));
+                $("#Courstlist").JsRenderData({
+                sourceUrl: '/Mypropose/GetMyproposePassList?'+v,
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: "CourseListTemplate"
+            });
+
+            });
+        });
+
+        function InitData() {
+            var v = "CourseName=" + encodeURIComponent(getSearchWord("txt_CourseName"));
+            $("#Courstlist").JsRenderData({
+                sourceUrl: '/Mypropose/GetMyproposePassList',
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: "CourseListTemplate"
+            });
+        }
+        
+        function fGoIn(courseid,id,SourceType) {
+           $.post("/MyCourse/FGetInto?courseid=" + courseid + "&ExamPaperId=" + id+ "&SourceType="+SourceType, function (data) {
+               if (data.result == 1) {
+                   location.href = "/ExamTest/ExamTestOnline?euID=" + data.euId+"&SourceType=1";
+               } else if (data.result == 0) {
+                   art.dialog({ title: '温馨提示', content: data.message, width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () {
+                     
+                   } 
+                   });
+                   
+               } else {
+                   art.dialog({ title: '温馨提示', content: data.message, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+               }
+           });
+       }
+        function FUrl(id) {
+              window.location.href = "/Mypropose/Mypropose?courseid=" + id + "&backurl=/Mypropose/MyproposeList";
+            //<a href="/Mypropose/Mypropose?courseid={{:CourseId}}" class="icon iview" title="详情"></a>         
+        }
+          function showTags(flag){
+            switch (flag) {
+            case 0: //所有建议
+                location.href = "/Mypropose/Main";
+                break;
+            case 1: //已提交建议
+                location.href = "/Mypropose/MyproposeList";
+                break;
+            case 2: //未提交建议
+                location.href = "/Mypropose/NoProposeList";
+                break;
+            case 3: //全部评估
+                location.href = "/MyAfterCourse/Main";
+                break;
+            case 4: //已参与评估
+                location.href = "/MyAfterCourse/AfterCourseList";
+                break;
+            case 5: //未参与评估
+                location.href = "/MyAfterCourse/NoAfterCourseList";
+                break;
+            default:
+            }
+        }
+    </script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td>
+                <div class="ovh span50 tl" title="{{:CourseNameStr}}">{{:CourseNameStr}}</div>
+            </td>
+            <td>
+                {{:CourseLength}}
+            </td>           
+          <td>
+                <div class="ovh tl span8" title="{{:Realname}}">{{:Realname}}</div>
+            </td>
+            <td>
+                <div class="tl f11">{{:CourseTime}}</div>
+             </td>  
+            <td>
+                  {{if DepCourseId>0}}
+                是
+            {{else}}
+                否
+            {{/if}}
+            </td>           
+            <td>            
+            <a onclick=FUrl({{:CourseId}}) class="icon iview" title="详情"></a>      
+            </td>
+        </tr> 
+        
+        {{/for}}
+</script>

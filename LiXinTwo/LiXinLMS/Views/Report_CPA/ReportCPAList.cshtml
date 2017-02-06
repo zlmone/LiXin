@@ -1,0 +1,505 @@
+﻿@{
+    ViewBag.Title = " 执业CPA继续教育学时统计";
+}
+<script src="../../Scripts/js_pagerNew.js" type="text/javascript"></script>
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "执业CPA继续教育学时统计"
+}))
+</div>
+<div class="tab-bk">
+    <ul id="pop_tag">
+        <li class="On" id="pop_tag0">执业CPA继续教育学时统计</li>
+        <li id="pop_tag1">执业CPA继续教育学时明细</li>
+    </ul>
+</div>
+<!--执业CPA继续教育学时统计-->
+<div id="CPAScoreAll">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+
+                <td class="Tit span6">姓名：</td>
+                <td>
+                    <input type="text" id="txtRealName" class="span10 searchclass" value="请输入搜索内容" info="" /></td>
+
+                <td class="Tit span6">部门名称：</td>
+                <td class="span12">
+                    <input type="text" id="txtDeptName" class="span12 searchclass" value="请输入搜索内容" info="" />
+                </td>
+
+                <td class="Tit">是否参加职业道德培训：
+                </td>
+                <td>
+                    <div class="sel span11">
+                        <input type="checkbox" name="isJoinDaode" value="1" /><label>是</label>
+                        <input type="checkbox" name="isJoinDaode" value="0" /><label>否</label>
+                    </div>
+                </td>
+
+                <td class="so-do" colspan="2" rowspan="2">
+                    <input class="btn" type="button" value="搜索" onclick=" InitData(); " />
+                    <input type="button" class="btn btn-co" value="导出EXCEL" onclick="OutCPAList()" />
+                    @*<input type="button" class="btn btn-co" value="同步" onclick="" />*@
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">年度：</td>
+                <td>@(Html.Action("ReportYear", "Common", new { id = "allyear" }))</td>
+                <td class="Tit">周期：</td>
+                <td>
+                    <select id="selyear" class="span12">
+                        @{ 
+                            foreach (var item in ViewBag.zhouqi)
+                            {
+                            <option value="@item">@item</option>
+                            }
+                        }
+                    </select></td>
+                <td class="Tit">是否有其他有组织形式学时：
+                </td>
+                <td>
+                    <div class="sel span10">
+                        <input type="checkbox" name="OtherProjectScore" value="1" /><label>是</label>
+                        <input type="checkbox" name="OtherProjectScore" value="0" /><label>否</label>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selOther" class="span17" onchange="InitData();">
+            
+        </select>
+        <select id="selFree" class="span17"  onchange="InitData();">
+        </select>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th jsrendersortfield="DeptName" sort="desc">部门</th>
+                    <th jsrendersortfield="Realname" sort="desc" class="span8">姓名</th>
+                    <th>CPA编号</th>
+                    <th jsrendersortfield="sumZheScore" sort="desc">所内折算CPA学时</th>
+                    <th jsrendersortfield="sumCPAScore" sort="desc">注协课程CPA学时</th>
+                    <th class="span8">是否参加职业道德培训 &nbsp; &nbsp; &nbsp;&nbsp;</th>
+                    <th class="span8">其他培训项目</th>
+                    <th class="span6" jsrendersortfield="OtherScore" sort="desc">其他培训学时</th>
+                    <th>可免培训项目</th>
+                    <th jsrendersortfield="FreeScore" sort="desc">可免培训学时</th>
+                    <th jsrendersortfield="passNumber" sort="desc">考试通过次数</th>
+                    <th jsrendersortfield="SumScore" sort="desc">CPA学时合计</th>
+                    <th jsrendersortfield="SumZhouqiScore" sort="desc" style="text-align: left">培训周期学时合计</th>
+                </tr>
+            </thead>
+            <tbody id="CPAScoreList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<!--执业CPA继续教育学时明细-->
+<div id="CPAScoreDetailsAll">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+
+
+                <td class="Tit span6">部门名称：</td>
+                <td>
+                    <input type="text" id="txtdetialsDeptName" class="span20 searchclass" value="请输入搜索内容" info="" />
+                </td>
+                <td class="Tit span6">姓名：</td>
+                <td class="span33">
+                    <input type="text" id="txtdetialsRealName" class="span20 searchclass" value="请输入搜索内容" info="" /></td>
+
+            </tr>
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td class="span33">
+                    <input type="text" id="txtdetialsCourseName" class="span20 searchclass" value="请输入搜索内容" info="" /></td>
+
+                <td class="Tit">CPA编号：
+                </td>
+                <td>
+                    <input type="text" id="txtdetialsCPANO" class="span20 searchclass" value="请输入搜索内容" info="" />
+                </td>
+                <td class="Tit span6">周期：</td>
+                <td>
+                    <select id="selyear">
+                        @{ 
+                            foreach (var item in ViewBag.zhouqi)
+                            {
+                            <option value="@item">@item</option>
+                            }
+                        }
+                    </select>
+                </td>
+                <td class="so-do" colspan="2" style="text-align: left; padding-left: 38px;">
+                    <input class="btn" type="button" value="搜索" onclick="InitDetailsData(); " />
+                    <input type="button" class="btn btn-co" value="导出EXCEL" onclick="OutCPADetailsList()" />
+                    @*<input type="button" class="btn btn-co" value="同步" onclick="" />*@
+                </td>
+                <td></td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="so-seq">
+        <select class="span12" id="courseType" onchange="InitDetailsData()">
+            <option value="-1">请选择课程类型</option>
+            <option value="0">所内课程</option>
+            <option value="2">注协课程</option>
+            <option value="3">其他形式</option>
+            <option value="4">免修</option>
+            <option value="5">其他有组织形式</option>
+        </select>
+        <select class="span12" id="way" onchange="InitDetailsData()">
+            <option value="999">请选择培训形式</option>
+            <option value="1">集中授课</option>
+            <option value="2">视频课程</option>
+            <option value="3">部门自学</option>
+            <option value="-1">N/A</option>
+        </select>
+        年度:@(Html.Action("ReportYear", "Common"))
+    </div>
+
+    <div class="mt10">
+        <table class="tab-List" id="tbCPAScoreDetails">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th jsrendersortfield="DeptName" sort="desc">部门</th>
+                    <th class="span8" jsrendersortfield="Realname" sort="desc">姓名</th>
+                    <th class="span12">CPA编号</th>
+                    <th class="span10">课程类型</th>
+                    <th>培训形式</th>
+                    <th>课程名称</th>
+                    <th jsrendersortfield="StartTime" sort="desc">培训开始日期</th>
+                    <th jsrendersortfield="EndTime" sort="desc">培训结束日期</th>
+                    <th jsrendersortfield="singleScore" sort="desc">学时</th>
+                    <th jsrendersortfield="SumScore" sort="desc">总学时</th>
+                </tr>
+            </thead>
+            <tbody id="CPAScoreDetailsAllList">
+                <tr>
+                    <td colspan="11">
+                        <div class="tc c38 line_h30">正在努力加载....</div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                @*<tr>
+               <td colspan="11">
+                   <div id="listPage" class="listPage">
+                       <span class="c38">第1页/共4页(共34条)</span>
+                       <span class="first status_disabled">首页</span><span class="previous status_disabled">&nbsp;</span><span class="status_disabled status-on">&nbsp;1&nbsp;</span><a index="2" class="status-default" href="#2">&nbsp;2&nbsp;</a><a index="3" class="status-default" href="#3">&nbsp;3&nbsp;</a><a index="4" class="status-default" href="#4">&nbsp;4&nbsp;</a><a index="next" class="next status-default" href="#2">&nbsp;</a><a index="last" class="last status-default" href="#4">末页</a><span class="c38">转到&nbsp;<a class="curp c2934f3" id="btnpagegoto">GO</a><input type="text" id="txtpagegoto" class="w24 h16 line_h16" maxlength="3"></span></div></td>
+              </tr>*@
+                <tr>
+                    <td colspan="11">
+                        <div class="divpage listPage" id="listPage" style="">
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<input id="hidType" type="hidden" />
+<input id="hidjsRenderSortField" type="hidden" value="SumScore asc" />
+<input id="txtOther_ID" type="hidden" />
+<input id="txt_applyid_list" type="hidden" />
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        ShowData(0);
+
+
+
+        $("#start").val((new Date()).getFullYear());
+        $("#end").val((new Date()).getFullYear());
+
+        $("#pop_tag li").click(function ()
+        {
+
+            var index = $(this).index();
+            flag = index;
+
+            ShowData(index);
+
+        });
+
+        $("#report_selYear,#allyear").bind("change", function ()
+        {
+            //debugger;
+            ShowData($("#hidType").val());
+        });
+        BindSelData();
+
+    });
+    //其他形式、免修绑定
+    function BindSelData()
+    {
+        $.getJSON("/Report_CPA/GetOtherItemList?year=" + $("#allyear").val(), function (data)
+        {
+            var html = "<option value='-1'>请选择其他培训项目</option><option value='0'>课后评估奖励学时</option><option value='999'>授课人奖励学时</option>";
+            for (var i = 0; i < data.dataList.length; i++)
+            {
+                html += "<option value='" + data.dataList[i].ID + "'>" + data.dataList[i].ApplyContent + "</option>";;
+            }
+            $("#selOther").html("");
+            $("#selOther").html(html);
+        });
+
+        $.getJSON("/Report_CPA/GetFreeItemList?year=" + $("#allyear").val(), function (data)
+        {
+            var html = "<option value='-1'>请选择可免培训项目</option><option value='0'>自动折算奖励学时</option>";
+            for (var i = 0; i < data.dataList.length; i++)
+            {
+                html += "<option value='" + data.dataList[i].ID + "'>" + data.dataList[i].FreeName + "</option>";;
+            }
+            $("#selFree").html("");
+            $("#selFree").html(html);
+        });
+    }
+
+
+    //显示那个tab页下的数据
+    function ShowData(index)
+    {
+        $("#hidType").val(index);
+        $("#pop_tag li").removeClass("On");
+        $("#pop_tag" + index).addClass("On");
+        if (index == 0)
+        {
+            BindSelData();
+            $("#CPAScoreAll").show();
+            $("#CPAScoreDetailsAll").hide();
+            InitData();
+        }
+        else
+        {
+            $("#CPAScoreDetailsAll").show();
+            $("#CPAScoreAll").hide();
+            InitDetailsData();
+            MyTablesort("tbCPAScoreDetails", SortDetails);
+        }
+    }
+    //统计
+    function InitData()
+    {
+        var isJoinDaode = $("input[name='isJoinDaode']:checked").val();
+        if ($("input[name='isJoinDaode']:checked").length == 2)
+        {
+            isJoinDaode = -1;
+        }
+        var isOtherOrg = $("input[name='OtherProjectScore']:checked").val();
+        if ($("input[name='OtherProjectScore']:checked").length == 2)
+        {
+            isOtherOrg = -1;
+        }
+        var v = "start=" + $("#allyear").val() + "&DeptName=" + escape($.trim(getSearchWord("txtDeptName")))
+        + "&RealName=" + escape($.trim(getSearchWord("txtRealName"))) + "&isJoinDaode=" + isJoinDaode
+        + "&OtherID=" + $("#selOther").val() + "&FreeID=" + $("#selFree").val() + "&isOtherOrg=" + isOtherOrg;
+        $("#CPAScoreList").JsRenderData({
+            sourceUrl: "/Report_CPA/GetCPAList?" + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "SumScore",
+            jsRenderASC: " ASC",
+            templateID: "CPAScoreTemplate"
+        });
+    }
+    //统计导出
+    function OutCPAList()
+    {
+        window.location.href = "OutCPAList?start=" + $("#report_selYear").val() + "&zhouqiStr=" + $("#selyear").val();
+    }
+
+    function SortDetails(jsRenderSortField)
+    {
+        if (jsRenderSortField == undefined)
+        {
+            jsRenderSortField = " SumScore asc";
+        }
+        else
+        {
+
+            jsRenderSortField = jsRenderSortField;
+        }
+        $("#hidjsRenderSortField").val(jsRenderSortField);
+        InitDetailsData();
+        // InitDetailsData(0, 0, 10, 1, jsRenderSortField)
+    }
+    ///明细
+    function InitDetailsData(recordCount, pageCount, pageSize, pageIndex)
+    {
+
+        var v = "start=" + $("#report_selYear").val() + "&DeptName=" + escape($.trim(getSearchWord("txtdetialsDeptName")))
+        + "&RealName=" + escape($.trim(getSearchWord("txtdetialsRealName"))) + "&courseName=" + escape($.trim(getSearchWord("txtdetialsCourseName")))
+        + "&CPANO=" + escape($.trim(getSearchWord("txtdetialsCPANO"))) + "&courseType=" + $("#courseType").val() + "&way=" + $("#way").val() + '&pageSize=' + (pageSize || 10) + '&pageIndex=' + (pageIndex || 1)
+        + "&jsRenderSortField=" + $("#hidjsRenderSortField").val();
+
+        $.post("/Report_CPA/GetCPADetailsList?" + v, function (data)
+        {
+            var html = "";
+            var index = pageSize == undefined ? 0 : (10 * (pageIndex - 1));
+            if (data.dataList.length == 0)
+            {
+                html += "<tr><td colspan='11'><div class='tc c38 line_h30'>暂无数据</div> </td></tr>";
+            }
+            for (var i = 0; i < data.dataList.length; i++)
+            {
+                index++;
+                var span = data.dataList[i].rowspan;
+                for (var j = 0; j < data.dataList[i].CPADetailsList.length; j++)
+                {
+                    html += "<tr  class='child'>";
+                    if (j == 0)
+                    {
+                        html += "<td rowspan=" + span + ">" + index + "</td>"
+                        html += "<td rowspan=" + span + "><div class='ovh tl span15' title='" + data.dataList[i].DeptName + "'>" + data.dataList[i].DeptName + "</div></td>";
+                        html += "<td rowspan=" + span + ">" + data.dataList[i].Realname + "</td>"
+                        html += "<td rowspan=" + span + ">" + data.dataList[i].CPANo + "</td>"
+                        html += " <td><div class='tl'>" + data.dataList[i].CPADetailsList[j].courseTypeStr + "</div></td>";
+                        html += " <td><div class='tl'>" + data.dataList[i].CPADetailsList[j].WayStr + "</div></td>";
+                        html += " <td><div class='ovh tl span15' title='" + data.dataList[i].CPADetailsList[j].CourseName + "'>" + data.dataList[i].CPADetailsList[j].CourseName + "</div></td>";
+                        html += " <td>" + data.dataList[i].CPADetailsList[j].StartTimeStr + "</td>";
+                        html += " <td>" + data.dataList[i].CPADetailsList[j].EndTimeStr + "</td>";
+                        html += " <td>" + data.dataList[i].CPADetailsList[j].singleScore + "</td>";
+                        html += " <td rowspan=" + span + ">" + data.dataList[i].SumScore + "</td>";
+
+                    }
+                    else
+                    {
+                        html += " <td><div class='tl'>" + data.dataList[i].CPADetailsList[j].courseTypeStr + "</div></td>";
+                        html += " <td><div class='tl'>" + data.dataList[i].CPADetailsList[j].WayStr + "</div></td>";
+                        html += " <td><div class='ovh tl span15' title='" + data.dataList[i].CPADetailsList[j].CourseName + "'>" + data.dataList[i].CPADetailsList[j].CourseName + "</div></td>";
+                        html += " <td>" + data.dataList[i].CPADetailsList[j].StartTimeStr + "</td>";
+                        html += " <td>" + data.dataList[i].CPADetailsList[j].EndTimeStr + "</td>";
+                        html += " <td>" + data.dataList[i].CPADetailsList[j].singleScore + "</td>";
+                    }
+                    html += "</tr>"
+                }
+            }
+            $("#CPAScoreDetailsAllList").html(html);
+            $("#CPAScoreDetailsAllList").parent().find('#listPage').html(pageHtml(data.recordCount, Math.ceil(data.recordCount / 10), 10, pageIndex || 1));
+        });
+    }
+
+
+    function OutCPADetailsList()
+    {
+        window.location.href = "OutCPADetailsList?start=" + $("#report_selYear").val();
+    }
+
+    //分页
+    function pageHtml(recordCount, pageCount, pageSize, pageIndex)
+    {
+        var html = '';
+        pageCount = pageCount == 0 ? 1 : pageCount;
+        if (parseInt(pageIndex) > pageCount)
+            pageIndex = pageCount;
+
+        html += '<span class="c38">第' + pageIndex + '页/共' + pageCount + '页(共' + recordCount + '条)</span>';
+        if (parseInt(pageIndex) == 1)
+        {
+            html += "<span class='first status_disabled'>首页</span>";
+            html += "<span class='previous status_disabled'>&nbsp;</span>";
+        } else
+        {
+            html += "<a index='first' class='first status-default' onclick='InitDetailsData(0,0,0,1);'>首页</a>";
+            html += "<a index='previous' class='previous status-default' onclick='InitDetailsData(0,0,0," + (pageIndex - i) + ");'>&nbsp;</a>";
+        }
+        if (true)
+        {
+            var maxIndex = 1; //当前要显示的最大索引
+            if (pageCount <= 5)
+                maxIndex = pageCount;
+            else if (parseInt(pageIndex) + 2 <= 5)
+                maxIndex = 5;
+            else if (parseInt(pageIndex) + 2 >= pageCount)
+                maxIndex = pageCount;
+            else
+                maxIndex = parseInt(pageIndex) + 2;
+
+            for (var i = 4; i >= 0; i--)
+            {
+                if (maxIndex - i == parseInt(pageIndex))
+                    html += "<span class='status_disabled status-on'>&nbsp;" + (maxIndex - i) + "&nbsp;</span>";
+                else if (maxIndex - i > 0)
+                    html += "<a index='" + (maxIndex - i) + "' class='status-default' onclick='InitDetailsData(0,0,0," + (maxIndex - i) + ");'>&nbsp;" + (maxIndex - i) + "&nbsp;</a>";
+            }
+        }
+        if (pageCount == parseInt(pageIndex))
+        {
+            html += "<span class='next status_disabled'>&nbsp;</span>";
+            html += "<span class='last status_disabled'>末页</span>";
+        } else
+        {
+            html += "<a index='next' class='next status-default' onclick='InitDetailsData(0,0,0," + (parseInt(pageIndex, 10) + 1) + ");'>&nbsp;</a>";
+            html += "<a index='last' class='last status-default' onclick='InitDetailsData(0,0,0," + pageCount + ");'>末页</a>";
+        }
+        html += '<span class="c38">转到&nbsp;<a class="curp c2934f3" id="btnpagegoto" onclick="goindex(this);">GO</a><input type="text" id="txtpagegoto" class="w24 h16 line_h16" maxlength="3" /></span>';
+        return html;
+    };
+    //go
+    function goindex(obj)
+    {
+        var pageindex = $(obj).next().val();
+        InitDetailsData(0, 0, 10, pageindex)
+    }
+
+
+</script>
+
+<!--执业CPA继续教育学时统计-->
+<script id="CPAScoreTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+         <td>{{:#index+1}}</td>
+         <td><div class="ovh tl span15" title="{{:DeptName}}">{{:DeptName}}</div></td>
+         <td>{{:Realname}}</td>
+         <td>{{:CPANo}}</td>
+         <td>{{:sumZheScore}}</td>
+         <td>{{:sumCPAScore}}</td>
+         <td>{{:isJoinDaodeStr}}</td>
+         <td><div class="ovh tl span10" title="{{:OtherProject}}">{{:OtherProject}}</div></td> 
+         <td>{{:OtherScore}}</td>
+         <td><div class="ovh tl span10" title="{{:FreeProject}}">{{:FreeProject}}</div></td>
+         <td>{{:FreeScore}}</td>
+         <td>{{:passNumber}}</td>
+         <td>{{:SumScore}}</td>
+         <td>{{:SumZhouqiScore}}</td>
+     </tr>
+  {{/for}}
+</script>
+<!--执业CPA继续教育学时明细 -->
+<script id="CPAScoreDetailsAllTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr>
+        <td rowspan="{{:rowspan}}">{{:#index+1}}</td>
+         <td rowspan="{{:rowspan}}"><div class="ovh tl span15" title="{{:DeptName}}" >{{:DeptName}}</div></td>
+         <td rowspan="{{:rowspan}}">{{:Realname}}</td>
+         <td rowspan="{{:rowspan}}">{{:CPANo}}</td>
+    
+          {{for CPADetailsList}}
+              <td>{{:courseTypeStr}}</td>
+              <td>{{:WayStr}}</td>
+              <td>{{:CourseName}}</td>
+              <td>{{:StartTimeStr}}</td>
+              <td>{{:EndTimeStr}}</td>
+              <td>{{:CourseLength}}</td>
+          {{/for}}
+        <td rowspan="{{:rowspan}}">{{:SumScore}}</td>
+     </tr>
+  {{/for}}
+</script>

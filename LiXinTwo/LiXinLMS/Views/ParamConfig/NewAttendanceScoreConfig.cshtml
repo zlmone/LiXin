@@ -1,0 +1,61 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var tt = ViewBag.model as Sys_ParamConfig;
+ 
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+    <style type="text/css">
+        #id_Late div span {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">综合评定考勤配置</span>
+    </h2>
+    <div>
+        <span>计算方式：</span>
+        <input type="radio" name="useType" value="0" checked="checked" />范围计算
+        <input type="radio" name="useType" value="1" />累加计算
+    </div>
+    <div id="content">
+    </div>
+</body>
+<script type="text/javascript">
+    
+ //   $("#content").load("NewAttendanceScore");
+    $(document).ready(function ()
+    {
+        $("input[name='useType'][value=@tt.userType]").attr("checked", true);
+        if ("@tt.userType" == "1")
+        {
+           
+            $("#content").load("NewAttendanceSingle");
+        }
+        else
+        {
+            $("#content").load("NewAttendanceScore");
+        }
+        $("input[name='useType']").bind("click", function ()
+        {
+            if ($(this).val() == 1)
+            {
+                $("#content").load("NewAttendanceSingle");
+            }
+            else
+            {
+                $("#content").load("NewAttendanceScore");
+            }
+        });
+    });
+</script>
+</html>

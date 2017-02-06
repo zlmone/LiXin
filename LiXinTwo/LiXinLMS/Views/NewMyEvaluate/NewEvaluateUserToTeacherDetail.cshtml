@@ -1,0 +1,326 @@
+﻿@using LiXinControllers
+@using LiXinLanguage
+@using LiXinModels.Survey
+@model LiXinModels.NewCourseManage.New_CourseRoomRule
+@{
+    ViewBag.Title = "评价详情";
+    var teacheracdlist = ViewBag.teacheracdlist as List<AfterCourceDetail>;
+    var courseacdlist = ViewBag.courseacdlist as List<AfterCourceDetail>;
+    
+    var order = 0;
+    var courseOrder = 0;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "NewTeacherEvlutionDetail" }))
+    <div>
+        <h3 class="tit-h3">
+            <strong>@Model.CourseName (@Model.TypeStr)</strong>
+        </h3>
+    </div>
+    <div>
+        <strong>开始时间：</strong>@Model.StartTimeStr 
+        <strong>结束时间：</strong>@Model.EndTimeStr
+        <strong>教室：</strong>@Model.RoomName
+    </div>
+    <div  style="margin-top: 10px;margin-bottom: 20px;">
+        <strong>课程评估总平均分：</strong>@Model.TotalCourseAvgStr
+    </div>
+    <h2 class="tit-h2">
+        <span class="tit-con">对课程的评分：</span>
+    </h2>
+    <div style="background-color: #E5E5E5;width: 100%;height: 26px;border: solid 1px #797979;">
+            @*<strong >对课程的评分</strong> *@<strong >平均分：</strong>@Model.CourseAvgStr<strong >分</strong>
+            <input style="float: right;" type="button" class="btn btn-cancel" value="显示/隐藏" onclick="ShowHideDivContent('Content_Course_0')"/>
+        </div>
+    <div id="Content_Course_0" style="display: block;">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                   @* <th class="span4">
+                        序号
+                    </th>*@
+                    <th class="span36">
+                        评价内容
+                    </th>
+                    <th class="span20">
+                        平均分
+                    </th>
+                    <th>
+                        评语
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    if (courseacdlist != null)
+                    {
+                        courseOrder = 0;
+                        foreach (AfterCourceDetail c in courseacdlist)
+                        {
+                            if (c.sq.QuestionType == 3)
+                            {
+                                courseOrder++;
+                                <tr>
+                                    @* <td>@order</td>*@
+                                    <td>
+                                        <div class="ovh tl span35" title="@c.sq.QuestionContent">@c.sq.QuestionContent</div>
+                                    </td>
+                                    <td class="tc">
+                                        <div  class="divXpScore ml35 " score="@c.numStr" ></div>
+                                        <div>@c.numStr 分</div>
+                                    </td>
+                                    <td>
+                                        <ol class="tl">
+                                            @foreach (Survey_ReplyAnswer t in c.srlist)
+                                            {
+                                                if (!string.IsNullOrWhiteSpace(t.QuestionReply))
+                                                {
+                                                    <li class="ovh span50" title="@(t.QuestionReply + "-" + t.Realname + " (" + t.DeptName + ")")">
+                                                        @t.QuestionReply
+                                                        -@t.Realname (@t.DeptName) 
+                                                    </li>
+                                                }
+                                            }
+                                        </ol>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                    if (courseOrder == 0)
+                    {
+                        <tr><td colspan="3">暂无数据</td></tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    
+    @if (courseacdlist != null)
+    {
+        foreach (AfterCourceDetail c in courseacdlist.OrderBy(p => p.sq.QuestionOrder))
+        {
+            if (c.sq.QuestionType == 2)
+            {
+                courseOrder = 0;
+                <div style="background-color: #E5E5E5; width: 100%; height: 26px; border: solid 1px #797979;">
+                    <strong >@c.sq.QuestionContent</strong> 
+                    <input style="float: right;" type="button" class="btn btn-cancel" value="显示/隐藏" onclick=" ShowHideDivContent('Content_Course_@(c.sq.QuestionID)')"/>
+                </div>
+                <div id="Content_Course_@(c.sq.QuestionID)" style="display: block;">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        序号
+                    </th>
+                    <th class="span36">
+                        评语
+                    </th>
+                    <th class="span8">
+                        姓名
+                    </th>
+                    <th>
+                        所属部门
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Survey_ReplyAnswer t in c.srlist)
+                    {
+                        if (!string.IsNullOrWhiteSpace(t.SubjectiveAnswer))
+                        {
+                            courseOrder++;
+                            <tr>
+                                <td>@courseOrder</td>
+                                <td><div class="ovh tl span30" title="@t.SubjectiveAnswer">@t.SubjectiveAnswer</div></td>
+                                <td>
+                                    @t.Realname
+                                </td>
+                                <td> @t.DeptName </td>
+                            </tr>
+                        }
+                    }
+                    @if(courseOrder == 0)
+                    {
+                        <tr><td colspan="4">暂无数据</td></tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+            }
+        }
+
+    }
+    
+
+    <h2 class="tit-h2">
+        <span class="tit-con">对我的评分：</span>
+    </h2>
+        <div style="background-color: #E5E5E5;width: 100%;height: 26px;border: solid 1px #797979;">
+            @*<strong >对我的评分</strong>*@ <strong >平均分：</strong>@Model.CourseTeacherAvgStr<strong >分</strong>
+            <input style="float: right;" type="button" class="btn btn-cancel" value="显示/隐藏" onclick="ShowHideDivContent('Content_0')"/>
+        </div>
+    <div id="Content_0" style="display: block;">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                   @* <th class="span4">
+                        序号
+                    </th>*@
+                    <th class="span36">
+                        评价内容
+                    </th>
+                    <th class="span20">
+                        平均分
+                    </th>
+                    <th>
+                        评语
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    if (teacheracdlist != null)
+                    {
+                        order = 0;
+                        foreach (AfterCourceDetail c in teacheracdlist)
+                        {
+                            if (c.sq.QuestionType == 3)
+                            {
+                                order++;
+                                <tr>
+                                    @* <td>@order</td>*@
+                                    <td>
+                                        <div class="ovh tl span35" title="@c.sq.QuestionContent">@c.sq.QuestionContent</div>
+                                    </td>
+                                    <td class="tc">
+                                        <div  class="divXpScore ml35 " score="@c.numStr" ></div>
+                                        <div>@c.numStr 分</div>
+                                    </td>
+                                    <td>
+                                        <ol class="tl">
+                                            @foreach (Survey_ReplyAnswer t in c.srlist)
+                                            {
+                                                if (!string.IsNullOrWhiteSpace(t.QuestionReply))
+                                                {
+                                                    <li class="ovh span50" title="@(t.QuestionReply + "-" + t.Realname + " (" + t.DeptName + ")")">
+                                                        @t.QuestionReply
+                                                        -@t.Realname (@t.DeptName) 
+                                                    </li>
+                                                }
+                                            }
+                                        </ol>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                    if(order==0)
+                    {
+                        <tr><td colspan="3">暂无数据</td></tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    
+    @if (teacheracdlist != null)
+    {
+        foreach (AfterCourceDetail c in teacheracdlist.OrderBy(p => p.sq.QuestionOrder))
+        {
+            if (c.sq.QuestionType == 2)
+            {
+                order = 0;
+                <div style="background-color: #E5E5E5; width: 100%; height: 26px; border: solid 1px #797979;">
+                    <strong >@c.sq.QuestionContent</strong> 
+                    <input style="float: right;" type="button" class="btn btn-cancel" value="显示/隐藏" onclick=" ShowHideDivContent('Content_@(c.sq.QuestionID)')"/>
+                </div>
+                <div id="Content_@(c.sq.QuestionID)" style="display: block;">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        序号
+                    </th>
+                    <th class="span36">
+                        评语
+                    </th>
+                    <th class="span8">
+                        姓名
+                    </th>
+                    <th>
+                        所属部门
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Survey_ReplyAnswer t in c.srlist)
+                    {
+                        if (!string.IsNullOrWhiteSpace(t.SubjectiveAnswer))
+                        {
+                            order++;
+                            <tr>
+                                <td>@order</td>
+                                <td><div class="ovh tl span30" title="@t.SubjectiveAnswer">@t.SubjectiveAnswer</div></td>
+                                <td>
+                                    @t.Realname
+                                </td>
+                                <td> @t.DeptName </td>
+                            </tr>
+                        }
+                    }
+                    @if(order==0)
+                    {
+                        <tr><td colspan="4">暂无数据</td></tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+            }
+        }
+
+    }
+   
+</div>
+<div class="lh30 tc">
+    <input type="button" class="btn btn-cancel" 
+                        onclick="  window.location.href = '/NewMyEvaluate/NewEvaluateUserToTeacher'; " value="返回" />
+</div>
+
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        //        $(".hidNewCourseRoomRule").each(function () {
+        //            var exampaperId = $(this).attr("PingId");
+        //            var courseRoomRuleId = $(this).attr("NewCourseRoomRuleId");
+        //            InitData(exampaperId, courseRoomRuleId); //初始列表
+        //        });
+        showStars();
+    });
+//    //初始列表
+//    function InitData(exampaperId,courseRoomRuleId) {
+//        var v = "exampaperId=" + exampaperId + "&courseRoomRuleId=" + courseRoomRuleId;
+//        $("#newEvaluateUserToTeacherDetailList_" + courseRoomRuleId).JsRenderData({
+//            sourceUrl: '/NewMyEvaluate/GetNewEvaluateUserToTeacherDetailList?'+v,
+//            isPage: true,
+//            pageSize: 10,
+//            pageIndex: 1,
+//            templateID: "newEvaluateUserToTeacherDetailListTemplate_" + courseRoomRuleId
+//        });
+//    }
+   
+//显示隐藏Div列表
+    function ShowHideDivContent(divId) {
+        $("#" + divId).toggle();
+    }
+
+    //加载星评题
+    function showStars() {
+            $(".divXpScore").each(function () {
+                var star = $(this).attr("score");
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: false });
+            });
+        }
+</script>
+

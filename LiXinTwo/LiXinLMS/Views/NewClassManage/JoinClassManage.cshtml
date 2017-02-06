@@ -1,0 +1,85 @@
+﻿
+@model List<LixinModels.NewClassManage.New_Class>
+@{
+    Layout = null;
+}
+
+<div class="centerbody">
+    <form method="post" id="JoinClassManage">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span10">
+                    选择班组：
+                </td>
+                <td>
+                    <select id="selClass" onchange="InitGroup();">
+                        <option value="-1" selected="selected">--请选择班级--</option>
+                        @foreach(var c in Model)
+                        {
+                            <option value="@c.Id" classNo="@c.ClassNo">@(c.ClassName)</option>
+                        }
+                    </select>
+                    <select id="selGroup">
+                        <option value="-1">--请选择组--</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <a class="btn" id="saveClassGroup" onclick=" SaveClassGroup() ">保存</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<script type="text/javascript">
+    //连动获取班级对应的组信息
+    function InitGroup() {
+        var id = $("#selClass").val();
+        if (id == "-1") {
+            $("#selGroup").find("option[value='-1']").attr("selected", "selected");
+            return;
+        }
+        $.post("/NewClassManage/GetGroupByClass", {
+                classId: id
+            },
+            function(data) {
+                var optionStr = '';
+                for (var i = 0; i < data.length; i++) {
+                    optionStr += "<option value=\"" + data[i].Id + "\"  title=\"" + data[i].GroupName + "\" groupNo=\""+data[i].GroupNo+"\">" + data[i].GroupName + "</option>";
+                }
+                $("#selGroup").html("<option value=\"-1\" >--请选择组--</option>");
+                if (optionStr != '') {
+                    $("#selGroup").append(optionStr);
+                }
+                $("#selGroup").focus();
+                $("#selGroup").find("option[value='-1']").attr("selected", "selected");
+            });
+    }
+
+        
+    
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var s = document.getElementById("selClass");
+        if (s.length > 1) {
+            s.options[1].selected = 'selected';
+            InitGroup();
+        } else {
+            art.dialog.tips("还没有班组信息，请先添加班组！", 3);
+            closeDialog("art_JoinClassManage");
+//            art.dialog({
+//                content: '还没有班组信息，请先添加班组！',
+//                time: 3,
+//                close: function () {
+//                    closeDialog("art_JoinClassManage");
+//                }
+//            });
+        }
+    });
+    
+
+</script>

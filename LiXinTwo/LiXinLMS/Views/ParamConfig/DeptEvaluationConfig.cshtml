@@ -1,0 +1,69 @@
+﻿@{
+    Layout = null;
+    var evaluationmodle = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+
+<!DOCTYPE html>
+<form>
+    <h2 class="tit-h2 mt10">
+        <i></i><span class="tit-con">分所培训设置</span>
+    </h2>
+    <table class="tab-Form mt20">
+        <input type="hidden" value="37" id="configType" /><!--区分ID-->
+        <tr>
+            <td class="Tit span20">
+                是否允许预定、退订：
+            </td>
+            <td>
+                <input type="radio" id="setOrderYes" name="setOrderYes" onclick="isCheckedYes()" />是
+                <input type="radio" id="setOrderNo" name="setOrderNo" onclick="isCheckedNo()" />否
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="button" value="确定" id="btn_Add" name="btn_Add" class="btn" onclick="btnClick()"/>
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var flag = @evaluationmodle.ConfigValue;
+        if (flag == "1") {
+            $("#setOrderYes").attr("checked", true);
+        } else {
+            $("#setOrderNo").attr("checked", true);
+        }
+    });
+
+    function isCheckedYes() {
+        if ($("#setOrderYes").attr("checked")=="checked") {
+            $("#setOrderNo").attr("checked", false);
+        }
+       
+    }
+    
+    function isCheckedNo() {
+        if ($("#setOrderNo").attr("checked") == "checked") {
+            $("#setOrderYes").attr("checked", false);
+        }
+    }
+
+    function btnClick() {
+        var flagData;
+        if ($("#setOrderYes").attr("checked") == "checked") {
+            flagData = "1";
+        } else {
+            flagData = "0";
+        }
+        $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + flagData, function (data) {
+                if (data.result == 1) {
+                    art.dialog.tips("配置成功");
+                }
+                else {
+                    art.dialog.tips("配置失败");
+                }
+            })
+    }
+</script>
+

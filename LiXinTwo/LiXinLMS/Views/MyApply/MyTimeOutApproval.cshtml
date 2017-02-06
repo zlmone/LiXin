@@ -1,0 +1,253 @@
+﻿@{
+    ViewBag.Title = "MyTimeOutApproval";
+    Layout = null;
+}
+<div class="tab-bk mt10">
+    <ul id="tagTime">
+        <li class="On" id="tagTime0">全部</li>
+        <li id="tagTime1">未审批</li>
+        <li id="tagTime2">已审批</li>
+    </ul>
+</div>
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span4">
+                姓名：
+            </td>
+            <td class="span11">
+                <input type="text" class="span10 Box searchclass" id="myrealname" value="请输入姓名" info="" />
+            </td>
+            <td class="Tit span6">
+                申请人：
+            </td>
+            <td class="span11">
+                <input type="text" class="span10 Box searchclass" id="myapplyname" value="请输入申请人"
+                    info="" />
+            </td>
+            <td class="Tit span6">
+                申请部门：
+            </td>
+            <td class="span21">
+                <input type="text" class="span20 Box searchclass" id="myapplydept" value="请输入申请部门"
+                    info="" />
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <select id="myselTrainGrade" onchange="InitData();">
+        <option value="-1">培训级别</option>
+    </select>
+    <select id="mysltStatus" onchange=" InitData(); ">
+        <option value="99">审批状态</option>
+        <option value="1">审批通过</option>
+        <option value="2">审批拒绝</option>
+        <option value="0">待审批</option>
+    </select>
+</div>
+<div class="mt10" id="divList0">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">
+                    序号
+                </th>
+                <th class="span8">
+                    姓名
+                </th>
+                <th class="span8" jsrendersortfield="TrainGrade" sort="desc">
+                    培训级别
+                </th>
+                <th>
+                    课程名称
+                </th>
+                <th class="span6" jsrendersortfield="CourseLength" sort="desc">
+                    学时
+                </th>
+                <th class="span14" jsrendersortfield="StartTime" sort="desc">
+                    开课时间
+                </th>
+                <th class="span6">
+                    申请人
+                </th>
+                <th class="span14" jsrendersortfield="TimeOutDateTime" sort="desc">
+                    申请时间
+                </th>
+                <th class="span10">
+                    申请部门
+                </th>
+                <th class="span8">
+                    审批状态
+                </th>
+                <th class="span8">
+                    操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="MycourseList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <input id="hidtype" value="-1" type="hidden" />
+</div>
+<script id="MycourseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td>{{:realname}}</td> 
+        <td>{{:TrainGrade}}</td> 
+        <td style="text-align:left;"><div class="ovh span10" title="{{:Course_Name}}">{{:Course_Name}}</div></td> 
+        <td>{{:CourseLength}}</td>   
+        <td style="text-align:left;" class="f11">{{:CourseTime}}</td> 
+        <td>{{:ApplyUserRealName}}</td> 
+        <td>{{:TimeOutApplyTimeStr}}</td> 
+        <td style="text-align:left;"><div class="ovh span10" title="{{:ApplyUserDeptName}}">{{:ApplyUserDeptName}}</div></td>
+        <td>{{:TrainAppFlagStr}}</td>
+        <td>
+            {{if TrainAppFlag == 0}}
+                <a onclick="ApprovalMemoShow('{{:AppReason}}',{{:Id}});" class="icon icheck" title="审批"></a>
+            {{else}}
+                <span class="icon icheck idis" title="审批"></span>
+            {{/if}}
+            <a onclick="ViewDetail({{:Id}});" class="icon iview" title="查看详情"></a>
+        </td> 
+        
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //加载培训级别
+        $.getJSON("/MyApproval/GetTrainGrade", function (data) {
+            for (var i = 0; i < data.length; i++) {
+                $("#myselTrainGrade").append('<option value="' + data[i] + '">' + data[i] + '</option>');
+            }
+        });
+        //初始化查询条件
+        initSearch();
+        InitData();
+
+        
+
+        $("#tagTime li").click(function ()
+        {
+            $("#tagTime li").removeClass("On");
+            $(this).addClass("On");
+
+            var index = $(this).index();
+            if (index == 0)
+            {
+                $("#hidtype").val(99);
+                $("#mysltStatus").show();
+                $("#mysltStatus option[value=99]").attr("selected", true);
+
+            }
+            else if (index == 1)
+            {
+                $("#hidtype").val(0);
+                $("#mysltStatus").hide();
+            }
+            else if (index == 2)
+            {
+                $("#hidtype").val(1);
+                $("#mysltStatus").show();
+                $("#mysltStatus option[value=99]").attr("selected", true);
+            }
+            $("#myrealname").val("");
+            $("#myapplyname").val("");
+            $("#myapplydept").val("");
+            $("#myselTrainGrade option[value=-1]").attr("selected", true);
+            InitData();
+        });
+    });
+
+    function InitData()
+    {
+        var where = "";
+        if ($("#hidtype").val() != -1)
+        {
+            where = "type=" + $("#hidtype").val();
+        }
+        else
+        {
+            where = "type=" + $("#mysltStatus").val();
+        }
+        var approval = $("#mysltStatus").val();
+        var trainGrade = $("#myselTrainGrade").val() == '-1' ? "" : $("#myselTrainGrade").val();        
+        var v = where + "&realname=" + escape(getSearchWord("myrealname")) + "&applyname=" + escape(getSearchWord("myapplyname")) + "&applydept=" + escape(getSearchWord("myapplydept")) + "&approval=" + approval + "&traingrade=" + trainGrade;
+        $("#MycourseList").JsRenderData({
+            sourceUrl: '/MyApply/GetTimeOutLeave?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "Id",
+            jsRenderASC: "desc",
+            templateID: "MycourseListTemplate",
+            funCallback: function ()
+            {
+            }
+        });
+    }
+
+
+    function ApprovalMemoShow(AppReason, ids)
+    {
+        if (ids == "" || ids == undefined)
+        {
+            art.dialog.tips("请选择要逾时审批的数据！", 3);
+        } else
+        {
+            var div =
+            '<table class="tab-Form" style="width:450px;" id="div_Approval">'
+            + '<tr><td class="span6 Tit">申请理由：</td><td><div class="ovh span15" title="' + AppReason + '">' + AppReason + '</div></td></tr>'
+            + '<tr><td class="Tit">审批状态：</td><td><div class="sel"><input id="rd0" type="radio" name="rdApproval" checked="checked" /><label>审批通过</label><input id="rd1" type="radio" name="rdApproval" /><label>审批拒绝</label></div><td></tr>'
+            + '<tr><td class="Tit">审批理由：</td><td><textarea id="txtApprovalMemo" cols="20" rows="2" class="span30"></textarea></td></tr>'
+            + '<tr><td class="Tit"></td><td><input type="button" class="btn btn-co" onclick="Approval(\'' + ids + '\');" value="提交" /></td></tr>'
+            + '</table>';
+            art.dialog({
+                content: div,
+                title: '逾时申请审批',
+                id: 'art_Approval',
+                height: 260,
+                width: 500,
+                init: function ()
+                {
+                    $("#txtApprovalMemo").textareaCount({ maxCharacterSize: 500 });
+                }
+            });
+        }
+    }
+
+    function Approval(ids)
+    {
+        var str = $("#txtApprovalMemo").val();
+        var flag = 1;
+        if ($("#rd1").attr("checked"))
+        {
+            flag = 2;
+        }
+        $.post("/MyApply/SubmitMyTimeOutApproval/", { ids: ids, approvalmemo: str, approval: flag }, function (da)
+        {
+            if (da.result == 1)
+            {
+                closeDialog("art_Approval");
+                // art.dialog.tips(da.content, 1.5);
+                InitData();
+            } else
+            {
+                art.dialog.tips(da.content, 3);
+            }
+        });
+    }
+
+    function ViewDetail(id)
+    {
+        window.location.href = "MyTimeOutApprovalDetail/" + id;
+    }
+</script>

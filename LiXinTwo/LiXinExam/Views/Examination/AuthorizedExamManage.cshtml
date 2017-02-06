@@ -1,0 +1,32 @@
+﻿@using System.Web.Mvc.Html
+@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.AuthorizedExamManage;
+}
+
+<div id="contentInfor">
+    @(Html.Action("SiteMapLink", "Common", new {linkName = "AuthorizedExamManage"}))
+    <div>
+        @Html.Action("AuthorizedExam", "Examination", new
+            {
+                ViewBag.examinationId
+            }
+             )
+    </div>
+    <div class="mTop_1 tc">
+        <a title="保存" id="Save" class="Btn Btn_blue">保存</a>
+        <a class="Btn Btn_white" id="Back" title="返回">返回</a>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#Save").bind("click", function() {
+            ChangtbExamSendStudent("@ViewBag.examinationId");
+        });
+
+        $("#Back").bind("click", function() {
+            window.location.href = "/Examination/ExaminationList";
+        });
+    });
+
+</script>

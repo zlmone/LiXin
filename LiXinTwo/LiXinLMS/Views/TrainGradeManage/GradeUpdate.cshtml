@@ -1,0 +1,94 @@
+﻿@{
+    ViewBag.Title = "GradeUpdate";
+    Layout = null;
+    var model = (LiXinModels.Sys_TrainGrade)ViewData["model"];
+    var userID = Request.QueryString["userID"].ToString();
+}
+<form id="formAddTrainGrade">
+<table class="tab-Form">
+    <tr>
+        <td class="Tit span10">
+            原培训级别：
+        </td>
+        <td class="span20">
+            <span id="pop_oldGrade">@(model.OldGrade)</span>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            新培训级别：
+        </td>
+        <td>
+            <select id="pop_newGrade" name="grade">
+                @{
+                    foreach (var item in @ViewBag.trainGrade)
+                    {
+                        if (item == (model.NewGrade))
+                        {
+                    <option value="@item" selected="selected">@item</option>
+                        }
+                        else
+                        {
+                    <option value="@item">@item</option>
+                        }
+                    }   
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            变更理由：
+        </td>
+        <td>
+            <p>
+                @(model.Reason)
+            </p>
+        </td>
+    </tr>
+</table>
+<div class="mt10 tc">
+    <input id="pop_Save" type="submit" value="保存" class="btn" />
+    <a onclick=" closeDialog('art_UpdateSingle')" class="btn btn-cancel">取消</a>
+</div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        jQuery.validator.addMethod("IsUpdate", function (value, element)
+        {
+            var old = $("#pop_oldGrade").html();
+            return this.optional(element) || old != value;
+        }, "请选择不一样的级别！");
+         $("#formAddTrainGrade").validate(
+        {
+            event: "blur",
+            rules: {grade: {IsUpdate: true}  },
+            errorPlacement: function (error, element)
+            {
+                if (element.is(':radio') || element.is(':checkbox'))
+                {
+                    var eid = element.attr('name');
+                    error.appendTo(element.parent());
+                } else
+                {
+                    error.insertAfter(element);
+                }
+            },
+            submitHandler: saveUpdate
+        });
+
+    });
+
+
+    function saveUpdate()
+    {
+       $.post("/TrainGradeManage/UpdateGrade", { newGrade: $("#pop_newGrade").val(),ID:@ViewBag.ID,userID:@userID  }, function (data)
+            { 
+               Getdata();
+               closeDialog('art_UpdateSingle');
+            });
+    }
+
+
+</script>

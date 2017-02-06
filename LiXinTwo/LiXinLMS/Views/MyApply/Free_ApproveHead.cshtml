@@ -1,0 +1,37 @@
+﻿@using LiXinModels.MyApproval;
+@{
+    ViewBag.Title = "审批流程线";
+    Layout = null;
+}
+
+
+<div class="app-req" style="margin-bottom: 10px">
+    <div class="head">
+        <div class="num"></div>
+        <div class="spo">发起人</div>
+        <div class="dep">部门/分所负责人审批</div>
+        <div class="tol">教育培训部审批</div>
+    </div>
+    <div class="list">
+        @{
+            <div class="item new">
+                <div class="num"><span>1</span></div>
+                <div class="spo">
+                    <p class="tit"><span>@ViewBag.Realname</span>发起</p>
+                    <i class="next"></i>
+                </div>
+                <div class="tol">
+                    <p class="tit"><span>部门/分所负责人审批</span></p>
+                    <i class="next"></i>
+                </div>
+                <div class="tol">
+                   <p class="tit"><span>教育培训部审批</span></p>
+                </div>
+            </div>
+
+        }
+        <div class="line"></div>
+    </div>
+     <div style="color:red" class="ml30">需一并携带证明资料原件至审批人处给予复核</div>
+</div>
+

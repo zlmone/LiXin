@@ -1,0 +1,59 @@
+﻿@*
+$("#hidNodeID").val() 存放着被选中节点的id，默认为0
+$("#hidParentNodeID").val() 存放着被选中节点的父级id，默认为0
+$("#hidNodeIDName").val() 存放着被选中节点的Name，默认为空
+$("#hidNodeType").val() 存放着被选中节点的类型，默认为空，0：类别；1：品类；2：功效
+NodeClick() 为点击节点事件的补充，可以自定义事件
+*@
+@{
+    ViewBag.Title = "ResourceTypeTreeView";
+    Layout = null;
+}
+<div class="treeview-box" id="j-rtt">
+    <div id="node" class="tree-list" style="width:500px;">
+        @ViewBag.html
+    </div>
+    <input type="hidden" id="hidNodeID" value="0" />
+    <input type="hidden" id="hidParentNodeID" value="0" />
+    <input type="hidden" id="hidNodeIDName" value="" />
+    <input type="hidden" id="hidNodeType" value="" />
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#navigation").treeview({
+            persist: "location",
+            collapsed: false,
+            unique: false
+        });
+        try {
+            threeBackground('0');
+        } catch (e) {
+        }
+
+        $(".rootNode").removeAttr("onclick").css("cursor", "auto");
+    });
+
+    function RTNodeClick(obj) {
+        $("#hidNodeID").val(0);
+        $("#hidParentNodeID").val(0);
+        $("#hidNodeIDName").val("");
+
+        $("#node .RTNode").each(function () {
+            $(this).css("background-color", "");
+        });
+
+
+        //获取具体的分类信息
+        var ids = $(obj).attr("id");
+        var id = ids.split("_")[0];
+        var pid = ids.split("_")[1];
+        var Name = $(obj).text();
+        $("#hidNodeID").val(id);
+        $("#hidParentNodeID").val(pid);
+        $("#hidNodeIDName").val(Name);
+        try {
+            //点击节点事件的补充，可以自定义事件
+            NodeClick();
+        } catch (e) { }
+    }
+</script>

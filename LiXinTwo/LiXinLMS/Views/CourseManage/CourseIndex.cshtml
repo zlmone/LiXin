@@ -1,0 +1,151 @@
+﻿@{
+    ViewBag.Title = "课程评估";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+@(Html.Action("SiteMapLink", "Common", new { linkName = "课程评估" }))
+<div id="div_Search" class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">课程名称：</td>
+            <td class="span33"><input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="Tit span8">选/必修：</td>
+            <td>
+                <div class="sel">
+                    <input type="checkbox" name="popIsMust" id="chbIsMust0" value="1" /><label>选修</label>
+                    <input type="checkbox" name="popIsMust" id="chbIsMust1" value="0" /><label>必修</label>
+                </div>
+            </td>
+            <td class="so-do" rowspan="2">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" fnSearch(); " />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">开课时间：</td>
+            <td>
+                <div class="time-choose">
+                    <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                        name="StartTime" id="txt_StartTime" value="" />
+                    <i></i>
+                </div>
+                至
+                <div class="time-choose">
+                    <input  type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                        id="txt_EndTime" value="" />
+                    <i></i>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+     <select onchange="fnSearch()" id="sle_Sort">
+        <option value="-1">请选择培训形式</option>
+        <option value="1">集中授课</option>
+        <option value="2">视频课程</option>
+    </select>
+</div>
+<!-- 列表 -->
+<div id="Content" class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th class="span12">培训形式</th>
+                <th class="span8" jsrendersortfield="IsMust" sort="desc">选/必修</th>
+                <th class="span24" jsrendersortfield="StartTime" sort="desc">开课时间</th>
+                <th class="span8">课程类别</th>
+                <th class="span6">操作</th>
+            </tr>
+        </thead>
+        <tbody id="CourseAppList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+</div>
+<script id="courseAppListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+             <td><div class="ovh tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+             <td>{{:Way==1?"集中授课":"视频课程"}}</td>
+             <td>{{:IsMustStr}}</td>
+             <td><div class="f11 tl">{{:CourseTime}}</div></td>
+             <td><div class="ovh" title="{{:SortStr}}">{{:SortStr}}</div></td>
+            <td>
+                <a onclick="CollectCourse({{:Id}})" class="icon iall" title="汇总"></a>
+                <a onclick="DetailCourse({{:Id}})" class="icon idet" title="明细"></a>
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //alert($("#sle_Sort option:eq(1)").val());
+        //$("#sle_Sort option:eq(1)").attr("selected","selected");
+
+        initSearch();
+
+        $("#txtCourseName").val('@(ViewBag.Attname)');
+        if("@(ViewBag.Attmust)"!=""){
+            if('@(ViewBag.Attmust)'.indexOf(",")>-1){
+                var strmust='@(ViewBag.Attmust)'.split(",");
+                $.each(strmust, function(index,callback){$('input[name="popIsMust"][value="'+strmust[index]+'"]').attr('checked',true);});
+            }else{
+                $('input[name="popIsMust"][value="@(ViewBag.Attmust)"]').attr('checked',true);
+            }
+        }
+        
+        if("@(ViewBag.AttstartTime)"!=""){
+            $("#txt_StartTime").val('@(ViewBag.AttstartTime)');
+        }
+        if("@(ViewBag.AttendTime)"!=""){
+            $("#txt_EndTime").val('@(ViewBag.AttendTime)');
+        }
+        $("#sle_Sort").val('@(ViewBag.AttSort)');
+        fnGetCourseList(@(ViewBag.page));
+    });
+
+    function fnGetCourseList(page) {
+        $("#CourseAppList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "Id",
+            jsRenderASC: "asc",
+            templateID: "courseAppListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function GetPopParameters() {
+        var isMust = "";
+        $("input[name='popIsMust']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                isMust = isMust == "" ? $(this).val() : isMust + "," + $(this).val();
+            }
+        });
+        
+        var url = "/CourseManage/GetCourseIndex?t=" + new Date();
+        url += "&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&Sort=" + $("#sle_Sort").val()+"&IsMust="+isMust;
+        
+        return url;
+
+    }
+    function fnSearch() {
+        fnGetCourseList(1);   
+    }
+
+    function CollectCourse(id) {
+        window.location.href = "/CourseManage/AfterCourseMain?id=" + id + "&t=" + new Date();
+    }
+    function DetailCourse(id) {
+        window.location.href = "/CourseManage/CourseAppDetial?id=" + id + "&t=" + new Date();
+    }
+</script>
+

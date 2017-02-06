@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "转播课程跟踪";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "转播课程跟踪" }))
+</div>
+<div class="clb">
+    <div id="div_Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td class="span33">
+                    <input type="text" id="txtCourseName" class="span30 searchclass" value="请输入搜索内容" info="" /></td>
+                <td class="Tit span8">选/必修：</td>
+                <td>
+                    <div class="sel">
+                        <input type="checkbox" name="popIsMust" id="chbIsMust0" value="1" /><label>选修</label>
+                        <input type="checkbox" name="popIsMust" id="chbIsMust1" value="0" /><label>必修</label>
+                    </div>
+                </td>
+                @*<td class="span9">是否开放预订：</td>
+                <td> 
+                    <div class="sel">
+                        <input type="checkbox" name="popIsOrder" value="1" /><label>是</label>
+                        <input type="checkbox" name="popIsOrder" value="0" /><label>否</label>
+                    </div>
+                </td>*@
+                <td class="so-do" rowspan="2">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">开课时间：</td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' }) "
+                            name="StartTime" id="txt_StartTime" value="" />
+                        <i></i>
+                    </div>
+                    至
+                        <div class="time-choose">
+                            <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' }) "
+                                id="txt_EndTime" value="" />
+                            <i></i>
+                        </div>
+                </td>
+                <td class="Tit">计划内/外：</td>
+                <td>
+                    <div class="sel">
+                        <input type="checkbox" name="popIsYear" value="1" /><label>内</label>
+                        <input type="checkbox" name="popIsYear" value="0" /><label>外</label>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="Content" class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span3">序号</th>
+                    <th>课程名称</th>
+                    <th class="span3">学时</th>
+                    <th class="span6" jsrendersortfield="IsMust" sort="desc">选/必修</th>
+                    <th class="span14" jsrendersortfield="StartTime" sort="desc">开课时间</th>
+                    <th class="span6">开设课次/总课次</th>
+                    <th class="span6">讲师</th>
+                    <th class="span8">授课地点</th>
+                    <th class="span4">计划内/外</th>
+                    <th class="span8">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tbCourseList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+             <td>
+             <div class="ovh tl span15" title="{{:CourseName}}">{{:CourseName}}</div>
+             </td>
+             <td>{{:CourseLength}}</td>
+             <td>{{:IsMust}}</td>
+             <td><div class="f11 tl">{{:StartTime}} - {{:EndTime}}</div></td>
+             <td>{{:CourseTimesOrder}}/{{:CourseTimes}}</td>
+             <td><div class="ovh tl span6" title="{{:TeacherName}}">{{:TeacherName}}</div></td>
+             <td><div class="ovh tl span8" title="{{>ClassroomAddress}}">{{>ClassroomAddress}}</div></td>
+             <td>{{:IsYearPlan}}</td>
+            <td> 
+            <a onclick="fnCourseDetial({{:Id}},'{{:StatusShow}}')" class="icon iview" title="查看详情"></a>
+            </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        InitData();
+    });
+
+    function InitData()
+    {
+        $("#tbCourseList").JsRenderData({
+            sourceUrl: GetURL(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: " StartTime",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate"
+        });
+    }
+
+    function GetURL()
+    {
+
+        var isYear = "";
+        $("input[name='popIsYear']:checked").each(function ()
+        {
+            isYear = isYear == "" ? $(this).val() : isYear + "," + $(this).val();
+        });
+
+        var isMust = "";
+        $("input[name='popIsMust']:checked").each(function ()
+        {
+            isMust = isMust == "" ? $(this).val() : isMust + "," + $(this).val();
+        });
+
+        var isOrder = "";
+//        $("input[name='popIsOrder']:checked").each(function ()
+//        {
+//            isOrder = isOrder == "" ? $(this).val() : isOrder + "," + $(this).val();
+//        });
+
+        var url = "/DeptCourseManage/GetDeptAllCourseManage?t=" + new Date();
+        url += "&courseName=" + escape(getSearchWord("txtCourseName")) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val() + "&Sort=" + $("#sle_Sort").val() + "&isYear=" + isYear + "&IsMust=" + isMust + "&IsOrder=" + isOrder ;
+        if ($("#pop_txtchooseId").val() != 0)
+        {
+            url += "&systemId=" + $("#pop_txtchooseId").val();
+        }
+        return url;
+
+    }
+
+    function fnCourseDetial(Id, statusShow)
+    {
+        window.location.href = '/DeptCourseManage/DeptAllCourseDetail?id=' + Id;
+    }
+
+</script>

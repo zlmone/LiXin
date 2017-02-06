@@ -1,0 +1,393 @@
+﻿@using LiXinLanguage
+@using LiXinModels.User
+@{
+    ViewBag.Title = NavigateMenuLanguage.QuestionManage;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var sortID = Request.QueryString["sortID"] ?? "0";
+    var deptId = Request.QueryString["deptId"] ?? "0";
+    var depList = ViewBag.Departments as List<Sys_Department>;
+}
+<div id="contentInfor" class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = ViewBag.Flag == 0?"QuestionManage":"DepQuestionManage"
+}))
+    <div class="clb">
+        <div class="fl span29">
+            <div class="menu-list">
+                <h3><i class="il"></i><i class="ir"></i>题库分类</h3>
+                <div class="list-con">
+                    <div class="list-do" style="padding-bottom: 5px;">
+                        <input type="button" id="addSort" value="新增" onclick="addSort();" class="btn btn-co"/>
+                        <input type="button" id="modifySort" value="修改" onclick="modifySort();" class="btn btn-co"/>
+                        <input type="button" id="deleteSort" value="删除" onclick="deleteSort();" class="btn btn-cancel"/>
+                    </div>
+                    <input type="hidden" id="selectDeptID" value="0"/>
+                    @{
+                    if (ViewBag.Flag ==1)
+                    {
+                        <table class="tab-Form mb10">
+                            <tr>
+                                <td class="Tit span6">所管部门：</td>
+                                <td>
+                            
+                                    <select id="deptList" class="span20">
+                                        @{
+                                            foreach (var de in depList)
+                                            {
+                                                <option value="@(de.DepartmentId)">@(de.DeptName)</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                    }
+                }
+                </div>
+            </div>
+            <div class="treeview-box span29" style="margin-top:-5px;"><div id="sortList" class="tree-list"></div></div>
+        </div>
+        <div class="fr span70">
+            <!--搜索-->
+            <div id="Search" class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span5">知识点：</td>
+                        <td class="span15"><input id="txtQuestionKey" type="text" class="span14 searchclass" value="请输入搜索内容" info="" /></td>
+                        <td class="Tit span6">试题题干：</td>
+                        <td><input id="txtQuestionContent" type="text" class="span20 searchclass" value="请输入搜索内容" info="" /></td>
+                        <td class="so-do">
+                            <input id="btnSearch" class="btn" type="button" value="搜索" name="搜索" onclick=" InitlQUestion(); " />
+                            <a id="btnAddQuestion" class="btn btn-co">@Question.Question_QuestionManage_AddQuestion</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="so-seq">
+                <select id="selQuestionType" onchange=" InitlQUestion(); ">
+                    <option value="0">所有题型</option>
+                    <option value="1">@Question.Question_QuestionManage_Subject</option>
+                    <option value="2">@Question.Question_QuestionManage_Single</option>
+                    <option value="3">@Question.Question_QuestionManage_Mulitple</option>
+                    <option value="4">@Question.Question_QuestionManage_Judge</option>
+                    <option value="5">@Question.Question_QuestionManage_FillBlank</option>
+                    <option value="6">@Question.Question_QuestionManage_Mediea</option>
+                </select>
+                <select id="selQuestionLevel" onchange=" InitlQUestion(); ">
+                    <option value="0">所有难度</option>
+                    <option value="1">@Question.Question_QuestionManage_EasyLevel</option>
+                    <option value="2">@Question.Question_QuestionManage_CommonLevel</option>
+                    <option value="3">@Question.Question_QuestionManage_HardLevel</option>
+                </select>
+                <div class="list-do">
+                    <a id="btnDeleteQuestion">@Question.Question_QuestionManage_DeleteQuestion</a>
+                    <a id="btnImportQuestion">@Question.Question_QuestionManage_ImportQuestion</a>
+                    <a id="btnQuestionView" onclick=" Browse(); ">预览试题</a>
+                </div>
+            </div>
+            <!-- 列表 -->
+            <div id="Content">
+                <table class="tab-List mt10">
+                    <thead>
+                        <tr>
+                            <th class="span4"><input type="checkbox" value="0" id="selectall" /></th>
+                            <th>试题题干</th>
+                            <th class="span8">题型(难易度)</th>
+                            <th class="span8">调用次数</th>
+                            <th class="span10">发布时间</th>
+                            <th class="span8">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="questionList">
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<input id="selQuestionSort" type="hidden" value="@sortID" />
+<script id="questionListTemplate" type="text/x-jsrender">
+    {{for #data}}
+      <tr>
+        <td><input id="{{:id}}" type="checkbox"/></td>
+        <td>
+            <div class="tl">
+                <p title="{{:QuestionContent}}"><strong>{{:QuestionContent.length>25?QuestionContent.substring(0,25)+"......":QuestionContent}}</strong></p>
+                <p class="Info"><strong>{{:Creater}}</strong> 发布<i>|</i>知识点: <span title="{{:QuestionKey}}">{{:QuestionKey.length>5?QuestionKey.substring(0,5)+"...":QuestionKey}}</span></p>
+            </div>
+        </td>
+        <td>
+            <div class="tl">
+                <p>{{:QuestionTypeStr}}</p>
+                <p>{{:QuestionLevelStr}}</p>
+            </div>
+        </td>
+		<td><strong>{{:VoidTimes}}</strong> 次</td>
+        <td><div class="tl">{{:CreatLocalTime}}</div></td>
+        <td>
+		    <a onclick="EditQuestion({{:id}});" title="编辑" class="icon iedit"></a>  
+ 		    <a onclick="ViewQuestion({{:id}});" title="查看详情" class="icon iview"></a>
+        </td>
+    </tr>
+    {{/for}}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        $(document).attr("title");
+        //当部门分所时，初始化部门
+        if (@(ViewBag.Flag) ==1 && $("#deptList option").length > 0) {
+            if(@deptId==0) {
+                $("#selectDeptID").val($("#deptList option:first").attr("value"));
+            } else {
+                $("#deptList").val(@deptId);
+                $("#selectDeptID").val(@deptId);
+            }
+        }
+        
+
+        //部门下拉框事件
+        $("#deptList").bind("change", function() {
+            $("#selectDeptID").val($(this).val());
+            $("#selQuestionSort").val(0);
+            initQuestionSort();
+            //初始化问题
+            InitlQUestion();
+        });
+        
+        initQuestionSort();
+        //初始化问题
+        InitlQUestion();
+    });
+
+    //新增分类
+    function addSort() {
+        if ($("#selQuestionSort").val() != "") {
+            art.dialog.load("/Question/SortEdit?id=0&fatherID=" + $("#selQuestionSort").val()+"&deptId="+$("#selectDeptID").val() + "&t=" + new Date(), { title: "@Question.Question_QuestionManage_AddSort", id: "qSortEdit", height: 250 });
+        } else {
+            art.dialog.tips('请选择父题库', 3);
+        }
+    }
+
+    //修改分类
+    function modifySort() {
+        if ($("#selQuestionSort").val() != "" && $("#selQuestionSort").val() != "0") {
+            art.dialog.load("/Question/SortEdit?id=" + $("#selQuestionSort").val()+"&deptId="+$("#selectDeptID").val() + "&t=" + new Date(), { title: "@Question.Question_QuestionManage_ModifySort", id: "qSortEdit", height: 250 });
+        } else {
+            art.dialog.tips('请选择题库', 3);
+        }
+    }
+
+    //删除分类
+    function deleteSort() {
+        if ($("#selQuestionSort").val() != "" && $("#selQuestionSort").val() != "0") {
+            art.dialog({
+                title: "@CommonLanguage.Common_Tip",
+                content: "@CommonLanguage.Common_Confirm_Delete",
+                width: 300,
+                okValue: '@CommonLanguage.Common_Sure',
+                cancelValue: '@CommonLanguage.Common_Cancel',
+                height: 50,
+                fixed: true,
+                lock: true,
+                ok: function () {
+                    $.getJSON("/Question/DeleteQuestionSortByID?id=" + $("#selQuestionSort").val(), function (data) {
+                        if (data.result == 1) {
+                            art.dialog.tips(data.content, 3);
+                            $("#selQuestionSort").val('0');
+                            initQuestionSort();
+                        } else {
+                            art.dialog.tips(data.content, 3);
+                        }
+                    });
+                },
+                cancel: function () {
+                }
+            });
+        } else
+            art.dialog.tips("请先选择题库", 3);
+    }
+
+    //切换显示方式
+
+    function changeView(str)
+    {
+        ChangeList({ str: str, fun: function () { InitlQUestion(); } });
+    }
+
+    //生成url参数字符串
+    function getUrlParms()
+    {
+        return '/Question/GetAllQuestion?sortID=' + $("#selQuestionSort").val() +
+            '&type=' + $("#selQuestionType").val() +
+            '&level=' + $("#selQuestionLevel").val() +
+            '&key=' + escape(getSearchWord("txtQuestionKey")) +
+            '&content=' + escape(getSearchWord("txtQuestionContent"))+
+            '&deptId='+$("#selectDeptID").val() +
+            '&t=' + new Date();
+    }
+
+    //初始化问题
+
+    function InitlQUestion()
+    {
+        var templateId = '';
+        $("#questionList").JsRenderData({
+            sourceUrl: getUrlParms(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'questionListTemplate',
+            funCallback: function(data){
+                $("#selectall").removeAttr("checked");
+            }
+        });
+        SetCheckBox('selectall', 'questionList');
+       
+    }
+
+    //初始化题库
+
+    function initQuestionSort()
+    {
+        $.getJSON("GetAllQuestionSortTree?deptId="+$("#selectDeptID").val()+"&t="+new Date(), function (data)
+        {
+            $("#sortList").html(data);
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#navigation>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+
+    //问题分类树点击事件
+
+    function selectSort(id, obj)
+    {
+        $("#selQuestionSort").val(id);
+        postNodeClickSelect(obj);
+        //初始化问题
+        InitlQUestion();
+    }
+
+    function postNodeClickSelect(obj)
+    {
+        $("#sortList").find("a").each(function ()
+        {
+            $(this).removeClass("On");
+        });
+
+        $(obj).addClass("On");
+    }
+
+
+    //新增试题
+    $("#btnAddQuestion").bind("click", function ()
+    {
+        var redirturl = 'QuestionEdit';
+        if('@(ViewBag.Flag)'=='1') {
+            redirturl = 'DepQuestionEdit';
+        }
+        if (parseInt($("#selQuestionSort").val()) > 0)
+            window.location.href = "/Question/"+redirturl+"?id=0&sortID=" + $("#selQuestionSort").val()+"&deptId="+$("#selectDeptID").val();
+        else
+            art.dialog.tips("@Question.Question_QuestionManage_Tip_SelectSort", 3);
+    });
+
+    //删除所选的试题
+    $("#btnDeleteQuestion").bind("click", function ()
+    {
+        var delStr = GetChecked("questionList");
+        if (delStr != "")
+        {
+            art.dialog({
+                title: "@CommonLanguage.Common_Tip",
+                content: '@CommonLanguage.Common_Confirm_Delete',
+                width: 200,
+                okValue: '@CommonLanguage.Common_Sure',
+                cancelValue: '@CommonLanguage.Common_Cancel',
+                height: 50,
+                fixed: true,
+                lock: true,
+                ok: function ()
+                {
+                    $.getJSON("/Question/DeleteSelectQuestions?ids=" + delStr, function (data)
+                    {
+                        if (data.result == 1)
+                        {
+                            art.dialog.tips(data.content, 3);
+                            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                            //初始化问题
+                            InitlQUestion();
+                        } else
+                            art.dialog.tips(data.content, 3);
+                            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                    });
+                },
+                cancel: function ()
+                {
+                }
+            });
+        } else
+        {
+            art.dialog.tips("@Question.Question_QuestionManage_Tip_SelectQuestion", 3);
+        }
+    });
+
+
+    //批量导入试题
+    $("#btnImportQuestion").bind("click", function ()
+    {
+        if (parseInt($("#selQuestionSort").val()) > 0)
+            art.dialog.load("/Question/ImportQuestions?id=" + $("#selQuestionSort").val()+"&deptId="+$("#selectDeptID").val(), { title: "@Question.Question_QuestionManage_ImportQuestion", id: "ImportQue", width: 400 });
+        else
+        {
+            art.dialog.tips("@Question.Question_QuestionManage_Tip_SelectSort", 3);
+        }
+    });
+
+    //修改试题
+
+    function EditQuestion(id)
+    {
+        var redirturl = 'QuestionEdit';
+        if('@(ViewBag.Flag)'=='1') {
+            redirturl = 'DepQuestionEdit';
+        }
+        window.location.href = "/Question/"+redirturl+"?id=" + id + "&sortID=" + $("#selQuestionSort").val()+"&deptId="+$("#selectDeptID").val();
+    }
+
+    //预览试题，列表内的操作
+    function ViewQuestion(id)
+    {
+        var redirturl = 'BrowseQuestion';
+        if('@(ViewBag.Flag)'=='1') {
+            redirturl = 'DepBrowseQuestion';
+        }
+        window.location.href = "/Question/"+redirturl+"?ids=[" + id + "]&deptId="+$("#selectDeptID").val()+"&sortID=" + $("#selQuestionSort").val();
+    }
+
+    //预览试题，全体操作
+
+    function Browse()
+    {
+        var viewStr = GetChecked("questionList");
+        if (viewStr != "")
+        {
+            ViewQuestion(viewStr);
+        } else
+        {
+            art.dialog.tips("@Question.Question_QuestionManage_ViewQuestion", 3);
+        }
+    }
+</script>

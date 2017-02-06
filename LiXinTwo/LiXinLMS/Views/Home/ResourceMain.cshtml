@@ -1,0 +1,42 @@
+﻿@{
+    ViewBag.Title = "下载文档";
+    Layout = null;    
+}
+<div id="Content" class="mt10">
+ <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span40">文档名</th>               
+                <th class="span10">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbCourseList">
+         
+            <tr>
+                <td  style="text-align:left">立信培训管理系统学员操作手册-集中授课</td>
+                <td><a onclick="loadPinFile('/Log/立信培训管理系统学员操作手册-集中授课.pdf','立信培训管理系统学员操作手册-集中授课.pdf');" class="icon idown"" title="下载帮助"></a></td>
+           </tr>
+            <tr>
+                <td  style="text-align:left">立信培训管理系统学员操作手册-部门分所</td>
+                <td><a onclick="loadPinFile('/Log/立信培训管理系统学员操作手册-部门分所.pdf','立信培训管理系统学员操作手册-部门分所.pdf');" class="icon idown"" title="下载帮助"></a></td>
+           </tr>
+               <tr>
+                <td  style="text-align:left">立信培训管理系统部门分所培训负责人操作手册</td>
+                <td><a onclick="loadPinFile('/Log/立信培训管理系统部门分所培训负责人操作手册.pdf','立信培训管理系统部门分所培训负责人操作手册.pdf');" class="icon idown"" title="下载帮助"></a></td>
+           </tr>
+
+        </tbody>
+
+    </table>
+</div>
+
+<script>
+    //下载文件
+    function loadPinFile(path, name)
+    {
+        // window.location.href = "/Common/DownLoadFile?url=~" + path;
+        window.location.href = "/home/LoadPrincipleFile?type=1&path=" + path + "&name=" +escape(name);
+    }
+
+
+</script>

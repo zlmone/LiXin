@@ -1,0 +1,192 @@
+
+异常时间：2013-10-16 21:07:02,351 [10] 
+异常级别：ERROR 
+异 常 类：logerror [(null)] 
+索引超出了数组界限。 
+ System.IndexOutOfRangeException: 索引超出了数组界限。
+   在 o7.a(Int32 A_0)
+   在 tt.a(o7 A_0)
+   在 dm.e()
+   在 dm.b(Stream A_0)
+   在 dm.e(String A_0)
+   在 dm.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 dm.a(String A_0, FontStyle A_1, Boolean A_2)
+   在 gt..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 op..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 gt.a(mk A_0, String A_1, FontStyle A_2, Boolean A_3)
+   在 su.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 c4.a(b0 A_0)
+   在 n1.a(b0 A_0)
+   在 gq.a(b0 A_0)
+   在 b0.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 j7.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 ep.a(l8 A_0)
+   在 gq.a(kp A_0)
+   在 hk.a(PresentationEx A_0, Stream A_1, PdfOptions A_2)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(Stream stream, SaveFormat format, SaveOptions options)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(String fname, SaveFormat format)
+   在 DotNet.Common.FileConvert.Aspose2Pdf.PowerPointConvert(String sourcePath, String targetPath, SaveFormat targetFileType)
+   在 FileTransAspose.File2Pdf.File2PdfAspose(FileModel file, String suffix) 位置 d:\Projects\FileTrans\FileTransAspose\File2Pdf.cs:行号 19
+   在 FileTransAspose.Program.FileTask(Object fileModel) 位置 d:\Projects\FileTrans\FileTransAspose\Program.cs:行号 74
+
+异常时间：2013-10-16 21:08:06,855 [10] 
+异常级别：ERROR 
+异 常 类：logerror [(null)] 
+索引超出了数组界限。 
+ System.IndexOutOfRangeException: 索引超出了数组界限。
+   在 o7.a(Int32 A_0)
+   在 tt.a(o7 A_0)
+   在 dm.e()
+   在 dm.b(Stream A_0)
+   在 dm.e(String A_0)
+   在 dm.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 dm.a(String A_0, FontStyle A_1, Boolean A_2)
+   在 gt..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 op..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 gt.a(mk A_0, String A_1, FontStyle A_2, Boolean A_3)
+   在 su.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 c4.a(b0 A_0)
+   在 n1.a(b0 A_0)
+   在 gq.a(b0 A_0)
+   在 b0.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 j7.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 ep.a(l8 A_0)
+   在 gq.a(kp A_0)
+   在 hk.a(PresentationEx A_0, Stream A_1, PdfOptions A_2)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(Stream stream, SaveFormat format, SaveOptions options)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(String fname, SaveFormat format)
+   在 DotNet.Common.FileConvert.Aspose2Pdf.PowerPointConvert(String sourcePath, String targetPath, SaveFormat targetFileType)
+   在 FileTransAspose.File2Pdf.File2PdfAspose(FileModel file, String suffix) 位置 d:\Projects\FileTrans\FileTransAspose\File2Pdf.cs:行号 19
+   在 FileTransAspose.Program.FileTask(Object fileModel) 位置 d:\Projects\FileTrans\FileTransAspose\Program.cs:行号 74
+
+异常时间：2013-10-16 21:08:41,079 [10] 
+异常级别：ERROR 
+异 常 类：logerror [(null)] 
+索引超出了数组界限。 
+ System.IndexOutOfRangeException: 索引超出了数组界限。
+   在 o7.a(Int32 A_0)
+   在 tt.a(o7 A_0)
+   在 dm.e()
+   在 dm.b(Stream A_0)
+   在 dm.e(String A_0)
+   在 dm.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 dm.a(String A_0, FontStyle A_1, Boolean A_2)
+   在 gt..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 op..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 gt.a(mk A_0, String A_1, FontStyle A_2, Boolean A_3)
+   在 su.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 c4.a(b0 A_0)
+   在 n1.a(b0 A_0)
+   在 gq.a(b0 A_0)
+   在 b0.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 j7.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 ep.a(l8 A_0)
+   在 gq.a(kp A_0)
+   在 hk.a(PresentationEx A_0, Stream A_1, PdfOptions A_2)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(Stream stream, SaveFormat format, SaveOptions options)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(String fname, SaveFormat format)
+   在 DotNet.Common.FileConvert.Aspose2Pdf.PowerPointConvert(String sourcePath, String targetPath, SaveFormat targetFileType)
+   在 FileTransAspose.File2Pdf.File2PdfAspose(FileModel file, String suffix) 位置 d:\Projects\FileTrans\FileTransAspose\File2Pdf.cs:行号 19
+   在 FileTransAspose.Program.FileTask(Object fileModel) 位置 d:\Projects\FileTrans\FileTransAspose\Program.cs:行号 74
+
+异常时间：2013-10-16 21:11:38,222 [9] 
+异常级别：ERROR 
+异 常 类：logerror [(null)] 
+索引超出了数组界限。 
+ System.IndexOutOfRangeException: 索引超出了数组界限。
+   在 o7.a(Int32 A_0)
+   在 tt.a(o7 A_0)
+   在 dm.e()
+   在 dm.b(Stream A_0)
+   在 dm.e(String A_0)
+   在 dm.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 dm.a(String A_0, FontStyle A_1, Boolean A_2)
+   在 gt..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 op..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 gt.a(mk A_0, String A_1, FontStyle A_2, Boolean A_3)
+   在 su.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 c4.a(b0 A_0)
+   在 n1.a(b0 A_0)
+   在 gq.a(b0 A_0)
+   在 b0.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 j7.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 ep.a(l8 A_0)
+   在 gq.a(kp A_0)
+   在 hk.a(PresentationEx A_0, Stream A_1, PdfOptions A_2)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(Stream stream, SaveFormat format, SaveOptions options)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(String fname, SaveFormat format)
+   在 DotNet.Common.FileConvert.Aspose2Pdf.PowerPointConvert(String sourcePath, String targetPath, SaveFormat targetFileType)
+   在 FileTransAspose.File2Pdf.File2PdfAspose(FileModel file, String suffix) 位置 d:\Projects\FileTrans\FileTransAspose\File2Pdf.cs:行号 19
+   在 FileTransAspose.Program.FileTask(Object fileModel) 位置 d:\Projects\FileTrans\FileTransAspose\Program.cs:行号 74
+
+异常时间：2013-10-16 21:42:16,571 [10] 
+异常级别：ERROR 
+异 常 类：logerror [(null)] 
+索引超出了数组界限。 
+ System.IndexOutOfRangeException: 索引超出了数组界限。
+   在 o7.a(Int32 A_0)
+   在 tt.a(o7 A_0)
+   在 dm.e()
+   在 dm.b(Stream A_0)
+   在 dm.e(String A_0)
+   在 dm.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 dm.a(String A_0, FontStyle A_1, Boolean A_2)
+   在 gt..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 op..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 gt.a(mk A_0, String A_1, FontStyle A_2, Boolean A_3)
+   在 su.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 c4.a(b0 A_0)
+   在 n1.a(b0 A_0)
+   在 gq.a(b0 A_0)
+   在 b0.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 j7.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 ep.a(l8 A_0)
+   在 gq.a(kp A_0)
+   在 hk.a(PresentationEx A_0, Stream A_1, PdfOptions A_2)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(Stream stream, SaveFormat format, SaveOptions options)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(String fname, SaveFormat format)
+   在 DotNet.Common.FileConvert.Aspose2Pdf.PowerPointConvert(String sourcePath, String targetPath, SaveFormat targetFileType)
+   在 FileTransAspose.File2Pdf.File2PdfAspose(FileModel file, String suffix) 位置 d:\Projects\FileTrans\FileTransAspose\File2Pdf.cs:行号 19
+   在 FileTransAspose.Program.FileTask(Object fileModel) 位置 d:\Projects\FileTrans\FileTransAspose\Program.cs:行号 74
+
+异常时间：2013-10-16 22:03:42,023 [10] 
+异常级别：ERROR 
+异 常 类：logerror [(null)] 
+索引超出了数组界限。 
+ System.IndexOutOfRangeException: 索引超出了数组界限。
+   在 o7.a(Int32 A_0)
+   在 tt.a(o7 A_0)
+   在 dm.e()
+   在 dm.b(Stream A_0)
+   在 dm.e(String A_0)
+   在 dm.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 dm.a(String A_0, FontStyle A_1, Boolean A_2)
+   在 gt..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 op..ctor(mk A_0, String A_1, FontStyle A_2)
+   在 gt.a(mk A_0, String A_1, FontStyle A_2, Boolean A_3)
+   在 su.b(String A_0, FontStyle A_1, Boolean A_2)
+   在 c4.a(b0 A_0)
+   在 n1.a(b0 A_0)
+   在 gq.a(b0 A_0)
+   在 b0.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 j7.a(l8 A_0)
+   在 c0.a(l8 A_0)
+   在 ep.a(l8 A_0)
+   在 gq.a(kp A_0)
+   在 hk.a(PresentationEx A_0, Stream A_1, PdfOptions A_2)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(Stream stream, SaveFormat format, SaveOptions options)
+   在 Aspose.Slides.Pptx.PresentationEx.Save(String fname, SaveFormat format)
+   在 DotNet.Common.FileConvert.Aspose2Pdf.PowerPointConvert(String sourcePath, String targetPath, SaveFormat targetFileType)
+   在 FileTransAspose.File2Pdf.File2PdfAspose(FileModel file, String suffix) 位置 d:\Projects\FileTrans\FileTransAspose\File2Pdf.cs:行号 19
+   在 FileTransAspose.Program.FileTask(Object fileModel) 位置 d:\Projects\FileTrans\FileTransAspose\Program.cs:行号 74

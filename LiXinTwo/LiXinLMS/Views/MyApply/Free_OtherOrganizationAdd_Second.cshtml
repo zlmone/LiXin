@@ -1,0 +1,513 @@
+﻿@{
+    ViewBag.Title = "我的申请";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+
+<style>
+    .underline { border-bottom: 1px dotted #aaa; }
+    .choose input[type="text"] { width: 120px; }
+</style>
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的申请"
+}))
+
+    @Html.Action("Free_ApproveHead", "MyApply")
+
+    <div class="step-app">
+        <div class="ok"><span>1</span>选择申请内容<i></i></div>
+        <div class="on"><span>2</span>输入学时<i></i></div>
+    </div>
+    <!--选择结果-->
+    <div class="underline">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span8"><span class="must">*</span>申请年度：</td>
+                <td>
+                    <span>@ViewBag.year</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">申报课程：</td>
+                <td>
+                    <input id="selCourse" type="button" class="btn btn-co" value="请选择申报课程" onclick="Add_pop()" />
+                    <div id="div_course" style="display: none">
+                        <div class="seled-list">
+                            <h4>已申报课程：</h4>
+                            <ul id="item_org">
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!--新增-->
+    <div class="underline">
+        <span>若所需申报的课程不在列表中，请点击“新课程申报”</span>
+        <input id="addCourse" name="addcourse" type="button" class="btn btn-co" value="新课程申报" onclick="saveAddOrgan()" />
+
+        <form id="form_otherOrg" class="all60">
+            <table class="tab-Form">
+                <tr>
+                    <td colspan="2">
+                        <div id="div_addCourse" class="list">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="text-align: center; margin-bottom: 10px;">
+                <input type="submit" class="btn" value="保存" />
+            </div>
+        </form>
+        <input id="pop_otherOrgID" type="hidden" />
+    </div>
+    <!--证明资料-->
+    <div>
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span11"><span class="must">*</span>证明资料：</td>
+                <td>
+                    <input type="file" name="orgResource" value="" class="uploadResource" id="uploadResource" />
+                    <div class="charleft originalTextareaInfo mb5" style="font-weight: bold; font-size: 14px; white-space: normal">
+                        <p>可以上传的文档类型有：doc，docx，xls，xlsx，ppt，pptx，txt，pdf，bmp，png，jpeg，gif，tiff，jpg</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div></div>
+        <div>
+        </div>
+    </div>
+    <div>
+        <input type="button" value="上一步" class="btn" id="btn_prev" />
+        <input type="button" value="保存" class="btn" id="btn_save" onclick="SaveAll(0)" />
+        <input type="button" value="提交" class="btn" id="btn_up" onclick="SaveAll(1)" />
+        <input type="button" value="取消" class="btn" id="btn_cancel" />
+    </div>
+    <input id="txt_id" type="hidden" />
+</div>
+<script>
+    var fileCount = 0;
+    var currNum = 0;
+    var interval = null;
+    var OrgArray = [];
+    var validator = null;
+
+    $(document).ready(function ()
+    {
+
+        $("#btn_prev").click(function ()
+        {
+            location.href = '/MyApply/Free_OtherOrganizationAdd';
+        });
+
+        $("#btn_cancel").click(function ()
+        {
+            location.href = '/MyApply/MyApply?flag=4&nextflag=2';
+        });
+
+        $.validator.addMethod("CourseName", function (value, element)
+        {
+            return !this.optional(element) && ($.trim(value) != "");
+        }, "请输入课程名称");
+        $.validator.addMethod("Address", function (value, element)
+        {
+            return !this.optional(element) && ($.trim(value) != "");
+        }, "请输入培训地点");
+        $.validator.addMethod("StartTime", function (value, element)
+        {
+            return !this.optional(element) && ($.trim(value) != "");
+        }, "请输入开始时间");
+        $.validator.addMethod("EndTime", function (value, element)
+        {
+            return !this.optional(element) && ($.trim(value) != "");
+        }, "请输入结束时间");
+        $.validator.addMethod("TogetherScore", function (value, element)
+        {
+            var reg = /^\d+[\.]?\d{0,2}$/;
+            return !this.optional(element) && (((reg.test(value)) && (parseFloat(value) <= parseFloat(@ViewBag.tScore))));
+        }, "请输入申请所内学时,规则：输入保留2位小数，且在0-" +@ViewBag.tScore +"范围内");
+        $.validator.addMethod("CPAScore", function (value, element)
+        {
+            var reg = /^\d+[\.]?\d{0,2}$/;
+            return !this.optional(element) && (((reg.test(value)) && (parseFloat(value) <= parseFloat(@ViewBag.CPAScore))));
+        }, '请输入申请CPA学时,规则：输入保留2位小数，且在0-' +@ViewBag.CPAScore +"范围内");
+
+        validator = $("#form_otherOrg").validate({
+            errorPlacement: function (error, element)
+            {
+                if (element.attr("time") == "stime" || element.attr("time") == "etime")
+                {
+                    error.insertAfter(element.parent());
+                }
+                else
+                {
+                    error.insertAfter(element);
+                }
+            },
+            highlight: function (element, errorClass)
+            {
+                $(element).addClass(errorClass);
+            },
+            submitHandler: SaveOrgan
+        });
+
+        //上传附件
+        $('.uploadResource').uploadify({
+            'formData': { 'folder': "@(System.Configuration.ConfigurationManager.AppSettings["FreeUplpadUrl"])" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': false,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction?detailFlag=1',//此处因需要增加了detailFlag字段 其他地方使用请自行移除
+            'auto': false,
+            'multi': true,
+            'fileTypeExts': '*.doc; *.docx; *.xls; *.xlsx;*.ppt;*.pptx;*.txt;*.pdf;*.bmp;*.png;*.png;*.jpeg;*.gif;*.tiff;*.jpg;',
+            'onCancel': function (file)
+            {
+            },
+            'onSelect': function (file)
+            {
+                $("#tempAttachQueueId").val(file.id);
+            },
+            'onUploadStart': function (file)
+            {
+            },
+            'onUploadError': function (file, errorCode, errorMsg, errorString)
+            {
+                if (errorCode != -280)
+                {
+                    art.dialog.tips('上传过程中发送异常，请重新选择文件！', 1.5);
+                }
+            },
+            'onUploadSuccess': function (file, data, response)
+            {
+                var a = data.split('|');
+
+                if (a.length > 0)
+                {
+
+                    var ResourceName = a[0];
+                    var RealName = a[1];
+                    if ($("#txt_id").val() != "")
+                    {
+                        $.post("/MyApply/SubmitAddOrgResource?userApplyID=" + $("#txt_id").val() + "&ResourceName=" + escape(ResourceName) + "&RealName=" + RealName, function (data)
+                        {
+                            currNum++;
+                        });
+                    }
+                    else
+                    {
+                        art.dialog.tips('上传发生错误！', 3);
+                    }
+                }
+            },
+            'onAllComplete': function () { }
+        });
+        saveAddOrgan();
+    });
+
+    //弹出选择框
+    function Add_pop()
+    {
+        art.dialog.load("User_OtherPassForm", {
+            title: '选择申报课程', id: "pop_selectOther", width: 500, height: 400,
+            close: function () { }
+        }, false);
+    }
+
+    function SaveOrgan()
+    {
+        if (!flag)
+        {
+            var html = "";
+            var key = $("#div_course ul li").length + 1;
+            $("#div_addCourse table").each(function (i)
+            {
+                var Organ = {
+                    key: OrgArray.length,
+                    CourseName: $(this).find(".CourseName").val(),
+                    Address: $(this).find(".Address").val(),
+                    StartTime: $(this).find(".StartTime").val(),
+                    EndTime: $(this).find(".EndTime").val(),
+                    TogetherScore: $(this).find(".TogetherScore").val() == undefined ? 0 : $(this).find(".TogetherScore").val(),
+                    CPAScore: $(this).find(".CPAScore").val() == undefined ? 0 : $(this).find(".CPAScore").val()
+                };
+                OrgArray.push(Organ);
+                html += "<li id='div_orgItem" + Organ.key + "'><span>" + Organ.CourseName + "</span>"
+                + "<input class='btn btn-cancel ' type='button' value='X' title='移除' name='bt' onclick=fnRemoveorgItem(\'div_orgItem" + Organ.key + "\'," + Organ.key + ") /></li>";
+            });
+            $("#div_addCourse").html("");
+            //var object = { key: OrgArray.length + 1 };
+            //$("#div_addCourse").append($("#CourseTemplate").render(object));
+            $("#div_course").show();
+            $("#item_org").append(html);
+            validator.resetForm();
+        }
+    }
+
+    ///弹出框新增
+    function SaveNewOrgan()
+    {
+        
+        var ids = GetChecked("pop_otherFormList");
+        if (ids == "")
+        {
+            art.dialog.tips('请选择课程！', 3);
+            return;
+        }
+        else
+        {
+            var html = "";
+            var newids = "";
+            var cpascore = 0;
+            var tscore = 0;
+            $.each(ids.split(','), function (index, value)
+            {
+                var obj = $(".pop" + value);
+                cpascore = obj.attr("CPAScore");
+                tscore = obj.attr("TogetherScore")
+                if ("@ViewBag.type" == "0")
+                {
+                     tscore = 0;
+                }
+                if ("@ViewBag.type" == "1")
+                {
+                    cpascore = 0;
+                }
+              
+                var Organ = {
+                    key: OrgArray.length,
+                    CourseName: obj.attr("CourseName"),
+                    Address: obj.attr("Address"),
+                    StartTime: obj.attr("StartTime"),
+                    EndTime: obj.attr("EndTime"),
+                    TogetherScore: tscore,
+                    CPAScore: cpascore
+                };
+                OrgArray.push(Organ);
+
+                html += "<li id='div_orgItem" + Organ.key + "'><span>" + Organ.CourseName + "</span>"
+                + "<input class='btn btn-cancel ' type='button' value='X' title='移除' name='bt' onclick=fnRemoveorgItem(\'div_orgItem" + Organ.key + "\'," + Organ.key + "," + value + ") /></li>";
+            });
+            art.dialog.list["pop_selectOther"].close();
+            $("#div_addCourse").html("");
+            var object = { key: OrgArray.length + 1 };
+            $("#div_addCourse").append($("#CourseTemplate").render(object));
+            $("#div_course").show();
+            $("#item_org").append(html);
+            $("#pop_otherOrgID").val($("#pop_otherOrgID").val() + "," + ids);
+        }
+    }
+
+    function fnRemoveorgItem(obj, key, value)
+    {
+        $("#" + obj).remove();
+
+        OrgArray.splice(key, 1);
+        if ($("#div_course ul li").length == 0)
+        {
+            $("#div_course").hide();
+        }
+        ReomveArray("pop_otherOrgID", value);
+    }
+
+    ///移除
+    function removeAddOrgan(obj, key)
+    {
+        $("#tab_" + key).parent().remove();
+    }
+
+    ///添加
+    function saveAddOrgan()
+    {
+        var key = $("#div_addCourse table").length + 1;
+        var object = { key: key };
+        // validator.resetForm();
+        $("#div_addCourse").append($("#CourseTemplate").render(object));
+    }
+
+    function SaveAll(flag)
+    {
+
+        fileCount = $("#uploadResource-queue").find(".uploadify-queue-item").length;
+
+        if ($("#div_course ul li").length == 0)
+        {
+            art.dialog.tips('请至少添加一门申报课程', 3);
+            return false;
+        }
+        if (fileCount == 0)
+        {
+            art.dialog.tips('请上传证明资料', 3);
+            return false;
+        }
+        var data = {};
+        data.list = OrgArray;
+        $("#btn_save").attr("disabled", true);
+        $("#btn_up").attr("disabled", true);
+        $.post("/MyApply/AddOrg?status=" + flag + "&type=@ViewBag.type&year=@ViewBag.year", { OrgArray: JSON.stringify(data) }, function (data)
+        {
+            if (data.result == 1)
+            {
+
+                if (fileCount == 0)
+                {
+                    window.location.href = '/MyApply/MyApply?flag=4&nextflag=2';
+                }
+                if (fileCount > 0)
+                {
+                    $("#txt_id").val(data.listID);
+                    $("#uploadResource").uploadify('upload', '*');
+                    if (interval == null || interval == undefined)
+                    {
+
+                        interval = setInterval("CheckBack()", 1000);
+                    }
+                }
+            }
+        });
+
+    }
+
+    function CheckBack()
+    {
+        if (currNum == fileCount)
+        {
+            clearInterval(interval);
+            // art.dialog.tips("保存成功！", 1);
+            window.location.href = '/MyApply/MyApply?flag=4&nextflag=2';
+        }
+    }
+    var flag = false;
+
+    //#region 判断是否重复 
+    function ExistName(obj)
+    {
+        var count = 0;//是否有重复
+        var error = "<span  generated='true'  ><span class='Validform_checktip Validform_wrong chongfu'>课程名称重复</span></span>"
+        flag = false;
+
+        var value = escape($(obj).val());
+        var name = $(obj).attr("name");
+        if (value != "")
+        {
+            $(".CourseName ").each(function ()
+            {
+                var name = $(this).attr("name");
+                if (name != $(obj).attr("name"))
+                {
+                    if ($(this).val() == $(obj).val())
+                    {
+                        count++;
+                    }
+                }
+            });
+            $.each(OrgArray, function (index, value)
+            {
+                if (OrgArray[index].CourseName == $(obj).val())
+                {
+                    count++;
+                }
+            });
+
+            if ($(obj).parent().find(".chongfu").html() == "课程名称重复")
+            {
+                $(obj).parent().find("span").remove();
+            }
+
+            if (count == 0)
+            {
+                $.post("/MyApply/GetExistFreeName?FreeName=" + value, function (data)
+                {
+                    if (data.count > 0)
+                    {
+                        $(obj).parent().append(error);
+                        flag = true;
+                    }
+                    else
+                    {
+                        flag = false;
+                    }
+                });
+            }
+            else
+            {
+                $(obj).parent().append(error);
+                flag = true;
+            }
+        }
+
+    }
+    //#endregion
+</script>
+<script id="CourseTemplate" type="text/x-jsrender">
+      <div class="item">
+         <span onclick="removeAddOrgan(this,{{:key}})" class="close">×</span>
+       <table class="tab-Form" id="tab_{{:key}}">
+                <tr>
+                    <td class="Tit span10"><span class="must">*</span>课程名称：</td>
+                    <td>
+                        <input name="CourseName{{:key}}" type="text" class="span16 CourseName " maxlength="200" /></td>
+                </tr>
+                <tr>
+                    <td class="Tit"><span class="must">*</span>培训地点：</td>
+                    <td>
+                        <input name="Address{{:key}}" type="text" class="span16 Address" maxlength="200" /></td>
+                </tr>
+                <tr>
+                    <td class="Tit"><span class="must">*</span>培训时间：</td>
+                    <td>
+                        <div class="data-choose choose">
+                            <input type="text" time="stime" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\\'end{{:key}}\\',{m:-1})}' });"
+                                readonly="readonly" id="start{{:key}}" class="StartTime span12" name="StartTime{{:key}}" />
+                            <i></i>
+                        </div>
+                        <label>
+                            至</label>
+                        <div class="data-choose choose">
+                            <input type="text" time="etime" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm' , minDate: '#F{$dp.$D(\\'start{{:key}}\\',{m:1})}' });"
+                                readonly="readonly" id="end{{:key}}" class="EndTime span12" name="EndTime{{:key}}" />
+                            <i></i>
+                        </div>
+                    </td>
+                </tr>
+                @if (ViewBag.type != 0)
+                {
+                    <tr>
+                        <td class="Tit"><span class="must">*</span>申请所内学时：</td>
+                        <td>
+                             <input name="TogetherScore{{:key}}" type="text" class="span16 TogetherScore" maxlength="6" />
+                       {{if @(ViewBag.tScore)==0}}
+                              <span style="color: gray">  单门课程最高可折算 <span class="must">无上限</span> 所内学时</span> 
+                        {{else}}
+                                <span style="color: gray">  单门课程最高可折算@(ViewBag.tScore)所内学时</span>  
+                        {{/if}}
+                                             
+                        </td>
+                    </tr>
+                }
+                @if (ViewBag.type != 1)
+                {
+                    <tr>
+                        <td class="Tit"><span class="must">*</span>申请CPA学时：</td>
+                        <td>
+                             <input name="CPAScore{{:key}}" type="text" class="span16 CPAScore" maxlength="6" />
+                        {{if @(ViewBag.CPAScore)==0}}
+                             <span style="color: gray">  单门课程最高可折算<span class="must">无上限</span> CPA学时</span>    
+                        {{else}}
+                             <span style="color: gray">  单门课程最高可折算@(ViewBag.CPAScore)CPA学时</span>    
+                        {{/if}}
+                                         
+                        </td>
+                    </tr>
+                }
+            </table>
+    </div>
+</script>

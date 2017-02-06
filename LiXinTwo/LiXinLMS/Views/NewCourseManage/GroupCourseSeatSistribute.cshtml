@@ -1,0 +1,798 @@
+﻿@using LiXinModels.NewCourseManage
+@using LixinModels.NewClassManage
+@{
+    ViewBag.Title = "编辑新进员工分组带教课程";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var courseID = Request.QueryString["courseID"] ?? "0";
+    var dateList = (List<New_CourseRoomRule>)ViewBag.DateList;
+    var classList = (List<New_Class>)ViewBag.ClassList;
+    var course = (New_Course)ViewBag.Course;
+}
+<link href="../../Content/roomseat.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.dragsort-0.4.min.js")"> </script>
+<script src="../../Scripts/createSeat.js" type="text/javascript"></script>
+<style type="text/css">
+    .signf{position:absolute;top:1px;right:1px;width:10px;height:10px;display:block;background-color:#FFF;text-decoration:none;cursor: pointer;}
+    .signt{position:absolute;top:1px;right:1px;width:10px;height:10px;display:block;background-color:red;text-decoration: none;cursor: pointer;}
+</style>
+<div class="main-c">
+@(Html.Action("SiteMapLink", "Common", new { linkName = "编辑新进员工分组带教课程" }))
+<input id="courseClasses" type="hidden" value="@(course.Classes)"/>
+<h3 class="tit-h3 mt10">基本信息<span style="color:red; font-size:12px;" class="ml10">（提示：请先将全局的时间段进行设置，然后再进行排座）</span></h3>
+<table class="tab-Form mt10">
+    <tr>
+        <td class="Tit span20" style="vertical-align:middle;">开课时间段：</td>
+        <td>
+            <ul id="dateList">
+                @{
+                    if(dateList.Count>0)
+                    {
+                        var count = 0;
+                        foreach(var date in dateList)
+                        {
+                            count++;
+                            <li class="mt5 mb5">
+                                <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm'}) " id="startTime" value="@(date.StartTime.ToString("yyyy-MM-dd HH:mm"))"/>
+                                至
+                                <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm'}) " id="sndTime" value="@(date.EndTime.ToString("yyyy-MM-dd HH:mm"))"/>
+                                @{
+                                    if(course.PublicFlag==0)
+                                    {
+                                        if (count == dateList.Count)
+                                        {
+                                            <a style="text-decoration: none;" class="ml10 iconadddate" onclick="$('#dateList').append($('#listDateTemplate').render());">+</a>
+                                        }
+                                        if (count > 1)
+                                        {
+                                            <a style="text-decoration: none;" class="ml10 iconadddate" onclick="$(this).parent().remove();">-</a>
+                                        }
+                                    }
+                                }
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="mt5 mb5">
+                            <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm'}) " id="startTime" value=""/>
+                            至
+                            <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm'}) " id="endTime" value=""/>
+                            <a style="text-decoration: none;" class="ml10 iconadddate" onclick="$('#dateList').append($('#listDateTemplate').render());">+</a>
+                        </li>
+                    }
+                }
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" class="tc">
+            @{
+                if (course.PublicFlag == 1)
+                {
+                    <input type="button" value="验证日期冲突并修改以下教室时间" class="btn btn-co" onclick="doJudgeDateRight(1);"/>
+                }
+                else
+                {
+                    <input type="button" value="验证日期冲突并开始排座位" class="btn btn-co" onclick="judgeSetDateRight();"/>
+                }
+            }
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">分组设置：</td>
+        <td>
+            当前共选择：<span id="personCount">@(ViewBag.PersonCount)</span>人， <span>@(ViewBag.ClassCount)</span>班级，<span>@(ViewBag.GroupCount)</span>小组
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">设置分组规则：</td>
+        <td>
+            <input id="btnAutoGroup" type="button" class="btn btn-co ml10" value="自由重组" disabled="disabled"/>
+            <input id="btnNowGroup" type="button" class="btn btn-co ml10" value="当前班组组合" disabled="disabled"/>
+        </td>
+    </tr>
+</table>
+<h3 class="tit-h3 mt10">分组带教信息</h3>
+<div class="tc lh30 mt10 mb10">
+    <input type="button" value="生成座位" class="btn btn-co" id="btnCreateSeat" disabled="disabled"/>
+</div>
+<!--生成座位的主容器-->
+<div id="seatList"></div>
+
+<!-- 保存按钮 -->
+    <div class="tc mb10 mt10">
+        <input type="hidden" id="savedirection" value="0"/>
+        <input class="btn" type="button" value="保存" id="btnSaveCourse" onclick="$('#savedirection').val(0);btnSaveCourse();"/>
+        @{
+            if (course.IsGroupTeach==3)
+            {
+                <input class="btn" type="button" value="编辑集中授课" onclick="$('#savedirection').val(1);btnSaveCourse();"/>
+            }
+        }
+        <a class="btn btn-cancel" href="/NewCourseManage/NewCourseManageList?way=1&p=1">返回</a>
+    </div>
+</div>
+<!--生成日期的模板-->
+<script id="listDateTemplate" type="text/x-jsrender">
+    <li class="mt5 mb5">
+        <input type="text" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm'}) " name="StartTime" id="startTime" value=""/>
+        至
+        <input type="text" name="EndTime" readonly="readonly" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm'}) " id="endTime" value=""/>
+        <a style="text-decoration: none;" class="ml10 iconadddate" onclick="$('#dateList').append($('#listDateTemplate').render());">+</a>
+        <a style="text-decoration: none;" class="ml10 iconadddate" onclick="$(this).parent().remove();">-</a>
+    </li>   
+</script>
+<!--生成自由分组弹出框的模板-->
+<script id="listAutoGroupTemplate" type="text/x-jsrender">
+    <table class="tab-Form" id="tableAutoGroup">
+        <tr>
+            <td class="Tit span8">&nbsp;<input type="radio" name="grouptype" value="0" checked="checked" onchange="if($(this).attr('checked')){$('#txtAutoGroupCount').attr('disabled',false);$('#txtAutoPersonCount').attr('disabled',true);}else{$('#txtAutoGroupCount').attr('disabled',true);$('#txtAutoPersonCount').attr('disabled',false);}"/></td><td class="span30">总分组数：<input type="text" maxlength="2" id="txtAutoGroupCount" value="2" onblur="if (isNaN($(this).val()) || !parseInt($(this).val()) > 0) {$(this).val(1);}"/></td>
+        </tr>
+        <tr>
+            <td class="Tit">&nbsp;<input type="radio" name="grouptype" value="1" onchange="if($(this).attr('checked')){$('#txtAutoPersonCount').attr('disabled',false);$('#txtAutoGroupCount').attr('disabled',true);}else{$('#txtAutoPersonCount').attr('disabled',true);$('#txtAutoGroupCount').attr('disabled',false);}"/></td><td>每组人数：<input type="text" maxlength="2" disabled="disabled" id="txtAutoPersonCount" value="10" onblur="if (isNaN($(this).val()) || !parseInt($(this).val()) > 0) {$(this).val(1);}"/></td>
+        </tr>
+        <tr>
+            <td class="Tit" rowspan="2">分组规则：</td>
+            <td>
+                <input type="checkbox" value="0" class="ml5" data-type="seatrule"/><label>性别不同</label>
+                <input type="checkbox" value="1" class="ml5" data-type="seatrule"/><label>实习经验不同</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" value="2" class="ml5" data-type="seatrule"/><label>院校不同</label>
+                <input type="checkbox" value="3" class="ml5" data-type="seatrule"/><label>专业不同</label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc"><input type="button" class="btn btn-co" onclick="btnCreateAutoGroup();" value="立即分组"/></td>
+        </tr>
+    </table>
+</script>
+<!--生成座位的主模板-->
+<script id="listRoomTemplate" type="text/x-jsrender">
+    <div data-class="createseat" style="border-top:1px dashed silver;position:relative;" class="mt20 mb10">
+        <div class="tl lh24 pl10" style="background-color:#ddd; font-weight:bold;">分组信息：<span id="currshowgroup"></span>，共计<span id="currshowperson"></span>人</div>
+        <table class="tab-Form mt10">
+        <tbody>
+            <tr>
+                <td class="Tit span8">选择教室：</td>
+                <td>
+                    <select data-value="selroom" onchange="changeroom(this);">
+                    <option value="0" row="0" col="0" number="0">请选择教室</option>
+                    {{for roomList}}
+                        <option value="{{:id}}" row="{{:row}}" col="{{:col}}" number="{{:number}}" disseat="{{:disSeats}}">{{:name}}(可容纳{{:number}}人)</option>
+                    {{/for}}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit" valign="middle">时段设置：</td>
+                <td>
+                    <ul id="detailDateList"></ul>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">排座规则：</td>
+                <td>
+                     <input type="checkbox" value="0" class="ml5" data-type="seatrule"/><label>邻座性别不同</label>
+                     <input type="checkbox" value="1" class="ml5" data-type="seatrule"/><label>邻座实习经验不同</label>
+                     <input type="checkbox" value="2" class="ml5" data-type="seatrule"/><label>邻座院校不同</label>
+                     <input type="checkbox" value="3" class="ml5" data-type="seatrule"/><label>邻座专业不同</label>
+                </td>
+            </tr>
+            <tbody>
+        </table>
+        <div class="showSeat">
+            <div class="tr mt10 mb5" style="padding-right:30px;">
+            <input btn="seatControl" type="button" value="批量禁用座位" class="btn btn-co" onclick="btnStopSeat(this);"/>
+            <input btn="seatControl" type="button" value="批量启用座位" class="btn btn-co" onclick="btnStartSeat(this);"/>
+            </div>
+            <div class="bg">
+                <div id="room" class="room">
+                    <div id="zhuoziMain" style="position: relative;">
+                    </div>
+                </div>
+            </div>
+        </div>  
+    </div>
+</script>
+<!--生成单个教室的时间段的设置模板-->
+<script id="listDetailDateTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <li>
+        <input type="checkbox" value="0" />
+        <input type="text" disabled="disabled" value="{{:starttime}}" class="span12"/>
+        <input type="text" disabled="disabled" value="{{:endtime}}" class="span12"/>
+        <span class="ml10">选择讲师：</span>
+        <select id="singleteacher" class="span10">
+            {{for teachList}}
+                <option value="{{:id}}">{{:name}}</option>
+            {{/for}}
+        </select>
+        <span class="ml10">选择课后评估问卷：</span>
+        <select id="singlesurvey" class="span13">
+            <option value="0">选择课后评估问卷</option>
+            {{for surveyList}}
+                <option value="{{:id}}">{{:name}}</option>
+            {{/for}}
+        </select>
+        <span class="ml10">考勤方式：</span>
+        <select id="singleatt" class="span10">
+            <option value="1">仅上课考勤</option>
+            <option value="0">上、下课考勤</option>
+            <option value="2">仅下课考勤</option>
+            <option value="3">不考勤</option>
+        </select>
+        <span class="ml10">课程结束后：</span>
+        <input maxlength="3" class="span4" type="text" id="txtAfterEvlutionConfigTime" name="AfterEvlutionConfigTime" value="{{:AfterEvlutionConfigTime==null?"1":AfterEvlutionConfigTime}}" onblur="checkdecimal(this);" number="{{:AfterEvlutionConfigTime==null?"1":AfterEvlutionConfigTime}}"/>
+        <span>小时开放评估</span>
+    </li>
+    {{/for}}
+</script>
+<!--单个座位的模板-->
+<script id="singleSeatTemplate" type="text/x-jsrender">
+    <div class="{{:divclass}}" freeze="{{:freeze}}" data-position="{{:row}},{{:col}}" order="{{:order}}" ishave="0" type="zuowei" status="0" id="dengzi{{:order}}" style="left:{{:left}}px; top:{{:top}}px; width:{{:width}}px;" userID="0">
+        <div class="name"></div>
+        <div class="gender"></div>
+        <div class="zuoweiposition">{{:row+1}}行,{{:col+1}}列</div>
+        <a sign="sign" class="signf" signflag="0" onclick="if($(this).attr('signflag')=='0'){$(this).attr('signflag','1').removeClass('signf').addClass('signt');}else{$(this).attr('signflag','0').removeClass('signt').addClass('signf');}">&nbsp;</a>
+        <div class="seatselected">&nbsp;</div>
+    </div>
+</script>
+
+<script type="text/javascript">
+     //验证是否是decimal数字
+    function checkdecimal(obj) {
+        var decimal = /^-?\d+(\.\d{1})?$/;
+        if (!decimal.test($(obj).val())) {
+            $(this).val($(obj).attr('number'));
+        }
+    }
+    
+    //定义一个js对象缓存教室，讲师，座位等
+    var mainSeat = {};
+    //讲师集合
+    mainSeat.teachList = null;
+    //教室集合
+    mainSeat.roomList = null;
+    //座位集合
+    mainSeat.gteachList = null;
+    //新员工调查问卷
+    mainSeat.surveyPaperList = null;
+    //时间段
+    mainSeat.dateList = null;
+    //自由分组,集中授课返回的成员集合
+    mainSeat.roomUserList = null;
+
+    $(document).ready(function () {
+        $("#teachpinglist").parent().hide();
+        if ('@(courseID)' != '0') {
+            if ('@(ViewBag.SurveyPaperID)' == '0') {
+                $("input[name='IsPingTeacher'][value='0']").attr("checked", true);
+            } else {
+                $("input[name='IsPingTeacher'][value='1']").attr("checked", true);
+                $("#teachpinglist").parent().show();
+            }
+        }
+        //自由重组按钮事件
+        $("#btnAutoGroup").bind('click', function() {
+            if(mainSeat.teachList==undefined || mainSeat.teachList.length==0) {
+                art.dialog.tips('没有讲师，请先创建讲师！', 1.5);
+                return;
+            }
+            art.dialog({id:"pop_autogroup",title:"自由重组",content: $("#listAutoGroupTemplate").render()});
+        });
+
+        //当前班组组合按钮事件
+        $("#btnNowGroup").bind('click', function () {
+            if(mainSeat.teachList==undefined || mainSeat.teachList.length==0) {
+                art.dialog.tips('没有讲师，请先创建讲师！', 1.5);
+                return;
+            }
+            art.dialog.load("/NewCourseManage/SetNowGroup?class=@(course.Classes)", { title: '当前班组组合', id: "pop_nowgroup" }, false);
+        });
+        //把人员安排到座位上
+        $("#btnCreateSeat").bind('click', function() {
+            createPersonSeat();
+        });
+
+        //生成已有的教室座位
+        getRoomSeat();
+    });
+    
+    //把人员安排到座位上
+    function createPersonSeat() {
+        //获取教室字符串
+        var flag = true;
+        var roomIds = '';
+        $("select[data-value='selroom']").each(function() {
+            if($(this).val()=="0") {
+                flag = false;
+            }
+            roomIds += (roomIds == "" ? $(this).val() : (',' + $(this).val()));
+        });
+        if(!flag) {
+            art.dialog.tips('有的教室没有选择教室，请选择教室！', 1.5);
+            return;
+        }
+        
+        //判断每一个教室的座位是否满足额定人数
+        flag = true;
+        var wrongstr = '';
+        var tcount = 0;
+        $("div[data-class='createseat']").each(function() {
+            var percount = parseInt($("#currshowperson"));//当前组分配的人数
+            var freeseat = $(this).find("div[freeze='0']").length;//此教室下可安排的座位数
+            if(percount>freeseat) {
+                flag = false;
+                wrongstr += wrongstr == "" ? getGroupName(tcount) : ('，' + getGroupName(tcount));
+            }
+            tcount++;
+        });
+        if(!flag) {
+            art.dialog.tips('第'+wrongstr+'组，座位数小于人数，请重新选择设置！', 1.5);
+            return;
+        }
+        
+        //获取每个教室的人员的的集合
+        flag = true;
+        var classuser = '';
+        for(var i=0;i<mainSeat.roomUserList.length;i++) {
+            var tmpstr = '';
+            for(var j=0;j<mainSeat.roomUserList[i].length;j++) {
+                tmpstr += tmpstr == "" ? mainSeat.roomUserList[i][j] : (','+mainSeat.roomUserList[i][j]);
+            }
+            classuser += classuser == "" ? tmpstr : (':' + tmpstr);
+        }
+        
+        //获取每个教室的排座规则
+        var rules = '';
+        $("div[data-class='createseat']").each(function() {
+            var temp = '';
+            $(this).find("input[data-type='seatrule']").each(function() {
+                temp += (temp == "" ? ($(this).attr('checked') ? "1" : "0") : (',' + ($(this).attr('checked') ? "1" : "0")));
+            });
+            rules += (rules == "" ? temp : (':' + temp));
+        });
+        //获取禁用的座位
+        var disseat = '';
+        $(".showSeat").each(function() {
+            var temseat = '';
+            $(this).find("div[type='zuowei'][freeze='1']").each(function() {
+                temseat += (temseat == "" ? $(this).attr('data-position') : (';' + $(this).attr('data-position')));
+            });
+            disseat += ':' + temseat;
+        });
+        $.post('/Common/CreateGroupTeachSeat', {roomIds:roomIds,classUserIds:classuser,disableSeats:disseat.substring(1,disseat.length),rules:rules},function(data) {
+            //后续
+            if(data.message=="") {
+                //把人放到座位上
+                var htmlroomList = $("div[data-class='createseat']");
+                $("div.dengzi1").attr("userID", 0).find(".name").html('');
+                $("div.dengzi1").find(".gender").html('');
+                if(data.result.length>0) {
+                    //循环教室
+                    for(var i=0;i<data.result.length;i++) {
+                        for(var j=0;j<data.result[i].length;j++) {
+                            for(var k=0;k<data.result[i][j].length;k++)
+                            {
+                                if (data.result[i][j][k] != null && data.result[i][j][k] != undefined) {
+                                    var seat = htmlroomList.eq(i).find("div[data-position='" + j + "," + k + "']");
+                                    var userId = data.result[i][j][k].UserId;
+                                    var userName = data.result[i][j][k].Realname;
+                                    var sex = data.result[i][j][k].Sex == 0 ? "男" : "女";
+                                    seat.find(".name").html(userName);
+                                    seat.find(".gender").html(sex);
+                                    seat.attr("userID", userId);
+                                }
+                            }
+                        }
+                        exportchangeSeat(htmlroomList.eq(i));
+                    }
+                    //$("a[sign='sign']").hide();//隐藏禁用座位选项
+                    //$("input[btn='seatControl']").attr("disabled", true);
+                }
+            }else {
+                art.dialog.tips(data.message, 1.5);
+            }
+        });
+    }
+    
+    //获取已有的教室座位
+    function getRoomSeat() {
+        $.getJSON('/NewCourseManage/GetRoomSeatList?type=1&courseID=' + @(courseID), function(data) {
+            //讲师集合
+            mainSeat.teachList = data.teachList;
+            //教室集合
+            mainSeat.roomList = data.roomList;
+            //座位集合
+            mainSeat.gteachList = data.roomSeatList;
+            $.getJSON('/NewCourseManage/GetNewSurveyPaper', function(datasurvey) {
+                mainSeat.surveyPaperList = datasurvey;
+                //呈现原来的座位安排
+                if(mainSeat.gteachList.length>0) {
+                    showOldSeat();
+                    //disabled掉禁用、启用按钮
+                    //$("input[btn='seatControl']").attr('disabled', true);
+                    //隐藏选择座位标记
+                    //$("a[sign='sign']").hide();
+                }
+            });
+        });
+    }
+    
+    //呈现原来的座位安排
+    function showOldSeat() {
+        //时间段
+        mainSeat.dateList = [];
+        $("#dateList li").each(function() {
+            var arrdate=$(this).find("input[type='text']");
+            mainSeat.dateList.push({starttime:arrdate.eq(0).val(),endtime:arrdate.eq(1).val(),teachList:mainSeat.teachList,surveyList:mainSeat.surveyPaperList});
+        });
+        //循环显示座位
+        for(var i=0;i<mainSeat.gteachList.length;i++) {
+            //呈现教室
+            $("#seatList").append($("#listRoomTemplate").render(mainSeat));
+            //组名及人数
+            $("div[data-class='createseat']:last #currshowgroup").eq(0).html(mainSeat.gteachList[i].name);
+            $("div[data-class='createseat']:last #currshowperson").eq(0).html(mainSeat.gteachList[i].percount);
+            //定位教室
+            $("div[data-class='createseat']:last select[data-value='selroom']").eq(0).val(mainSeat.gteachList[i].roomID).attr("disabled",mainSeat.gteachList[i].pflag==1);
+            //生成单个教室的时间段安排设置
+            $("div[data-class='createseat']:last").find("#detailDateList").html($("#listDetailDateTemplate").render(mainSeat.dateList));
+            //定位时间段
+            $("div[data-class='createseat']:last").find("#detailDateList li").each(function() {
+                for(var j=0;j<mainSeat.gteachList[i].tempdate.length;j++) {
+                    if(mainSeat.gteachList[i].tempdate[j].starttime==$(this).find("input[type='text']").eq(0).val()) {
+                        $(this).find("input[type='checkbox']").eq(0).attr("disabled",mainSeat.gteachList[i].tempdate[j].pflag==1).attr('checked', true).attr("value",mainSeat.gteachList[i].tempdate[j].id);
+                        $(this).find("select").eq(0).val(mainSeat.gteachList[i].tempdate[j].teacher);
+                        $(this).find("select").eq(1).val(mainSeat.gteachList[i].tempdate[j].surveyID);
+                        $(this).find("select").eq(2).val(mainSeat.gteachList[i].tempdate[j].attFlag).attr("disabled",mainSeat.gteachList[i].pflag==1);
+                        $(this).find("input").eq(3).val(mainSeat.gteachList[i].tempdate[j].AfterEvlutionConfigTime);
+                        break;
+                    }
+                }
+            });
+            //排座规则
+            var ruleattr = mainSeat.gteachList[i].rule.split(',');
+            var rulelist=$("div[data-class='createseat']:last").find("input[data-type='seatrule']");
+            rulelist.eq(0).attr("disabled",mainSeat.gteachList[i].pflag==1).attr("checked", ruleattr[0] == '1');
+            rulelist.eq(1).attr("disabled",mainSeat.gteachList[i].pflag==1).attr("checked", ruleattr[1] == '1');
+            rulelist.eq(2).attr("disabled",mainSeat.gteachList[i].pflag==1).attr("checked", ruleattr[2] == '1');
+            rulelist.eq(3).attr("disabled",mainSeat.gteachList[i].pflag==1).attr("checked", ruleattr[3] == '1');
+
+            var room = $("div[data-class='createseat']:last").find("select[data-value='selroom'] option:checked");
+            if ($(room).val() != '0') {
+                exportcreateSeat($("div[data-class='createseat']:last"), $(room).attr("number"), $(room).attr("row"), $(room).attr("col"), $(room).attr('disseat'));
+                //将人放到座位上
+                var seatlist = $("div[data-class='createseat']:last");
+                var seatarr = mainSeat.gteachList[i].seatDetail.split(':');
+                for(var k=0;k<seatarr.length;k++) {
+                    var subseat = seatarr[k].split(',');
+                    var x = subseat[0];
+                    var y = subseat[1];
+                    var userid = subseat[2];
+                    var name = subseat[3];
+                    var sex = subseat[4];
+                    var obj=seatlist.find("div[type='zuowei'][data-position='" + x + "," + y + "']");
+                    if(userid!='-1') {
+                        if(userid!='0') {
+                            obj.removeClass('dengzi1').removeClass('dengzi0').addClass('dengzi1').attr('freeze','0');
+                        }
+                        obj.attr('userid', userid);
+                        obj.find('.name').text(name);
+                        obj.find('.gender').text(sex);
+                    }else {
+                        obj.attr('userid', 0).removeClass('dengzi1').removeClass('dengzi0').addClass('dengzi0').attr('freeze','1');
+                        obj.find('.name').text('');
+                        obj.find('.gender').text('');
+                    }
+                }
+            }
+            exportchangeSeat($("div[data-class='createseat']:last"));
+        }
+    }
+
+    //自由分组生成座位事件
+    function btnCreateAutoGroup() {
+        var groupType = $("input[name='grouptype']:checked").attr("value");//0：分组数；1：每组人数
+        //判断分组是否人数够用
+        if(groupType=="0") {
+            var cutotalCount = parseInt($("#personCount").text());
+            var groupCount = parseInt($("#txtAutoGroupCount").val());
+            if(cutotalCount/groupCount<1) {
+                art.dialog.tips("总人数太少，平分不到所有的小组中，请重新输入！", 1.5);
+                return;
+            }
+        }
+        
+        var count = '0';
+        if (groupType == '0') {
+            count = $("#txtAutoGroupCount").val();
+        } else {
+            count = $("#txtAutoPersonCount").val();
+        }
+        var rule = '';
+        $("#tableAutoGroup input[data-type='seatrule']").each(function () {
+            rule += rule == "" ? ($(this).attr("checked") ? "1" : "0") : (',' + ($(this).attr("checked") ? "1" : "0"));
+        });
+        $.post('/NewCourseManage/GetAutoGroupPerson', {classIDs:$("#courseClasses").val(), type: groupType, count: count, rule: rule }, function(data) {
+            if (data.result==1) {
+                art.dialog.list['pop_autogroup'].close();
+                //后续操作
+                mainSeat.roomUserList = data.dataList;
+                $("#seatList").html('');
+                for(var i=0;i<mainSeat.roomUserList.length;i++) {
+                    $("#seatList").append($("#listRoomTemplate").render(mainSeat));
+                    //生成单个教室的时间段安排设置
+                    $("div[data-class='createseat']:last").find("#detailDateList").html($("#listDetailDateTemplate").render(mainSeat.dateList));
+                    $("div[data-class='createseat']:last").find("#currshowgroup").html(getGroupName(i));
+                    $("div[data-class='createseat']:last").find("#currshowperson").html(mainSeat.roomUserList[i].length);
+                }
+            } else {
+                art.dialog.tips(data.message, 1.5);
+            }
+        });
+    }
+    
+    //当前班组组合生成座位事件
+    function btnCreateNowGroup() {
+        var flag = true;
+        var groupstr = '';
+        $("#setgroupList .tab-Form").each(function () {
+            var percount = 0;
+            var str = '';
+            $(this).find("input[type='checkbox']:checked").each(function () {
+                str += str == "" ? $(this).attr("value") : (',' + $(this).attr("value"));
+                percount += parseInt($(this).attr('data-person'));
+            });
+            if (str == "" || percount==0) {
+                flag = false;
+            }else {
+                groupstr += groupstr == "" ? str : (';' + str);
+            }
+        });
+        if (!flag) {
+            art.dialog.tips('有的新分组里面没有选择班级小组或缩小的班级小组中总人数为0！', 1.5);
+            return;
+        }
+        $.post('/NewCourseManage/GetGroupTeachPerson',{groupIDs:groupstr,classlist:$("#courseClasses").val()}, function (data) {
+            if(data.result==1) {
+                art.dialog.list['pop_nowgroup'].close();
+                //后续操作
+                mainSeat.roomUserList =data.dataList;
+                $("#seatList").html('');
+                for(var i=0;i<mainSeat.roomUserList.length;i++) {
+                    $("#seatList").append($("#listRoomTemplate").render(mainSeat));
+                    //生成单个教室的时间段安排设置
+                    $("div[data-class='createseat']:last").find("#detailDateList").html($("#listDetailDateTemplate").render(mainSeat.dateList));
+                    $("div[data-class='createseat']:last").find("#currshowgroup").html(getGroupName(i));
+                    $("div[data-class='createseat']:last").find("#currshowperson").html(mainSeat.roomUserList[i].length);
+                }
+            }else {
+                art.dialog.tips(data.message, 1.5);
+            }
+        });
+    }
+    
+    //教室改变事件
+    function changeroom(obj) {
+        //判断教室是否已选
+        var cout = 0;
+        $("div[data-class='createseat'] select[data-value='selroom']").each(function() {
+            if($(this).val()!='0' && $(this).val()==$(obj).val()) {
+                cout++;
+            }
+        });
+        if(cout>1) {
+            art.dialog.tips('此教室已选，请选择其他教室！', 1.5);
+            $(obj).val('0');
+            return;
+        }
+        var newobj = $(obj).parent().parent().parent().parent().parent();
+        $(obj).parent().parent().parent().find("input[data-name='tmp']").attr('name', ('teach' + $(obj).val()));
+        var option = $(obj).find('option:checked');
+        $(newobj).find("#zhuoziMain").html("");
+        exportcreateSeat(newobj, option.attr("number"), option.attr("row"), option.attr("col"),option.attr('disseat'));
+        //判断是否教室的座位数大于人数，仅给出提示
+        if($(newobj).find("div[freeze='0']").length<parseInt($(newobj).find("#currshowperson").text())) {
+            art.dialog.tips('所选教室的座位数小于此小组的人数，建议重新选择大的教室或启用禁用的座位！', 1.5);
+        }
+        //exportchangeSeat(newobj);
+    }
+
+    //批量禁用座位
+    function btnStopSeat(obj) {
+        var list=$(obj).parent().parent().find("a.signt");
+        if(list.length>0) {
+            var tempcount = 0;
+            list.each(function() {
+                if(parseInt($(this).parent().attr('userid'))<=0) {
+                    $(this).parent().attr('freeze', '1').removeClass('dengzi1').removeClass('dengzi0').addClass('dengzi0');
+                    $(this).attr('signflag', '0').removeClass('signt').addClass('signf');
+                }else {
+                    $(this).attr('signflag', '0').removeClass('signt').addClass('signf');
+                    tempcount++;
+                }
+            });
+            if(tempcount>0) {
+                art.dialog.tips('已分配人员的座位不可以禁用！', 1.5);
+            }
+        }else {
+            art.dialog.tips('请选择要禁用的座位！', 1.5);
+        }
+    }
+    
+    //批量启用座位
+    function btnStartSeat(obj) {
+        var list=$(obj).parent().parent().find("a.signt");
+        if(list.length>0) {
+            list.each(function() {
+                $(this).parent().attr('freeze', '0').removeClass('dengzi0').removeClass('dengzi1').addClass('dengzi1');
+                $(this).attr('signflag', '0').removeClass('signt').addClass('signf');
+            });
+        }else {
+            art.dialog.tips('请选择要启用的座位！', 1.5);
+        }
+    }
+    
+    //保存分组带教
+    function btnSaveCourse() {
+        if($("div[data-class='createseat']").length==0) {
+            art.dialog.tips('请选择教室安排座位！', 1.5);
+            return;
+        }
+        //后续处理
+        var flag = true;
+        $("div[data-class='createseat']").each(function() {
+            if ($("#detailDateList input[type='checkbox']:checked").length == 0) {
+                flag = false;
+            }
+        });
+        if (!flag) {
+            art.dialog.tips('有的教室没有选择时间段，请选择时间段！', 1.5);
+            return;
+        }
+
+        var totalstr = '';
+        var totalperson = 0;
+        $("div[data-class='createseat']").each(function() {
+            //教室
+            var substr = $(this).find("select[data-value='selroom']").eq(0).val() + ';';
+            //时间段
+            var datestr = '';
+            $(this).find("#detailDateList li").each(function() {
+                if ($(this).find("input[type='checkbox']:checked").length > 0) {
+                    datestr += $(this).find("input[type='text']").eq(0).val() + ',';
+                    datestr += $(this).find("input[type='text']").eq(1).val() + ',';
+                    datestr += $(this).find("#singleteacher").val() + ',';
+                    datestr += $(this).find("#singlesurvey").val() + ',';
+                    datestr += $(this).find("#singleatt").val() + ',';
+                    datestr += $(this).find("#txtAfterEvlutionConfigTime").val() + ',';
+                    datestr += $(this).find("input[type='checkbox']:first").attr('value') + '|';
+                }
+            });
+            substr += (datestr.substring(0, datestr.length-1) + ';');
+            //排座规则
+            var rules = $(this).find("input[data-type='seatrule']");
+            substr += rules.eq(0).attr("checked") ? "1," : "0,";
+            substr += rules.eq(1).attr("checked") ? "1," : "0,";
+            substr += rules.eq(2).attr("checked") ? "1," : "0,";
+            substr += rules.eq(3).attr("checked") ? "1;" : "0;";
+            //人员座位
+            var seats = '';
+            var personcount = 0;
+            $(this).find("div[type='zuowei']").each(function() {
+                //判断是否禁用
+                var free = $(this).attr('freeze') == '1' ? '-1' : $(this).attr('userid');
+                if($(this).attr('userid')!='0') {
+                    personcount++;
+                }
+                seats += seats == '' ? ($(this).attr('data-position') + ',' + free + ',' + $(this).find(".name").text() + ',' + $(this).find('.gender').text()) : (':' + $(this).attr('data-position') + ',' + free + ',' + $(this).find(".name").text() + ',' + $(this).find('.gender').text());
+            });
+            substr += (seats + ";" + personcount);
+            totalstr += totalstr == "" ? substr : ('!' + substr);
+            totalperson += personcount;
+        });
+        if(totalperson==0) {
+            art.dialog.tips('有的教室安排的座位没有安排学员！', 1.5);
+            return;
+        }
+        $.post('/NewCourseManage/SaveSubCourse?courseID=@(courseID)&type=1&publicFlag=@(course.PublicFlag)', { detail: totalstr }, function(data) {
+            if (data.result == 1) {
+                if ($("#savedirection").val() == "0") {
+                    window.location.href = '/NewCourseManage/NewCourseManageList?way=1&p=1';
+                } else if ($("#savedirection").val() == "1") {
+                    window.location.href = '/NewCourseManage/CourseSeatSistribute?courseID=@(courseID)';
+                }
+            } else {
+                art.dialog.tips(data.message, 1.5);
+            }
+        });
+    }
+
+    //判断时间段设置是否冲突
+    function judgeSetDateRight() {
+        if($("#seatList div").length>0) {
+            art.dialog({
+                content: "若重新设定时间段，将清空原先的座位安排，您确定要重新设置吗？",
+                ok: function () {
+                    doJudgeDateRight(0);
+                },
+                cancel: function () {}
+            });
+        }else {
+            doJudgeDateRight(0);
+        }
+    }
+    
+    function doJudgeDateRight(type) {
+        var datestr = ',;';
+        var currdatestr = '';
+        var flag = 0;
+        $("#dateList li").each(function() {
+            var count = 0;
+            $(this).find("input[type='text']").each(function() {
+                if ($.trim($(this).val()) != "" && flag == 0) {
+                    datestr += ($(this).val() + (count == 1 ? ";" : ','));
+                    currdatestr += ($(this).val() + (count == 1 ? ";" : ','));
+                } else {
+                    flag = 1;
+                }
+                count++;
+            });
+        });
+        if (flag == 0) {
+            //判断时间
+            $.post('/NewCourseManage/JudgeDateScopeRight?flag='+type, { dstr: datestr }, function(data) {
+                if (data.result == 1) {
+                    if(type==0) {
+                        $("#seatList").html('');
+                        //保存
+                        $("#btnAutoGroup,#btnNowGroup,#btnCreateSeat").attr("disabled", false);
+                        $("#dateList a").hide();
+                        $("#dateList input").attr("disabled", true);
+                        art.dialog.tips('时间验证成功，现在可以开始排座位了', 1.5);
+                        mainSeat.dateList = [];
+                        $("#dateList li").each(function() {
+                            var arrdate = $(this).find("input[type='text']");
+                            mainSeat.dateList.push({ starttime: arrdate.eq(0).val(), endtime: arrdate.eq(1).val(), teachList: mainSeat.teachList, surveyList: mainSeat.surveyPaperList });
+                        });
+                    }else {
+                        art.dialog.tips('时间验证成功！', 1.5);
+                        $("#btnSaveCourse").attr("disabled", false);
+                        //修改以下教室的时间
+                        var tempdatearr = [];
+                        $("#dateList li").each(function() {
+                            tempdatearr.push({stime:$(this).find('input:first').val(),etime:$(this).find('input:last').val() });
+                        });
+                        $("div [data-class='createseat']").each(function() {
+                            for(var t=0;t<tempdatearr.length;t++) {
+                                var templi = $(this).find("#detailDateList li").eq(t);
+                                templi.find("input[type='text']").eq(0).val(tempdatearr[t].stime);
+                                templi.find("input[type='text']").eq(1).val(tempdatearr[t].etime);
+                            }
+                        });
+                    }
+                } else {
+                    art.dialog.tips(data.message, 1.5);
+                    if(type==1) {
+                        $("#btnSaveCourse").attr("disabled", true);
+                    }
+                }
+            });
+        } else {
+            art.dialog.tips('请将时间填写完整！', 1.5);
+            if(type==1) {
+                $("#btnSaveCourse").attr("disabled", true);
+            }
+        }
+    }
+
+
+    //鸡肋的生成小组名称算法
+    function getGroupName(i) {
+        return String.fromCharCode(65 + i);
+    }
+</script>

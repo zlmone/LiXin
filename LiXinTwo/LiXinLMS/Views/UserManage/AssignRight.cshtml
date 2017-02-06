@@ -1,0 +1,173 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.AssignRight;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "AssignRight" }))
+    <div class="right-tree">
+        <p>
+            <input type="checkbox" value="0" id="selectall" onclick=" selectAll(); " class="mLeft_1" />全选
+        </p>
+        <div id="rightTree" class="tree-list">
+            @ViewBag.html
+        </div>
+    </div>
+    <div class="mt10">
+        @{
+            if (ViewBag.buttonShow == 1)
+            {
+            <a class="btn" onclick=" SelectRight(); " id="btnSure">确定</a>
+            }
+            <a id="btnBack" class="btn btn-cancel" onclick=" window.location.href = '/UserManage/RoleManage'; ">
+                返回</a>
+        }
+    </div>
+</div>
+<input type="hidden" id="hidRightID" value="0" />
+<input type="hidden" id="hidParentRightID" value="0" />
+<input type="hidden" id="hidRightName" value="" />
+<script type="text/javascript">
+    $(document).ready(function() {
+        rightReady();
+    });
+
+    function rightReady() {
+        $("#rightTree").treeview({
+            persist: "location",
+            collapsed: false,
+            unique: false
+        });
+        $("#rightTree").removeClass("treeview");
+        
+        $("#rightTree>ul>li>ul>li>div").each(function () {
+            $(this).click();
+        });
+        try {
+            InitRightTree();
+        } catch(e) {
+        }
+    }
+
+    function rightNodeClick(obj) {
+        //获取具体的分类信息
+        $("#hidRightID").val(0);
+        $("#hidParentRightID").val(0);
+        $("#hidRightName").val("");
+        //获取具体的分类信息
+        var ids = $(obj).attr("id");
+        var id = ids.split("_")[0];
+        var pid = ids.split("_")[1];
+        var Name = $(obj).text();
+        $("#hidRightID").val(id);
+        $("#hidParentRightID").val(pid);
+        $("#hidRightName").val(Name);
+        rightNodeClickSelect(obj);
+        if ($("#" + id).attr("checked")) {
+            $("#" + id).attr("checked", false);
+        } else {
+            $("#" + id).attr("checked", true);
+        }
+
+        try {
+            NodeRightClick();
+        } catch(e) {
+        }
+    }
+
+    function rightNodeClickSelect(obj) {
+        $("#rightTree").find("a").each(function() {
+            $(this).css("color", "");
+        });
+        $(obj).css("color", "#cc0000");
+    }
+
+    function InitRightTree() {
+        $("#rightTree input[type='checkbox']").each(function() {
+            $(this).bind("click", function() {
+                var a = $(this).val().split("_");
+                rightNodeClick1("#" + a[0] + "_" + a[1]);
+            });
+        });
+    }
+
+    function rightNodeClick1(obj) {
+        //获取具体的分类信息
+        var ids = $(obj).attr("id");
+        var id = ids.split("_")[0];
+        var pid = ids.split("_")[1];
+        var Name = $(obj).text();
+        $("#hidRightID").val(id);
+        $("#hidParentRightID").val(pid);
+        $("#hidRightName").val(Name);
+        rightNodeClickSelect(obj);
+        try {
+            NodeRightClick();
+        } catch(e) {
+        }
+    }
+
+    function NodeRightClick() {
+        var flag = $("#" + $("#hidRightID").val()).attr("checked");
+        var pid = $("#hidParentRightID").val();
+        if (flag) {
+            while (true) {
+                if (pid == 0) {
+                    break;
+                }
+                $("#" + pid).attr("checked", true);
+                var a = $("#" + pid).val().split("_");
+                pid = a[1];
+            }
+        }
+        changeright($("#hidRightID").val(),flag==undefined?false:flag);
+    }
+
+    function changeright(pid,flag){
+        $("#rightTree input[pid='"+pid+"']").attr("checked", flag);
+        $("#rightTree input[pid='"+pid+"']").each(function() {
+            changeright($(this).attr("id"),flag);
+        });
+    }
+
+    function SelectRight() {
+        var ids = GetCheckIds();
+        if (ids == "") {
+            art.dialog.tips("请选择一个权限！", 3);
+            return;
+        }
+        $.post("/UserManage/SaveRoleRight", { roleId: @ViewBag.roleId, rights: ids }, function(data) {
+            if (data == 1) {
+                art.dialog.tips("成功！", 3);
+                window.location.href = "/UserManage/RoleManage";
+            } else {
+                art.dialog.tips("失败！", 3);
+            }
+        });
+    }
+
+    function GetCheckIds() {
+        var ids = "";
+        $("#rightTree input[type='checkbox']").each(function() {
+            if ($(this).attr("checked")) {
+                ids += $(this).attr("id") + ",";
+            }
+        });
+        if (ids != "") {
+            ids = ids.substring(0, ids.length - 1);
+        }
+        return ids;
+    }
+
+    function selectAll() {
+        if ($("#selectall").attr("checked")) {
+            $("#rightTree input[type='checkbox']").each(function() {
+                $(this).attr("checked", true);
+            });
+        } else {
+            $("#rightTree input[type='checkbox']").each(function() {
+                $(this).attr("checked", false);
+            });
+        }
+    }
+
+</script>

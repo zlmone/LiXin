@@ -1,0 +1,630 @@
+﻿@using LiXinLanguage
+@using System.IO
+@model LiXinModels.DeptCourseManage.Dept_Course
+@{
+    ViewBag.Title = "课程详情";
+    var showAfter = 0;
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "DepTranCourseDetail" }))
+    <div class="course-top">
+        <div class="pic">
+            <img src="../../Images/course-pic.jpg">
+        </div>
+        <div class="info">
+            <h3 class="ovh" title="@Model.CourseName">@Model.CourseName</h3>
+            <table class="tab-Form tab-now">
+                <tr>
+                    <td class="Tit">
+                        授课讲师：
+                    </td>
+                    <td>
+                        <strong>@Model.TeacherName</strong>
+                    </td>
+                    <td class="Tit">
+                        课程开放级别：
+                    </td>
+                    <td>
+                        <strong>@Model.OpenLevel</strong>
+                    </td>
+                    <td class="Tit">
+                        课程状态：
+                    </td>
+                    <td class="c_col">
+                        <strong>@(Model.Publishflag == 1 ? Model.CourseStatus : "未发布")</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        课程学时：
+                    </td>
+                    <td>
+                        <strong>@Model.CourseLength</strong>
+                    </td>
+                    <td class="Tit">
+                        开课时间：
+                    </td>
+                    <td class="c_col" colspan="3">
+                        <strong>@Model.StartTime.ToString("yyyy-MM-dd HH:mm") - @Model.EndTime.ToString("yyyy-MM-dd HH:mm")</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        开课地点：
+                    </td>
+                    <td>
+                        <strong class="ovh tl span8" title="@Model.RoomName">@Model.RoomName</strong>                 
+                    </td>
+                    <td class="c_col" colspan="5">
+                        <div align="right">
+                            <strong><input type="button" id="isOrderNum" name="isOrder" value="预订人数" class="btn" onclick="OrderNum()"/></strong>
+                            <strong><input type="button" id="isOrderAllowed" name="isOrderAllowed" value="开放预订" class="btn" onclick="OrderOpen()" /></strong>
+                            <strong><input type="button" id="isOrder" name="isOrderDeleted" value="取消开放" class="btn" onclick="isOrderDeleted()"/></strong>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="tab-bk mt10">
+        <ul id="tags">
+            <li id="tag0" class="On">课程详情</li>
+            <li id="tag1">课后评估</li>
+            <li id="tag2">在线测试</li>
+        </ul>
+    </div>
+    <input type="hidden" id="numLimited" value="@Model.NumberLimited"/>
+        <div id="div_course_courseInfor" class="course-de">
+        <table class="tab-Form tab-now" id="div_course_detial">
+            <tr>
+                <td class="Tit">
+                    课程类别：
+                </td>
+                <td>
+                    <strong>@Model.SortStr</strong>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    课程类型：
+                </td>
+                <td>
+                    <strong>视频同步转播</strong>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    必修/选修：
+                </td>
+                <td>
+                    <strong>@(Model.IsMust==0?"必修":"选修")</strong>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    允许最大人数：
+                </td>
+                <td>
+                    
+                    <input type="text" style="background-color: transparent;border:0px;font-size:14px;font-weight:900" value="@(Model.LimitNumber == 0 ? Model.NumberLimited : Model.LimitNumber)" readonly="readonly" id="numLimit"/>
+                    @*<strong>@(Model.LimitNumber == 0 ? Model.NumberLimited : Model.LimitNumber)</strong>*@
+                </td>
+            </tr>
+        </table>
+        <div class="oth">
+            <h4>
+                课程大纲：</h4>
+            @if (!string.IsNullOrEmpty(Model.Memo))
+            {
+                <div class="co-memo do_warp">@Html.Raw(Model.Memo)</div>	
+            }
+            else
+            {
+                <div>
+                    暂无内容</div>
+            }
+            <h4>
+                课程资源：</h4>
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th>
+                            资源名称
+                        </th>
+                        <th>
+                            资源大小
+                        </th>
+                         <th>
+                            操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>   
+                    @if (ViewBag.CourseResource != null && ((IEnumerable<LiXinModels.DeptCourseManage.Dept_CourseResource>)ViewBag.CourseResource).Count() > 0)
+                    {
+
+                        foreach (var item in (IEnumerable<LiXinModels.DeptCourseManage.Dept_CourseResource>)ViewBag.CourseResource)
+                        {
+                            <tr id="div_courseRes_@(item.Id)">
+                                <td>@item.ResourceName
+                                </td>
+                                <td>@item.ResourceSize K 
+                                </td>
+                                <td>
+                                <a onclick="loadPinFile('@(item.RealName)','@(item.RealName)');" class="icon idown" title="我要下载"></a>
+                            </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2">
+                                <div class="tc">
+                                    暂无资源</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <h4>
+                课程附件：</h4>
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th>
+                            附件名称
+                        </th>
+                        <th>
+                            附件大小
+                        </th>
+                        <th>
+                            操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.CourseAttachList != null && ((IEnumerable<LiXinModels.DeptCourseManage.Dept_CourseResource>)ViewBag.CourseAttachList).Count() > 0)
+                    {
+                        foreach (var item in (IEnumerable<LiXinModels.DeptCourseManage.Dept_CourseResource>)ViewBag.CourseAttachList)
+                        {
+                        <tr id="div_courseAttach_@(item.Id)">
+                            <td>@item.ResourceName
+                            </td>
+                            <td>@item.ResourceSize K 
+                            </td>
+                            <td>
+                                <a onclick="loadPinFile('@(item.RealName)','@(item.RealName)');" class="icon idown" title="我要下载"></a>
+                            </td>
+                        </tr>
+                        }
+                    }
+                    else
+                    {
+        	
+                        <tr>
+                            <td colspan="2">
+                                <div class="tc">
+                                    暂无附件</div>
+                            </td>
+                        </tr>
+            
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="div_course_survey" style="display: none;">
+        @if (Model.IsPing == 1)
+        {
+            <div class="tab-red">
+                <ul id="tagAfterCourses">
+                    @if (Model.AfterCourseAssess != null)
+                    {
+                        <li id="tagAfterCourse0" class="On" onclick="$(this).parent().find('li').removeClass('On');$(this).addClass('On');$('#divAfterCourse0').show();$('#divAfterCourse1').hide();">
+                            课程评估<i></i></li>
+                    }
+                    @if (Model.AfterCourseTeacherExam != null)
+                    {
+                        <li id="tagAfterCourse1" onclick="$(this).parent().find('li').removeClass('On');$(this).addClass('On');$('#divAfterCourse1').show();$('#divAfterCourse0').hide();" @(Model.AfterCourseAssess != null ? "" : "class=On")>
+                            讲师评估<i></i></li>
+                    }
+                </ul>
+            </div>
+                    if (Model.AfterCourseAssess != null)
+                    {
+                        showAfter = 1;
+            <div id="divAfterCourse0" style="display: none">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="span6">
+                            问卷标题：
+                        </td>
+                        <td>
+                            <strong>@Model.AfterCourseAssess.ExamTitle</strong>
+                        </td>
+                        <td class="span6">
+                            问卷分类：
+                        </td>
+                        <td>
+                            <strong>@Model.AfterCourseAssess.ExamTypeShow</strong>
+                        </td>
+                        <td class="span6">
+                            所属分类：
+                        </td>
+                        <td>
+                            <strong>@Model.AfterCourseAssess.CategoryName</strong>
+                        </td>
+                    </tr>
+                </table>
+                <div class="sur-do">
+                    @{
+                               foreach (var Question in Model.AfterCourseAssess.Questions)
+                               {
+                        <div id="QuestionID@(Question.QuestionID)" class="list">
+                            <input type="hidden" class="questionid" name="@(Question.QuestionType)" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                            <div class="tit">
+                                <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                            </div>
+                            @{
+                                                                    if (Question.QuestionType == 2)
+                                                                    {
+                                <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                                                                    }
+                            }
+                            @{  switch (Question.QuestionType)
+                                {
+                                    //单选题
+                                    case 0:
+                                        {
+                                            int count = 0;
+
+                                            foreach (var s in Question.Answers)
+                                            {
+                                <p>
+                                    <input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                                </p>
+                                                                                                       count++;
+                                            }
+                                        }
+                                <div class="why">
+                                    <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                                </div>
+                                        break;
+                                    //多选题
+                                    case 1:
+                                        {
+                                            int count = 0;
+
+                                            foreach (var s in Question.Answers)
+                                            {
+                                <p>
+                                    <input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                                </p>
+                                                                                                          count++;
+                                            }
+                                        }
+                                <div class="why">
+                                    <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                                </div>
+                                        break;
+                                    //主观题
+                                    case 2:
+                                <p>
+                                    <textarea disabled="disabled" style="width: 338px; height: 104px;">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                                </p> 
+                                                                                                   break;
+                                    case 3:
+                                <input type="hidden" class="xp" />
+                                <div id='divScore_@(Question.QuestionOrder)' class="ml35 ">
+                                </div>
+                                <div class="why mt5">
+                                    <span>理由：</span><input name="xingPReplay" type="text" disabled="disabled" />
+                                </div>
+                                              break;
+                                }
+                            }
+                        </div>
+                               }   
+                    }
+                </div>
+            </div>
+                    }
+                    if (Model.AfterCourseTeacherExam != null)
+                    {
+                        showAfter = 2;
+                        if (Model.AfterCourseAssess != null)
+                        {
+                            showAfter = 3;
+                        }
+            <div id="divAfterCourse1" style="display: none">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="span6">
+                            问卷标题：
+                        </td>
+                        <td>
+                            <strong>@Model.AfterCourseTeacherExam.ExamTitle</strong>
+                        </td>
+                        <td class="span6">
+                            问卷分类：
+                        </td>
+                        <td>
+                            <strong>@Model.AfterCourseTeacherExam.ExamTypeShow</strong>
+                        </td>
+                        <td class="span6">
+                            所属分类：
+                        </td>
+                        <td>
+                            <strong>@Model.AfterCourseTeacherExam.CategoryName</strong>
+                        </td>
+                    </tr>
+                </table>
+                <div class="sur-do">
+                    @{
+                               foreach (var Question in Model.AfterCourseTeacherExam.Questions)
+                               {
+                        <div id="QuestionID@(Question.QuestionID)" class="list">
+                            <input type="hidden" class="questionid" name="@(Question.QuestionType)" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                            <div class="tit">
+                                <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                            </div>
+                            @{
+                                if (Question.QuestionType == 2)
+                                {
+                                    <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                                }
+                            }
+                            @{  switch (Question.QuestionType)
+                                {
+                                    //单选题
+                                    case 0:
+                                        {
+                                            int count = 0;
+                                            foreach (var s in Question.Answers)
+                                            {
+                                <p>
+                                    <input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                                </p>
+                                                                                                       count++;
+                                            }
+                                        }
+                                <div class="why">
+                                    <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                                </div>
+                                        break;
+                                    //多选题
+                                    case 1:
+                                        {
+                                            int count = 0;
+
+                                            foreach (var s in Question.Answers)
+                                            {
+                                                <p>
+                                                    <input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                                                </p>
+                                count++;
+                                            }
+                                        }
+                                <div class="why">
+                                    <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                                </div>
+                                    break;
+                                    //主观题
+                                    case 2:
+                                <p>
+                                    <textarea disabled="disabled" style="width: 338px; height: 104px;">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                                </p> 
+                                    break;
+                                    case 3:
+                                <input type="hidden" class="xp" />
+                                <div id='divScore_@(Question.QuestionOrder)' class="ml35 ">
+                                </div>
+                                <div class="why mt5">
+                                    <span>理由：</span><input name="xingPReplay" type="text" disabled="disabled" />
+                                </div>
+                                              break;
+                                }
+                            }
+                        </div>
+                               }   
+                    }
+                </div>
+            </div>
+                    }
+        }
+    </div>
+    <div id="div_course_paper" style="display: none;">
+        @if (Model.IsTest == 1)
+        {
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th>
+                            试卷名称
+                        </th>
+                        <th>
+                            考试时长
+                        </th>
+                        <th>
+                            考试时间
+                        </th>
+                        <th>
+                            通过线
+                        </th>
+                        <th>
+                            试卷总分
+                        </th>
+                        <th>
+                            最大考试次数
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@(ViewBag.name)
+                        </td>
+                        <td>@(ViewBag.CoursePaper.Length)
+                        </td>
+                        <td>
+                            课程结束后@(ViewBag.CoursePaper.Hour)小时
+                        </td>
+                        <td>@(ViewBag.CoursePaper.LevelScore)%
+                        </td>
+                        <td>@(ViewBag.exampaper.ExampaperScore)
+                        </td>
+                        <td>@(ViewBag.CoursePaper.TestTimes)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+    <center class="mt20">
+        <a  class="btn btn-cancel" onclick="black()">返回</a></center>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (@ViewBag.status == 0) {
+            if (@Model.IsOpenOrder == 1) {
+                $("#isOrderAllowed").attr("disabled", "disabled");
+            } else {
+                $("#isOrder").attr("disabled", "disabled");
+                $("#isOrderNum").attr("disabled", "disabled");
+            }
+        } else {
+            $("#isOrderAllowed").attr("disabled", "disabled");
+            $("#isOrder").attr("disabled", "disabled");
+            $("#isOrderNum").attr("disabled", "disabled");
+        }
+        
+        
+        $("#tags li").bind("click", function () {
+            var index = $(this).index();
+            $("#tags li").removeClass("On");
+            $("#tags #tag" + index).addClass("On");
+            $("#div_course_courseInfor,#div_course_survey,#div_course_paper").hide();
+            switch (index) {
+            case 0:
+                $("#div_course_courseInfor").show();
+                break;
+            case 1:
+                $("#div_course_survey").show();
+                break;
+            case 2:
+                $("#div_course_paper").show();
+                break;
+            }
+        });
+
+        if ("@showAfter" == "1" || "@showAfter" == "3") {
+            $("#divAfterCourse0").show();
+        }
+        if ("@showAfter" == "2") {
+            $("#divAfterCourse1").show();
+        }
+    });
+
+    function OrderOpen() {
+        var Id = @(Model.Id);
+        var StartTime = '@Model.StartTime.ToString("yyyy-MM-dd HH:mm")';
+        var EndTime = '@Model.EndTime.ToString("yyyy-MM-dd HH:mm")';
+        art.dialog({
+            title:"提示",
+            content:"是否确定开放本所员工预订？",
+            okValue: '@CommonLanguage.Common_Sure',
+            cancelValue: '@CommonLanguage.Common_Cancel',
+            fixed: true,
+            lock: true,
+            ok: function() {
+                var limitNum = @Model.LimitNumber;
+                var num;
+                if (limitNum == 0) {
+                    num = @Model.NumberLimited;
+                } else {
+                    num = @Model.LimitNumber;
+                }
+                $.post("/DeptCourseManage/GetOpenOrder?t=" + new Date() + "&courseId=" + Id + "&StartTime=" + StartTime +"&EndTime=" + EndTime + "&departId=" + @(ViewBag.deptId) + "&num=" + num, function(data) {
+                    if (data == 1) {
+                        art.dialog.tips("开放预订成功！", 3);
+                        $("#isOrderAllowed").attr("disabled", "disabled");
+                        $("#isOrder").attr("disabled", false);
+                        $("#isOrderNum").attr("disabled", false);
+                    } else if (data == 2) {
+                        art.dialog.tips("开放预订失败！", 3);
+                    } else {
+                        art.dialog.tips("不在预订时间内！", 3);
+                    } 
+                });
+            },
+            cancel: function() {
+            }
+        });
+    }
+
+    function isOrderDeleted() {
+        var Id = @(Model.Id);
+        var StartTime = '@Model.StartTime.ToString("yyyy-MM-dd HH:mm")';
+        var EndTime = '@Model.EndTime.ToString("yyyy-MM-dd HH:mm")';
+        art.dialog({
+            title: "提示",
+            content: "是否确定取消开放本所员工预订？",
+            okValue: '@CommonLanguage.Common_Sure',
+            cancelValue: '@CommonLanguage.Common_Cancel',
+            fixed: true,
+            lock: true,
+            ok: function() {
+                $.post("/DeptCourseManage/DeleteOpenOrder?t=" + new Date() + "&courseId=" + Id + "&StartTime=" + StartTime + "&EndTime=" + EndTime + "&departId=" + @(ViewBag.deptId) + "&num=4", function(data) {
+                    if (data == 1) {
+                        art.dialog.tips("取消开放预订成功！", 3);
+                        $("#isOrderAllowed").attr("disabled", false);
+                        $("#isOrder").attr("disabled", "disabled");
+                        $("#isOrderNum").attr("disabled", "disabled");
+                    }else if (data == 2) {
+                        art.dialog.tips("取消开放预订失败！", 3);
+                    } else {
+                        art.dialog.tips("不在取消预订时间内！", 3);
+                    }
+                });  
+            },
+            cancel: function() {
+            }
+        });
+    }
+
+
+    //下载文件
+    function loadPinFile(path, name) {
+        $.post("/DeptCourseManage/IsExistFile", { path: path }, function (data) {
+            if (data.result == 1) {
+                window.location.href = "/DeptCourseManage/LoadPrincipleFile?path=" + path + "&name=" + escape(name);
+            }
+            else {
+                art.dialog.tips("此文件不存在！", 3);
+            }
+        });
+    }
+
+    function black()
+    {
+        if("@ViewBag.flag"==0)
+        {
+            window.location.href="/DeptCourseManage/DeptCourseManage";
+        }
+        else
+        {
+            window.location.href="/DeptCourseManage/DeptAllCourseManage";
+        }
+    }
+    
+
+    function OrderNum() {
+        var StartTime = '@Model.StartTime';
+        var EndTime = '@Model.EndTime';
+        var CourseId = @Model.Id;
+        var DepartId = @(ViewBag.deptId);
+        var num = $("#numLimited").val();
+        art.dialog.load("/DeptCourseManage/OpenOrder?t=" + new Date() + "&courseId=" + CourseId + "&StartTime=" + StartTime + "&EndTime=" + EndTime + "&departId=" + DepartId + "&num=" + num + "&type=1" ,{ title: "设置最大报名人数", id: "pop_OpenOrder", width: 400 });
+    }
+</script>

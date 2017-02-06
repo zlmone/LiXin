@@ -1,0 +1,262 @@
+﻿@{
+    ViewBag.Title = "参与情况";
+    var start = Request.QueryString["s"] ?? "";
+    Layout = null;
+}
+
+<div>
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">对象名称：</td>
+                <td class="span16">
+                    <input id="txtdeptName" type="text" class="span16  searchclass" value="请输入搜索内容"
+                        info="" />
+                </td>
+                 <td  class="Tit span6">学习时间：</td>
+                  <td  class="span60">
+                    <div class="time-choose" style="float:left">
+                        <input type="text" id="txt_StartTime" value="@(start == "" ? "" : Convert.ToDateTime(start).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  "/>
+                        <i></i>
+                    </div>
+                    至
+                    <div class="time-choose" >
+                        <input type="text" id="txt_EndTime" value="@(start == "" ? "" : Convert.ToDateTime(start).AddDays(1).ToString("yyyy-MM-dd HH:mm"))" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })"/>
+                        <i></i>
+                    </div>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitAllData(); " />
+                    <input type="button" class="btn btn-co" value="导出EXCEL" id="btnout" onclick="OutCourseJoinList()" />
+                    <input type="button" class="btn btn-co" value="同步" onclick="fabu(InitAllData)" />
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div class="mt10">
+        <table class="tab-List" id="tbCourseJoin">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>对象名称</th>
+                    <th jsrendersortfield="JoinRateDouble" sort="desc">课程总参与率</th>
+                    <th jsrendersortfield="JoinNumber" sort="desc">已参加人数</th>
+                    <th jsrendersortfield="SumNumber" sort="desc">应参加人数</th>
+                    <th jsrendersortfield="LearnNumber" sort="desc">学习人次</th>
+                    <th jsrendersortfield="AvgLookTime" sort="desc">累计观看时间（分钟）</th>
+                    <th jsrendersortfield="LearnNumber" sort="desc">平均观看时间（分钟）</th>
+                    <th jsrendersortfield="LookNumbr" sort="desc">人均观看次数</th>
+                    <th></th>
+                </tr>
+
+            </thead>
+            <tbody id="deptList"  data-status="0">
+                  <tr>
+                    <td colspan="10">
+                        <div class="tc c38 line_h30">正在努力加载....</div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    <div class="mt10">
+        <!--学员人数分布-->
+        <div id="showpie" style="width: 80%; height: 400px; display: none">
+        </div>
+        <!--分所员工学习分布-->
+        <div id="showfeng" style="width: 80%; height: 400px; display: none">
+        </div>
+        <!--各月份学习情况分布-->
+        <div id="showmonth" class="trendgraph" style="width: 80%; height: 300px; display: none">
+        </div>
+        <!--总所各部门学习人数分布-->
+        <div id="showall" style="width: 80%; height: 300px; display: none">
+        </div>
+
+
+    </div>
+</div>
+<!--参与情况-->
+<script id="deptListTemplate" type="text/x-jsrender">
+  {{for #data}}
+     <tr class="report_{{:IsMain}}" style="display:none">
+        <td>{{:#index+1}}</td>
+        <td><a onclick=viewDeptDetail('{{:DeptIDs}}') style="cursor:pointer">{{:DeptPath}}</a> </td>
+        <td>{{:JoinRate}}</td>
+        <td>{{:JoinNumber}}</td>
+        <td>{{:SumNumber}}</td>
+        <td>{{:LearnNumber}}</td>
+        <td>{{:SumLookTimeStr}}</td>
+        <td>{{:AvgLookTimeStr}}</td>
+        <td>{{:LookNumbrStr}}</td>
+        <td></td>
+     </tr>
+  {{/for}}
+</script>
+<!--合计-->
+<script id="AllListTemplate" type="text/x-jsrender">
+    {{for #data}}
+      <tr>
+        <td></td>
+        <td>{{:allNumer}}</td>
+        <td>{{:allJoinRate}}</td>
+        <td>{{:allJoinNumber}}</td>
+        <td>{{:allSumNumber}}</td>
+        <td>{{:allLearnNumber}}</td>
+        <td>{{:allSumLookTime}}</td>
+        <td>{{:allAvgLookTime}}</td>
+        <td>{{:allLookNumbr}}</td>
+        <td>
+          {{if type>0}}
+             <a class="buttonhide btnshow" id="btn_{{:type}}"  onclick="showHide({{:type}},this)"><a>
+          {{/if}}
+     </tr>
+     {{/for}}
+</script>
+<script>
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        InitAllData();
+
+        MyTablesort("tbCourseJoin", InitAllData);
+    });
+    //合计
+    function InitAllData(jsRenderSortField)
+    {
+        var type = 0;
+        if (jsRenderSortField == undefined)
+        {
+            jsRenderSortField = "JoinRateDouble desc";
+        }
+        else
+        {
+            jsRenderSortField = jsRenderSortField;
+        }
+
+        //   $("#deptList").html("");
+        var html = "";
+        $.post('/Report_zVedio/GetCourseJoinList?courseID=@ViewBag.courseID&DeptName=' + escape($.trim(getSearchWord("txtdeptName")))
+            + "&jsRenderSortField=" + jsRenderSortField + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val(), function (data)
+        {
+            if (data.result == 1)
+            {
+                if (flength == 0 && zlength == 0) {
+                    html = html + "<tr class='odd'><td colspan='10'><div class='tc c38 line_h30'>暂无数据</div></td></tr>";
+                }
+                html = html + $("#AllListTemplate").render(data.all);
+                var flength = data.fengList.length;
+                var zlength = data.sumList.length;
+                if (zlength > 0)
+                {
+                    html = html + $("#AllListTemplate").render(data.sum);
+                    html = html + $("#deptListTemplate").render(data.sumList);
+                }
+                if (flength > 0)
+                {
+                    html = html + $("#AllListTemplate").render(data.feng);
+                    html = html + $("#deptListTemplate").render(data.fengList);
+                }
+
+                
+                setTimeout("showchart(" + flength + "," + zlength + ")", 200);
+            }
+            $("#deptList").html(html);
+            if ($("#deptList").attr("data-status") == '0')
+            {
+                $("#deptList").attr("data-status", 1);
+               
+            } else
+            {
+                $("#deptList tr").show();
+                $("#deptList tr .btnshow").attr("class", "buttonshow btnshow");
+            }
+        });
+    }
+
+    //显示隐藏  2分所  1总所
+    function showHide(type, obj)
+    {
+        
+        var ismian = type == 2 ? 0 : 1;
+        if ($(obj).hasClass("buttonshow"))
+        {
+
+            $(".report_" + ismian).hide();
+            $(obj).removeClass('buttonshow').addClass('buttonhide');
+        }
+        else
+        {
+            $(".report_" + ismian).show();
+            $(obj).removeClass('buttonhide').addClass('buttonshow');
+        }
+
+    }
+    //导出
+    function OutCourseJoinList()
+    {
+        window.location.href = "OutCourseJoinList?courseID=@ViewBag.courseID&DeptName=" + escape($.trim(getSearchWord("txtdeptName"))) + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val();
+    }
+
+    //显示图表
+    function showchart(flength, zlength)
+    {
+        $.post("CourseJoinChart?courseID=@ViewBag.courseID", function (data)
+        {
+            if (flength > 0 || zlength > 0)
+            {
+                $("#showpie").show();
+                var piechart_value = DrawImagePie(data.pie);
+                var piechart = new Highcharts.Chart(piechart_value);
+            }
+            else
+            {
+                $("#showpie").hide();
+            }
+
+            if (flength > 0)
+            {
+                $("#showfeng").show();
+                var fengchart_value = DrawImagePie(data.feng);
+                var fengchart = new Highcharts.Chart(fengchart_value);
+            }
+            else
+            {
+                $("#showfeng").hide();
+            }
+            //if (flength > 0 || zlength > 0)
+            //{
+            //    $("#showmonth").show();
+            //    var monthchart_value = DrawImageLine(data.month);
+            //    var monthchart = new Highcharts.Chart(monthchart_value);
+            //}
+            //else
+            //{
+            //    $("#showmonth").hide();
+            //}
+            if (zlength > 0)
+            {
+                $("#showall").show();
+                var allchart_value = DrawImageColumn(data.zong);
+                var allchart = new Highcharts.Chart(allchart_value);
+            }
+            else
+            {
+                $("#showall").hide();
+            }
+        });
+    }
+
+
+    function viewDeptDetail(deptIDs)
+    {
+        window.location.href = "/Report_fVedio/Report_Detail?type=0&courseid=@ViewBag.courseID&deptid=" + deptIDs + "&backurl=[" + window.location.href + "]";
+    }
+</script>
+
+

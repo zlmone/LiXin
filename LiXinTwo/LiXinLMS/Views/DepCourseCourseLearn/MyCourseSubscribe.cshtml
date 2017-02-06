@@ -1,0 +1,246 @@
+﻿@{
+    ViewBag.Title = "我的可预订课程";
+    int DepOrBranch = Convert.ToInt32(ViewBag.DepOrBranch);
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "MyDepCourseSubscribe" }))
+    <div id="divCourse">
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span7">课程名称：
+                    </td>
+                    <td class="span26">
+                        <input type="text" class="span20 Box searchclass" id="course" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="Tit span7">开课时间：
+                    </td>
+                    <td>
+                        <div class="time-choose">
+                            <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                                readonly="readonly" id="start" /><i></i>
+                        </div>
+                        至
+                        <div class="time-choose">
+                            <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                                readonly="readonly" id="end" /><i></i>
+                        </div>
+                    </td>
+                    <td class="so-do" rowspan="2">
+                        <input class="btn" type="button" value="搜索" id="btnSearch" onclick="InitData(1);" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">选/必修：
+                    </td>
+                    <td>
+                        <div class="sel">
+                            <input id="cbxMust1" type="checkbox" name="popIsMust" value="1" /><label>选修</label>
+                            <input id="cbxMust0" type="checkbox" name="popIsMust" value="0" /><label>必修</label>
+                        </div>
+                    </td>
+                   @* <td class="Tit">是否可预订：
+                    </td>
+                    <td>
+                        <div class="sel">
+                            <input id="cbxApply1" type="checkbox" name="popApply" value="1" /><label>是</label>
+                            <input id="cbxApply0" type="checkbox" name="popApply" value="0" /><label>否</label>
+                        </div>
+                        <select id="sltApply" onchange=" InitData(1); ">
+                            <option value="99">选择预定状态</option>
+                            <option value="1">是</option>
+                            <option value="2">否</option>                            
+                        </select>*@
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            @*<select id="sel_deptid">
+             @if (ViewBag.DeptList != null && ((IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.DeptList).Count() > 0)
+             {
+                 foreach (var item in (IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.DeptList)
+                 {
+                     <option value="@item.Id">@item.DeptName</option>             
+                 }
+             }
+         </select> *@
+            <select id="sltCourseType" onchange=" InitData(1); ">
+                <option value="99">课程类别</option>
+                <option value="1">内部培训</option>
+                <option value="2">社会招聘</option>
+                <option value="3">新进员工</option>
+                <option value="4">实习生</option>
+            </select>
+            <select id="sltSubscribeType" onchange=" InitData(1); ">
+                <option value="99">预订状态</option>
+                <option value="1">待预订</option>
+                @*<option value="0">退订成功</option>*@
+                <option value="2">已过期</option>
+                <option value="8">关闭预订</option>
+                @*<option value="1">预订成功[排队中]</option>*@ @*<option value="2">请假成功</option>*@ @*<option value="6">补预订</option>*@
+                @*<option value="4">部门指定</option>*@ @*<option value="5">总所指定</option>*@
+            </select>         
+            <div class="course-tysel">
+                <span class="c-it">内部培训<i></i></span>
+                <span class="c-sr">社会招聘<i></i></span> 
+                <span class="c-ne">新进员工<i></i></span> 
+                <span class="c-tr">实习生<i></i></span>
+            </div>
+        </div>
+        <div class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span4">序号
+                        </th>
+                        <th class="span16">课程名称
+                        </th>
+                        <th class="span6" jsrendersortfield="aa.CourseLength" sort="desc">学时
+                        </th>
+                        <th class="span7" jsrendersortfield="aa.IsMust" sort="desc">选/必修
+                        </th>
+                        <th class="span15" jsrendersortfield="aa.StartTime" sort="desc">开课时间
+                        </th>
+                        <th class="span9">已开课次数/总课次
+                        </th>
+                        <th class="span6">授课讲师
+                        </th>
+                        <th class="span10">授课地点
+                        </th>
+                        <th class="span7">是否在线测试
+                        </th>
+                        <th class="span8">报名人数<br />
+                            /最大人数
+                        </th>                        
+                        @*<th class="span5">是否可预订
+                        </th>*@
+                        <th class="span7">预订状态
+                        </th>
+                        <th class="span12">操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="courseList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td>
+            <div class="course-type" title="课程类型：{{:SortStr==""?"无":SortStr}}">
+                 <i class="c-it {{:SortStr.indexOf('内部培训')>=0?"":"c-no"}}">内部培训</i>
+                 <i class="c-sr {{:SortStr.indexOf('社会招聘')>=0?"":"c-no"}}" title="">社会招聘</i>
+                 <i class="c-ne {{:SortStr.indexOf('新进员工')>=0?"":"c-no"}}">新进员工</i>
+                 <i class="c-tr {{:SortStr.indexOf('实习生')>=0?"":"c-no"}}">实习生</i>
+             </div>
+            <div class="ovh span11 tl" title="{{:CourseName}}">{{:CourseName}}</div>
+        </td>   
+        <td>{{:CourseLength}}</td> 
+        <td>{{:IsMustStr}}</td> 
+        <td><div class="f11 tl">{{:CourseTime}}</div></td> 
+        <td>{{:CourseTimes}}</td> 
+        <td><div class="ovh span6 tl" title="{{:TeacherName}}">{{:TeacherName}}</div></td> 
+        <td><div class="ovh span10 tl" title="{{:RoomName}}">{{:RoomName}}</div></td> 
+        <td><div class="ovh tc">{{:IsTest==0?"否":"是"}}</div></td> 
+        <td>{{:HasEntered}}/{{:NumberLimited}}</td>        
+        @*<td>      
+            {{:IsOrNoOrLine}}
+        </td> *@
+        <td>    
+            {{if StopOrderFlag==0}}
+                {{:MyStatusStr}}
+            {{else}}
+                关闭预订
+            {{/if}}
+        </td> 
+        <td> 
+            {{if Yuding==3}}                                                 
+                    <a onclick="Subscribe({{:Id}});" class="icon ibook" title="预订"></a>  
+                 {{else}}
+                    <a class="icon ibook idis" title="预订"></a>
+                {{/if}}
+                 @*   <a onclick="Subscribe({{:Id}});" class="icon ibook" title="预订"></a>   *@
+            <a onclick="View({{:Id}});" class="icon iview" title="详情"></a>
+        </td> 
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+    
+        initSearch();
+
+        InitData(1);
+
+        if (@DepOrBranch==1)
+        {
+            $(".course-tysel").css("display","none");
+            $("#sltCourseType").attr("disabled","disabled");
+        }
+    });
+
+    //初始化列表
+
+    function InitData(page) {
+        var must = "";
+        var apply = "";
+        $("input[name='popIsMust']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                must = must == "" ? $(this).val() : must + "," + $(this).val();
+            }
+        });
+        
+        apply=$("#sltApply").val();
+
+        var v = "course=" + escape(getSearchWord("course")) + "&must=" + must + "&apply="
+                    + apply + "&courseType=" + $("#sltCourseType").val() + "&subscribeType="
+                    + $("#sltSubscribeType").val() + "&start=" + $("#start").val() + "&end=" + $("#end").val();
+      
+        $("#courseList").JsRenderData({
+            sourceUrl: '/DepCourseCourseLearn/GetMyCourseSubscribeList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "aa.CourseId",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function Subscribe(courseid) {//预订
+        $.getJSON("/DepCourseCourseLearn/Subscribe?courseId=" + courseid, function (data) {
+            if (data.result == 3) {
+                InitData(1);
+                art.dialog({
+                    content: data.content + "你可以进行以下操作",
+                    okVal: "继续预订课程",
+                    ok: function () {
+                        InitData(1);
+                       
+                    },
+                    cancelVal: "查看已预订课程",
+                    cancel: function () {
+                        window.location.href = "/DepMyCourse/MyCourseList";
+                    }
+                });
+            }
+            else {                
+                art.dialog.tips(data.content, 3);
+                InitData(1);
+            }
+        });
+    }
+
+    function View(id) {//详情
+        window.location.href = "/DepCourseCourseLearn/CourseDetail/" + id;
+    }
+</script>

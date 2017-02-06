@@ -1,0 +1,57 @@
+﻿@using LiXinLanguage
+@using LiXinModels.Examination.DBModel
+@{
+    Layout = null;
+    Response.Expires = 0;
+    string id = Request.QueryString["id"];
+    var questonInfor = ViewData["QuestionInfor"] as List<QuestionAnswer>;
+    var baseInfor = ViewData["BaseInfor"] as tbQuestion;
+}
+@*判断题*@
+<table class="tab-Form">
+    <tr>
+        <td class="Tit all15">
+            <span title="必填项" class="must">*</span>@Question.Question_QuestionManage_QuestionContent：
+        </td>
+        <td>
+            <textarea type="text" id="txtQuestionContent"  class="all80" name="txtQuestionContent" isType="text" isnull="0" message="@Question.Question_QuestionManage_QueationContentNotNull">@(baseInfor.QuestionContent)</textarea>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            <span title="必填项" class="must">*</span>@Question.Question_QuestionManage_RightAnswer：
+        </td>
+        <td>
+            <div class="sel">
+                <input type="hidden" id="txtQuestionAnswer" value="@(questonInfor.Count > 0 ? (questonInfor[0].Answer ?? "0") : "0")" name="txtQuestionAnswer" />
+                <input type="radio" id="rightAnswer" value="0" name="judgeAnswer" @(id == "0" ? "checked=checked" : (questonInfor[0].Answer=="0" ? "checked=checked" : "")) />
+                <label>@Question.Question_QuestionManage_Right</label>
+                <input type="radio" id="wrongAnswer" value="1" name="judgeAnswer" @(id == "0" ? "" : (questonInfor[0].Answer == "1" ? "checked=checked" : "")) />
+                <label>@Question.Question_QuestionManage_Wrong</label>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">试题解析：</td>
+        <td>
+            <textarea id="txtQuestionAnalysis" class="all80" name="txtQuestionAnalysis"
+                message="试题解析不可以为空">@(id == "0" ? "" : baseInfor.QuestionAnalysis)</textarea>
+        </td>
+    </tr>
+</table>
+<script type="text/javascript">
+    //判断信息是否完整
+    function isCheck()
+    {
+        return true;
+    }
+
+    $(document).ready(function ()
+    {
+        $("#submitQuestionForm").PreCheckForm();
+        $("#rightAnswer,#wrongAnswer").bind("change", function ()
+        {
+            $("#txtQuestionAnswer").val($(this).attr("value"));
+        });
+    });
+</script>

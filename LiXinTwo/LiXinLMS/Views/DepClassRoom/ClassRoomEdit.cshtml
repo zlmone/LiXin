@@ -1,0 +1,135 @@
+﻿@{
+    Layout = null;
+}
+<div class="centerbody all">
+    <form method="post" action="" id="roomForm">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span8">
+                    <span class="must">*</span>教室名称：
+                </td>
+                <td>
+                    <input type="text" id="roomName" maxlength="30" name="roomName" class="span26" value="@(Model.RoomName)"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="must">*</span>教室容量：
+                </td>
+                <td>
+                    <input type="text" id="roomNumber" maxlength="4" name="roomNumber" class="span5" value="@(Model.RoomNumber == 0 ? 1 : Model.RoomNumber)"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="must">*</span>行数：
+                </td>
+                <td>
+                    <input type="text" id="roomRow" maxlength="2" name="roomRow" class="span5" value="@(Model.RowNumber == 0 ? 1 : Model.RowNumber)"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    <span class="must">*</span>列数：
+                </td>
+                <td>
+                    <input type="text" id="roomCol" maxlength="2" name="roomCol" class="span5" value="@(Model.ColumnNumber == 0 ? 1 : Model.ColumnNumber)"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">备注：
+                </td>
+                <td>
+                    <textarea id="roomMemo" name="roomMemo" class="span26">@(Model.Memo)</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <a id="btnAdd" class="btn">提交</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        jQuery.validator.addMethod("IsNum", function(value, element) {       
+            var length = value.length;  
+            var number=/^[1-9]*[1-9][0-9]*$/;
+            return this.optional(element) ||number.test(value) }, "请输入不大于9999的正整数"); 
+
+        jQuery.validator.addMethod("IsNum_1", function(value, element) {       
+            var length = value.length;  
+            var number=/^[1-9]*[1-9][0-9]*$/;
+            return this.optional(element) ||number.test(value) }, "请输入不大于99的正整数"); 
+       
+        $("#roomForm").validate({
+            debug: true,
+            submitHandler: submitform,
+            event: "blur",
+            rules: {
+                roomName: {
+                    required: true,
+                    remote: { type: "post", dataType: "json", url: "/DepClassRoom/IsExsitRoomName?t="+new Date(), data: { roomName: function() { return $("#roomName").val().trim(); }, id: @(Model.Id),deptId:$("#deptList").val() } }
+                },
+                roomNumber: {
+                    required: true,
+                    max:9999,
+                    min:1,
+                    IsNum:true
+                },
+                roomRow: {
+                    required: true,
+                    max:99,
+                    min:1,
+                    IsNum_1:true
+                },
+                roomCol: {
+                    required: true,
+                    max:99,
+                    min:1,
+                    IsNum_1:true
+                }
+            },
+            messages: {
+                roomName: {
+                    required: "请输入教室名称",
+                    remote: "已存在此教室名称"
+                },
+                roomNumber: {
+                    required: "请输入教室容量",
+                    max:"请输入不大于9999的正整数",
+                    min:"教室最小容量为1"
+                },
+                roomRow: {
+                    required: "请输入教室行数",
+                    max:"请输入不大于99的正整数",
+                    min:"教室最小行数为1"
+                },
+                roomCol: {
+                    required: "请输入教室列数",
+                    max:"请输入不大于99的正整数",
+                    min:"教室最小列数为1"
+                }
+            }
+        });
+        $("#btnAdd").bind("click", function() {
+            $("#roomForm").submit();
+        });
+        $("#roomMemo").textareaCount({maxCharacterSize:200});
+    });
+
+    function submitform(form) {
+        if (parseInt($("#roomRow").val()) * parseInt($("#roomCol").val()) <= parseInt($("#roomNumber").val())) {
+            $.post("/DepClassRoom/SubmitClassRoom?id=@(Model.Id)&deptId="+$("#selectDeptID").val(), $("#roomForm").formSerialize(), function(data) {
+                if (data.result == 1) {
+                    InitData();
+                    art.dialog.list['EditRoom'].close();
+                }
+            });
+        } else {
+            art.dialog.tips("教室的行和列乘积不可大于教室的容量",3);
+        }
+    }
+</script>

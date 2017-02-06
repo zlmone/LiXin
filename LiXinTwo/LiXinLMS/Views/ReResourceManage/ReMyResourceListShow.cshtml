@@ -1,0 +1,428 @@
+﻿@using LiXinLanguage
+@using LixinModels.ReResourceManage
+@model LixinModels.ReResourceManage.Re_Resource
+@{
+    ViewBag.Title = "知识详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Re_MyResource MyResource = ViewBag.ReMyResource as Re_MyResource;
+    
+    var convertpath=System.Configuration.ConfigurationManager.AppSettings["ReResourceConvertFile"];
+}
+
+<script src="../../Scripts/FlexPaper_1.5.1_flash/js/flexpaper_flash.js" type="text/javascript"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/ckplayer5.8/ckplayer.js")" charset="utf-8"></script>
+<input type="hidden" value="0" id="hidShipinFlag"/> @*是否加载视频插件0:否1:是*@
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = ViewBag.where == 1 ? "PreReMyResourceListShow" : "ReMyResourceListShow" }))
+     <table class="tab-Form">
+            <tr>
+                <div>
+                    <div class="lh40 bgcf5 borbot5">
+                        <h1 class="fwb fs14">@Model.ResourceName</h1>
+                    </div>
+                    @if (Model.Status == 1)
+                    {
+                        <h3>
+                            该资源已被删除！
+                        </h3>
+                    }
+                    else
+                    {
+                        <td>
+                            <div class="rkl_reader">
+                                @if (Model.Format == 0)
+                                {
+                                    if (File.Exists(System.Web.HttpContext.Current.Server.MapPath(convertpath.Trim('~') + Model.ResultURL)))
+                                    {
+                                        <a id="viewerPlaceHolder" style="width: 640px; height: 480px; display: block"></a>
+
+                                        <script type="text/javascript">
+                                            var fp = new FlexPaperViewer(
+                                                '../../Scripts/FlexPaper_1.5.1_flash/FlexPaperViewer',
+                                                'viewerPlaceHolder', {
+                                                    config: {
+                                                        SwfFile: decodeURI('@(convertpath.Trim('~')+Model.ResultURL)'),
+                                                        Scale : 0.6,  
+                                                        ZoomTransition : 'easeOut',  
+                                                        ZoomTime : 0.5,  
+                                                        ZoomInterval : 0.2,  
+                                                        FitPageOnLoad : true,  
+                                                        FitWidthOnLoad : true,  
+                                                        FullScreenAsMaxWindow : false,  
+                                                        ProgressiveLoading : false,  
+                                                        MinZoomSize : 0.2,  
+                                                        MaxZoomSize : 5,  
+                                                        SearchMatchAll : false,  
+                                                        InitViewMode : 'TowPage',  
+                                                        ViewModeToolsVisible : true,  
+                                                        ZoomToolsVisible : true,  
+                                                        NavToolsVisible : true,  
+                                                        CursorToolsVisible : true,  
+                                                        SearchToolsVisible : true,  
+                                                        localeChain: 'zh_CN'  
+                                                    }
+                                                });
+
+                                            //获取flexpaper元素
+                                            var docViewer;
+
+                                            function getDocViewer() {
+                                                if (docViewer)
+                                                    return docViewer;
+                                                else
+                                                    docViewer = window.FlexPaperViewer_Instance.getApi();
+                                                return docViewer;
+                                            }
+                                        </script>
+                                    }
+                                    else
+                                    {
+                                        <h3>
+                                            页面上的资源不存在！
+                                        </h3>
+                                    }
+                                }
+                                @if (Model.Format != 0)
+                                {
+                                    if (File.Exists(System.Web.HttpContext.Current.Server.MapPath(convertpath.Trim('~') + Model.ResultURL)))
+                                    {
+                                        <div id="divCkplayer">
+                                            正在加载播放器...
+                                        </div>
+                                        <script type="text/javascript">
+                                            $("#hidShipinFlag").val("1");
+                                        </script>
+                                    }
+                                    else
+                                    {
+                                        <span>页面可播放的视频不存在</span>
+                                    }
+                                }
+                            </div>
+                        </td>
+                        <td class="span25">
+                            <div class="all">
+                                <div class="rkl_down pt10">
+                                    
+                                    <table class="all">
+                                        <tr>
+                                            <input type="hidden" id="hidTotalScore" value="@Model.Score"/>
+                                            <input type="hidden" id="hidTotalScoreNum" value="@Model.ScoreNum"/>
+                                            <td class="span6">
+                                                <samp>总评价</samp>
+                                            </td>
+                                            <td>
+                                                <div id="divScore_TotalScore"  >
+                                                </div>
+                                            </td>
+                                            <td class="span10">
+                                                <label style="margin-top: -2px; font-size: x-large; color: #c00" id="totalScore">@Model.Score</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <input type="hidden" id="hidMySatisfaction" value="@MyResource.Satisfaction"/>
+                                            <input type="hidden" id="hidSatisfactionScore" value="@Model.Satisfaction"/>
+                                            <input type="hidden" id="hidSatisfactionScoreNum" value="@Model.SatisfactionNum"/>
+                                            <td>
+                                                <label>满意度</label>
+                                            </td>
+                                            <td>
+                                                <div id="divScore_Satisfaction"  onclick=" showStarsSatisfaction(0) ">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <label style="margin-top: -2px; color: #c00" id="satisfactionScore">
+                                                    @Model.Satisfaction</label>&nbsp;&nbsp;
+                                                <samp id="satisfactionNum">@(Model.SatisfactionNum)人已评价</samp>
+                                                <samp id="satisfactionMessage" style="display: none">
+                                                </samp>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <input type="hidden" id="hidMyPractical" value="@MyResource.Practical"/>
+                                            <input type="hidden" id="hidPracticalScore" value="@Model.Practical"/>
+                                            <input type="hidden" id="hidPracticalScoreNum" value="@Model.PracticalNum"/>
+                                            <td>
+                                                <label>
+                                                    实用度
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <div id="divScore_Practical"  onclick=" showStarsPractical(0) ">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <label style="margin-top: -2px; color: #c00" id="practicalScore">
+                                                    @Model.Practical</label>&nbsp;&nbsp;
+                                                <samp id="practicalNum">@(Model.PracticalNum)人已评价</samp>
+                                                <samp id="practicalMessage" style="display: none">
+                                                </samp>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <input type="hidden" id="hidMyAttention" value="@MyResource.Attention"/>
+                                            <input type="hidden" id="hidAttentionScore" value="@Model.Attention"/>
+                                            <input type="hidden" id="hidAttentionScoreNum" value="@Model.AttentionNum"/>
+                                            <td>
+                                                <label>
+                                                    关注度
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <div id="divScore_Attention"  onclick=" showStarsAttention(0) ">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <label style="margin-top: -2px; color: #c00" id="attentionScore">
+                                                    @Model.Attention</label>&nbsp;&nbsp;
+                                                <samp id="attentionNum">@(Model.AttentionNum)人已评价</samp>
+                                                <samp id="attentionMessage" style="display: none">
+                                                </samp>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">
+                                                <p class="rkl_downreadernumner">
+                                                    <span class="rkl_downnumber" style="color: #c00">@(Model.OpenNum)</span>人阅览
+                                                </p>
+                                                <p class="tl">
+                                                    <div class="ovh span14" title="@(Model.TypeName)">
+                                                        分类： @(Model.TypeName)
+                                                    </div>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    }
+                </div>
+            </tr>
+        </table>
+</div>
+<div class="mt10 mb10 tc">
+    @if (ViewBag.where == 1)
+    {
+        <a class="btn" href="/ReResourceManage/ReMyResourceManage">返回</a>
+    }
+    else
+    {
+        <a class="btn" href="/ReResourceManage/ReResourceManage">返回</a>
+    }
+    
+</div>
+<script>
+    
+    function showStarsTotalScore(t) {
+        if ($("div[id^='divScore_TotalScore']").length > 0) {
+            $("div[id^='divScore_TotalScore']").each(function() {
+                var star = $("#hidTotalScore").val();
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: t }, function(value) {
+                });
+            });
+        }
+    }
+    
+    function showStarsSatisfaction(t) {
+        if ($("div[id^='divScore_Satisfaction']").length > 0) {
+            $("div[id^='divScore_Satisfaction']").each(function() {
+                var star = $("#hidSatisfactionScore").val();
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: t }, function(value) {
+                    //$("#hidMySatisfaction").val(value);
+                    SetScore(value, 0);
+                });
+            });
+        }
+    }
+    
+    function showStarsPractical(t) {
+        if ($("div[id^='divScore_Practical']").length > 0) {
+            $("div[id^='divScore_Practical']").each(function() {
+                var star = $("#hidPracticalScore").val();
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: t }, function(value) {
+                    //$("#hidMyPractical").val(value);
+                    SetScore(value, 1);
+                });
+            });
+        }
+    }
+    
+    function showStarsAttention(t) {
+        if ($("div[id^='divScore_Attention']").length > 0) {
+            $("div[id^='divScore_Attention']").each(function() {
+                var star = $("#hidAttentionScore").val();
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: t }, function(value) {
+                    //$("#hidMyAttention").val(value);
+                    SetScore(value, 2);
+                });
+            });
+        }
+    }
+    
+    $(document).ready(function () {
+       
+        showStarsTotalScore(0);
+        if (@MyResource.Satisfaction == -1) {
+            showStarsSatisfaction(1);
+        } else {
+            showStarsSatisfaction(0);
+        }
+        if (@MyResource.Practical == -1) {
+            showStarsPractical(1);
+        } else {
+            showStarsPractical(0);
+        }
+        if (@MyResource.Attention == -1) {
+            showStarsAttention(1);
+        } else {
+            showStarsAttention(0);
+        }
+        if($("#hidShipinFlag").val().trim()!="0") {
+            ckplay();
+        }
+    });
+
+    function SetScore(score, type) {
+        var resourceID = "@Model.ResourceID";
+        var myScore;//我之前评价的分数
+        var OldScoreGive;//原先该项的总分
+        var OldMen;//原先该项的评价人数
+        var OldMenTo = 0;//原先评价总人数
+        var ScoreMen = 0;//评价次数
+        var hidTotalScoreN = parseInt($("#hidTotalScoreNum").val());
+        OldMenTo = parseInt($("#hidSatisfactionScoreNum").val()) + parseInt($("#hidPracticalScoreNum").val()) + parseInt($("#hidAttentionScoreNum").val());
+        var totalScoreNow = $("#hidTotalScore").val() * OldMenTo;//原先的总分
+        if (parseInt($("#hidMySatisfaction").val()) == -1 && parseInt($("#hidMyPractical").val()) == -1 && parseInt($("#hidMyAttention").val()) == -1) {
+            ScoreMen =  hidTotalScoreN + 1;
+        } else {
+            ScoreMen = hidTotalScoreN;
+        }
+        switch (type) {
+        case 0: //满意度
+            myScore = @MyResource.Satisfaction;
+            OldScoreGive = $("#hidSatisfactionScore").val() * $("#hidSatisfactionScoreNum").val();
+            OldMen = $("#hidSatisfactionScoreNum").val();
+            $("#hidMySatisfaction").val(score);
+            break;
+        case 1: //实用度
+            myScore = @MyResource.Practical;
+            OldScoreGive = $("#hidPracticalScore").val() * $("#hidPracticalScoreNum").val();
+            OldMen = $("#hidPracticalScoreNum").val();
+            $("#hidMyPractical").val(score);
+            break;
+        case 2: //关注度
+            myScore = @MyResource.Attention;
+            OldScoreGive = $("#hidAttentionScore").val() * $("#hidAttentionScoreNum").val();
+            OldMen = $("#hidAttentionScoreNum").val();
+            $("#hidMyAttention").val(score);
+            break;
+        }
+
+        if (myScore == -1) {
+            $.getJSON("/ReResourceManage/SetResourceScore?ResourceID=" + resourceID + "&Score=" + score + "&type=" + type + "&OldScore=" + OldScoreGive + "&OldMen=" + OldMen + "&TotalMen=" + OldMenTo + "&OldTotalScore=" + totalScoreNow + "&ScoreTotal=" + ScoreMen, function (data) {
+                if (data.result == 1) {
+                    switch (type) {
+                    case 0: //满意度
+                        $("#hidSatisfactionScore").val(data.score);
+                        $("#hidSatisfactionScoreNum").val(data.num);
+                        showStarsSatisfaction(0);
+                        setTimeout(function () {
+                            $("#satisfactionScore").html(data.score);
+                            $("#satisfactionNum").html(data.num + "人已评价");
+                            $("#hidSatisfactionScore").val(data.score);   
+                        }, 500);
+
+                        $("#satisfactionMessage").html("谢谢评价！");
+                        $("#satisfactionMessage").show();
+                        $("#satisfactionNum").hide();
+                        break;
+                    case 1: //实用度
+                        $("#hidPracticalScore").val(data.score);
+                        $("#hidPracticalScoreNum").val(data.num);
+                        showStarsPractical(0);
+                        setTimeout(function () {
+                            $("#practicalScore").html(data.score);
+                            $("#practicalNum").html(data.num + "人已评价");
+                            $("#hidPracticalScore").val(data.score);
+                        }, 500);
+
+                        $("#practicalMessage").html("谢谢评价！");
+                        $("#practicalMessage").show();
+                        $("#practicalNum").hide();
+                        break;
+                    case 2: //关注度
+                        $("#hidAttentionScore").val(data.score);
+                        $("#hidAttentionScoreNum").val(data.num);
+                        showStarsAttention(0);
+                        setTimeout(function () {
+                            $("#attentionScore").html(data.score);
+                            $("#attentionNum").html(data.num + "人已评价");
+                            $("#hidAttentionScore").val(data.score);
+                        }, 500);
+
+                        $("#attentionMessage").html("谢谢评价！");
+                        $("#attentionMessage").show();
+                        $("#attentionNum").hide();
+                        break;
+                    }
+
+                    //总评分
+                    $("#hidTotalScore").val(data.totalSc);
+                    $("#hidTotalScoreNum").val(data.totalNu);
+                    $("#totalScore").html(data.totalSc);
+                    showStarsTotalScore(0);
+                }
+            });
+        } else {
+            switch (type) {
+            case 0: //满意度
+                $("#satisfactionMessage").html("您已评价");
+                $("#satisfactionMessage").show();
+                $("#satisfactionNum").hide();
+                break;
+            case 1: //实用度
+                $("#practicalMessage").html("您已评价");
+                $("#practicalMessage").show();
+                $("#practicalNum").hide();
+                break;
+            case 2: //关注度
+                $("#attentionMessage").html("您已评价");
+                $("#attentionMessage").show();
+                $("#attentionNum").hide();
+                break;
+            }
+        }
+//               alert($("#hidMySatisfaction").val()+ $("#hidMyPractical").val()+$("#hidMyAttention").val());
+//        alert(ScoreMen);
+    }
+
+    function ckplay() {
+        var s1 = new swfupload();
+        s1.ckplayer_url = '@Url.Content("~/Scripts/ckplayer5.8/ckplayer.swf")'; //播放器文件名
+        s1.ckplayer_flv = '@Url.Content(convertpath+Model.ResultURL)'; //视频地址,这里也可以填写一个网址或xml地址或flash文件,具体的设置请到网站了解
+        s1.ckplayer_pat = '1'; //传递的参数,这里的具体参数设置方式到网站了解
+        s1.ckplayer_style = 0; //传递的方式,0是普通方式，1是网址传送，2是xml传送，3是flash传送
+        s1.ckplayer_default = 0; //读取文本配置，此参数具有非常强大的功能，（比如外站引用视频只需一个参数即可）说来话长，请到网站了解详情
+        s1.ckplayer_xml = ''; //风格配置xml文件，如果为空的话将使用js文件配置
+        s1.ckplayer_loadimg = ''; //初始图片地址
+        s1.ckplayer_pauseflash = ''; //暂停时播放的广告，只支持flash和图片
+        s1.ckplayer_pauseurl = ''; //暂停时播放图片时需要加一个链接
+        s1.ckplayer_loadadv = ''; //视频开始前播放的广告，可以是flash,也可是视频格式
+        s1.ckplayer_loadurl = ''; //视频开始前广告的链接地址，主要针对视频广告，如果是flash可以不填写
+        s1.ckplayer_loadtime = 0; //视频开始前广告播放的秒数,只针对flash或图片有效
+        s1.ckplayer_endstatus = 2; //视频结束后的动作，0停止播放并发送js,1是不发送js且重新循环播放,2停止播放
+        s1.ckplayer_volume = 40; //视频默认音量0-100之间
+        s1.ckplayer_play = 1; //视频默认播放还是暂停，0是暂停，1是播放
+        s1.ckplayer_width = 640; //播放器宽度
+        s1.ckplayer_height = 480; //播放器高度
+        s1.ckplayer_bgcolor = '#000000'; //播放器背景颜色
+        s1.ckplayer_allowFullScreen = true; //是否支持全屏，true支持，false不支持，默认支持
+        s1.swfwrite('divCkplayer'); //div的id
+    }
+</script>
+

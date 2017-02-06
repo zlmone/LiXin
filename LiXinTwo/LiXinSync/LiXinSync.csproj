@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{270BFF0B-8C14-4C6A-BC85-2DB704FAB745}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LiXinSync</RootNamespace>
+    <AssemblyName>LiXinSync</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DBHelper\BaseModel.cs" />
+    <Compile Include="DBHelper\DataAccess.cs" />
+    <Compile Include="DBHelper\SqlDataAccess.cs" />
+    <Compile Include="Helper\DataFieldAttribute.cs" />
+    <Compile Include="Helper\TableInfoAttribute.cs" />
+    <Compile Include="Model\Employee.cs" />
+    <Compile Include="Model\Sys_DeptHR.cs" />
+    <Compile Include="Model\Sys_UserFinger.cs" />
+    <Compile Include="Model\Sys_UserHR.cs" />
+    <Compile Include="Model\TrainUserFinger.cs" />
+    <Compile Include="Model\Sys_UserChangeHR.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SyncInfo.cs" />
+    <Compile Include="Test.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LiXinBLL\LiXinBLL.csproj">
+      <Project>{FE9334C9-5A94-4429-8294-842234AAE7BE}</Project>
+      <Name>LiXinBLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinInterface\LiXinInterface.csproj">
+      <Project>{17E752C8-5549-4A84-B378-71BFEC4DCD3F}</Project>
+      <Name>LiXinInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LixinModels\LiXinModels.csproj">
+      <Project>{9F7DCE1F-6769-4BED-8876-B3D118306F57}</Project>
+      <Name>LiXinModels</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

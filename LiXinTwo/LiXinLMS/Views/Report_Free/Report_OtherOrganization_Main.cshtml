@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "Report_Free";
+    Layout = null;
+}
+
+<div id="div_content">
+<div class="tab-bk mt10">
+        <ul id="tag_other">
+            <li class="On" id="tCPA0">CPA</li>
+            <li id="tCPA1">非CPA</li>
+        </ul>
+    </div>
+    <div id="OtherOrganization">
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        showfromTable_OtherOrganization(0);
+
+        $("#tag_other li").click(function ()
+        {
+            
+            $(this).addClass("On").siblings("li").removeClass("On");           
+            showfromTable_OtherOrganization($(this).index())
+        });
+    });
+
+    function showfromTable_OtherOrganization(index)
+    {
+        switch (parseInt(index))
+        {
+            case 0:
+                $("#OtherOrganization").html("");
+                $("#OtherOrganization").load("Report_OtherOrganization");
+                break;
+            case 1:
+                $("#OtherOrganization").html("");
+                $("#OtherOrganization").load("Report_OtherOrganization_NoCPA");
+                break;
+
+        }
+    }
+</script>

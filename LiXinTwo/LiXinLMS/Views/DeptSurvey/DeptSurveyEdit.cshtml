@@ -1,0 +1,392 @@
+﻿@model LiXinModels.Survey.Survey_Survey
+@using LiXinLanguage
+@{
+    ViewBag.Title = "编辑调查";
+}
+<form id="forsurveyManage">
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "编辑调查"
+}))
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">调查名称：
+                </td>
+                <td>
+                    <input id="txtName" name="Name" type="text" class="span16" maxlength="30" value="@Model.Name" />
+                </td>
+            </tr>
+            <tr>
+
+                <td class="Tit span6">选择问卷：
+                </td>
+                <td>
+                    <span id="paperTitle">@Model.ExamTitle</span>
+                    <input type="button" class="btn btn-co" value="选择问卷" name="selectpaper" onclick="fnShowChooseSurvey(1)" />
+                    <input id="paperID" name="paperID" type="hidden" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">调查时间：
+                </td>
+                <td>
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" name="StartTime" />
+                        <i></i>
+                    </div>
+                    <label>
+                        至</label>
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" name="EndTime" />
+                        <i></i>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="vertical-align: top;" class="Tit span6">调查说明：
+                </td>
+                <td>
+                    <textarea id="txtMemo" name="Memo" cols="20" rows="2" style="width: 260px; height: 100px">@Model.MemoNohtml</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">开放人群：
+                </td>
+                <td style="vertical-align: middle">
+                    <div class="fl all">
+                        <input type="hidden" name="OpenFlag" id="txtOpenFlag" />
+
+                        <input type="checkbox" name="chbOpenFlag" id="chbOpenFlag2" onclick="fnChooseOpen(this,2)"
+                            value="2" /><label>组织结构</label>
+
+                        <input type="hidden" id="txtOpenDepartObject" name="OpenDepart" value="@Model.OpenDepart" />
+                        <input type="hidden" id="txtOpenGroupObject" name="OpenGroup" value="@Model.OpenGroup"/>
+                        <input type="hidden" name="hidSpecialUserIds" value="" />
+
+
+                        <div id="div_showDept">
+                            @if (ViewBag.Departs != null)
+                            {
+                                if (((IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.Departs).Count() > 0)
+                                { 
+                                <div class="seled-list">
+                                    <h4 id="sp_chooseDept">已选组织结构：</h4>
+                                    <ul>
+                                        @foreach (var item in (IEnumerable<LiXinModels.User.Sys_Department>)ViewBag.Departs)
+                                        {
+                                            <li id="div_DeptItem_@(item.DepartmentId)">
+                                                <span title="@item.DeptName">@item.DeptName</span>
+                                                <input class="btn btn-cancel" type="button" value="X" title="移除" name="btn" onclick="fnRemoveDeptItem('div_DeptItem_@(item.DepartmentId)    ',@item.DepartmentId)" /></li>
+                                        }
+                                    </ul>
+                                    <div class="mt10">
+                                        <input type="button" id="btnGoOnAddDept" onclick="fnGoOnAddDept()" value="继续添加组织结构"
+                                            class="btn btn-co" />
+                                    </div>
+                                </div>
+                                }
+
+                            }
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <center class="mt10">
+        <input name="Id" type="hidden" value="@Model.Id" />
+        <input class="btn" type="submit" value="保存" />
+        <input type="button" class="btn  btn-cancel" value="返回" onclick="back()" />
+    </center>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        if (@ViewBag.id > 0)
+        {
+            $("#paperID").val("@Model.PaperID")
+            if ("@Model.OpenGroupFlag" == "1")
+            {
+                $("#chbOpenFlag1").attr("checked", true);
+            }
+            if ("@Model.OpenDepartFlag" == "1")
+            {
+                $("#chbOpenFlag2").attr("checked", true);
+            }
+            $("#start").val("@Model.startstr");
+            $("#end").val("@Model.endstr");
+        }
+        else
+        {
+            $("#start").val("@ViewBag.start");
+            $("#end").val("@ViewBag.end"); 
+        }
+
+        $("#forsurveyManage").validate(
+            {
+                event: "blur",
+                debug:false,
+                rules: {
+                    Name: { required: true, maxlength: 30 },
+                    paperID: { required: true },
+                    chbOpenFlag:{required: true},
+                    Memo:{maxlength: 200 }
+                },
+                messages: {
+                    Name: { required: "请填写调查名称！", maxlength: "调查名称不能多于30个字符" },
+                    paperID: { required: "请选择调查问卷！" },
+                    chbOpenFlag:{required: "请选择开放人群"},
+                    Memo:{maxlength: "调查说明不能多于200个字符" }
+                },
+                errorPlacement: function (error, element) {
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        var eid = element.attr('name');
+                        $('input[name=' + eid + ']:last').parent().after(error);
+                    } else {
+                        error.insertAfter(element);
+                    }
+
+                },
+                submitHandler: Insert
+            });
+    });
+
+
+    //添加群组合组织架构
+    function fnChooseOpen(obj, flag)
+    {
+
+        if (flag == 1)//群组
+        {
+            if ($(obj).is(":checked"))
+            {
+                art.dialog.load("/CourseManage/CourseChooseGroup", { title: '选择群组', id: "pop_chooseGroup",
+                    close: function ()
+                    {
+                        if ($("#txtOpenGroupObject").val() == "")
+                        {
+                            $(obj).attr("checked", false);
+                        } else
+                        {
+                            $(obj).attr("checked", true);
+                        }
+                    }
+                }, false);
+            }
+            else
+            {
+                $("#div_showgroup").html("");
+                $("#txtOpenGroupObject").val("");
+            }
+        }
+        if (flag == 2)//组织结构
+        {
+            if ($(obj).is(":checked"))
+            {
+                art.dialog.load("/UserCommon/DeptTree?type=checkbox&buttonShow=1", { title: '选择组织结构', id: "pop_chooseDept",
+                    close: function ()
+                    {
+                        if ($("#txtOpenDepartObject").val() == "")
+                        {
+                            $(obj).attr("checked", false)
+                        }
+                    }
+                }, false);
+            }
+            else
+            {
+                $("#div_showDept").html("");
+                $("#txtOpenDepartObject").val("");
+            }
+
+        }
+    }
+
+    //继续添加结构
+    function fnGoOnAddDept()
+    {
+        art.dialog.load("/UserCommon/DeptTree?type=checkbox&buttonShow=1", { title: '选择组织结构', id: "pop_chooseDept",
+            close: function () {
+                if ($("#txtOpenDepartObject").val()=="") {
+                    $("#chbOpenFlag2").attr("checked",false);
+                }else {
+                    $("#chbOpenFlag2").attr("checked",true);
+                }
+            }
+        }, false);
+
+    }
+
+    function InitDeptTree()
+    {
+        if (($("#txtOpenDepartObject").val()!= "")&&($("#txtOpenDepartObject").val()!= 0)) {
+            var checkboxArray3 = $('#pop_deptTree input[type=checkbox]');
+            var IsOrderList = $("#txtOpenDepartObject").val().split(',');
+            for (key in IsOrderList) {
+                $.each(checkboxArray3, function (index, value) {
+                    if (IsOrderList[key] == $(value).val().split("_")[0]) {
+                        $(this).attr('checked', true);
+                        $(this).attr('disabled', "disabled"); 
+                    }
+                });
+            }
+
+
+            var IsOrderList2 = $("#txtOpenDepartObject").val().split(',');
+            for (key in IsOrderList2) {
+                $.each(checkboxArray3, function (index, value) {
+                    if (IsOrderList[key] == $(value).val().split("_")[0]) {
+                        if ("@ViewBag.TokenPublishflag" == 1) { $(this).attr('disabled', "disabled"); $(this).attr('oldchoose', "oldchoose"); }
+                }
+                });
+        }
+    }
+}
+//从隐藏域中移除相关的组织架构编号
+function fnRemoveDeptItem(id,groupId)
+{
+    $("#"+id).remove();
+    var oldGroupIds=$("#txtOpenDepartObject").val();
+
+    oldGroupIds =","+oldGroupIds+",";
+    var str=","+groupId+",";
+    if(oldGroupIds==str){
+        oldGroupIds=oldGroupIds.replace(str,"");
+    }else{
+        oldGroupIds=oldGroupIds.replace(str,",");
+    }
+    oldGroupIds=oldGroupIds.substring(1,oldGroupIds.length-1);
+    $("#txtOpenDepartObject").val(oldGroupIds);
+    if (oldGroupIds=="") {
+        $("#chbOpenFlag2").attr("checked",false);
+        $("#btnGoOnAddDept").remove();
+        $("#sp_chooseDept").remove();
+    }
+    if($("li[id^='div_DeptItem_']").length==0)
+    {
+        $("#div_showDept").html("");
+        $("#chbOpenFlag2").attr("checked",false);
+    }
+}
+
+//添加组织结构
+function SelectDept()
+{
+    var ids = "";
+    var names = "";
+    var html ="";
+    var flag=0;
+    if($("#sp_chooseDept").length==0)
+    {
+        html += "<div class='seled-list'><h4 id='sp_chooseDept'>已选组织结构：</h4><ul>";
+        flag=1;
+    }
+   
+    if( $("#pop_deptTree input:checked").length==0)
+    {
+        art.dialog.tips("请选择组织架构！", 3);
+        return;
+    }
+    $("#pop_deptTree input:checked").each(function ()
+    {
+        if ($(this).attr("disabled") == "disabled") {
+            return;
+        }
+        var s = $(this).attr("value").split("_");
+        ids = ids + s[0] + ",";
+        names = names + $(this).next().text() + "♣";
+        html += "<li id='div_DeptItem_" + s[0] + "'><span title='"+$(this).next().text()+"'>" + $(this).next().text() + '</span>' +
+    "<input  type='button' name='btn' title='移除' value='X' class='btn btn-cancel' onclick=fnRemoveDeptItem(\'div_DeptItem_" + s[0] + "\'," + s[0] + ") /></li>";
+    });
+    if (ids.length > 0)
+    {
+        ids = ids.substring(0, ids.length - 1);
+        names = names.substring(0, names.length - 1);
+        if(flag==1)
+        {
+            html += "</ul><div class='mt10'><input type='button' class='btn btn-co' id='btnGoOnAddDept' onclick='fnGoOnAddDept()' value='继续添加组织结构' /></div></div>";
+            $("#div_showDept").append(html);
+        }
+        else
+        {
+            $("#div_showDept").find("ul").eq(0).append(html);
+            //var h = "<div class='mt10'><input type='button' class='btn btn-co' id='btnGoOnAddDept' onclick='fnGoOnAddDept()' value='继续添加组织结构' /></div></div>";
+            //$("#div_showDept").find("ul").eq(0).after(h);
+        }
+
+    }
+    else
+    {
+        html = "";
+    }
+    var oldids=$("#txtOpenDepartObject").val();
+    $("#txtOpenDepartObject").val(oldids==""?ids: oldids+","+ids);
+    //$("#div_showDept").html(html);
+    art.dialog.list["pop_chooseDept"].close();
+}
+
+function fnShowChooseSurvey(obj) //选择课程评估问卷
+{
+        
+    art.dialog.load("DeptCourseChooseSurvey?type=1&DeptID=@ViewBag.DeptID", {
+        title: "选择问卷",
+        id: "pop_SelSurvey",
+        close: function ()
+        {
+            if (($("#hid_SurveyPaperId").val() == "") || ($("#hid_SurveyPaperId").val() == 0))
+            {
+                $("#div_showSurvey").hide();
+                $("#rad_IsPing0").attr("checked", "checked");
+            }
+        }
+    }, false);
+    $("#0").removeAttr("onclick");
+
+}
+
+//添加问卷
+function fnChooseSurvey(str, surveyName,type)
+{
+    $("#paperID").val(str);
+    $("#paperTitle").html(surveyName);
+    art.dialog.list['pop_SelSurvey'].close();
+
+}
+
+function Insert()
+{
+    if($("#start").val()==""&&$("#end").val()!="")
+    {
+        art.dialog.tips("时间可以不填，或者请填写完整的时间！",3);
+        return false;
+    }
+    if($("#start").val()!=""&&$("#end").val()=="")
+    {
+        art.dialog.tips("时间可以不填，或者请填写完整的时间！",3);
+        return false;
+    }
+    else if($("#start").val()==""&&$("#end").val()=="")
+    {
+        if("@ViewBag.start"==""||"@ViewBag.end"=="")
+        {
+            art.dialog.tips("请填写时间或者在参数配置中填写培训需求上报时间！",3); 
+            return false;
+        }
+    }
+    $.post("/DeptSurvey/InsertSurvey_Survey?DeptID=@ViewBag.DeptID", $("#forsurveyManage").formSerialize(), function (data) 
+    {
+        if(data.result==1)
+        {
+            window.location.href="DeptSurveyManage";
+        }
+    });
+}
+
+function back()
+{
+    window.location.href="DeptSurveyManage";
+}
+</script>

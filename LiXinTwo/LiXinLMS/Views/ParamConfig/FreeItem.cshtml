@@ -1,0 +1,143 @@
+﻿@{
+    ViewBag.Title = "FreeItem";
+    Layout = null;
+}
+<div id="div_item">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">免修项目：
+                </td>
+                <td>
+                    <input type="text" class="span30 Box searchclass" id="FreeName" value="请输入免修项目" info="请输入免修项目" />
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick="Getdata();" />
+                    <input class="btn" type="button" value="新增项目" id="AddFreeItem" onclick="AddFreeItem()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号</th>
+                    <th class="span15">免修项目</th>
+                    <th class="span8" style="text-align: left">是否适用于申请所内免修</th>
+                    <th class="span8" style="text-align: left">是否适用于申请CPA免修</th>
+                    <th  style="text-align: left">所内免修学时</th>
+                    <th  style="text-align: left">CPA免修学时</th>
+                    <th>上传文件提示</th>
+                    <th class="span6">操作</th>
+                </tr>
+            </thead>
+            <tbody id="ItemList"></tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+</div>
+<div id="add_item" style="display: none">
+    正在加载......
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        Getdata();
+
+        if (@ViewBag.IsEdit==0)
+        {
+            $("#AddFreeItem").attr("disabled",true);            
+        }
+    });
+
+    function Getdata()
+    {
+        $("#div_item").show();
+        $("#add_item").hide();
+        $("#ItemList").JsRenderData({
+            sourceUrl: "/ParamConfig/GetFreeList?&year=@ViewBag.year&FreeName=" + escape(getSearchWord("FreeName")),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "ItemListTemplate"
+        });
+    }
+
+    function AddFreeItem()
+    {
+        $("#div_item").hide()
+        $("#add_item").show();
+        $("#add_item").load("AddFreeItem?id=0&year=@ViewBag.year");
+    }
+
+    function hideFreeItem()
+    {
+        $("#div_item").show();
+        $("#add_item").html("");
+    }
+
+    function DeleteFreeItem(id)
+    {
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function ()
+            {
+                $.post("DeleteFreeItem?id=" + id, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        art.dialog.tips(data.Content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    function EditFreeItem(id)
+    {
+        $("#div_item").hide();
+        $("#add_item").show();
+        $("#add_item").load("AddFreeItem?id=" + id + "&year=@ViewBag.year");
+    }
+</script>
+<script id="ItemListTemplate" type="text/x-jsrender">
+   {{for #data}}
+      <tr>
+          <td>{{:#index+1}}</td>
+          <td title="{{:FreeName}}" style="text-align: left;">{{:FreeName}}</td>
+          <td>{{:TogetherFree}}</td>
+          <td>{{:CPAFree}}</td>
+          <td class="tc">
+           {{if ApplyType == 1}} 
+               N/A
+    　     {{else}}
+               {{:TogetherFreeScore}}
+           {{/if}}
+          </td>
+          <td class="tc">
+            {{if ApplyType == 0}} 
+                 N/A
+    　      {{else}}
+                 {{:CPAFreeScore}}
+            {{/if}}
+          </td>
+          <td style="text-align: left;">{{:UploadTip}}</td>
+          <td>
+             {{if @ViewBag.IsEdit==1}}
+                 <a class="icon iedit" title="编辑" onclick="EditFreeItem({{:ID}})">编辑</a>
+                 <a class="icon idel" title="删除" onclick="DeleteFreeItem({{:ID}})">删除</a>
+             {{else}}
+                    <a title='历史数据无法修改' class="icon iedit" disabled="disabled" ></a>
+                <a title='历史数据无法修改' class="icon idel" disabled="disabled"></a>
+             {{/if}}
+          </td>
+      </tr>
+   {{/for}}
+</script>

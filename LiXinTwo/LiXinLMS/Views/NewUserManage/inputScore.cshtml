@@ -1,0 +1,97 @@
+﻿@using LiXinLanguage
+@model LiXinModels.New_UserExamScore
+@{
+    ViewBag.Title = "inputScore";
+    Layout = null;
+    
+}
+<form id="forminputScore">
+    <div>
+        <table class="tab-Form" style="width: 620px">
+            <tr>
+                <td class="Tit span8">考试得分：</td>
+                <td>
+                    <input type="text" id="ExamScore" name="Score" class="span15" value="@(Model == null ? 0 : Model.Score)" /></td>
+            </tr>
+            <tr>
+                <td class="Tit span8">考试总分：</td>
+                <td>
+                    <input type="text" id="ExamSumScore" name="SumScore" class="span15" value="@(Model == null ? 0 :Model.SumScore)" /></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="submit" class="btn" value="确定" id="btn_OK" />
+                    <input type="button" class="btn  btn-cancel" value="取消" id="close" onclick="closeDialog('pop_inputScore');" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <input id="hidID" name="ID" type="hidden" value="@(Model == null ? 0 : Model.Id)" />
+    <input  name="UserID" type="hidden" value="@(ViewBag.userID)" />
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        jQuery.validator.addMethod("ExamSum", function (value, element)
+        {
+            var flag = true;
+            var score = $("#ExamScore").val();
+            if (score != "")
+            {
+                if (value == "")
+                {
+                    flag = false;
+                }
+                else
+                {
+                    flag = (parseInt(score) > parseInt(value)) ? false : true;
+                }
+            }
+            return flag;
+        }, $.validator.format("请同时填写考试总分并且大于等于考试得分！"));
+
+        jQuery.validator.addMethod("isnum", function (value, element)
+        {
+            var reg = /^\d+[\.]?\d{0,2}$/;
+            return reg.test(value);
+        }, $.validator.format("如果小数，请保留2位！"));
+
+        $("#forminputScore").validate(
+            {
+                event: "blur",
+                rules: {
+                    Score: { min: 0, max: 999, isnum: true },
+                    SumScore: { min: 0, max: 999, ExamSum: true, isnum: true }
+                },
+                messages: {
+                    Score: { min: "请输入大于等于0的数", max: "请输入小于999的数" },
+                    SumScore: { min: "请输入大于等于0的数", max: "请输入小于999的数" }
+                },
+                errorPlacement: function (error, element)
+                {
+                    error.insertAfter(element);
+                },
+                submitHandler: function ()
+                {
+                    if ($.trim($("#ExamScore").val()) == "")
+                    {
+                        $("#ExamSumScore").next().hide();
+                    }
+
+                    pop_AddScore()
+                }
+            });
+    });
+
+    function pop_AddScore()
+    {
+        $.post("SaveScore", $("#forminputScore").formSerialize(), function (data)
+        {
+            if (data.result == 1)
+            {
+                InitData();
+                closeDialog('pop_inputScore');
+            }
+        });
+    }
+</script>

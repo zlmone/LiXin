@@ -1,0 +1,21 @@
+﻿@{
+    ViewBag.Title = "PopCourseCommonList";
+    if (ViewBag.PopCourseType==0)
+    {
+        Layout = null;
+    }
+}
+
+<h2></h2>
+<div id="div_CourseSystem">
+</div>
+
+<div id="div_CourseCommonList">
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.get("/CourseManage/CourseSystemTree?type=@ViewBag.Type&checkBoxFlag=@ViewBag.checkBoxFlag&showButton=@ViewBag.showButton", function (data) {
+            $("#div_CourseSystem").html(data);
+        }).then($.get("/CourseManage/CourseCommonList?showSearch=@ViewBag.showSearch&showOperation=@ViewBag.showOperation&showCourseCheckbox=@ViewBag.showCourseCheckbox&showCourseButton=@ViewBag.showCourseButton", function (data) { $("#div_CourseCommonList").html(data) }));
+    });
+</script>

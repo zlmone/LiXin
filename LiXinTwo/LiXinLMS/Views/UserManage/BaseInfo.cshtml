@@ -1,0 +1,50 @@
+﻿@using LiXinModels.User
+@{
+    Layout = null;
+    var model = ViewData["modelinfo"] as Sys_User;
+}
+<h2 class="tit-h2">
+    <i></i>
+    <span class="tit-con">我的档案</span>
+</h2>
+<div class="tab-red">
+    <ul>
+        <li class="On" onclick="showmian(1);$(this).parent().find('li').removeClass('On');$(this).addClass('On');" title="基本信息">基本信息<i></i></li>
+        <li onclick="showdiv(1);$(this).parent().find('li').removeClass('On');$(this).addClass('On');" title="头像设置">头像设置<i></i></li>
+    </ul>
+</div>
+<div id="div_tpl_basic">
+    <table class="tab-Form lh30 pl20">
+        <tr>
+            <td class="Tit span7">姓名：</td>
+            <td>@(model.Realname)</td>
+        </tr>
+        <tr>
+            <td class="Tit">性别：</td>
+            <td>@(model.SexStr)</td>
+        </tr>
+        <tr>
+            <td class="Tit">电子邮箱：</td>
+            <td>@(model.Email)</td>
+        </tr>
+        <tr>
+            <td class="Tit">联系方式：</td>
+            <td>@(model.MobileNum)</td>
+        </tr>
+        <tr>
+            <td class="Tit">是否讲师：</td>
+            <td>@(model.IsTeacher > 0 ? "是" : "否")</td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $("#p_usercommon").load("UserInfoComm");
+    function showdiv(type) {
+        switch (type) {
+            case 1:
+                $("#div_tpl_basic").load("/UserManage/Avatar?t=" + (new Date()).getUTCMilliseconds());
+                break;
+        }
+    }
+</script>
+
