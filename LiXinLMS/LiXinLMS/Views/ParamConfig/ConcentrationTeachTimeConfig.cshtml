@@ -1,0 +1,99 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var modell = ViewBag.model as Sys_ParamConfig;
+}
+
+<form id="fnSumitConfig">
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">集中授课学时折算分布</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span20">考勤：</td>
+            <td>
+                <div class="fl">
+                <input type="text" class="span16" id="level_A" name="Anumber" maxlength="3" value="@(modell.ConfigValue.Split(';')[0])"/>%
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">在线测试：</td>
+            <td>
+                <div class="fl">
+                <input type="text" class="span16" id="level_B" name="Bnumber" maxlength="3" value="@(modell.ConfigValue.Split(';')[1])"/>%
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">课后评估：</td>
+            <td>
+                <div class="fl">
+                <input type="text" class="span16" id="level_C" name="Cnumber" maxlength="3" value="@(modell.ConfigValue.Split(';')[2])"/>%
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td><input type="submit" value="确定" id="btn_Add" class="btn"/></td>
+        </tr>
+    </table>
+</form>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#fnSumitConfig").validate({
+                event: "blur",
+                rules: {
+                    Anumber: { required: true, digits: true, min: 0, max: 100 },
+                    Bnumber: { required: true, digits: true, min: 0, max: 100 },
+                    Cnumber: { required: true, digits: true, min: 0, max: 100 }
+                },
+                messages: {
+                    Anumber: { required: "请输入百分比", digits: "请输入大于等于0的整数", min: "请输入大于等于0的整数", max: "请输入小于等于100的整数" },
+                    Bnumber: { required: "请输入百分比", digits: "请输入大于等于0的整数", min: "请输入大于等于0的整数", max: "请输入小于等于100的整数" },
+                    Cnumber: { required: "请输入百分比", digits: "请输入大于等于0的整数", min: "请输入大于等于0的整数", max: "请输入小于等于100的整数" }
+                },
+                errorPlacement: function (error, element) {
+                    var eid = element.attr('name');
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        $('input[name=' + eid + ']:last').next().after(error);
+                    } else {
+                       
+                        error.insertAfter(element.parent());
+                    }
+
+                },
+                submitHandler: fnSumitConfig
+            });
+        });
+
+        function fnSumitConfig() {
+            //var t = $("#level_A").val() + ";" + $("#level_B").val() + ";" + $("#level_C").val();
+            var level_A = $("#level_A").val();
+            var level_B = $("#level_B").val();
+            var level_C = $("#level_C").val();
+//            if ($("#level_A").val().length==3) {
+//                level_A = $("#level_A").val().substring(1, 3);
+//            }
+//            if ($("#level_B").val().length==3) {
+//                level_B = $("#level_B").val().substring(1, 3);
+//            }
+//            if ($("#level_C").val().length==3) {
+//                level_C = $("#level_C").val().substring(1, 3);
+//            }
+            var t = level_A + ";" + level_B + ";" + level_C;
+            //alert((parseInt(level_A) + parseInt(level_B) + parseInt(level_C)));
+            if ((parseInt(level_A) + parseInt(level_B) + parseInt(level_C)) != 100) {
+                art.dialog.tips('集中授课学时折算分布总和必须等于100', 3);
+                return;
+            }
+            $.post("/ParamConfig/fUpdateParamConfig?configType=24&configValue=" + t, function (data) {
+                if (data.result == 1) {
+                    art.dialog.tips('配置成功', 3);
+                } else {
+                    art.dialog.tips('配置失败', 3);
+                }
+            });
+        }
+    </script>

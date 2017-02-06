@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<FormworkList>
+  <Formwork id="1">
+    <Content>
+      {0}，你好！于 {1} {2}帮你代报名了《{3}》，该课程于 {4} 开课！
+    </Content>
+  </Formwork>
+  <Formwork id="2">
+    <Content>
+      {0}，你好！{1} 开设的课程《{2}》等待你的报名！
+    </Content>
+  </Formwork>
+  <Formwork id="3">
+    <Content>
+      {0}，你好! {1} {2}由于 {3} 对《{4}》提出请假，等待你的审批！
+    </Content>
+  </Formwork>
+  <Formwork id="4">
+    <Content>
+      {0}，你好！你于 {1} 对《{2}》提出的请假，{3} 已于 {4} {5}！
+    </Content>
+  </Formwork>
+  <Formwork id="5">
+    <Content>
+      {0}，你好！你于 {1} 处于排队中的《{2}》已于 {3} 报名成功！
+    </Content>
+  </Formwork>
+  <Formwork id="6">
+    <Content>
+      {0}，你好！你的课程《{1}》于 {2} 即将在 {3} 开课！
+    </Content>
+  </Formwork>
+</FormworkList>

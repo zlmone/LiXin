@@ -1,0 +1,234 @@
+﻿@using System.Web.Mvc.Html
+@using LiXinLanguage
+@using LiXinModels.User
+@{
+    ViewBag.Title = NavigateMenuLanguage.UserEdit;
+    var user = ViewBag.model as Sys_User;
+}
+@(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "UserEdit"
+}))
+<div>
+    <table class="tabForm cen all80 mTop_2">
+        <tr>
+            <td class="Tit all30">
+                <span class="redstar" title="必填项">必填</span>工号(用户名) :
+            </td>
+            <td>
+                <input type="text" id="txtJobNum" maxlength="20" class="Box Raster_12" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <span class="redstar" title="必填项">必填</span>姓名:
+            </td>
+            <td>
+                <input type="text" id="txtRealName" maxlength="30" class="Box Raster_12" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                邮箱:
+            </td>
+            <td>
+                <input type="text" id="txtEmail" maxlength="50" class="Box Raster_30" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                性别:
+            </td>
+            <td>
+                <input id="rd0" type="radio" name="rdDefault" value="0" checked="checked" /><label>男</label>
+                <input id="rd1" type="radio" name="rdDefault" value="1" /><label>女</label>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                部门:
+            </td>
+            <td>
+                <input type="text" id="deptName" onclick=" changeDept(); " readonly="readonly" class="Box Raster_30" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                岗位:
+            </td>
+            <td>
+                <input type="text" id="postName" onclick=" changePost(); " readonly="readonly" class="Box Raster_30" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+            </td>
+            <td>
+                <a id="btnSave" class="Btn Btn_blue" onclick=" Save(0); ">保 存</a> <a id="btnSaveAdd"
+                    class="Btn Btn_blue mLeft_05" onclick=" Save(1); ">保存并添加</a> <a id="btnBack" class="Btn Btn_white mLeft_05"
+                        onclick=" window.location.href = '/UserManage/UserManage'; ">返回</a>
+            </td>
+        </tr>
+    </table>
+</div>
+<input type="hidden" id="hidId" value="0" />
+<input type="hidden" id="hidId_Dept" value="-1" />
+<input type="hidden" id="hidId_Post" value="-1" />
+<script language="javascript" type="text/javascript">
+    $(document).ready(function() {
+        if (@user.UserId > 0) {
+            $("#txtJobNum").val("@Html.Raw(user.JobNum.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#txtRealName").val("@Html.Raw(user.Realname.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#txtEmail").val("@Html.Raw(user.Email.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#hidId_Dept").val("@user.DeptId");
+            $("#hidId_Post").val("@user.PostId");
+            $("#deptName").val("@Html.Raw(user.DeptCode.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#postName").val("@Html.Raw(user.PostCode.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#hidId").val("@user.UserId");
+            if (@user.Sex == 1) {
+                $("#rd1").attr("checked", "checked");
+            }
+        }
+    });
+
+    function RegExpvalidate(values, regs) {
+
+        var reg = new RegExp(regs);
+        return reg.exec(values);
+    }
+
+    function Save(f) {
+        var id = $("#hidId").val();
+        var JobNum = $("#txtJobNum").val();
+        if ($.trim(JobNum) == "") {
+            art.dialog({
+                content: '工号不能为空！',
+                time: 3
+            });
+            return;
+        } else {
+            if (RegExpvalidate(JobNum, '^[a-zA-Z0-9_]{6,20}$') == null) {
+                art.dialog({
+                    content: "工号只能由6-20位字母、数字和下划线组成！",
+                    time: 3
+                });
+                return;
+            }
+        }
+
+        var realName = $("#txtRealName").val();
+        if ($.trim(realName) == "") {
+            art.dialog({
+                content: '姓名不能为空！',
+                time: 3
+            });
+            return;
+        }
+        var email = $("#txtEmail").val();
+        if ($.trim(email) != "") {
+            var rex=/^([a-zA-Z0-9_\.\-])+@@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	        if(!rex.test(email))
+	        {
+                art.dialog({
+                    content: "邮箱格式错误！",
+                    time: 3
+                });
+                return;
+            }
+        } else {
+            email = "";
+        }
+        var deptId = $("#hidId_Dept").val();
+        var postId = $("#hidId_Post").val();
+
+        var sex = 0;
+        if ($("#rd1").attr("checked")) {
+            sex = 1;
+        }
+
+        $.post("/UserManage/SaveUser",
+            {
+                userId: id,
+                jobNum: JobNum,
+                realName: realName,
+                email: email,
+                sex: sex,
+                deptId: deptId,
+                postId: postId,
+                deptName: $("#deptName").val(),
+                postName: $("#postName").val()
+            },
+            function(data) {
+                if (data.result == 1) {
+                    art.dialog({
+                        content: data.content,
+                        time: 3,
+                        close: function() {
+                            var url = "/UserManage/UserManage";
+                            if (f == 1) {
+                                url = "/UserManage/UserEdit";
+                            }
+                            window.location.href = url;
+                        }
+                    });
+                } else {
+                    art.dialog({
+                        content: data.content,
+                        time: 3
+                    });
+                }
+            });
+    }
+
+    function changeDept() {
+        art.dialog.load("/UserCommon/DeptTree" , 
+        {
+            title: '选择部门', 
+            id: 'art_changeDept', 
+            width: 400, 
+            height: 300 
+        });
+    }
+
+    function NodeDeptClick() {
+        $("#hidId_Dept").val($("#pop_hidDeptID").val());
+        $("#deptName").val($("#pop_hidDeptName").val());
+        closeDialog("art_changeDept");
+    }
+
+    function InitDeptTree() {
+        $(".pNote").each(function() {
+            var ids = $(this).attr("id").split('_');
+            if (ids[0] == $("#hidId_Dept").val()) {
+                $(this).attr("disabled", "disabled").css("cursor","default");
+                $(this).removeAttr("onclick");
+            }
+        });
+    }
+
+    function changePost() {
+        art.dialog.load("/UserCommon/PostTree", 
+        {
+            title: '选择岗位', 
+            id: 'art_changePost', 
+            width: 400, 
+            height: 300 
+        });
+    }
+
+    function NodePostClick() {
+        $("#hidId_Post").val($("#pop_hidPostID").val());
+        $("#postName").val($("#pop_hidPostName").val());
+        closeDialog("art_changePost");
+    }
+
+    function InitPostTree() {
+        $(".pNote").each(function() {
+            var ids = $(this).attr("id").split('_');
+            if (ids[0] == $("#hidId_Post").val()) {
+                $(this).attr("disabled", "disabled").css("cursor","default");
+                $(this).removeAttr("onclick");
+            }
+        });
+    }
+</script>

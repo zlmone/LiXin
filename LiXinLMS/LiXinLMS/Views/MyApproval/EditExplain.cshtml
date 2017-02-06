@@ -1,0 +1,46 @@
+﻿@{
+    Layout = null;
+    var id = Request.QueryString["id"];
+    var type = Request.QueryString["type"];
+}
+<div>
+    <form method="post" action="" id="reason" enctype="multipart/form-data">
+    <p>请填写申辩理由：</p>
+    <p>
+        <textarea id="expalnPrin" style="width:400px; height:150px;" name="expalnPrin"></textarea>
+    </p>
+    <p class="pt5">
+        <input type="file" id="file" name="file" /><span class="ml10">注：附件的大小5M以内</span>
+    </p>
+    <center class="mt10">
+        <input class="btn btn-co" type="button" value="保存" id="btnSave" onclick="SaveExplain();"/>
+    </center>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#expalnPrin").textareaCount({ maxCharacterSize: 200 });
+    });
+    //保存
+    function SaveExplain() {
+        if ($("#expalnPrin").val() != "") {
+            $("#reason").submitForm({
+                url: '/MyApproval/ExplainPrin?id= @(id)',
+                callback: function (data) {
+                    if (data.result == 1) {
+                        if ('@(type)' == 'a') {
+                            InitOrderData();
+                        } else {
+                            $("#btnApp").remove();
+                        }
+                        art.dialog.list["EditExplain"].close();
+                    } else {
+                        art.dialog.tips(data.message, 3);
+                    }
+                }
+            }).submit();
+        }
+        else
+            art.dialog.tips("请填写申辩理由！", 3);
+    }
+</script>

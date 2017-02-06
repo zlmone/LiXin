@@ -1,0 +1,61 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var modell = ViewBag.model as Sys_ParamConfig;
+}
+
+<form id="fnSumitConfig">
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">必修/选修课程学时获取上限</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span20">必修：</td>
+            <td>
+                <input type="text" class="span16" name="Anumber" id="level_A" value="@(modell.ConfigValue.Split(';')[0])"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">选修：</td>
+            <td>
+                <input type="text" class="span16" name="Bnumber" id="level_B" value="@(modell.ConfigValue.Split(';')[1])"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td><input type="submit" value="确定" id="btn_Add" class="btn"/></td>
+        </tr>
+    </table>
+</form>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $("#fnSumitConfig").validate({
+                event: "blur",
+                rules: {
+                    Anumber: { required: true, digits: true, min: 1, max: 1000 },
+                    Bnumber: { required: true, digits: true, min: 1, max: 1000 }
+                },
+                messages: {
+                    Anumber: { required: "请输入学时", digits: "请输入大于0的正整数", min: "请输入大于0的正整数", max: "输入学时小于1000" },
+                    Bnumber: { required: "请输入学时", digits: "请输入大于0的正整数", min: "请输入大于0的正整数", max: "输入学时小于1000" }
+                },
+                submitHandler: fnSumitConfig
+            });
+        });
+
+        function fnSumitConfig() {
+            var t = $("#level_A").val() + ";" + $("#level_B").val();
+            $.post("/ParamConfig/fUpdateParamConfig?configType=18&configValue=" + t, function (data) {
+                if (data.result == 1) {
+                    art.dialog.tips('配置成功', 3);
+                } else {
+                    art.dialog.tips('配置失败', 3);
+                }
+            });
+
+        }
+
+    </script>
+

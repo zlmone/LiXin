@@ -1,0 +1,43 @@
+﻿@using LiXinLanguage
+@using LiXinModels.Examination.DBModel
+@{
+    Layout = null;
+    Response.Expires = 0;
+    string id = Request.QueryString["id"];
+    var questonInfor = ViewData["QuestionInfor"] as List<QuestionAnswer>;
+    var baseInfor = ViewData["BaseInfor"] as tbQuestion;
+}
+@*问答题*@
+<table class="tab-Form">
+    <tr>
+        <td class="Tit all15"><span title="必填项" class="must">*</span>@Question.Question_QuestionManage_QuestionContent：</td>
+        <td><textarea id="txtQuestionContent" class="all80" name="txtQuestionContent" isType="text" isnull="0" message="@Question.Question_QuestionManage_QueationContentNotNull">@(baseInfor.QuestionContent)</textarea></td>
+    </tr>
+    <tr>
+        <td class="Tit"><span title="必填项" class="must">*</span>@Question.Question_QuestionManage_RightAnswer：</td>
+        <td><textarea id="txtQuestionAnswer" class="all80" name="txtQuestionAnswer" isType="text" isnull="0"  message="@Question.Question_QuestionManage_QueationAnswerNotNull">@(id == "0" ? "" : questonInfor[0].Answer)</textarea></td>
+    </tr>
+    <tr>
+        <td class="Tit"><span title="必填项" class="must">*</span>关键词：</td>
+        <td>
+        <div class="charleft originalTextareaInfo mb5">( 可以有多个关键词，每个关键词之间用空格隔开，如: AA BB CC )</div>
+        <input id="txtQuestionAnswerKeys" type="text" class="all80" name="txtQuestionAnswerKeys" isType="text" isnull="0" maxlength="30" onkeydown=" TextearaMaxlength(this); " onkeyup=" TextearaMaxlength(this); " onpropertychange="TextearaMaxlength(this);" message="试题关键字不可以为空" value="@(id == "0" ? "" : baseInfor.QuestionAnswerKeys)" /></td>
+    </tr>
+    <tr>
+        <td class="Tit">试题解析：</td>
+        <td><textarea id="txtQuestionAnalysis" class="all80" name="txtQuestionAnalysis"  message="试题解析不可以为空">@(id == "0" ? "" : baseInfor.QuestionAnalysis)</textarea></td>
+    </tr>
+</table>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#submitQuestionForm").PreCheckForm();
+    });
+    //判断信息是否完整
+
+    function isCheck() {
+        if ($("#txtQuestionAnswer").val().trim() != "" && $("#txtQuestionAnswerKeys").val().trim() != "")
+            return true;
+        else
+            return false;
+    }
+</script>

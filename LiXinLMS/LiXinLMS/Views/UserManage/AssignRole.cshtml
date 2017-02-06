@@ -1,0 +1,107 @@
+﻿@{
+    Layout = null;
+}
+<div id="Search" class="so-set">
+    <table class="tab-Form" id="searchrole">
+        <tr>
+            <td class="Tit span6">
+                角色名称：
+            </td>
+            <td>
+                <input type="text" class="span30 searchclass" id="roleName" value="请输入角色名称" info="" />
+            </td>
+            <td class="so-do">
+                <input type="button" id="btnSearch" class="btn" value="搜索" onclick=" InitRoleData(); " />
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- 列表 -->
+<div id="roleTemplateList" class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">
+                    <input type="checkbox" value="0" id="selectRoleAll" />
+                </th>
+                <th class="span12">
+                    角色名称
+                </th>
+                <th class="span14">
+                    角色描述
+                </th>
+                <th class="span8">
+                    是否冻结
+                </th>
+                <th class="span10">
+                    创建人
+                </th>
+                <th class="span16" jsrendersortfield="Sys_Roles.CreateTime" sort="desc">
+                    创建时间
+                </th>
+            </tr>
+        </thead>
+        <tbody id="roleList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<input type="hidden" id="hasRoleIds" value="@ViewBag.roles" />
+<center>
+    <input type="button" id="btnSure" class="btn btn-co" value="确定" onclick=" Sure(); " />
+</center>
+<script id="roleTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>
+            {{if '@ViewBag.roles'.indexOf(','+RoleId+',')>=0}}
+                <input type='checkbox' id='{{:RoleId}}' value='{{:RoleId}}' checked='checked' {{:IsDefault==1?"disabled='disabled'":""}} />
+            {{else}}
+                <input type='checkbox' id='{{:RoleId}}' value='{{:RoleId}}' {{:IsDefault==1?"disabled='disabled' checked='checked'":""}} />
+            {{/if}}
+        </td>
+        <td><div class="tl ovh span11" title="{{:RoleName}}"><strong>{{:RoleName}}{{:IsDefault==1?'（默认）':''}}</strong></div></td>
+        <td><div class="tl ovh span13" title="{{:RoleDesc}}">{{:RoleDesc}}</div></td>
+        <td>{{:Status == 1 ? '是':'否' }}</td>
+        <td>{{:Realname}}</td>
+        <td>{{:CreateTimeStr}}</td>
+    </tr>
+    {{/for}}
+</script>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        initSearch("searchrole");
+        //加载列表
+        InitRoleData();
+    });
+
+    //初始化列表
+
+    function InitRoleData() {
+        var v = "roleName=" + escape(getSearchWord("roleName")) + "&status=0";
+        $("#roleList").JsRenderData({
+            sourceUrl: '/UserManage/GetRoleList?' + v,
+            templateID: 'roleTemplate',
+            isPage: false,
+            jsRenderSortField: "Sys_Roles.RoleId",
+            jsRenderASC: "desc",
+            funCallback: function () {
+                SetCheckBox('selectRoleAll', 'roleList');
+                checkboxAll();
+            }
+        });
+    }
+
+    function checkboxAll() {
+        var i = 0;
+        $("#roleTemplateList :checkbox").each(function () {
+            if ($(this).attr("checked")) {
+                i++;
+            }
+        });
+        if (i >= ($("#roleTemplateList :checkbox").length - 1)) {
+            $("#roleTemplateList #selectall").attr("checked", "checked");
+        }
+    }
+</script>

@@ -1,0 +1,112 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var model = ViewBag.model as Sys_ParamConfig;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">培训年度设定</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span20">培训年度设定：</td>
+            <td>
+                <select id="sel_one">
+                    <option value="1">当年</option>
+                </select>
+                <select id="sel_two">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>月
+                至
+                <select  id="sel_three">
+                    <option value="1">当年</option>
+                    <option value="2">次年</option>
+                </select>
+                <select  id="sel_four">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>月
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td>
+                <input type="button" value="确定" id="btn_Add" class="btn"/>
+            </td>
+        </tr>
+    </table>
+    </body>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#sel_two option[value="+@(model.ConfigValue.Split(';')[1])+"]").attr("selected", "selected");
+            $("#sel_three option[value="+@(model.ConfigValue.Split(';')[2])+"]").attr("selected", "selected");
+            $("#sel_four option[value="+@(model.ConfigValue.Split(';')[3])+"]").attr("selected", "selected");
+            
+            $("#btn_Add").click(function () {
+                //alert($("#sel_one").val() + "|" + $("#sel_three").val() + "|" + $("#sel_two").val() + "|" + $("#sel_four").val());
+                if (($("#sel_one").val() == $("#sel_three").val())&& (parseInt($("#sel_two").val()) >= parseInt($("#sel_four").val()))) {
+                        art.dialog.tips('开始周期不能小于结束周期', 3);
+                     return;
+                }
+                
+                var t = $("#sel_one").val() + ";" + $("#sel_two").val() + ";" + $("#sel_three").val() + ";" + $("#sel_four").val();
+                $.post("/ParamConfig/fUpdateParamConfig?configType=7&configValue=" + t, function (data) {
+                    if (data.result == 1) {
+                        art.dialog({
+                            title: '提示',
+                            content: '配置成功',
+                            width: 200,
+                            height: 50,
+                            fixed: true,
+                            lock: true,
+                            time: 3,
+                            close: function () {
+                            }
+                        });
+                    } else {
+                        art.dialog({
+                            title: '提示',
+                            content: '配置失败',
+                            width: 200,
+                            height: 50,
+                            fixed: true,
+                            lock: true,
+                            time: 3,
+                            close: function () {
+                            }
+                        });
+                    }
+                });
+            });
+        })
+    </script>
+</html>

@@ -1,0 +1,309 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var tt = ViewBag.model as Sys_ParamConfig;
+ 
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+    <style type="text/css">
+        #id_Late div span{ margin-right: 10px;  }
+    </style>
+</head>
+    <body>
+        <input type="hidden" id="txt_chidao" value="@(tt.ConfigValue == "" ? "" : @tt.ConfigValue+";")"/>
+     
+        <h2 class="tit-h2 mt10">
+            <i></i>
+            
+            <span class="tit-con">违纪学时配置</span>
+        </h2>
+            
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td colspan="6" class="red">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：如果设置”多少分钟及以上”时，请输入”-1”，如：5分钟及以上（违纪范围：<input type="text" value="5" disabled="disabled" class="span3"/>-<input type="text" disabled="disabled" value="-1" class="span3"/>分钟）。</td>
+                </tr>
+                <tr>
+                    <td>
+                        <select id="sel_Status" class="ml10 span12">
+                            <option value="3">请选择违纪状态</option>
+                            <option value="0">迟到</option>
+                            <option value="1">早退</option>
+                        </select>
+                    </td>
+                    <td class="Tit span3">违纪范围：</td>
+                    <td>
+                        <input type="text" id="txt_this" class="span4" />
+                        -
+                        <input type="text" id="txt_there" class="span4" maxlength="4"/>分钟
+                    </td>
+                    <td class="Tit span10">扣除学时百分比：</td>
+                    <td><input type="text" id="txt_Number" class="span4" /></td>
+                    <td class="so-do"><input type="button" id="btn_add" value="添加" class="btn btn-co"/></td>
+                </tr>
+            </table>            
+        </div>
+        <table id="div_list" class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th>迟到/早退</th>
+                    <th>
+                        开始范围
+                    </th>
+                    <th>
+                        结束范围
+                    </th>
+                    <th>
+                        扣除学时百分比
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="id_Late">
+                @if (@tt != null)
+                {
+                    @Html.Raw(@ViewBag.chidao)   
+                }
+            </tbody>
+            @*<tbody id="id_Leave">
+                    @if (@tt.ConfigValue != "")
+                    {
+                       @Html.Raw(@ViewBag.zaotui)
+                    }
+                </tbody>*@
+        </table>
+            <div class="mt10 tc" >
+                <input type="button" value="保存" id="btn_Save" class="btn"/>
+                @*<input type="button" value="取消" id="btn_Can" class="btn btn-cancel"/>*@
+            </div>
+
+    </body>
+    <script type="text/javascript">
+        function fdelete(e) {
+            var t = "";
+            var index = $(e).parents("tr").index();
+            var arr = $("#txt_chidao").val().split(';');
+            for (var i = 0; i < arr.length; i++) {
+                    if (index == i) {
+                        t += "";
+                    } else {
+                        t += arr[i] + ";";
+                    }
+            }
+            t = t.substring(0, t.lastIndexOf(';'));
+
+            var zhi = $(e).parents("tr").children("td:eq(2)").html();
+            var type = $(e).parents("tr").attr("type");
+            
+            var ii = 0;
+            
+            if(zhi!="-1")
+            {
+                $("#id_Late tr[type='" + type + "']").each(function () {
+                    if(ii==1)
+                        return;
+                    var tdzhi = parseInt($(this).children("td:eq(1)").html())-1;
+                    //alert(zhi + "|" + tdzhi);
+                    if (zhi == tdzhi) {
+                        ii = 1;
+                       
+                    }
+                });
+            }
+            if (ii == 1) {
+                art.dialog.tips('不能删除，请先删除最大范围的违纪情况', 3);
+                return;
+            }
+            
+            $("#txt_chidao").val(t);
+            $("#txt_this").val($(e).siblings("td:eq(1)").html());
+            //alert($(e).siblings("td:eq(2)").html());
+            if ($(e).siblings("td:eq(2)").html() == "-1") {
+               // $("#txt_this").val($(e).siblings("td:eq(1)").html());
+                dd = 0;
+            }
+
+            //$("#sel_Status").find("option:selected").val()
+            $("#sel_Status  option[value='3'] ").attr("selected", true);
+            $(e).parents("tr").remove();
+        }
+
+        //var re = /^[0-9]*$/;
+        var re = /^[0-9]*[1-9][0-9]*$/;
+        $(document).ready(function () {
+            var dd = 0;
+            $("#btn_Can").click(function () {
+                var index = $("#id_Late tr").size() - 1;
+                $("#id_Late tr:eq(" + index + ")").remove();
+                var zhi = $("#txt_chidao").val();
+                zhi = zhi.substring(0, zhi.lastIndexOf(';'));
+                $("#txt_chidao").val(zhi);
+
+                $("#txt_this").val("");
+                $("#txt_there").val("");
+                $("#txt_Number").val("");
+            });
+
+            $("#sel_Status").change(function () {
+                dd = 0;
+                var max = 0;
+                var t = $(this).val();
+                var arr = $("#txt_chidao").val().split(';');
+                var zhi = "";
+                if ($(this).val() == "0") {
+                    zhi = "chidao";
+                }
+                if ($(this).val() == "1") {
+                    zhi = "zaotui";
+                }
+
+                $("#id_Late tr[type='" + zhi + "']").each(function (d, i) {
+                    var tdzhi = $(this).children("td:eq(2)").html();
+                    if (parseInt(tdzhi) > max) {
+                        max = tdzhi;
+                    }
+                });
+
+                if ($("#id_Late tr[type='" + zhi + "']").length == 0) {
+                    $("#txt_this").removeAttr("disabled");
+                    if ($("#txt_this").val() == "") {
+                        $("#txt_this").val(0);
+                    }
+                }
+                else {
+                    $("#txt_this").attr("disabled", "disabled");
+                    $("#txt_this").val(parseInt(max)+1);
+                }
+
+            });
+
+            //添加功能
+            $("#btn_add").click(function () {
+
+                var chidao = "";
+                var tzhi = "";
+                if ($("#sel_Status").val() == "0") {
+                    tzhi += "chidao";
+                } else {
+                    tzhi += "zaotui";
+                }
+
+                //if ($("#txt_chidao").val() == "") {
+                chidao = $("#txt_chidao").val();
+                // }
+                // else {
+                //     chidao = $("#txt_chidao").val() + ";";
+                //}
+                //alert(chidao);
+                var html = "";
+                if ($("#sel_Status").find("option:selected").val() == "3") {
+                    art.dialog.tips('请选择违纪状态', 3);
+                    return;
+                }
+                $("#id_Late tr[type='" + tzhi + "']").each(function (d, i) {
+                    var tdzhi = $(this).children("td:eq(2)").html();
+                    if (parseInt(tdzhi) == -1) {
+                        dd = 1;
+                        art.dialog.tips('违纪范围已满，不能继续添加', 3);
+                        return;
+                    }
+                });
+                //alert(dd);
+                if (dd == 1) {
+                    return;
+                }
+
+                if ($("#txt_this").val() == "" || $("#txt_there").val() == "") {
+                    art.dialog.tips('请输入违纪范围', 3);
+                    return;
+                }
+
+                if ($("#txt_there").val().match(/^[0-9]*[1-9][0-9]*$/) || parseInt($("#txt_there").val()) == -1) {
+                    if (parseInt($("#txt_this").val()) >= parseInt($("#txt_there").val()) && parseInt($("#txt_there").val()) != -1) {
+                        art.dialog.tips('结束范围要大于开始范围', 3);
+                        $("#txt_there").focus();
+                        return;
+                    }
+                } else {
+                    art.dialog.tips('请输入整数', 3);
+                    $("#txt_there").focus();
+                    return;
+                }
+
+                //alert($("#txt_Number").val());
+                if ($("#txt_Number").val() == "" || parseInt($("#txt_Number").val()) > 100) {
+                    art.dialog.tips('请输入范围0-100', 3);
+                    $("#txt_Number").focus();
+                    return;
+                }
+                if (!$("#txt_Number").val().match(/^[0-9]*[1-9][0-9]*$/)) {
+                    art.dialog.tips('请输入整数', 3);
+                    $("#txt_Number").focus();
+                    return;
+                }
+
+                $("#id_Late tr[type='" + tzhi + "']").each(function (d, i) {
+                    var tdzhi = $(this).children("td:eq(2)").html();
+                    if (parseInt($("#txt_this").val()) > parseInt(tdzhi) && parseInt($("#txt_this").val()) < parseInt(tdzhi)) {
+                        art.dialog.tips('开始值不能小于或者大于已添加值', 3);
+                        return;
+                    }
+                });
+
+                var index = $("#id_Late").children("div").size() - 1; //获取上一个div
+                if ($("#sel_Status").val() == "0") {
+                    html += "<tr type='chidao'>";
+                } else {
+                    html += "<tr type='zaotui'>";
+                }
+                html += "<td>" + $("#sel_Status").find("option:selected").text() + "</td>";
+                html += "<td>" + $("#txt_this").val() + "</td>";
+                html += "<td>" + $("#txt_there").val() + "</td>";
+                html += "<td>" + $("#txt_Number").val() + "</td>";
+                html += "<td><a class='icon idel' title='删除' onclick='fdelete(this)'></a></td>";
+                html += "</tr>";
+
+
+                $("#id_Late").append(html);
+                chidao += $("#sel_Status").val() + "," + $("#txt_this").val() + "," + $("#txt_there").val() + "," + $("#txt_Number").val() + ";";
+                // alert(chidao);
+                if (parseInt($("#txt_there").val()) == -1) {
+                    $("#txt_this").val(0);
+                } else {
+                    $("#txt_this").val(parseInt($("#txt_there").val())+1).attr("disabled", "disabled");
+                }
+
+
+                $("#txt_there").val("");
+                $("#txt_chidao").val(chidao);
+                $("#txt_Number").val("");
+                $("#sel_Status").val(3);
+                //}
+            });
+
+            $("#btn_Save").click(function () {
+                var chidao = $("#txt_chidao").val();
+
+                $.post("/ParamConfig/fUpdateParamConfig?configType=5&configValue=" + chidao.substring(0, chidao.lastIndexOf(';')), function (data) {
+                    if (data.result == 1) {
+                        art.dialog.tips('配置成功', 3);
+                        $("#txt_chidao").val(chidao.substring(0, chidao.lastIndexOf(';')));
+                        $("#txt_there").val("");
+                        $("#txt_chidao").val(chidao);
+                        $("#txt_Number").val("");
+                        $("#sel_Status").val(3);
+                    } else {
+                        art.dialog.tips('配置失败', 3);
+                    }
+                });
+            });
+        });
+    </script>
+</html>

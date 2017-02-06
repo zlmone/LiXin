@@ -1,0 +1,205 @@
+﻿@using LiXinModels.SystemManage
+@using LiXinLanguage
+@{
+    ViewBag.Title = "消息发送"; 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var model = ViewData["model"] as Sys_Group;
+    string gid = Request.QueryString["id"] ?? "0";
+}
+<script src="../../Scripts/js_pagerNew.js" type="text/javascript"></script>
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "消息发送" }))
+    <form id="groupForm" method="post" action="">
+        <input type="hidden" id="selgroup" value="@gid" />
+        <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">群组名称：</td>
+                <td>
+                    <input type="text" class="span30" id="txtSortName" name="txtSortName" value="@(model.GroupName)" disabled="disabled" />
+                </td>
+                @*<td id="nameTip"></td>*@
+            </tr>
+            <tr>
+                <td colspan="2"><input type="hidden" id="AllUserID" name="AllUserID" /></td>
+            </tr>
+        </table>
+        </div>
+        <div id="Search" class="so-set">
+            <table class="tab-Form" id="searchuser">
+                <tr>
+                    <td class="Tit span4">
+                        姓名：
+                    </td>
+                    <td class="span9">
+                        <input type="text" class="span10 searchclass" id="realName" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="Tit span4">
+                        邮箱：
+                    </td>
+                    <td class="span13">
+                        <input type="text" class="span12 searchclass" id="email" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="Tit span4">
+                        部门：
+                    </td>
+                    <td class="span13">
+                        <input type="text" class="searchclass span12" id="deptCode" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="so-do">
+                        <input class="btn" type="button" value="搜索" id="btnSearch" onclick="stateChange(); " />
+                        <a id="btMessage" class="btn btn-co">发送消息</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="sltSex" class="span8" onchange="stateChange(); ">
+                <option value="99">性别</option>
+                <option value="0">男士</option>
+                <option value="1">女士</option>
+            </select>
+            <select id="sltTrainGrade" onchange="stateChange();">
+                <option value="99">培训级别</option>
+                @{
+                    foreach (var item in ViewBag.TrainGrade)
+                    {
+                    <option value="@item">@item</option>
+                    }
+                }
+            </select>
+        </div>
+        <table class="tab-List mt10">
+            <thead>
+                <tr>
+                    <th class="span4"><input id="selAlluser" type="checkbox" /></th>
+                    <th class="span8">姓名</th>
+                    <th class="span4">性别</th>
+                    <th>部门</th>
+                    <th class="span8">培训级别</th>
+                    <th class="span12">薪酬级别</th>
+                    <th class="span16">联系方式</th>
+                    <th class="span14">邮箱</th>
+                </tr>
+            </thead>
+            <tbody id="gUserList">
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <div id="listPage" class="listPage"></div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="tc mt10">
+            <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+        </div>
+    </form>
+</div>
+<input id="hidSelGroups" type="hidden" />
+<input id="hidAllSel" type="hidden" />
+<script type="text/javascript">
+    function InitializeTargetList(url) {
+        $.getJSON(url, function (data) {
+            var courList = data.dataList;
+            $("#gUserList").html("");
+            if (data.recordCount > 0) {
+                for (var i = 0; i < data.recordCount; i++) {
+                    var strhtml = "";
+                    strhtml += '<tr class="odd">'
+                    strhtml += '<td><input type="checkbox" name="chk_list" value="' + courList[i].UserId + '" name="checkUser"></td>';
+                    strhtml += '<td>' + courList[i].Realname + '</td>';
+                    strhtml += '<td>' + courList[i].SexStr + '</td>';
+                    strhtml += '<td style="text-align:left;" title="' + courList[i].DeptPath + '"><div class="ovh span28 ml10">' + courList[i].DeptPath + '</div></td>';
+                    strhtml += '<td>' + courList[i].TrainGradeStr + '</td>';
+                    strhtml += '<td>' + courList[i].PayGradeStr + '</td>';
+                    strhtml += '<td>' + courList[i].MobileNum + '</td>';
+                    strhtml += '<td title="' + courList[i].EmailStr + '"><div class="ovh span13">' + courList[i].EmailStr + '</div></td>';
+                    strhtml += '</tr>';
+                    $("#gUserList").append(strhtml);
+                }
+                var tmp = $("#gUserList").find("tr.odd");
+                $.divpager($("#listPage"), tmp.length, $("tr.odd"), 20);
+            } else {
+                var strhtml = '<tr id="tr0"><td colspan="8"><div class="tc c38 line_h30">暂无数据</div></td></tr>';
+                $("#gUserList").html(strhtml);
+                var tmp = $("#gUserList").find("tr.child");
+                $.divpager($("#listPage"), tmp.length, $("tr.odd"), 20);
+            }
+        });
+    }
+    function getUrlParms() {
+        return "/SystemManage/GetGroupUserList?id=" + $("#selgroup").val() + "&Uname=" + escape($.trim(getSearchWord("realName"))) + "&Uemail=" + escape($.trim(getSearchWord("email"))) + "&Udept=" + escape($.trim(getSearchWord("deptCode"))) + "&Usex=" + $("#sltSex").val() + "&UTG=" + $("#sltTrainGrade").val() + "&t=" + new Date();
+    }
+
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        //初始化列表
+        InitializeTargetList(getUrlParms());
+        //全选
+        $("#selAlluser").click(function () {
+            if ($(this).attr("checked") == "checked") {
+                $("input[name='chk_list']").attr("checked", $(this).attr("checked"));
+            } else {
+                $("input[name='chk_list']").removeAttr("checked");
+            }
+        });
+        //发送
+        $("#btMessage").bind("click", function () {
+            var str = "";
+            $("input[name='chk_list']").each(function () {
+                if ($(this).attr("checked") == "checked") {
+                    str += $(this).val()+",";
+                }
+            });
+            if (str != "") {
+                art.dialog.load("/SystemManage/MessageEdit?t=" + new Date(), { title: "消息编辑", id: "EditMessage", width: 600 });
+            } else {
+                art.dialog.tips("请选择人员", 3);
+            }
+        });
+        //返回
+        $("#btnback").bind("click", function () {
+            window.location.href = "/SystemManage/GroupIndex";
+        });
+    });
+
+    function stateChange() {
+        InitializeTargetList(getUrlParms());
+    }
+
+    function Send() {
+        var ismust = 0;
+        $("input[name='mMust']").each(function (index) {
+            if ($(this).attr("checked") == "checked") {
+                ismust += parseInt($(this).val());
+            }
+        });
+        var str = "";
+        $("input[name='chk_list']").each(function () {
+            if ($(this).attr("checked") == "checked") {
+                str += $(this).val() + ",";
+            }
+        });
+        str = str.substring(0, str.length - 1);
+        $.post("/SystemManage/SendMessageByGroup",
+            {
+                Uids: str,
+                Title: $.trim(getSearchWord("mTitle")),
+                Content: $.trim(getSearchWord("mContent")),
+                Must: ismust
+            },
+            function (data) {
+                if (data.result == 1) {
+                    art.dialog.tips("发送成功", 3);
+                    art.dialog.list['EditMessage'].close();
+                } else {
+                    art.dialog.tips("发送失败", 3);
+                }
+            }
+        );
+    }
+</script>
+

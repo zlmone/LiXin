@@ -1,0 +1,54 @@
+﻿@{
+    ViewBag.Title = "公告详情";
+}
+<form id="formEditNote">
+    <div class="main-c">
+        @{if (@ViewBag.flag == 0)
+          {
+            @(Html.Action("SiteMapLink", "Common", new { linkName = "NoteDetail" }))
+          }
+          else
+          {
+            @(Html.Action("SiteMapLink", "Common", new { linkName = "NoteManageDetail" }))
+          }
+        }
+        <p class="tc c80">
+            <label class="dis_bl f16 lh30 c33" id="txtNoteTitle"></label>
+            <span>类别：@(ViewBag.NoteSort == null ? "类别已删除！" : ViewBag.NoteSort.SortName)</span>
+            <span class="ml20">发布时间：<span id="date"></span></span>
+        </p>
+        <p id="lblContent"></p>
+        <input id="NoteId" name="NoteId" type="hidden" value="@ViewBag.noteID" />
+    </div>
+    <div class="tc">
+        <a id="btnBack" onclick="back()" class="btn btn-cancel">返回</a>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetNote();
+
+    });
+    function GetNote() {
+        if ("@ViewBag.noteID" > "0") {
+            $.getJSON('/SystemManage/GetSingeNote?noteID=@ViewBag.noteID' + "&t=" + new Date().valueOf(), function (data) {
+
+                $('#sel_SortID').attr('value', data.SortID);
+                $("#txtNoteTitle").html(data.title);
+                $("#date").text(data.date);
+                $("#lblContent").html(data.content);
+            });
+        }
+    }
+
+    function back() {
+        if ("@ViewBag.flag" == "1") {
+           window.location.href = '/SystemManage/NoteManage';
+       }
+       else {
+           window.history.go(-1);
+       }
+   }
+
+
+</script>

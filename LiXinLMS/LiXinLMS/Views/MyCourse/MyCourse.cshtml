@@ -1,0 +1,221 @@
+﻿@using LiXinModels.CourseLearn
+@using LiXinModels.CourseManage
+@{
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
+    var course = ViewBag.Course as Co_Course;
+    //var courseOrder = ViewBag.CourseOrder as Cl_CourseOrder;
+}
+<input type="hidden" id="txt_CourseId" value="@course.Id"/>
+<input type="hidden" id="txt_SurveyPaperId" value="@course.SurveyPaperId"/>
+<div class="course-top">
+    <div class="pic">
+        <img src="../../Images/course-pic.jpg" />
+    </div>
+    <div class="info">
+        <h3 class="ovh" title="@course.CourseName">@course.CourseName</h3>
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span9">
+                    授课讲师：
+                </td>
+                <td>@course.TeacherName
+                </td>
+                <td class="Tit span6">
+                    开课时间：
+                </td>
+                <td colspan="3">@course.TeacherCourseTime
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    课程开放级别：
+                </td>
+                <td>@course.OpenLevel
+                </td>
+                <td class="Tit">
+                    开课地点：
+                </td>
+                <td>
+                    <div class="ovh span30" title="@course.RoomName">@course.RoomName</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    课程学时：
+                </td>
+                <td>@course.CourseLength
+                </td>
+                <td class="Tit">
+                    课程状态：
+                </td>
+                <td>@course.CourseStatus
+                    @* @if (@courseOrder!= null)
+                {
+                    @(courseOrder.LearnStatus == 0 ? "未开始" : courseOrder.LearnStatus == 1 ? "进行中" : "已完成")
+                                
+                }*@
+                </td>
+                @*<td class="Tit">通过状态：</td>
+                <td colspan="3">
+                
+                    @if (@course.IsTest == 1)S
+                    { 
+                        @(course.PassStatus == 1 ? "通过" : "未通过")
+                    }
+                    else
+                    {
+                        <span>--</span>
+                    }
+               
+                </td>*@
+                <td>
+                    @{
+                        if (course.MyDoStatus == 1 || course.MyDoStatus == 2)
+                        {
+                        <input type="button" class="btn btn-co" value="退订" onclick="  Unsubscribe(@course.courseOrderId,@course.YearPlan);"/>
+                        }
+                        if (course.MyDoStatus == 1 || course.MyDoStatus == 4)
+                        {
+                        <input type="button" class="btn btn-co" value="请假" onclick="  LeaveMemoShow(@course.Id,@course.courseOrderId);"/>
+                        }
+
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="tab-bk mt10">
+    <ul id="ul_menu">
+        <li class="On" onclick="showTags(0)">
+        课程详情        
+        </li>
+        <li onclick="showTags(1)">
+        课前建议          
+        </li>
+        <li onclick="showTags(2)">
+        考勤详情           
+        </li>
+        <li onclick="showTags(3)"> 
+            课后评估
+        </li>
+        <li onclick="showTags(4)">
+        在线测试           
+        </li>
+    </ul>
+</div>
+<script type="text/javascript">
+    //var urlstr = encodeURIComponent(window.location.href);
+    function FUrl() {
+        //window.location.href = "/MyCourse/AfterCourse?id=" + @(course.Id) + "&backurl=" + encodeURIComponent(window.location.href);
+        window.location.href = "/MyCourse/AfterCourse?id=" + @(course.Id) + "&backurl=/MyCourse/MyCourseList";
+    }
+     function showTags(flag){
+            switch (flag) {
+            case 0: 
+                location.href = "/MyCourse/CourseMain?id="+ @(course.Id);
+                break;
+            case 1:
+                location.href = "/MyCourse/ClassPro?id="+ @(course.Id);
+                break;
+            case 2: 
+                location.href = "/MyCourse/Attendance?id="+ @(course.Id);
+                break;
+            case 3: 
+                 window.location.href = "/MyCourse/AfterCourse?id=" + @(course.Id) + "&backurl=/MyCourse/MyCourseList";
+                break;
+            case 4:
+                location.href = "/MyCourse/OnlineTest?id="+ @(course.Id);
+                break;          
+            default:
+            }
+        }
+
+     function Unsubscribe(id, year) {//退订
+        $.getJSON("/CourseLearn/Unsubscribe?id=" + id + "&year=" + year, function (da) {
+            if (da.result == 1) {
+                //art.dialog.tips(da.content, 1.5);
+                //window.location.href = window.location.href;
+                //window.location.href = "/MyCourse/MyCourseList";
+                //退订后直接跳到课程列表
+
+                art.dialog({
+                        content: da.content,
+                        ok: function () {
+                            $.getJSON("/CourseLearn/UnsubscribeLine/" + id, function (data) {
+                                if (data.result == 1) {
+                                    art.dialog.tips("退订成功！", 3);
+                                    window.location.href = "/MyCourse/MyCourseList";
+                                } else {
+                                    art.dialog.tips("退订失败！", 3);
+                                }
+                            });
+                        },
+                        cancel: true
+                    });
+            } else {
+                art.dialog.tips(da.content,3);
+                if(da.result==4){
+                    window.location.href = "/MyCourse/MyCourseList";
+                }
+            }
+        });
+    }
+
+    function Leave(id) {//请假
+        var str = "";
+        var flag = 1;
+        $("#div_LeaveMemo input[type='text']").each(function () {
+            if ($.trim($(this).val()) != "") {
+                str = str + "♣" + $.trim($(this).val());
+            } else {
+                flag = 0;
+            }
+        });
+        if (flag == 0) {
+            art.dialog.tips("请假理由不能为空！", 3);
+        } else {
+            $.post("/CourseLearn/Leave/", { id: id, memo: str }, function (da) {
+                if (da.result == 1) {
+                    closeDialog("art_Leave");
+//art.dialog.tips(da.content, 1.5);
+//window.location.href = window.location.href;
+                    art.dialog({
+                        width: 500,
+                        content: "消息内容：" + da.memo + "<br/>" + "确认发送邮件/短信吗？",
+                        ok: function () {
+                            $.post("/CourseLearn/SendLeaveMessage/", { memo: da.memo }, function (data) {
+                                if (data == 1) {
+                                    art.dialog.tips("发送成功！", 3);
+                                    window.location.href = window.location.href;
+                                } else {
+                                    art.dialog.tips("发送失败！", 3);
+                                }
+                            });
+                        },
+                        cancel: true
+                    });
+                } else {
+                    art.dialog.tips(da.content, 3);
+                }
+            });
+        }
+    }
+
+    function LeaveMemoShow(courseId, id) {
+        $.getJSON("/CourseLearn/GetSystemLeaveMemo/" + courseId, function (da) {
+            //var div = '<div id="div_Leave" class="all80 cen"><textarea id="txtLeaveMemo" cols="20" rows="2">' + da + '</textarea><input type="button" class="Btn Btn_blue" onclick="Leave(' + id + ');" value="提交" /></div>';
+            var div = '<div id="div_Leave"><div id="div_LeaveMemo">' + da + '</div><div class="tc mt10"><input type="button" class="btn" onclick="Leave(' + id + ');" value="提交" /></div></div>';
+            art.dialog({
+                content: div,
+                title: '请假理由',
+                id: 'art_Leave',
+                width: 500,
+                init: function () {
+                    //$("#txtLeaveMemo").textareaCount({ maxCharacterSize: 500 });
+                }
+            });
+        });
+    }
+</script>

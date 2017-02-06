@@ -1,0 +1,373 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.SurveyExampaperEdit;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var sortlist = (List<LiXinModels.Survey.Survey_ExampaperCategory>)ViewData["model"];
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "SurveyExampaperEdit"
+}))
+    <form method="post" action="" id="submitForm">
+    <h3 class="tit-h3">
+        问卷的基本信息
+    </h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span8">
+                <span class="must">*</span>问卷名称：
+            </td>
+            <td>
+                <input type="text" id="paperName" name="paperName" class="span30" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <span class="must">*</span>问卷类型：
+            </td>
+            <td>
+                <select id="paperType" name="paperType">
+                    <option value="1">普通问卷</option>
+                    <option value="0">课程评估问卷</option>
+                     <option value="2">讲师评估问卷</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <span class="must">*</span>所属分类：
+            </td>
+            <td>
+                <input id="paperSort" name="paperSort" type="text" readonly="readonly" disabled="disabled" value="@ViewBag.sortName" class="span30"/>
+                <input type="button" class="btn btn-co ml10" value="选择问卷分类" onclick="selectSurveySort(); " />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                备注：
+            </td>
+            <td>
+                <textarea id="paperMemo" name="paperMemo" class="all60"></textarea>
+            </td>
+        </tr>
+    </table>
+    <h3 class="tit-h3 mt20">
+        题目信息
+    </h3>
+    <!--题目管理-->
+    <div class="mt10">
+        <div>
+            <input type="button" class="btn btn-co" id="btnAddQuestion" onclick="AddQuestion()"
+                value="新建问题" />
+            <input type="button" class="btn btn-co" id="btnExport" value="导入问题" onclick="ImportQuestion()" /></div>
+        <div class="tab-bk tab-exam mt10">
+            <span class="fl mr10">已添加 </span>
+            <ul>
+                <li>单选题：<strong id="singleT">0</strong></li>
+                <li>多选题：<strong id="multipeT">0</strong></li>
+                <li>主观题：<strong id="zT">0</strong></li>
+                <li>星评题：<strong id="xp">0</strong></li>
+            </ul>
+        </div>
+        <div id="questionList" class="exam-list exam-box all80 h30 mt10">
+        </div>
+    </div>
+    <div class="mt20 tc">
+        <input type="submit" class="btn" id="btnSave" value="保存" />
+        <input type="button" class="btn  btn-cancel" value="返回" onclick="back()" />
+        <input id="selSurveySort" name="sortID" type="hidden" value="@ViewBag.sortID" />
+    </div>
+    </form>
+</div>
+<script id="questionListTemplate" type="text/x-jsrender">
+   {{for #data}}
+      <div class="QSingle">
+        <div type="{{:QuestionType}}" class="title">
+          <div class="info">
+              <span class="orderNum">{{:QuestionOrder}}</span>、
+              [{{:QuestionTypeStr}}]
+          </div>
+          <h5>
+           <span class="tl">{{:QuestionContent}}</span>
+            <div class="do">                 
+               <a onclick="modQuestion(this);" title="修改" class="icon iedit"></a>
+               <a onclick="delQuestion(this);" title="删除" class="icon idel"></a>
+            </div>
+          </h5>
+            {{if QuestionType==2}}
+                <div class='sortpayGrade'>{{:LinkSortPayGrade}}</div>
+            {{/if}}
+        </div>
+        <div class="content">
+         {{if QuestionType==3}}
+            <div id='divScore_{{:QuestionOrder}}' title='5'></div>
+         {{else}}
+            {{for Answers}}
+                <div><span>{{:ShowOrder}}</span>. <span class="answer">{{:AnswerContent}}</span></div>
+            {{/for}}
+         {{/if}}
+        </div>
+      </div>
+   {{/for}}
+</script>
+<script id="ImportquestionTemplate" type="text/x-jsrender">
+{{for #data}}
+   <div class="QSingle">
+        <div type="{{:QuestionType}}" class="title">
+            <div class="info">
+                <span class="orderNum">{{:QuestionOrder}} </span>、
+                ({{:QuestionTypeStr}})
+            </div>
+            <h5>
+                <span class="tl">{{:QuestionContent}}</span>
+                <div class="do">
+                    <a onclick="modQuestion(this);" title="修改" class="icon iedit"></a>
+                    <a onclick="delQuestion(this);" title="删除" class="icon idel"></a>
+                </div>
+            </h5>
+        </div>
+    
+      <div class="content">
+       {{if QuestionType==3}}
+               <div id='divScore_{{:QuestionOrder}}' title='5'></div>
+       {{else}}  
+          {{for Answers}}
+            <div>
+               <span>{{:ShowOrder}}</span>.<span class="answer">{{:AnswerContent}}</span>
+            </div> 
+          {{/for}}
+       {{/if}}
+      </div>
+   
+  </div>
+{{/for}}
+</script>
+<script type="text/javascript">
+    var editDiv = null;
+    $(document).ready(function (data)
+    {
+//       if()
+     
+       GetSurveyPaper();
+       
+       $("#submitForm").validate( 
+        {
+            event: "blur",
+            rules: {
+                paperName: {
+                    required:true,
+                    maxlength:30
+                },
+                paperSort:{required:true},
+                paperMemo:{maxlength: 200 }
+            },
+            debug:false,
+            messages: {
+                paperName: {
+                    required: "请输入问卷名称",
+                    maxlength: "问卷名称不能多于30个字符！"
+                },
+                paperSort:{required: "请输入所属分类"},
+                 paperMemo:{maxlength: "备注不能多于200个字符" }
+
+            },
+            errorPlacement: function (error, element)
+            {
+                if (element.is(':radio') || element.is(':checkbox'))
+                {
+                    var eid = element.attr('name');
+                    error.appendTo(element.parent());
+                } else
+                {
+                    error.insertAfter(element);
+                }
+            },
+            submitHandler: saveExampaper
+        });
+    });
+
+    //加载星评题
+    function showStars()
+    {
+        if($("div[id^='divScore_']").length>0)
+        {
+            $("div[id^='divScore_']").studyplay_star({ MaxStar: 5, CurrentStar: 0, Enabled: false }, function (value)
+            {
+            });
+        }
+    }
+
+    function GetSurveyPaper()
+    {
+       if(@ViewBag.paperID>0)
+       {
+          $.getJSON("/Survey/GetSurveyExampaper?paperID=@ViewBag.paperID",function(data){
+              $("#paperName").val(data.dataList.ExamTitle);
+              $("#paperType option[value='"+data.dataList.ExamType+"']").attr("selected","true");
+              $("#paperMemo").val(data.dataList.ExamDescription);
+              $("#singleT").html(data.dataList.SingleCount);
+              $("#multipeT").html(data.dataList.MultipeCount);
+              $("#zT").html(data.dataList.zhuguanCount);
+              $("#xp").html(data.dataList.xingpCount);
+              $("#questionList").html($("#questionListTemplate").render(data.dataList.Questions));
+              showStars();
+          });
+       }
+    }
+   
+    //新增的时候
+    function ReOrderQuestions()
+    {
+        var index = 1;
+        $("#questionList").find(".orderNum").each(function ()
+        {
+            $(this).html(index++);
+        });
+        $("#singleT").html($("#questionList").find("div [type='0']").length);
+        $("#multipeT").html($("#questionList").find("div [type='1']").length);
+        $("#zT").html($("#questionList").find("div [type='2']").length);
+        $("#xp").html($("#questionList").find("div [type='3']").length);
+        showStars();
+    }
+
+    //保存问卷
+    function saveExampaper()
+    {
+       if($(".QSingle").length==0)
+       {
+            art.dialog.tips('请至少添加一道题目',3);
+            return false;
+       }
+       if($("#paperType").val()!="1")
+       { 
+          if($("#singleT").html()!="0"||$("#multipeT").html()!="0")
+          {
+            art.dialog.tips('当为评估问卷的时候，只能有主观题和星评题',3);
+            return false;
+          }
+       }
+        var data = getPageData();
+        var postData = { exampaper: JSON.stringify(data) };
+        $.post("/Survey/SaveExampaper", postData, function (resultData)
+        {
+            if (resultData.result == 1)
+            {
+             window.location.href = "SurveyExampaperList";
+            }
+        });
+    }
+
+    //获取参数
+    function getPageData()
+    {
+        var data = {};
+        data.examId =@ViewBag.paperID;
+        data.examTitle = $("#paperName").val();
+        data.examDesc = $("#paperMemo").val();
+        data.examType = $("#paperType").val();
+        data.sortID = $("#selSurveySort").val();
+        data.questions = [];
+        $(".QSingle").each(function ()
+        {
+           
+            var question = {
+                title: $(this).find("h5 .tl").html(),
+                order: $(this).find(".orderNum").eq(0).html(),
+                type: $(this).find("div").eq(0).attr("type"),
+                sortpayGrade:$(this).find(".sortpayGrade").eq(0).html(),
+                answers: []
+            };
+            $(this).find(".answer").each(function ()
+            {
+                var answer = {
+                    content: $(this).html(),
+                    order: $(this).siblings().html()
+                };
+                question.answers.push(answer);
+            });
+            data.questions.push(question);
+        });
+        return data;
+    }
+
+    //新增问题
+     function AddQuestion()
+    {
+        editDiv =null;
+        art.dialog.load("AddSurveyQuestion?type="+$("#paperType").val(), { title: '编辑问题', id: "art_SurveyQuestion" });
+    }
+
+    //修改问题
+    function modQuestion(obj)
+    {
+        editDiv = $(obj).parent().parent().parent().parent();
+        art.dialog.load("AddSurveyQuestion?type="+$("#paperType").val(), { title: '编辑问题', id: "art_SurveyQuestion" });
+    }
+
+    //删除问题
+    function delQuestion(obj)
+    {
+    //debugger;
+       art.dialog({
+            content: "确定要删除此问题？",
+            ok:function () {
+		         $(obj).parent().parent().parent().parent().remove();
+		         ReOrderQuestions();
+               },
+            cancel: true
+          });
+
+    }
+
+    //选择分类
+    function selectSurveySort()
+    {
+      // art.dialog.load("SurveySort", { title: '添加分类', id: "art_SurveySort", width: 400, height: 300 });
+       $.getJSON("GetAllPaperSortTree?t=" + new Date(), function(data) {
+            art.dialog({ content: "<div class='treeview-box' style='width:500px;' ><div class='tree-list'>" + data + "</div></div>", title: "选择问卷分类", id:"SortTree", });
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#navigation>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+            //$("#0").removeAttr("onclick");
+        });
+    }
+
+    //确定添加分类
+     function selectSort(sortID, obj) {
+        if (parseInt(sortID) > 0) {
+            $("#selSurveySort").val(sortID);
+            $("#paperSort").val($(obj).text());
+            art.dialog.list['SortTree'].close();
+        } else {
+          art.dialog.tips("根节点不可选",3);
+        }
+    }
+
+    //导入问题
+    function ImportQuestion()
+    {
+    var order=$(".QSingle .orderNum").last().html();
+    if(order==undefined)
+    {
+      order=0;
+    }
+       art.dialog.load("ImportQuestion?order="+order, { title: '导入问题', id: "art_importQuestion" });         
+    }
+
+     function ShowCourseOfSurvey(systemID, gradeIds)
+    {
+        art.dialog.load("/CourseManage/PopCourseOfSurvey?sysIds=" + systemID + "&gradeIds=" + gradeIds, { title: '胜任力课程', id: "art_CourseOfSurvey"});
+    }
+
+    function back()
+    {
+      window.location.href="SurveyExampaperList";
+    }
+</script>

@@ -1,0 +1,256 @@
+﻿@using LiXinLanguage
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = NavigateMenuLanguage.ParamConfig;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "ParamConfig" }))
+    <div style="width: 290px; float: left;">
+        <div class="tab-red">
+            <ul>
+                <li class="On" title="事务所培训" onclick="$('#employee,#shiwusuo,#bumenfensuo').hide();$('#shiwusuo').show();$(this).parent().find('li').removeClass('On');$(this).addClass('On');">
+                    事务所培训<i></i></li>
+                <li title="员工" onclick="$('#employee,#shiwusuo,#bumenfensuo').hide();$('#employee').show();$(this).parent().find('li').removeClass('On');$(this).addClass('On');">
+                    员工<i></i></li>
+                <li title="部门/分所" onclick="$('#employee,#shiwusuo,#bumenfensuo').hide();$('#bumenfensuo').show();$(this).parent().find('li').removeClass('On');$(this).addClass('On');">
+                    部门/分所<i></i></li>
+            </ul>
+        </div>
+        <div class="main-l" style="width: 290px;">
+            <div class="menu-list" id="shiwusuo">
+                <ul>
+                    <li><a class="url_a On" title="短信设置" configtyp="1">短信设置<i></i></a> </li>
+                    <li><a class="url_a" title="邮箱配置" configtyp="2">邮箱配置<i></i></a> </li>
+                    <li><a class="url_a" title="培训年度设定" configtyp="7">培训年度设定<i></i></a> </li>
+                    <li><a class="url_a" title="CPA培训周期设定" configtyp="8">CPA培训周期设定<i></i></a> </li>
+                    <li><a class="url_a" title="培训级别统一调整时间设定" configtyp="9">培训级别统一调整时间设定<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="部门/分所培训负责人设定时限" configtyp="10">部门/分所培训负责人设定时限<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="培训需求上报时间设定" configtyp="11">培训需求上报时间设定<i></i></a> </li>
+                    <li><a class="url_a" title="排队状态更改为正常预订状态的时间点" configtyp="21">排队状态更改为正常预订状态的时间点<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="请假审核时限" configtyp="22">请假审核时限<i></i></a> </li>
+                    <li><a class="url_a" title="补预订审核时限" configtyp="23">补预订审核时限<i></i></a> </li>
+                    <li><a class="url_a" title="课前建议、课后评估的开放时间" configtyp="29">课前建议、课后评估的开放时间<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="参加课后评估获取奖励学时上限" configtyp="30">参加课后评估获取奖励学时上限<i></i></a>
+                    </li>
+                    @*<li><a class="url_a" title="请假条模板" configtyp="31">请假条模板<i></i></a> </li>*@
+                </ul>
+            </div>
+            <div class="menu-list" id="employee" style="display: none;">
+                <ul>
+                    <li><a class="url_a" title="违纪学时配置" configtyp="5">违纪学时配置<i></i></a> </li>
+                    <li><a class="url_a" title="各级别当年度内部培训的目标学时" configtyp="13">各级别当年度内部培训的目标学时<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="各培训形式当年度内部培训的获取学时上限" configtyp="14">各培训形式当年度内部培训的获取学时上限<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="CPA年度考核目标学时" configtyp="16">CPA年度考核目标学时<i></i></a> </li>
+                    <li><a class="url_a" title="CPA培训周期考核目标学时" configtyp="17">CPA培训周期考核目标学时<i></i></a>
+                    </li>
+                    <!--<li><a class="url_a" title="必修/选修课程学时获取上限" configtyp="18">必修/选修课程学时获取上限<i></i></a>
+                    </li>-->
+                    <li><a class="url_a" title="全年课程退订次数" configtyp="19">全年课程退订次数<i></i></a> </li>
+                    <li><a class="url_a" title="全年课程补预订次数" configtyp="20">全年课程补预订次数<i></i></a> </li>
+                    <li><a class="url_a" title="集中授课学时折算分布" configtyp="24">集中授课学时折算分布<i></i></a> </li>
+                    <li><a class="url_a" title="视频课程课后可参加在线测试条件" configtyp="25">视频课程课后可参加在线测试条件<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="在线测试允许答题时间" configtyp="26">在线测试允许答题时间<i></i></a> </li>
+                    <li><a class="url_a" title="在线测试允许最大次数" configtyp="27">在线测试允许最大次数<i></i></a> </li>
+                    <li><a class="url_a" title="全年在线测试完成次数" configtyp="33">全年在线测试完成次数<i></i></a></li>
+                </ul>
+            </div>
+            <div class="menu-list" id="bumenfensuo" style="display: none;">
+                <ul>
+                    <li><a class="url_a" title="补考次数配置" configtyp="3">补考次数配置<i></i></a> </li>
+                    <li><a class="url_a" title="部门计划提交时间配置" configtyp="4">部门计划提交时间配置<i></i></a> </li>
+                    <li><a class="url_a" title="课后评估获得学时配置" configtyp="6">课后评估获得学时配置<i></i></a> </li>
+                    <li><a class="url_a" title="培训需求填报开放对象" configtyp="12">培训需求填报开放对象<i></i></a> </li>
+                    <li><a class="url_a" title="全年在线测试要求完成次数" configtyp="15">全年在线测试要求完成次数<i></i></a>
+                    </li>
+                    <li><a class="url_a" title="违纪情况的学时扣除" configtyp="28">违纪情况的学时扣除<i></i></a> </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="main-r right_div" style="width: 700px;">
+        @Html.Action("MessageConfig", "ParamConfig")<!--默认Email页面-->
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".url_a").click(function () {
+            var tt = $(this).attr("configtyp");
+
+            switch (tt) {
+                case "1":
+                    $(".right_div").load("/ParamConfig/MessageConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='1']").addClass("On");
+                    break;
+                case "2":
+                    $(".right_div").load("/ParamConfig/EmailConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='2']").addClass("On");
+                    break;
+                case "3":
+                    $(".right_div").load("/ParamConfig/ExamNumberConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='3']").addClass("On");
+                    break;
+                case "4":
+                    $(".right_div").load("/ParamConfig/DepartmentConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='4']").addClass("On");
+                    break;
+                case "5":
+                    $(".right_div").load("/ParamConfig/DisciplineHoursConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='5']").addClass("On");
+                    break;
+                case "6":
+                    $(".right_div").load("/ParamConfig/AfterEvaluationConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='6']").addClass("On");
+                    break;
+                case "7":
+                    $(".right_div").load("/ParamConfig/TrainYearConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='7']").addClass("On");
+                    break;
+                case "8":
+                    $(".right_div").load("/ParamConfig/CPATrainConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='8']").addClass("On");
+                    break;
+                case "9":
+                    $(".right_div").load("/ParamConfig/TrainLevelAdjustTimeConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='9']").addClass("On");
+                    break;
+                case "10":
+                    $(".right_div").load("/ParamConfig/AllDeptTrainSetTime");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='10']").addClass("On");
+                    break;
+                case "11":
+                    $(".right_div").load("/ParamConfig/TrainReportingTimeConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='11']").addClass("On");
+                    break;
+                case "12":
+                    $(".right_div").load("/ParamConfig/TrainOpenObjectConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='12']").addClass("On");
+                    break;
+                case "13":
+                    $(".right_div").load("/ParamConfig/AlllevelTrainTargetTimeConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='13']").addClass("On");
+                    break;
+                case "14":
+                    $(".right_div").load("/ParamConfig/TrainTimeLimitConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='14']").addClass("On");
+                    break;
+                case "15":
+                    $(".right_div").load("/ParamConfig/YearCompletionTimesConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='15']").addClass("On");
+                    break;
+                case "16":
+                    $(".right_div").load("/ParamConfig/CPAYealTargetHoursConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='16']").addClass("On");
+                    break;
+                case "17":
+                    $(".right_div").load("/ParamConfig/CPATargetTrainCycleTimeConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='17']").addClass("On");
+                    break;
+                case "18":
+                    $(".right_div").load("/ParamConfig/CourseUpperLimitConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='18']").addClass("On");
+                    break;
+                case "19":
+                    $(".right_div").load("/ParamConfig/YearCourseRescindNumberConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='19']").addClass("On");
+                    break;
+                case "20":
+                    $(".right_div").load("/ParamConfig/YearCourseFillUpNumberConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='20']").addClass("On");
+                    break;
+                case "21":
+                    $(".right_div").load("/ParamConfig/QueuechangeNormalNumberConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='21']").addClass("On");
+                    break;
+                case "22":
+                    $(".right_div").load("/ParamConfig/LeaveTimeConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='22']").addClass("On");
+                    break;
+                case "23":
+                    $(".right_div").load("/ParamConfig/FillUpTimeConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='23']").addClass("On");
+                    break;
+                case "24":
+                    $(".right_div").load("/ParamConfig/ConcentrationTeachTimeConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='24']").addClass("On");
+                    break;
+                case "25":
+                    $(".right_div").load("/ParamConfig/AfterVideoJoinTestConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='25']").addClass("On");
+                    break;
+                case "26":
+                    $(".right_div").load("/ParamConfig/TestAnswerTimeConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='26']").addClass("On");
+                    break;
+                case "27":
+                    $(".right_div").load("/ParamConfig/TestMaxNumberConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='27']").addClass("On");
+                    break;
+                case "28":
+                    $(".right_div").load("/ParamConfig/DisciplineClassDeductionConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='28']").addClass("On");
+                    break;
+                case "29":
+                    $(".right_div").load("/ParamConfig/ClassOpingTimeConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='29']").addClass("On");
+                    break;
+                case "30":
+                    $(".right_div").load("/ParamConfig/EvaluationRewardTimeLimitConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='30']").addClass("On");
+                    break;
+                case "31":
+                    $(".right_div").load("/ParamConfig/ClassTemplateConfig");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='31']").addClass("On");
+                    break;
+                case "33":
+                    $(".right_div").load("/ParamConfig/CompletionOnlineTestTimes");
+                    $(".menu-list li a").removeClass("On");
+                    $(".menu-list li a[configtyp='33']").addClass("On");
+                    break;
+
+            }
+        });
+        $.ajaxSetup({
+            cache: false //关闭AJAX相应的缓存
+        });
+
+    })
+   
+</script>

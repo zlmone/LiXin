@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DeleteCompete" xml:space="preserve">
+    <value>喔，糟糕！您报名的大赛“{0}”被删除了！</value>
+    <comment>删除大赛</comment>
+  </data>
+  <data name="DeleteCompete_title" xml:space="preserve">
+    <value>大赛删除</value>
+  </data>
+  <data name="ApprovalPassed" xml:space="preserve">
+    <value>恭喜，您申请的“&lt;a href='/TrainManage/PostTrainingList'&gt;{0}&lt;/a&gt;”通过了，赶快来学习吧。</value>
+    <comment>审批通过</comment>
+  </data>
+  <data name="ApprovalRefused" xml:space="preserve">
+    <value>很遗憾，您申请的"&lt;a href='/TrainManage/TrainApply'&gt;{0}&lt;/a&gt;”被拒绝了，继续努力吧！</value>
+    <comment>审批拒绝</comment>
+  </data>
+  <data name="CourseLearning" xml:space="preserve">
+    <value>您的“&lt;a href='/TrainManage/FunctionLearningList'&gt;{0}&lt;/a&gt;”已经学习7天啦，要加油喔！</value>
+    <comment>自主学习</comment>
+  </data>
+  <data name="ExamPublish" xml:space="preserve">
+    <value>您有一门考试“&lt;a href='{0}'&gt;{1}&lt;/a&gt;”需要参加，请尽快哦！</value>
+    <comment>考试发布</comment>
+  </data>
+  <data name="PublishCompete" xml:space="preserve">
+    <value>有新大赛“{0}”可以参加，赶紧去报名吧！</value>
+    <comment>发布大赛</comment>
+  </data>
+  <data name="PublishCompete_title" xml:space="preserve">
+    <value>大赛发布</value>
+  </data>
+  <data name="PublishPrize" xml:space="preserve">
+    <value>恭喜，{0}大赛获奖名单已公布，您获得了“{1}”快去看看吧！</value>
+    <comment>发布获奖</comment>
+  </data>
+  <data name="PublishPrize_title" xml:space="preserve">
+    <value>大赛获奖通知</value>
+  </data>
+  <data name="PublishPromotion" xml:space="preserve">
+    <value>恭喜，您参加的“{0}大赛{1}赛程”成功晋级了！</value>
+    <comment>发布晋级</comment>
+  </data>
+  <data name="PublishPromotion_title" xml:space="preserve">
+    <value>大赛晋级通知</value>
+  </data>
+  <data name="LearningPassed" xml:space="preserve">
+    <value>恭喜，您参与的“&lt;a href='/TrainManage/PostTrainingList'&gt;{0}&lt;/a&gt;”学习，已经顺利通过喽，快去看看自己的成绩吧！</value>
+    <comment>学习通过</comment>
+  </data>
+  <data name="NewApproval" xml:space="preserve">
+    <value>{0}的{1}申请了“{2}”需要您的审批，赶快去看看吧。进行审批，请点击&lt;a href='/TrainManage/TrainApprove'&gt;这里&lt;/a&gt;</value>
+    <comment>新审批</comment>
+  </data>
+  <data name="NewSpecialTrain" xml:space="preserve">
+    <value>有新的专题“&lt;a href='/TrainManage/SpecialTrainingLearnList'&gt;{0}&lt;/a&gt;”需要参加，快去看看吧！</value>
+    <comment>新增专题</comment>
+  </data>
+  <data name="SpecialTrainPassed" xml:space="preserve">
+    <value>您参与的“&lt;a href='/TrainManage/SpecialTrainingLearnList'&gt;{0}&lt;/a&gt;”学习已结束，恭喜您顺利通过，感谢您的参与。</value>
+    <comment>通过专题学习</comment>
+  </data>
+  <data name="SpecialTrainRefused" xml:space="preserve">
+    <value>您参与的“&lt;a href='/TrainManage/SpecialTrainingLearnList'&gt;{0}&lt;/a&gt;”学习已结束，很遗憾您没有通过，感谢您的参与。</value>
+    <comment>未通过专题学习</comment>
+  </data>
+  <data name="ApprovalPassed_title" xml:space="preserve">
+    <value>审批通过</value>
+    <comment>审批通过</comment>
+  </data>
+  <data name="ApprovalRefused_title" xml:space="preserve">
+    <value>审批拒绝</value>
+    <comment>审批拒绝</comment>
+  </data>
+  <data name="CourseLearning_title" xml:space="preserve">
+    <value>自主学习</value>
+    <comment>自主学习</comment>
+  </data>
+  <data name="LearningPassed_title" xml:space="preserve">
+    <value>晋升学习通过</value>
+    <comment>学习通过</comment>
+  </data>
+  <data name="NewApproval_title" xml:space="preserve">
+    <value>新的审批</value>
+    <comment>新的审批</comment>
+  </data>
+  <data name="SpecialTrainPassed_title" xml:space="preserve">
+    <value>通过专题学习</value>
+    <comment>通过专题学习</comment>
+  </data>
+  <data name="SpecialTrainRefused_title" xml:space="preserve">
+    <value>未通过专题学习</value>
+    <comment>未通过专题学习</comment>
+  </data>
+  <data name="NewSpecialTrain_title" xml:space="preserve">
+    <value>新增专题</value>
+    <comment>新增专题</comment>
+  </data>
+  <data name="ExamPublish_title" xml:space="preserve">
+    <value>考试安排</value>
+    <comment>考试安排</comment>
+  </data>
+  <data name="PassExam_Content" xml:space="preserve">
+    <value>恭喜，您参与的“{0}”已经顺利通过喽，快去看看吧！</value>
+  </data>
+  <data name="PassExam_Title" xml:space="preserve">
+    <value>考试通过通知</value>
+    <comment>考试通过标题</comment>
+  </data>
+</root>

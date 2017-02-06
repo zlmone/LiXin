@@ -1,0 +1,78 @@
+﻿@{
+    Layout = null;
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.js"> </script>
+    <link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+    
+</head>
+    <body>
+        <input type="hidden" name="Id" id="txtId" value="@ViewBag.id"  />
+        <div>
+            
+            <input type="file" name="courseAttachResource" value="" id="uploadAttachResource" />
+            @if (ViewBag.CourseAttachList != null)
+            {
+                foreach (var item in (IEnumerable<LiXinModels.CourseManage.Co_CourseResource>)ViewBag.CourseAttachList)
+                {
+                    <div id="div_courseAttach_@(item.Id)">
+                        <label>
+                            @item.ResourceName
+                        </label>
+                        @item.ResourceSize K
+                        <input  type="button" name="btn" value="移除" onclick="fnRemoveCourseResource('div_courseAttach_@(item.Id)',@item.Id)" /></div>
+                }
+            }
+           
+        </div>
+    </body>
+    <script type="text/javascript">
+         $(document).ready(function() {
+             var tt = "";
+            $('#uploadAttachResource').uploadify({
+             'formData': { 'folder': "@System.Configuration.ConfigurationManager.AppSettings["UFCOResource"]" },
+             'buttonText': '选择文件',
+             'buttonClass': 'browser',
+             'removeCompleted': false,
+             'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+             'uploader': '/Common/UploadFileAction?detailFlag=1',
+             'auto': true,
+             'multi': true,
+             'onCancel': function (file) {
+              },
+             'sizeLimit': 2147483647,
+             'onSelect': function (file) {
+                 $("#tempAttachQueueId").val(file.id);
+             },
+             'onUploadStart': function (file) {
+             },
+             'onUploadSuccess': function (file, data, response) {
+                            var a = data.split('|');
+               if (a.length>0) {
+                        var ResourceName = a[0];
+                        var RealName = a[1];
+                        var ResourceSize = a[2];
+                        var  ResourceType =0; 
+                        var CourseId = $("#txtId").val();
+             $.post("/TeacherCourse/SubmitAddCourseResource?CourseId="+CourseId+"&resourceName="+ encodeURIComponent(ResourceName)+"&RealName="+encodeURIComponent(RealName)+
+              "&ResourceSize="+ResourceSize+"&ResourceType="+ResourceType,function(data) {
+                 art.dialog.tips("保存成功", 3,function(){ window.location.href='/TeacherCourse/CourseMain?id='+$("#txtId").val();});
+                 
+              });    
+             }
+
+//             ,'fileTypeExts': ' *.doc; *.ppt; *.xls;*.docx; *.pptx; *.xlsx; *.pdf; *.txt; *.rmvb; *.avi; *.wmv'
+         },
+             'onQueueComplete':function(){
+            
+             } });
+        });
+
+    </script>
+</html>

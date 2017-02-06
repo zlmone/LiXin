@@ -1,0 +1,159 @@
+﻿@using LiXinCommon
+@using LiXinModels.User
+@{
+    var user = ViewBag.User as Sys_User;
+    ViewBag.Title = CodeHelper.GetNavigateString("UserDetail");
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "UserDetail" }))
+    <div class="clb">
+        <div class="main-l" style="width: 300px;">
+            <div class="perInfo">
+                <div class="pi-img">
+                    <img src="@(user.PhotoUrlStr.Replace("~", ""))" id="imgPhotoUrl" /></div>
+                <ul class="pi-list" style="width: 220px;">
+                    <li>用户姓名：<span>@user.Realname</span></li>
+                    <li>用户ID：<span>@user.UserId</span></li>
+                    <li>用户性别：<span>@user.SexStr</span></li>
+                    <li>身份证号：<span>@(string.IsNullOrEmpty(user.IdCardNo) ? "--" : user.IdCardNo)</span></li>
+                    <li>移动电话：<span>@(string.IsNullOrEmpty(user.MobileNum) ? "--" : user.MobileNum)</span></li>
+                    <li>联系电话：<span>@(string.IsNullOrEmpty(user.Telephone) ? "--" : user.Telephone)</span></li>
+                    <li>联系邮箱：<span>@(string.IsNullOrEmpty(user.Email) ? "--" : user.Email)</span></li>
+                    <li>所学专业：<span>@(string.IsNullOrEmpty(user.Major) ? "--" : user.Major)</span></li>
+                    <li>毕业院校：<span>@(string.IsNullOrEmpty(user.GraduateSchool) ? "--" : user.GraduateSchool)</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-r" style="width: 690px;">
+            <table class="tab-Form">
+                <tr>
+                    <td class="span14 Tit">
+                        所属事业部：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.SubordinateDept) ? "--" : user.SubordinateDept)
+                    </td>
+                    <td class="span14 Tit">
+                        所属分所：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.SubordinateSubstation) ? "--" : user.SubordinateSubstation)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        部门：
+                    </td>
+                    <td>
+                        @(string.IsNullOrEmpty(user.DeptName) ? "--" : user.DeptName)
+                    </td>
+                    <td class="Tit">
+                        岗位：
+                    </td>
+                    <td>
+                        @(string.IsNullOrEmpty(user.PostName) ? "--" : user.PostName)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        职务：
+                    </td>
+                    <td colspan="2">
+                        @(string.IsNullOrEmpty(user.JobTitle) ? "--" : user.JobTitle)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        员工类别：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.StaffType) ? "--" : user.StaffType)
+                    </td>
+                    <td class="Tit">
+                        人员类别：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.UserType) ? "--" : user.UserType)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        培训级别：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.TrainGrade) ? "--" : user.TrainGrade)
+                    </td>
+                    <td class="Tit">
+                        薪酬级别：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.PayGrade) ? "--" : user.PayGrade)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        注册会计师证书编号：
+                    </td>
+                    <td>
+                        @(string.IsNullOrEmpty(user.CPANo) ? "--" : user.CPANo)
+                    </td>
+                    <td class="Tit">
+                        注册会计师关系所在地：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.CPARelationship) ? "--" : user.CPARelationship)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        注册税务师：
+                    </td>
+                    <td>
+                        @(string.IsNullOrEmpty(user.CTA) ? "--" : user.CTA)
+                    </td>
+                    <td class="Tit">
+                        注册资产评估师：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.CPV) ? "--" : user.CPV)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        土地估价师：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.ICLV) ? "--" : user.ICLV)
+                    </td>
+                    <td class="Tit">
+                        房地产估价师：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.RealEstateValuers) ? "--" : user.RealEstateValuers)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        是否CPA：
+                    </td>
+                    <td>
+                        @(string.IsNullOrEmpty(user.CPA) ? "--" : user.CPA)
+                    </td>
+                    <td class="Tit">
+                        CPA执业年限：
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.CPAPractice) ? "--" : user.CPAPractice)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        CPA状态：
+                    </td>
+                    <td colspan="2">@(string.IsNullOrEmpty(user.CPAStatus) ? "--" : user.CPAStatus)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        个人简介：
+                    </td>
+                    <td colspan="2">
+                        @(string.IsNullOrEmpty(user.Memo) ? "--" : user.Memo)
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <center>
+        <a id="btnBack" class="btn btn-cancel" onclick=" window.location.href = '/UserManage/UserManage'; ">
+            返回</a></center>
+</div>

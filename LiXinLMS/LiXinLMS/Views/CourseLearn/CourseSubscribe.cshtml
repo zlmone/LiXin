@@ -1,0 +1,278 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.CourseSubscribe;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var flag = Request.QueryString["flag"] ?? "";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "CourseSubscribe" }))
+    <div id="tab" class="tab-bk">
+        <ul id="tabmain">
+            <li class="On" id="tabjizhong" onclick="selectTab('jizhong');">集中授课</li>
+            <li id="tabcpa" onclick="selectTab('cpa');">注协课程</li>
+        </ul>
+    </div>
+    <div id="divjizhong">
+        <div id="Search" class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">
+                        课程名称：
+                    </td>
+                    <td class="span31">
+                        <input type="text" class="span30 searchclass" id="course" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="Tit span4">
+                        讲师：
+                    </td>
+                    <td>
+                        <input type="text" class="span10 searchclass" id="teaName" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="so-do">
+                        <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitDataJizhong(1); " />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="sltCourseOrder" onchange=" InitDataJizhong(1); ">
+                <option value="99">课程性质</option>
+                <option value="2">指定</option>
+                <option value="1">预订</option>
+                <option value="3">兼有</option>
+            </select>
+        </div>
+        <!-- 列表 -->
+        <div id="Content" class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span4">
+                            序号
+                        </th>
+                        <th>
+                            课程名称
+                        </th>
+                        <th class="span10" jsrendersortfield="IsMust" sort="desc">
+                            选/必修
+                        </th>
+                        <th class="span12">
+                            讲师
+                        </th>
+                        <th class="span14" jsrendersortfield="StartTime" sort="desc">
+                            授课时间
+                        </th>
+                        <th class="span12">
+                            报名人数/<br />
+                            最大容纳人数
+                        </th>
+                        <th class="span12">
+                            开放级别
+                        </th>
+                        <th class="span12">
+                            是否可预订
+                        </th>
+                        <th class="span8">
+                            操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="courseList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div id="divcpa" style="display:none;">
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">
+                        课程名称：
+                    </td>
+                    <td class="span31">
+                        <input type="text" class="span30 searchclass" id="cpaname" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="Tit span4">
+                        讲师：
+                    </td>
+                    <td>
+                        <input type="text" class="span10 searchclass" id="cpateacher" value="请输入搜索内容" info="" />
+                    </td>
+                    <td class="so-do">
+                        <input class="btn" type="button" value="搜索" id="btnCPASearch" onclick=" InitDataCPA(1); " />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 列表 -->
+        <div id="CPAContent" class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span4">序号</th>
+                        <th>课程名称</th>
+                        <th class="span12">讲师</th>
+                        <th class="span14" jsrendersortfield="StartTime" sort="desc">开课时间</th>
+                        <th class="span10">开放级别</th>
+                        <th class="span15">报名人数/最大容纳人数</th>
+                        <th class="span8">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="cpaCourseList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- CPA课程模板 -->
+<script id="cpaCourseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh span25 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>   
+        <td><div class="ovh span11 tl" title="{{:TeacherName}}">{{:TeacherName}}</div></td> 
+        <td><div class="f11 span24">{{:CourseTime}}</div></td> 
+        <td><div class="ovh span10 tl" title="{{:OpenLevel}}">{{:OpenLevel}}</div></td>
+        <td><a onclick="ApplyCPA({{:Id}});" class="pointer" style="color:green;">{{:HasEntered}}/{{:NumberLimited}}</a></td>
+        <td>
+            <a class="icon iview" title="查看详情" onclick="ViewCPA({{:Id}},'{{:CourseName}}','{{:TeacherName}}','{{:HasEntered}}/{{:NumberLimited}}','{{:OpenLevel}}');"></a>
+        </td> 
+    </tr> 
+    {{/for}}
+</script>
+<script id="courseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh span25 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>   
+        <td>{{:IsMustStr}}</td> 
+        <td>{{:TeacherName}}</td> 
+        <td><div class="f11 tl">{{:CourseTime}}</div></td> 
+        <td><a onclick="Apply({{:Id}});" class="pointer" style="color:green;">{{:HasEntered}}/{{:NumberLimited}}</a></td> 
+        <td>{{:OpenLevel}}</td> 
+        <td>{{:OrderStr}}</td> 
+        <td>
+            {{if StopDucueFlag == 0}}
+                <a class="icon irank-cl" onclick="DucueFlag({{:Id}},1);" title="排队关闭"></a>
+            {{else}}
+                <a class="icon irank-op" onclick="DucueFlag({{:Id}},0);" title="排队开启"></a>
+            {{/if}}
+            {{if StopOrderFlag == 0}}
+                <a class="icon iapp-cl" onclick="OrderFlag({{:Id}},1);" title="报名关闭"></a>
+            {{else}}
+                <a class="icon iapp-op" onclick="OrderFlag({{:Id}},0);" title="报名开启"></a>
+            {{/if}}
+            <a class="icon iview" title="查看详情" onclick="View({{:Id}});"></a>
+        </td> 
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        if ('@flag' == 'cpa')
+            selectTab('cpa');
+        else {
+            //加载列表
+            $("#course").val('@(ViewBag.csname)');
+            $("#teaName").val('@(ViewBag.cstea)');
+            $("#sltCourseOrder").val('@(ViewBag.csstate)');
+            InitDataJizhong(@(ViewBag.page));
+        }
+    });
+
+    //tab切换
+    function selectTab(para) {
+        $("#tabmain li").removeClass("On");
+        $("#tabmain #tab" + para).addClass("On");
+        if (para == "jizhong") {
+            $("#divcpa").hide();
+            $("#divjizhong").show();
+            $("#course").val('@(ViewBag.csname)');
+            $("#teaName").val('@(ViewBag.cstea)');
+            $("#sltCourseOrder").val('@(ViewBag.csstate)');
+            InitDataJizhong(@(ViewBag.page));
+        } else {
+            $("#divjizhong").hide();
+            $("#divcpa").show();
+            $("#cpaname").val('@(ViewBag.ccsname)');
+            $("#cpateacher").val('@(ViewBag.ccstea)');
+            InitDataCPA(@(ViewBag.cpage));
+        }
+    }
+
+    //初始化集中授课列表
+    function InitDataJizhong(page) {
+        var v = "course=" + escape(getSearchWord("course")) + "&teaName=" + escape(getSearchWord("teaName")) + "&courseOrder=" + $("#sltCourseOrder").val();
+        $("#courseList").JsRenderData({
+            sourceUrl: '/CourseLearn/GetCourseSubscribeList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            jsRenderSortField: "StartTime",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    //初始化CPA课程列表
+    function InitDataCPA(cpage) {
+        var v = "cpaname=" + escape(getSearchWord("cpaname")) + "&teaName=" + escape(getSearchWord("cpateacher"));
+        $("#cpaCourseList").JsRenderData({
+            sourceUrl: '/CourseLearn/GetCpaCourseSubscribeList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: cpage,
+            jsRenderSortField: "StartTime   ",
+            jsRenderASC: "desc",
+            templateID: "cpaCourseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function DucueFlag(id, status) { //排队
+        $.getJSON("/CourseLearn/DucueFlag?id=" + id + "&status=" + status, function (da) {
+            if (da.result == 1) {
+                art.dialog.tips(da.content, 3);
+                InitDataJizhong(da.indexpage);
+            } else {
+                art.dialog.tips(da.content,3);
+            }
+        });
+    }
+
+    function OrderFlag(id, status) { //报名
+        $.getJSON("/CourseLearn/OrderFlag?id=" + id + "&status=" + status, function (da) {
+            if (da.result == 1) {
+                art.dialog.tips(da.content, 3);
+                InitDataJizhong(da.indexpage);
+            } else {
+                art.dialog.tips(da.content, 3);
+            }
+        });
+    }
+
+    function Apply(id) {//报名详情
+        window.location.href = "/CourseLearn/CourseApplyDetail/" + id;
+    }
+
+    function ApplyCPA(id) {//CPA报名详情
+        window.location.href = "/CourseLearn/CpaCourseApplyDetail/" + id;
+    }
+
+    function View(id) {//详情
+        window.location.href = "/CourseLearn/CourseSubscribeDetail/" + id;
+    }
+
+    //查看cpa课程预定详情
+    function ViewCPA(id, coname, tname, precount, grade) {
+        window.location.href = "/CourseLearn/CourseCPASubscribeDetail?id=" + id + '&cname=' + escape(coname) + '&tname=' + escape(tname) + '&pre=' + precount + '&grade=' + escape(grade);
+    }
+</script>

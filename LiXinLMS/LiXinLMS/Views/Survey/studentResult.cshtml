@@ -1,0 +1,179 @@
+﻿@{
+    ViewBag.Title = "员工答卷明细";
+    Layout = null;
+}
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span4">
+                姓名：
+            </td>
+            <td class="span11">
+                <input id="txtRealName" type="text" class="span10" />
+            </td>
+            <td class="Tit span6">
+                培训等级：
+            </td>
+            <td>
+                <div class="sel">
+                    @{
+                        foreach (var item in @ViewBag.TrainGrade)
+                        {
+               
+                        <input name="grade" type="checkbox" value="@item"/><label>@item</label>
+                        }   
+                    }
+                </div>
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" onclick="getData()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="stu-list clb">
+    <div class="fl">
+        <ul id="student">
+        </ul>
+    </div>
+    <div class="fr">
+        <div id="answer" class="sur-do">
+        </div>
+        <div class="isnull" style="display: none">
+        暂无相关记录
+       </div>
+    </div>
+    <div class="isnull" style="display: none">
+        暂无相关记录
+    </div>
+</div>
+<script id="studentTemplate" type="text/x-jsrender">
+   {{for #data}}
+         <li class="tl ovh" title="{{:Realname}}【{{:TrainGrade}} {{:DeptName}}】"><a onclick="getstuAnswer({{:UserId}},this);">{{:#index+1}}、{{:Realname}}【{{:TrainGrade}} {{:DeptName}}】</a></li>
+   {{/for}}
+</script>
+<script id="answerTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <div class="list">
+              <div class="tit">
+                <span>{{:#index+1}}.</span>【{{:QuestionTypeStr}}】{{:QuestionContent}}   
+              </div>
+                {{if QuestionType==2}}
+                   <div class='sortpayGrade ml35'>{{:LinkSortPayGradeNoClick}}</div>
+               {{/if}}
+                {{if QuestionType==0}} 
+                  {{for Answers}}
+                    <p>
+                        <input type="radio" id="rep_{{:AnswerId}}"  disabled="disabled" />{{:ShowOrder}}.{{:AnswerContent}}
+                    </p>
+                  {{/for}}
+                 <p id="replay_{{:QuestionID}}"></p>
+                {{/if}}
+                {{if QuestionType==1}}
+                   {{for Answers}}
+                    <p>
+                      <input type="checkbox" id="rep_{{:AnswerId}}"  disabled="disabled" /> {{:ShowOrder}}.{{:AnswerContent}}
+                    </p>
+                   {{/for}}
+                    <p id="replay_{{:QuestionID}}"></p>
+                {{/if}}
+                {{if QuestionType==2}}
+                    <p><textarea cols="20" id="a_{{:QuestionID}}" rows="2" disabled="disabled" class="all60">{{:AnswerContent}}</textarea></P>
+                {{/if}}
+
+                {{if QuestionType==3}}
+                   <div id='divScore_{{:QuestionID}}' title="" class="ml35" title='5'>
+                    </div>
+                      <p id="replay_{{:QuestionID}}"></p>
+                {{/if}}
+        </div>
+   {{/for}}
+</script>
+<script type="text/javascript">
+
+    function getData()
+    {
+
+        $.getJSON(geturl(), function (data)
+        {
+            if (data.result == 1)
+            {
+                if (data.dataList.length > 0)
+                {
+                    $(".isnull").hide();
+                    $("#student").html($("#studentTemplate").render(data.dataList));
+                    getstuAnswer(data.userID);
+                    $("#student li:first").addClass("bg_cc");
+                }
+                else
+                {
+                    $("#student").html("");
+                    $("#answer").html("");
+                    $(".isnull").show();
+                }
+
+            }
+        });
+    }
+
+    function getstuAnswer(UserId, obj)
+    {
+        if (obj != undefined)
+        {
+            $(obj).parent().parent().find("li").removeClass("bg_cc");
+            $(obj).parent().addClass("bg_cc");
+        }
+        $.post("/Survey/GetAnswerForStu",
+         {
+             surveyID: $("#surveyID").val(),
+             paperID: $("#paperID").val(),
+             userID: UserId,
+             type: '@ViewBag.type'
+         }, function (data)
+         {
+             if (data.result == 1)
+             {
+                 $("#answer").html($("#answerTemplate").render(data.questionList));
+                 for (var i = 0; i < data.stuAnswer.length; i++)
+                 {
+                     var qid = data.stuAnswer[i].QuestionID;
+                     $("#replay_" + qid).html(" 理由：" + data.stuAnswer[i].QuestionReply);
+                     for (var j = 0; j < data.stuAnswer[i].objectAnswerList.length; j++)
+                     {
+                         var aid = data.stuAnswer[i].objectAnswerList[j];
+                         $("#rep_" + aid).attr("checked", true);
+                     }
+
+                     for (var k = 0; k < data.stuAnswer[i].subjectiveAnswerList.length; k++)
+                     {
+                         var value = data.stuAnswer[i].subjectiveAnswerList[k];
+                         $("#a_" + qid).val(value);
+                         $("#divScore_" + qid).attr("title", value);
+                     }
+                 }
+                 showStars();
+
+             }
+
+         });
+
+    }
+
+
+    //加载星评题
+    function showStars()
+    {
+        if ($("div[id^='divScore_']").length > 0)
+        {
+            $("div[id^='divScore_']").each(function ()
+            {
+                var star = $(this).attr("title");
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: false }, function (value)
+                {
+
+                });
+            });
+        }
+    }
+</script>

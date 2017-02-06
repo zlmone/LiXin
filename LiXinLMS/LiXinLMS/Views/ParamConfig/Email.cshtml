@@ -1,0 +1,34 @@
+﻿@{
+    Layout = null;
+    var emailmodel = ViewBag.model as LiXinModels.Sys_ParamConfig;
+
+}
+<div>
+    <input type="hidden" value="1" id="configType" /><!--区分ID-->
+    <div>用户名:<input type="text" id="txt_Name" class="Box w160 inpbor" value="@emailmodel.ConfigValue.Split(';')[0]" /></div>
+    <div>密码:<input type="text" id="txt_Password" class="Box w160 inpbor" value="@emailmodel.ConfigValue.Split(';')[1]"/></div>
+    <div>接受服务器:<input type="text" id="txt_ReceiveUrl" class="Box w160 inpbor" value="@emailmodel.ConfigValue.Split(';')[2]"/></div>
+    <div>端口号:<input type="text" id="txt_Number" class="Box w160 inpbor" value="@emailmodel.ConfigValue.Split(';')[3]"/></div>
+    <div>发送邮件服务器:<input type="text" id="txt_PostUrl" class="Box w160 inpbor" value="@emailmodel.ConfigValue.Split(';')[4]"/></div>
+
+    <div><input type="button" value="确定" id="btn_Add" class="btn blue"/></div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btn_Add").click(function () {
+            var tt = $("#txt_Name").val() + ";" + $("#txt_Password").val() + ";" + $("#txt_ReceiveUrl").val() + ";" + $("#txt_Number").val() + ";" + $("#txt_PostUrl").val()
+
+            $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + tt, function (data) {
+                if (data.result == 1) {
+                    art.dialog({ title: '提示', content: '配置成功', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () {  } });
+                }
+                else {
+                    art.dialog({ title: '提示', content: '配置失败', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+                }
+            })
+        })
+    })
+</script>
+    
+    

@@ -1,0 +1,53 @@
+@charset "utf-8";
+/* CSS Document */
+
+.menu{background:#af177c;border-bottom:1px solid #89005a;}
+.menu .menu-con li a{border-bottom:6px solid #e6e6e6;}
+.menu .menu-con li a:hover,.menu .menu-con li:hover a{background:#a20e70;border-bottom:6px solid #e623a3;}
+.menu .menu-con li a.On,.menu .menu-con li a.On:hover{background:#90005f;border-bottom:6px solid #e623a3;}
+.menu .menu-con li ul li a,.menu .menu-con li:hover li a,.menu .menu-con li:hover ul{background:#af177c;}
+#menu .menu-con li ul li a{border-bottom:1px dotted #e623a3;}
+.menu .menu-con li ul li a:hover{background:#90005f;}
+
+/* input & select & button & textarea ------ */
+.btn-co{background:#af177c;}
+.btn-co:hover{background:#c74c9d;}
+.btn-co.disabled,.btn-co[disabled]{background:#c798b8;cursor:default;}
+
+
+.tab-red .progress-stats{margin-top:5px;}
+.tab-red .progress-stats .progress{margin-bottom:-4px;}
+
+.c_col{color:#1c833c;}
+
+
+.train-level:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
+.train-level{margin:20px 0 20px -70px;zoom:1;}
+.train-level .level{position:relative;width:120px;height:60px;float:left;}
+.train-level .level i{display:inline-block;float:right;width:36px;height:36px;background-image:url(../images/train-level.png);background-repeat:no-repeat;overflow:hidden;}
+.train-level .le-a{background-position:0 -36px;}
+.train-level .le-b{background-position:-36px -36px;}
+.train-level .le-c{background-position:-72px -36px;}
+.train-level .le-d{background-position:-108px -36px;}
+.train-level .le-e{background-position:-144px -36px;}
+.train-level .level div{position:absolute;top:13px;left:15px;width:55px;height:10px;background:url(../images/train-level.png) -55px -72px;overflow:hidden;}
+.train-level .level p{display:none;}
+.train-level .ok p{display:block;position:absolute;bottom:0;right:-15px;font:14px Verdana;color:#002f7b;font-weight:bold;}
+.train-level .ok div{background:url(../images/train-level.png) 0 -72px;}
+.train-level .ok .le-a{background-position:0 0;}
+.train-level .ok .le-b{background-position:-36px 0;}
+.train-level .ok .le-c{background-position:-72px 0;}
+.train-level .ok .le-d{background-position:-108px 0;}
+.train-level .ok .le-e{background-position:-144px 0;}
+
+
+
+
+
+
+
+
+
+
+
+

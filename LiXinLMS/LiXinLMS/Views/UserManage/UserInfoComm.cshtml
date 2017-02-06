@@ -1,0 +1,30 @@
+﻿@using LiXinModels.User
+@{
+    ViewBag.Title = "UserInfoComm";
+    Layout = null;
+    var model = ViewData["model"] as Sys_User;
+}
+<div class="perInfo">
+    <div class="pi-img"><img id="my_img" src="@(string.IsNullOrEmpty(model.PhotoUrlStr) ? "#" : model.PhotoUrlStr.Replace("~", ".."))"/></div>
+    <ul class="pi-list">
+        <li>姓 名：<span>@(model.Realname)</span></li>
+        <li>部门/分所：<span>@(model.DeptName)</span></li>
+    </ul>
+    <div class="pi-re">
+        <h5 class="tit-pc">我的成绩单</h5>
+        <ul>
+        <li>所内/目标学时：@(ViewBag.UserScore)/@(ViewBag.CourseLe)</li>
+        @{
+            if (model.CPA=="是"){
+                <li>CPA/目标学时：@(model.CPAScore)/@(ViewBag.CPACourseLe)</li>
+            }    
+        }
+        <li>我的级别：<span id="TrGrade" >@(model.TrainGrade)</span></li>
+        <li>我的测试：<span id="TestNum" title="考试通过次数/全年在线测试完成次数">@(ViewBag.PassOnLineTestNum)/@(ViewBag.ALLOnLineTestNum)</span></li>
+        <li>我的补预订次数：@(model.ordertimes)/@(ViewBag.OrderCount)</li>
+        </ul>
+        <input id="hidCoSum" type="hidden" value="@(model.CoScore)" />
+        <input id="hidVoSum" type="hidden" value="@(model.voScore)" />
+    </div>
+</div>
+

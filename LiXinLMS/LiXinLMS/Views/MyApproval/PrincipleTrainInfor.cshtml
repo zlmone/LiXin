@@ -1,0 +1,81 @@
+﻿@using LiXinModels
+@{
+    ViewBag.Title = "违纪情况详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var infor = (ApprovalUserInfor)Model;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "违纪情况详情" }))
+    <h3 class="tit-h3">人员信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">姓名：</td>
+            <td><strong>@(infor.RealName)</strong></td>
+            <td class="Tit span10">性别：</td>
+            <td><strong>@(infor.Sex==0?"男":"女")</strong></td>
+            <td class="Tit span10">培训级别：</td>
+            <td><strong>@(infor.TrainGrade)</strong></td>
+            <td class="Tit span10">薪酬级别：</td>
+            <td><strong>@(infor.PayGrade)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">上课考勤时间：</td>
+            <td colspan="1"><strong>@(infor.AttStartTimeShow)</strong></td>
+            <td class="Tit">下课考勤时间：</td>
+            <td colspan="1"><strong>@(infor.AttEndTimeShow)</strong></td>
+           
+        </tr>
+        <tr>
+            <td class="Tit">出勤情况：</td>
+            <td colspan="1"><strong>@(infor.AttStatusShow)</strong></td>
+            <td class="Tit">扣除学时：</td>
+            <td colspan="1"><strong>@(infor.LessLength)</strong></td>
+        </tr>
+        <tr>
+           
+            <td class="Tit">所在部门：</td>
+            <td colspan="8"><strong >@(infor.DeptName)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">申辩理由：</td>
+            <td colspan="8" class="c_col"><strong>@(string.IsNullOrEmpty(infor.Reason) ? "无" : infor.Reason)</strong></td>
+        </tr>
+    </table>
+    <h3 class="tit-h3 mt20">课程信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">课程编号：</td>
+            <td><strong>@(infor.CourseCode)</strong></td>
+            <td class="Tit span10">课程名称：</td>
+            <td><strong>@(infor.CourseName)</strong></td>
+            <td class="Tit span10">学时：</td>
+            <td><strong>@(infor.CourseLength)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">讲师：</td>
+            <td><strong>@(infor.Teacher)</strong></td>
+            <td class="Tit span10">开课时间：</td>
+            <td class="c_col"><strong>@(infor.StartTimeShow) - @(infor.EndTimeShow)</strong></td>
+        </tr>
+    </table>
+    <h3 class="tit-h3 mt20">审批信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">审批人：</td>
+            <td><strong>@((infor.ApprovalFlag == 0) ? "--" : infor.ApprovalName)</strong></td>
+            <td class="Tit span10">审批时间：</td>
+            <td><strong>@((infor.ApprovalFlag == 0) ? "--" : infor.ApprovalTimeShow)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">审批结果：</td>
+            <td colspan="3" class="c_col"><strong>@((infor.ApprovalFlag == 0) ? "--" : infor.ApprovalResult)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">审批理由：</td>
+            <td colspan="3"><strong class="span80 dis_bl fl">@((infor.ApprovalFlag == 0) ? "无" : infor.RefuseReason)</strong></td>
+        </tr>
+    </table>
+    <div class="mt20 tc">
+        <input type="button" value="返回" onclick="window.location.href='/MyApproval/PrincipleTrainManage?p=1';" class="btn btn-cancel"/>
+    </div>
+</div>

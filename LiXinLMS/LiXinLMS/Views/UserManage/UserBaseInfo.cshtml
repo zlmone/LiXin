@@ -1,0 +1,219 @@
+﻿@using LiXinCommon
+@using LiXinModels.User
+@{
+    var user = ViewBag.User as Sys_User;
+    ViewBag.Title = CodeHelper.GetNavigateString("UserBaseInfo");
+}
+<link href="/Scripts/uploadify-v3.1/uploadify.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/Scripts/uploadify-v3.1/jquery.uploadify-3.1.min.js"> </script>
+<script type="text/javascript">
+    var val;
+    $.validator.addMethod("idcardVal", function (value, element) {
+        return this.optional(element) || checkID(value);
+    });
+    $.validator.addMethod("tel", function (value, element) {
+        var telreg = /((\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$)/;
+        var telreg = /^[0]?1[0-9]{10}$/;
+        return this.optional(element) || telreg.test(value);
+    });
+    $(document).ready(function () {
+        var val = $("#BaseInfoForm").validate({
+            //event: "blur",
+            rules: {
+                idcard: "idcardVal",
+                email: "email",
+                memo: { maxlength: 200 },
+                mobnum: "tel"
+            },
+            messages: {
+                idcard: "身份证号格式错误",
+                email: "请输入正确的电子邮箱地址",
+                qq: "请输入正确的QQ号码",
+                memo: "请小于等于200个字",
+                homeAddr: "地址长度不能大于30个字符",
+                mobnum: "电话号码格式不正确"
+            }
+        });
+        $("#btnSave").click(function () {
+            if (val.form()) {
+                var postData = {
+                    idcard: $("#idcard").val(),
+                    mobnum: $("#mobnum").val(),
+                    email: $("#email").val(),
+                    memo: $("#memo").val(),
+                    PhotoUrl: $("#txtPhotoUrl").val()
+                };
+                $.post("/UserManage/SaveUserBaseInfo", postData, function (data) {
+                    art.dialog({ content: data.content, time: 3, lock: true });
+                });
+            }
+        });
+
+        
+        $('#UploadPhotoUrl').uploadify({
+            'formData': { 'folder': "~/Images/photo/" },
+            'buttonText': '选择文件',
+            'buttonClass': 'browser',
+            'removeCompleted': true,
+            'swf': '/Scripts/uploadify-v3.1/uploadify.swf',
+            'uploader': '/Common/UploadFileAction',
+            'auto': true,
+            'multi': false,
+            'removetimeout':0,
+            'onSelect': function(file) {
+            var type =file.type.toLowerCase();
+                if (!( type== ".jpg" || type == ".png" || type == ".gif"||type==".bmp")) {
+                    art.dialog({ content: '格式不正确！', width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                    $("#UploadCoverUrl").uploadify('cancel', file.id);
+                    return false;
+                }
+
+            },
+            'onUploadStart': function(file) {
+            },
+            'onUploadSuccess': function(file, data, response) {
+                $("#txtPhotoUrl").val("/Images/photo/" +data);
+                $("#imgPhotoUrl").attr("src", "/Images/photo/" + data);
+                $("#imgPhotoUrl").fadeIn("slow");
+            }
+            //,
+            // 'fileTypeExts': '*.jpg; *.png; *.gif; *.bmp'
+        });
+    });
+
+
+</script>
+@(Html.Action("SiteMapLink", "Common", new { linkName = "UserBaseInfo" }))
+<div id="EditMainbg" class="mBottom_2">
+    <div class="ma Raster_50">
+        <div class="editbody topleft fl">
+            &nbsp;</div>
+        <div class="editbody topcenter fl" style="width: 484px;">
+            &nbsp;</div>
+        <div class="editbody topright fl">
+            &nbsp;</div>
+        <div class="clear">
+        </div>
+        <div class="editbody left fl">
+            &nbsp;</div>
+        <div class="center fl" style="width: 484px;">
+            <div class="centerbody">
+                <div>
+                    <h2>
+                        基本信息</h2>
+                    <span style="color: Red">以下信息不可修改</span>
+                </div>
+                <table>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            姓名:
+                        </td>
+                        <td>@user.Realname
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            性别:
+                        </td>
+                        <td>@user.SexStr
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            工号:
+                        </td>
+                        <td>@user.JobNum
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            部门:
+                        </td>
+                        <td>@user.DeptCodeStr
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            岗位:
+                        </td>
+                        <td>@user.PostCodeStr
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            职务:
+                        </td>
+                        <td>@user.JobTitle
+                        </td>
+                    </tr>
+                </table>
+                <div>
+                    <h2>
+                        个人情况</h2>
+                </div>
+                <form id="BaseInfoForm" action="/UserManage/SaveUserBaseInfo" method="post">
+                <table>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            头像:
+                        </td>
+                        <td>
+                            <div>
+                                <img src="@user.PhotoUrlStr" id="imgPhotoUrl" width="100px" height="100px" />
+                            </div>
+                            <div>
+                                <input type="file" name="UploadPhotoUrl" id="UploadPhotoUrl" />
+                                <input type="hidden" name="PhotoUrl" value="@user.PhotoUrlStr" id="txtPhotoUrl" />
+                                <div class="tishi span20 mb10">
+                                    可选的文件格式为：*.jpg; *.png; *.gif;*.bmp
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            身份证号:
+                        </td>
+                        <td>
+                            <input type="text" id="idcard" name="idcard" value="@user.IdCardNo"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            联系电话:
+                        </td>
+                        <td>
+                            <input type="text" id="mobnum" value="@user.MobileNum" name="mobnum" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            联系邮箱:
+                        </td>
+                        <td>
+                            <input type="text" id="email" value="@user.Email" name="email" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_6 tr">
+                            个人简介:
+                        </td>
+                        <td>
+                            <textarea id="memo" name="memo" cols="50" rows="5">@user.Memo</textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="tc">
+                            <a id="btnSave" class="Button_24 Button70">确&nbsp;&nbsp;定</a>
+                        </td>
+                    </tr>
+                </table>
+                </form>
+            </div>
+        </div>
+        <div class="editbody right fl">
+            &nbsp;</div>
+        <div class="clear">
+        </div>
+    </div>
+</div>

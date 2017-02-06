@@ -1,0 +1,298 @@
+﻿@{
+    ViewBag.Title = "AddCourse";
+    Layout = null;
+    string ty = Request.QueryString["ty"] ?? "0";
+    var code = Request.QueryString["code"];
+}
+<form id="formAddCourse">
+    <div style="height:400px;">
+        <table class="tab-Form" style="width: 620px">
+            <tr>
+                <td class="Tit span9">课程编号：
+                </td>
+                <td>
+                    <input id="pop_Code" name="pop_Code" type="text" class="span15" maxlength="30" />
+                    <span generated="true" id="TipCode" class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">课程名称：
+                </td>
+                <td>
+                    <input id="pop_CourseName" name="pop_CourseName" type="text" class="span20" maxlength="30" />
+                    <span generated="true" id="TipName" class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">预计开课时间：
+                </td>
+                <td>
+                    @{
+                        <div class="time-choose">
+                            <input type="text" onclick="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm',minDate:'@ViewBag.month        -01 00:00',maxDate:'@ViewBag.month        -%ld 23:59'})"
+                        readonly="readonly" time="time" id="pop_Day" name="pop_Day" />
+                            <i></i>
+                        </div>   
+                    }
+                    <span generated="true" id="Tierr" class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">课程开放级别：
+                </td>
+                <td>
+                    <div>
+                        @{
+                            foreach (var item in @ViewBag.trainGrade)
+                            {
+                            <input type="checkbox" value="@item" name="pop_OpenLevel" /><label class="mr10">@item</label>
+                            }      
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">必修/选修：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" value="0" name="pop_IsMust" text="必修" checked="checked" /><label>必修</label>
+                        <input type="radio" value="1" name="pop_IsMust" text="选修" /><label>选修</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">课程学时：
+                </td>
+                <td>
+                    <div class="time-choose">
+                        <input type="text" id="txtCourseLength" name="CourseLength" class="span20" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span13">是否折算CPA：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="IsCPA" value="0" checked="checked" text="否" /><label>否</label>
+                        <input type="radio" name="IsCPA" value="1" text="否" /><label>是</label>
+                    </div>
+                </td>
+            </tr>
+            <tr id="address">
+                <td class="Tit">地点：</td>
+                <td>
+                    <select id="sel_RoomId" name="RoomId">
+                        <option value="0" num="0">请选择开课地点</option>
+                        @if (ViewBag.ClassRoomList != null && (((List<LiXinModels.Sys_ClassRoom>)ViewBag.ClassRoomList).Count > 0))
+                        {
+                            foreach (var item in (List<LiXinModels.Sys_ClassRoom>)ViewBag.ClassRoomList)
+                            {
+                            <option num="@item.RoomNumber" id="sel_room_@(item.Id)" value="@item.Id">@item.RoomName</option>   
+                            }
+                        }
+                    </select>
+
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">培训形式：
+                </td>
+                <td>
+                    <select id="pop_Way" name="pop_Way" onchange="changeType(this)">
+                        <option value="-1">请选择培训形式</option>
+                        <option value="1">集中授课</option>
+                        <option value="2">视频课程</option>
+                        <option value="4">部门自学</option>
+                    </select>
+                </td>
+            </tr>
+            <tr id="pop_teacher_tr">
+                <td class="Tit">授课讲师：
+                </td>
+                <td>
+                    <span id="pop_Realname" name="pop_Realname" class="mr10"></span>
+                    <input type="button" value="请选择授课讲师" onclick="AddTeacher()" class="btn btn-co" />
+                    <input id="teaName" name="teaName" type="hidden" />
+                </td>
+            </tr>
+        </table>
+        <div class="mt10 tc">
+            <input type="submit" value="保存" class="btn" />
+            <a onclick="closeDialog('art_AddCourse')" class="btn btn-cancel">取消</a>
+        </div>
+        <input id="pop_teacherID" type="hidden" value="" />
+        <input id="pop_PayGrade" type="hidden" />
+        <input id="pop_IsSystem" type="hidden" value="0" />
+        <input id="pop_Systemtree" type="hidden" />
+        <input id="pop_id" type="hidden" value="@ViewBag.id" />
+        <div id="rname" style="display: none">
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        var cid = $("#hidid").val();
+        $("#pop_Code").val($("#" + cid).attr("code"));
+        $("#pop_CourseName").preInput();
+        $("#pop_Code").preInput();
+
+        jQuery.validator.addMethod("IsteacherMust", function (value, element)
+        {
+            var way = $("#pop_Way").val();
+            var length = value.length;
+            return (length != 0 && way != "2") || ((length == 0 || length > 0) && way == "2");
+        }, "请选择授课讲师");
+
+        jQuery.validator.addMethod("charNum", function (value, element)
+        {
+            var decimal = /^[0-9a-z]*$/;
+            return this.optional(element) || (decimal.test(value));
+        }, $.validator.format("课程编号只能以字母+数字的组合且不能超过10字符！"));
+
+        jQuery.validator.addMethod("decimal_1", function(value, element) {
+            var decimal = /^-?\d+(\.\d{1})?$/;
+            return this.optional(element) || (decimal.test(value));
+        }, $.validator.format("请输入正确的格式！"));
+
+        jQuery.validator.addMethod("Isroom", function(value, element) {
+            var value=0;
+            if($("#address").attr("style")!="display: none;"&&$("#address").attr("style")!="display: none")
+            {
+                value=$("#sel_RoomId").val();
+            }
+            else
+            {
+                value=1;
+            }
+            return this.optional(element) || (value!=0);
+        }, $.validator.format("请选择开课地点！"));
+
+        $("#formAddCourse").validate(
+            {
+                event: "blur",
+                rules: {
+                    pop_Code: { required: true, maxlength: 10, charNum: true },
+                    pop_CourseName: { required: true, maxlength: 30 },
+                    pop_Day: {
+                        required: true
+                    },
+                    pop_OpenLevel: { required: true },
+                    pop_IsMust: { required: true },
+                    pop_Way: { min: 1 },
+                    teaName: { IsteacherMust: true },
+                    CourseLength: { required: true,min:0,max:999.9, decimal_1: true },    
+                    RoomId:{Isroom:true}
+
+                },
+                messages: {
+                    pop_Code: { required: "请填写课程编号！", maxlength: "课程编号不能多于10个字符" },
+                    pop_CourseName: { required: "请输入课程名称！", maxlength: "课程编号不能多于30个字符" },
+                    pop_Day: { required: "请选择日期！" },
+                    pop_OpenLevel: { required: "请选择开放级别" },
+                    pop_IsMust: { required: "请选择必修/选修" },
+                    pop_Way: { min: "请选择培训形式" },
+                    CourseLength: {
+                        required: "课程学时不能为空",
+                        min:"课程学时在0~999.9之间，且最多保留一位小数",
+                        max:"课程学时在0~999.9之间，且最多保留一位小数"
+                    },               
+                },
+                errorPlacement: function (error, element)
+                {
+                    if (element.is(':radio') || element.is(':checkbox'))
+                    {
+                        var eid = element.attr('name');
+                        error.appendTo(element.parent());
+                    }
+                    else if (element.attr("time") == "time")
+                    {
+                        error.insertAfter(element.parent().next());
+                    }
+                    else
+                    {
+                        error.insertAfter(element);
+                    }
+                },
+                submitHandler: NewCourseToMonthPlan
+            });
+        Init();
+
+    });
+
+
+    //设置初始值
+    function Init()
+    {
+        if ($("#hidid").val() > 0)
+        {
+            var table = $("#" + $("#hidid").val()).parent().parent().find("td");
+
+            $("#pop_CourseName").val($(table).eq(2).text());
+            var openLevel = $(table).eq(4).text()
+            //开发级别
+            $.each(openLevel.split(','), function (index, value)
+            {
+                $("input[name='pop_OpenLevel'][value='" + value + "']").attr("checked", true);
+            });
+            //必修选修
+            $("input[name='pop_IsMust'][value=" + $(table).eq(10).attr("name") + "]").attr("checked", true);
+            //授课方式
+            $("Select[name='pop_Way'] option[value=" + $(table).eq(5).attr("name") + "]").attr("selected", true);
+
+            $("#txtCourseLength").val($(table).eq(6).text());
+
+            var id=$(table).eq(7).attr("id");
+            $("input[name=IsCPA][value='"+id+"']").attr("checked", true);
+          
+            //讲师
+            $("#pop_teacherID").val($(table).eq(8).attr("name"));
+            $("#pop_Realname").html($(table).eq(8).text()=="--"?"":$(table).eq(8).text());
+            $("#teaName").val($(table).eq(8).text()=="--"?"":$(table).eq(8).text());
+            $("#pop_PayGrade").val($(table).eq(9).text());
+            if($(table).eq(5).attr("name")==2)
+            {
+                $("#address").hide();
+            }
+            //是否是框架内外
+            $("#pop_IsSystem").val($(table).eq(11).attr("name"));
+            $("#pop_Systemtree").val($(table).eq(11).text());
+        }
+    }
+
+    function AddTeacher()
+    {
+        art.dialog.load("/UserCommon/SelectTeacher", { title: '添加讲师', id: "AddTeacher"});
+    }
+
+    function GetUserIDList()
+    {
+        $("#teacherList [type='radio']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                $("#pop_teacherID").val($(this).attr("id"));
+                $("#pop_PayGrade").val($(this).attr("PayGrade"));
+                $("#rname").text($(this).attr("username"));
+                $("#pop_Realname").html("<font>" + $("#rname").html() + "</font>");
+                $("#teaName").val($(this).attr("username"));
+            }
+
+        });
+        closeDialog("AddTeacher");
+    }
+
+    function changeType(obj)
+    {
+        if($(obj).val()==2)
+        {
+            $("#address").hide();
+        }
+        else
+        {
+            $("#address").show();
+        }
+    }
+</script>

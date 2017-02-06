@@ -1,0 +1,83 @@
+﻿@{
+    ViewBag.Title = "编辑类别";
+    Layout = null;
+}
+<form id="forEditNoteSort">
+<input type="hidden" name="Id" id="txtId" value="@Model.Id" />
+<input type="hidden" name="ParentID" id="txtParent" value="@Model.ParentID" />
+<table class="tab-Form">
+    <tr>
+        <td class="Tit">
+            父级名称：
+        </td>
+        <td>@ViewBag.ParentName
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            类别名称：
+        </td>
+        <td>
+            <input type="text"  id="txtSortName" name="SortName" value="@Model.SortName" class="span20" />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" class="tc">
+            <input type="submit" name="submit" value="确定" class="btn btn-co" />
+            <input type="button" value="取消" onclick="fnCancel()" class="btn btn-cancel" />
+        </td>
+    </tr>
+</table>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("#forEditNoteSort").validate(
+            {
+                submitHandler: fnSubmitEditNoteSort,
+                event: "blur",
+                rules: {
+                    SortName: {
+                        required: true,
+                        maxlength: 30,
+                        remote: {
+                            type: "get",
+                            dataType: "json",
+                            url: "/SystemManage/checkNoteSort?type=1&t=" + new Date(),
+                            data: {
+                                SortName: function () { return $.trim($("#txtSortName").val()); },
+                                Id: function () { return $("#txtId").val(); },
+                                pID: function () { return $("#txtParent").val(); }
+                            }
+                        }
+                    }
+                },
+                messages: {
+                    SortName: {
+                        required: "类别名称不能为空！",
+                        maxlength: "类别名称不能多于30个字符！",
+                        remote: "该类别名称已存在！"
+                    }
+                }
+            }
+        );
+    }
+    );
+
+    function fnSubmitEditNoteSort()
+    {
+        $.post("/SystemManage/submitEditNoteSort?type=1", $("#forEditNoteSort").formSerialize(), function (data)
+        {
+            art.dialog.tips(data.content, 3);
+            art.dialog.list["pop_EditNoteSort"].close();
+            $("#txthidNoteSortId").val(0);
+            InitNoteList();
+        });
+    }
+
+    function fnCancel()
+    {
+        art.dialog.list["pop_EditNoteSort"].close();
+    }
+
+</script>

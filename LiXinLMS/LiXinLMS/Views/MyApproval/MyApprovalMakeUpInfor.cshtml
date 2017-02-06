@@ -1,0 +1,69 @@
+﻿@using LiXinModels
+@{
+    ViewBag.Title = "补预订审批详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var infor = (ApprovalUserInfor)Model;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "补预订审批详情" }))
+    <h3 class="tit-h3">人员信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">姓名：</td>
+            <td class="span10"><strong>@(infor.RealName)</strong></td>
+            <td class="Tit span10">性别：</td>
+            <td class="span10"><strong>@(infor.Sex == 0 ? "男" : "女")</strong></td>
+            <td class="Tit span10">培训级别：</td>
+            <td><strong>@(infor.TrainGrade)</strong></td>
+            <td class="Tit span10">薪酬级别：</td>
+            <td><strong>@(infor.PayGrade)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">补预订申请时间：</td>
+            <td colspan="7" class="c_col"><strong>@(infor.OrderTimeShow)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">上课考勤时间：</td>
+            <td colspan="3"><strong>@(infor.AttStartTimeShow)</strong></td>
+            <td class="Tit">下课考勤时间：</td>
+            <td colspan="3"><strong>@(infor.AttEndTimeShow)</strong></td>
+        </tr>
+    </table>
+    <h3 class="tit-h3 mt20">课程信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">课程编号：</td>
+            <td class="span10"><strong>@(infor.CourseCode)</strong></td>
+            <td class="Tit span10">课程名称：</td>
+            <td><strong>@(infor.CourseName)</strong></td>
+            <td class="Tit span10">学时：</td>
+            <td><strong>@(infor.CourseLength)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">讲师：</td>
+            <td><strong>@(infor.Teacher)</strong></td>
+            <td class="Tit">开课时间：</td>
+            <td colspan="3" class="c_col"><strong>@(infor.StartTimeShow) - @(infor.EndTimeShow)</strong></td>
+        </tr>
+    </table>
+    <h3 class="tit-h3 mt20">审批信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">审批人：</td>
+            <td class="span10"><strong>@(infor.ApprovalName)</strong></td>
+            <td class="Tit span10">审批时间：</td>
+            <td><strong>@(infor.ApprovalTimeShow)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">审批意见：</td>
+            <td class="c_col" colspan="3"><strong>@(infor.ApprovalResult)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">审批理由：</td>
+            <td colspan="3">@(string.IsNullOrEmpty(infor.RefuseReason) ? "无" : infor.RefuseReason)</td>
+        </tr>
+    </table>
+    <div class="tc mt20">
+        <input type="button" value="返回" onclick="window.location.href='/MyApproval/MyApprovalMain?flag=1';" class="btn btn-cancel"/>
+    </div>
+</div>

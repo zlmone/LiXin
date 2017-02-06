@@ -1,0 +1,35 @@
+﻿@using LiXinControllers
+@using LiXinModels.CourseManage
+@using LiXinModels.Survey
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "课程详情";
+  
+}
+ <div class="main-c">
+            @(Html.Action("SiteMapLink", "Common", new { linkName = "课程详情" }))
+            @Html.Action("MyCourse", "MyCourse", new { id = @ViewBag.id })
+            @Html.Action("AfterCourseNewList", "MyCourse", new { id = @ViewBag.id, backurl = @ViewBag.backurl+"?p=1" })
+        </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $("#ul_menu li:eq(3)").addClass("On").siblings("li").removeClass("On");
+
+
+            $.post("/MyCourse/fsumbitAftercourse?courseid="+@ViewBag.id, function (data) {
+                if(data.result==1)
+                {
+                    art.dialog.tips(data.content, 3,function(){ location.href="/MyCourse/Attendance?id="+@ViewBag.id;});
+                   
+                } 
+            
+            })
+
+        })
+
+     
+
+
+    </script>
+  

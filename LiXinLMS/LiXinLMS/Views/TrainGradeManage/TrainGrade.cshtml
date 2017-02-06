@@ -1,0 +1,232 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "培训级别维护";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "培训级别维护"
+}))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">
+                    姓名：
+                </td>
+                <td class="span25">
+                    <input type="text" class="span20 Box searchclass" name="textRealName" id="textRealName" value="请输入搜索内容" info="" />
+                </td>
+                <td class="Tit span4">
+                    部门名称：
+                </td>
+                <td>
+                    <input type="text" class="span20 Box searchclass" name="textDeptName" id="textDeptName" value="请输入搜索内容" info="" />
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick="Getdata();" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        @*<select id="selPayGrade" onchange="Getdata()">
+            <option value="">请选择薪酬级别</option>
+            @{
+                foreach (var item in @ViewBag.payGrade)
+                {
+                    if (@item != "")
+                    {
+                <option value="@item">@item</option>
+                    }
+                }   
+            }
+        </select>*@
+        <div class="list-do">
+            <input class="btn" type="button" id="btnAdd" value="批量维护" onclick="AllAdd();" />
+        </div>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">
+                    <input id="selectAll" type="checkbox" />
+                </th>
+                <th class="span4">
+                    序号
+                </th>
+                <th>
+                    姓名
+                </th>
+                <th class="span8">
+                    性别
+                </th>
+                @*<th>
+                    薪酬级别
+                </th>*@
+                <th class="span8" jsrendersortfield="TrainGrade" sort="asc">
+                    培训级别
+                </th>
+                <th class="span20">
+                    部门名称
+                </th>
+                <th>
+                    是否为培训负责人
+                </th>
+                <th>
+                    是否维护
+                </th>
+                <th>
+                    是否审批
+                </th>
+                <th class="span8">
+                    操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="trainGradeList" class="tc">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<input id="hiduserID" type="hidden" />
+<input id="hidAllID" type="hidden" />
+<input id="hidisUpdate" type="hidden" />
+<script id="monthPlanTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+          <td> <input id="{{:UserId}}"  {{:IsUpdate.toString()=="false"&&IsApply>0?"disabled='disabled'":""}}   type="checkbox" /></td>
+          <td>{{:#index+1}}</td>
+          <td >{{:Realname}}</td>
+          <td >{{:SexStr}}</td>
+          <td>{{:TrainGrade}}</td>
+          <td><div title="{{:DeptPath}}" class="ovh span20">{{:DeptPath}}</div></td>
+          <td>{{:TrainMasterStr}}</td>
+           {{if IsUpdate}}
+              <td>{{:UpdateCount>0?"已维护":"未维护"}}</td>
+              <td>——</td>
+           {{else}}
+              <td>{{:UpdateCount>0?"已维护":"——"}}</td>
+               {{if UpdateCount==0}}
+                    {{if IsApply==0}}
+                       <td>未提交</td>
+                    {{else ApprovalStatus>0 }}
+                       <td>已审批</td>
+                    {{else}}
+                       <td>未审批</td>
+                    {{/if}}
+                {{else}}
+                    <td>--</td>
+                {{/if}}
+           {{/if}}
+          <td>
+          {{if TrainMaster==0}}
+             <a class="icon iass-per idis" style="cursor:pointer;" onclick="UpdateTrainMaster({{:UserId}},1)" title="指定培训负责人"></a>
+          {{else}}
+            <a class="icon iass-per" style="cursor:pointer;" onclick="UpdateTrainMaster({{:UserId}},0)" title="取消培训负责人"></a>
+          {{/if}}
+ 
+            {{if IsUpdate}}
+                   <a onclick="Edit({{:UserId}},1)" class="icon iedit-lev" title="级别维护"></a>
+            {{else}}
+              {{if IsApply==0&&UpdateCount==0}}
+                   <a onclick="Edit({{:UserId}},0)" class="icon iapply" title="提交申请"></a>
+              {{else}}
+                 <span class="icon iapply idis" title="提交申请"></span>
+              {{/if}}
+            {{/if}}
+             <a class="icon iview" onclick="Details({{:UserId}})" title="查看详情"></a>
+          </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        Getdata();
+    });
+    //基础信息
+    function Getdata()
+    {
+        $("#trainGradeList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "monthPlanTemplate",
+            funCallback: function (data)
+            {
+                SetCheckBox('selectAll', 'trainGradeList');
+                //1 维护  0 申请
+                if (data.isupdate)
+                {
+                    $("#btnAdd").val("批量维护");
+                    $("#hidisUpdate").val(1);
+                }
+                else
+                {
+                    $("#btnAdd").val("批量提交申请");
+                    $("#hidisUpdate").val(0);
+                }
+            }
+        });
+    }
+
+    function getParamUrl()
+    {
+        return "/TrainGradeManage/GetUserTrain?realName=" + escape($.trim(getSearchWord("textRealName"))) + '&deptName=' + escape($.trim(getSearchWord("textDeptName")))
+        + "&JobNum=&t=" + Date();
+    }
+
+    function Edit(userId, status)
+    {
+        $("#hiduserID").val(userId);
+        art.dialog.load("/TrainGradeManage/AddTrainGrade?status=" + status, { title: '级别变更', id: "art_AddSingle", width: 500 });
+    }
+
+    //批量维护  0 申请  1维护
+    function AllAdd()
+    {
+        var ids = GetChecked('trainGradeList');
+        if (ids == "")
+        {
+
+            art.dialog.tips("请选择要维护的人员", 3);
+            return false;
+        }
+        $("#hidAllID").val(ids);
+        window.location.href = "AllAddTrainGrade?userIDs=" + ids + "&type=" + $("#hidisUpdate").val();
+    }
+    
+    //详情
+    function Details(userID)
+    {
+        window.location.href = "TrainGradeDetail?userID=" + userID;
+    }
+
+    //任命或者取消任命
+    function UpdateTrainMaster(userID, type)
+    {
+         art.dialog({
+             content: type == 1 ? "确认将其任命为培训负责人？" : "确认取消其培训负责人的身份？",
+            ok: function ()
+            {
+                    $.getJSON("/TrainGradeManage/UpdateTrainMaster?userID=" + userID + "&TrainMaster=" + type, function (data)
+                    {
+                        if (data.result == 1)
+                        {
+                            Getdata();
+                        }
+                        else
+                        {
+                            art.dialog.tips("任命失败", 3);
+                        }
+                    });
+            },
+            cancel: true
+            });
+    }
+</script>

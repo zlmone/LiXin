@@ -1,0 +1,90 @@
+﻿@using LiXinModels.User
+@{
+    Layout = null;
+}
+<div>
+    <h2 class="tit-h2">
+    <i></i>
+    <span class="tit-con">积分排行</span>
+    </h2>
+    <div class="mt10">
+        <table class="tab-List">
+            <tbody id="myjifenList">
+            </tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+    <script id="myjifenTemplate" type="text/x-jsrender">
+        {{for #data}}
+            <tr>
+                <td>{{:#index+1}}</td>
+                <td>{{:Realname}}</td>
+                <td>{{:DeptName}}</td>
+                <td>{{:GetScore}}</td>
+            </tr>  
+        {{/for}}
+    </script>
+</div>
+<div>
+    <h2 class="tit-h2">
+    <i></i>
+    <span class="tit-con">学分排行</span>
+    </h2>
+    <div class="mt10">
+        <table class="tab-Rank">
+            <tbody id="myxuefenList">
+            </tbody>
+        </table>
+    </div>
+    <script id="myxuefenTemplate" type="text/x-jsrender">
+        {{for #data}}
+            <tr>
+                <td><div class="num num-f">{{:#index+1}}</div></td>
+                <td>{{:Realname}}</td>
+                <td>{{:DeptName}}</td>
+                <td>{{:GetScore}}</td>
+            </tr>  
+        {{/for}}
+    </script>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        InitgetjifenList(getjifenUrl());
+        InitgetxuefenList(getxuefenUrl());
+    });
+
+    //积分
+    function getjifenUrl() {
+        return "/UserManage/GetVantages?t=" + new Date();
+    }
+    function InitgetjifenList(url) {
+        var templateId = 'myjifenTemplate';
+        $("#myjifenList").JsRenderData({
+            sourceUrl: url,
+            isPage: false,
+            pageSize: 5,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function (data) {
+            }
+        });
+    }
+    //学分
+    function getxuefenUrl() {
+        return "/UserManage/GetCredit?t=" + new Date();
+    }
+    function InitgetxuefenList(url) {
+        var templateId = 'myxuefenTemplate';
+        $("#myxuefenList").JsRenderData({
+            sourceUrl: url,
+            isPage: false,
+            pageSize: 5,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function () {
+            }
+        });
+    }
+</script>
+

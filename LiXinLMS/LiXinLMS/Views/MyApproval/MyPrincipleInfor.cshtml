@@ -1,0 +1,72 @@
+﻿@using LiXinModels
+@{
+    ViewBag.Title = "我的违纪情况申请详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var infor = (ApprovalUserInfor)Model;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "我的违纪情况申请详情" }))
+    <h3 class="tit-h3">考勤信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">上课考勤时间：</td>
+            <td class="span20"><strong>@(infor.AttStartTimeShow)</strong></td>
+            <td class="Tit span10">下课考勤时间：</td>
+            <td><strong>@(infor.AttEndTimeShow)</strong></td>
+        @{
+            if(infor.IsApp==0)
+            {
+                <td colspan="2" class="tr"><input type="button" id="btnApp" value="我要申辩" onclick="AppPrin(this,@(infor.ID));" class="btn btn-co"/></td>
+            }
+        }
+        </tr>
+        <tr>
+            <td class="Tit">出勤情况：</td>
+            <td><strong class="c_col">@(infor.AttStatusShow)</strong></td>
+            <td class="Tit">扣除学时：</td>
+            <td><strong>@(infor.LessLength)</strong></td>
+        </tr>
+    </table>
+    <h3 class="tit-h3">课程信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">课程编号：</td>
+            <td><strong>@(infor.CourseCode)</strong></td>
+            <td class="Tit span10">课程名称：</td>
+            <td><strong class="c_col">@(infor.CourseName)</strong></td>
+            <td class="Tit">学时：</td>
+            <td><strong>@(infor.CourseLength)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit">讲师：</td>
+            <td><strong>@(infor.Teacher)</strong></td>
+            <td class="Tit">开课时间：</td>
+            <td colspan="3" class="c_col"><strong>@(infor.StartTimeShow) - @(infor.EndTimeShow)</strong></td>
+        </tr>
+    </table>
+    <h3 class="tit-h3">审批信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">审批人：</td>
+            <td><strong>@((infor.IsApp==0 || infor.ApprovalFlag==0)?"--":infor.ApprovalName)</strong></td>
+            <td class="Tit span10">审批时间：</td>
+            <td><strong class="c_col">@((infor.IsApp == 0 || infor.ApprovalFlag == 0) ? "--" : infor.ApprovalTimeShow)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit span10">审批结果：</td>
+            <td colspan="3"><strong class="c_col">@((infor.IsApp == 0 || infor.ApprovalFlag == 0) ? "--" : infor.ApprovalResult)</strong></td>
+        </tr>
+        <tr>
+            <td class="Tit span10">审批理由：</td>
+            <td colspan="3"><strong>@((infor.IsApp == 0 || infor.ApprovalFlag == 0) ? "--" : infor.RefuseReason)</strong></td>
+        </tr>
+    </table>
+    <div class="tc mt20">
+        <input type="button" value="返回" onclick="window.location.href='/MyApply/MyApply?flag=3';" class="btn btn-cancel"/>
+    </div>
+</div>
+<script type="text/javascript">
+    function AppPrin(obj, id) {
+        art.dialog.load('/MyApproval/EditExplain?type=b&id=' + id + '&t=' + new Date(), { title: '违纪申辩', id: 'EditExplain', height: 320, width: 500 });
+    }
+</script>

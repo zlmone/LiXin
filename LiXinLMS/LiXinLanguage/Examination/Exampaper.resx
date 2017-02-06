@@ -1,0 +1,460 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Back" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="Basic_information" xml:space="preserve">
+    <value>基本信息</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>试卷描述</value>
+  </data>
+  <data name="eFalse" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="eTrue" xml:space="preserve">
+    <value>正确</value>
+  </data>
+  <data name="Exam" xml:space="preserve">
+    <value>考试</value>
+  </data>
+  <data name="ExampaerDetail" xml:space="preserve">
+    <value>浏览试卷</value>
+  </data>
+  <data name="ExampaperAdd" xml:space="preserve">
+    <value>新增试卷</value>
+  </data>
+  <data name="ExampaperDelete" xml:space="preserve">
+    <value>删除试卷</value>
+  </data>
+  <data name="ExampaperDescription" xml:space="preserve">
+    <value>题型分布</value>
+  </data>
+  <data name="ExampaperManage" xml:space="preserve">
+    <value>试卷管理</value>
+    <comment>试卷管理</comment>
+  </data>
+  <data name="ExampaperModify" xml:space="preserve">
+    <value>编辑试卷</value>
+  </data>
+  <data name="ExampaperSortAdd" xml:space="preserve">
+    <value>新添</value>
+    <comment>添加试卷库</comment>
+  </data>
+  <data name="ExampaperSortDelete" xml:space="preserve">
+    <value>删除</value>
+    <comment>删除试卷库</comment>
+  </data>
+  <data name="ExampaperSortModify" xml:space="preserve">
+    <value>修改</value>
+    <comment>修改试卷库</comment>
+  </data>
+  <data name="ExampaperSortName" xml:space="preserve">
+    <value>试卷库</value>
+  </data>
+  <data name="ExampaperSort_Add" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="ExampaperSort_Modify" xml:space="preserve">
+    <value>修改</value>
+  </data>
+  <data name="ExampaperTitle" xml:space="preserve">
+    <value>试卷名称</value>
+  </data>
+  <data name="ExampaperUpdateTime" xml:space="preserve">
+    <value>创建时间</value>
+  </data>
+  <data name="Exampaper_Basic_information" xml:space="preserve">
+    <value>试卷基本信息</value>
+  </data>
+  <data name="ExamScore" xml:space="preserve">
+    <value>该试题分数</value>
+  </data>
+  <data name="ExamUser" xml:space="preserve">
+    <value>创建者</value>
+  </data>
+  <data name="Excice" xml:space="preserve">
+    <value>练习</value>
+  </data>
+  <data name="Fen" xml:space="preserve">
+    <value>分</value>
+  </data>
+  <data name="Fill" xml:space="preserve">
+    <value>填空题</value>
+  </data>
+  <data name="ImportQuestion" xml:space="preserve">
+    <value>导入试题</value>
+  </data>
+  <data name="Judge" xml:space="preserve">
+    <value>判断题</value>
+  </data>
+  <data name="Multi" xml:space="preserve">
+    <value>多选题</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>选项</value>
+  </data>
+  <data name="Prompt_Five" xml:space="preserve">
+    <value>请选择试题用途！</value>
+  </data>
+  <data name="Prompt_Four" xml:space="preserve">
+    <value>不能超过20字</value>
+  </data>
+  <data name="Prompt_One" xml:space="preserve">
+    <value>请先选择试卷库！</value>
+  </data>
+  <data name="Prompt_Six" xml:space="preserve">
+    <value>请看清楚提示，上传合适的格式</value>
+  </data>
+  <data name="Prompt_Three" xml:space="preserve">
+    <value>是否确定删除选中的试卷？</value>
+  </data>
+  <data name="Prompt_Two" xml:space="preserve">
+    <value>请选择要删除的试卷！</value>
+  </data>
+  <data name="qHigh" xml:space="preserve">
+    <value>高</value>
+  </data>
+  <data name="qMiddle" xml:space="preserve">
+    <value>中</value>
+  </data>
+  <data name="qShort" xml:space="preserve">
+    <value>低</value>
+  </data>
+  <data name="QuestionAdd" xml:space="preserve">
+    <value>直接添加</value>
+  </data>
+  <data name="QuestionInfor" xml:space="preserve">
+    <value>试题信息</value>
+  </data>
+  <data name="QuestionKeys" xml:space="preserve">
+    <value>知识点</value>
+  </data>
+  <data name="QuestionLevel" xml:space="preserve">
+    <value>试题难度</value>
+  </data>
+  <data name="QuestionList" xml:space="preserve">
+    <value>试卷题目列表</value>
+  </data>
+  <data name="QuestionNumber" xml:space="preserve">
+    <value>题型</value>
+  </data>
+  <data name="QuestionScore" xml:space="preserve">
+    <value>分值</value>
+  </data>
+  <data name="QuestionSortName" xml:space="preserve">
+    <value>所属题库</value>
+  </data>
+  <data name="QuestionType" xml:space="preserve">
+    <value>试题题型</value>
+  </data>
+  <data name="RandomAdd" xml:space="preserve">
+    <value>自由组卷</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="SaveAndAdd" xml:space="preserve">
+    <value>保存并新增</value>
+  </data>
+  <data name="Scene" xml:space="preserve">
+    <value>情景题</value>
+  </data>
+  <data name="Score" xml:space="preserve">
+    <value>试卷总分</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>查询</value>
+  </data>
+  <data name="Single" xml:space="preserve">
+    <value>单选题</value>
+  </data>
+  <data name="SortAdd" xml:space="preserve">
+    <value>试题库导入</value>
+  </data>
+  <data name="Subject" xml:space="preserve">
+    <value>问答题</value>
+  </data>
+  <data name="Ti" xml:space="preserve">
+    <value>题</value>
+  </data>
+  <data name="TypeFlag" xml:space="preserve">
+    <value>试题用途</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Prompt_Seven" xml:space="preserve">
+    <value>数量请输入1-999的正整数</value>
+  </data>
+  <data name="qLevel" xml:space="preserve">
+    <value>难度</value>
+  </data>
+  <data name="qNum" xml:space="preserve">
+    <value>数量</value>
+  </data>
+  <data name="qSort" xml:space="preserve">
+    <value>题库</value>
+  </data>
+  <data name="qType" xml:space="preserve">
+    <value>题型</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="BrowseQuestion" xml:space="preserve">
+    <value>浏览试题</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="ExamAndExcice" xml:space="preserve">
+    <value>考试和练习</value>
+  </data>
+  <data name="FatherSort" xml:space="preserve">
+    <value>父试卷库</value>
+  </data>
+  <data name="Prompt_Eight" xml:space="preserve">
+    <value>请选择题库！</value>
+  </data>
+  <data name="qTypeFlag" xml:space="preserve">
+    <value>用途</value>
+  </data>
+  <data name="QuestionContent" xml:space="preserve">
+    <value>题干</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>试卷库描述</value>
+  </data>
+  <data name="SortName" xml:space="preserve">
+    <value>试卷库名称</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>提交</value>
+  </data>
+  <data name="QuestionExcel" xml:space="preserve">
+    <value>请选择试题模板</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>查看</value>
+  </data>
+  <data name="chinese_dao" xml:space="preserve">
+    <value>道</value>
+  </data>
+  <data name="chinese_moban" xml:space="preserve">
+    <value>模板$</value>
+  </data>
+  <data name="chinese_one" xml:space="preserve">
+    <value>共导入</value>
+  </data>
+  <data name="chinese_shi" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="chinese_two" xml:space="preserve">
+    <value>道题，失败</value>
+  </data>
+  <data name="DeleteFail" xml:space="preserve">
+    <value>删除失败</value>
+  </data>
+  <data name="DeleteSuccess" xml:space="preserve">
+    <value>删除成功</value>
+  </data>
+  <data name="ImportSuccess" xml:space="preserve">
+    <value>导入成功</value>
+  </data>
+  <data name="NO" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="Prompt_Nine" xml:space="preserve">
+    <value>选择的文件格式不正确，请使用xls格式文件！</value>
+  </data>
+  <data name="SaveFail" xml:space="preserve">
+    <value>提交失败</value>
+  </data>
+  <data name="SaveSuccess" xml:space="preserve">
+    <value>保存成功</value>
+  </data>
+  <data name="UpdateFail" xml:space="preserve">
+    <value>修改失败</value>
+  </data>
+  <data name="UpdateSuccess" xml:space="preserve">
+    <value>修改成功</value>
+  </data>
+  <data name="Prompt_Ten" xml:space="preserve">
+    <value>请先删除本卷库下的试卷及子卷库</value>
+  </data>
+  <data name="Sorts" xml:space="preserve">
+    <value>试卷库集</value>
+  </data>
+  <data name="chinese_four" xml:space="preserve">
+    <value>，请重新输入！</value>
+  </data>
+  <data name="chinese_three" xml:space="preserve">
+    <value>您输入的数量大于总和</value>
+  </data>
+  <data name="Prompt_Eleven" xml:space="preserve">
+    <value>不存在您查询的条件，请重新选择！</value>
+  </data>
+  <data name="ExamExsit" xml:space="preserve">
+    <value>已存在此试卷库名称</value>
+  </data>
+  <data name="Exampaper_Tip1" xml:space="preserve">
+    <value>整数形式输入</value>
+  </data>
+  <data name="Exampaper_Tip10" xml:space="preserve">
+    <value>请输入1-100的正整数</value>
+  </data>
+  <data name="Exampaper_Tip2" xml:space="preserve">
+    <value>请输入不超过200个字符</value>
+  </data>
+  <data name="Exampaper_Tip3" xml:space="preserve">
+    <value>重新选择试卷库</value>
+  </data>
+  <data name="Exampaper_Tip4" xml:space="preserve">
+    <value>只能包括中文字、英文字母、数字和下划线</value>
+  </data>
+  <data name="Exampaper_Tip5" xml:space="preserve">
+    <value>请填名称</value>
+  </data>
+  <data name="Exampaper_Tip6" xml:space="preserve">
+    <value>字数不能超过30个字符</value>
+  </data>
+  <data name="Exampaper_Tip7" xml:space="preserve">
+    <value>试卷已经存在</value>
+  </data>
+  <data name="Exampaper_Tip8" xml:space="preserve">
+    <value>字数不能超过50个字符</value>
+  </data>
+  <data name="Exampaper_Tip9" xml:space="preserve">
+    <value>请输入正整数</value>
+  </data>
+  <data name="Exampaper_Tip11" xml:space="preserve">
+    <value>请选择试卷信息</value>
+  </data>
+  <data name="Exampaper_Tip12" xml:space="preserve">
+    <value>试卷库</value>
+  </data>
+</root>

@@ -1,0 +1,1 @@
+start SendMessage\RabbitMQ.config

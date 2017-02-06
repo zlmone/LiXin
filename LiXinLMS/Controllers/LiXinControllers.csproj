@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3BCCE27F-322B-4947-9F08-89CBF98FBA8B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LiXinControllers</RootNamespace>
+    <AssemblyName>LiXinControllers</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Accessibility">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="AntiXSSLibrary, Version=4.2.0.0, Culture=neutral, PublicKeyToken=d127efab8a9c114f, processorArchitecture=MSIL">
+      <HintPath>..\Lib\AntiXSSLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\Lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI">
+      <HintPath>..\Lib\dotnet4\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML">
+      <HintPath>..\Lib\dotnet4\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net">
+      <HintPath>..\Lib\dotnet4\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats">
+      <HintPath>..\Lib\dotnet4\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Client">
+      <HintPath>..\Lib\RabbitMQ.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Model.KL">
+      <HintPath>..\Lib\RabbitMQ.Model.KL.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQClient">
+      <HintPath>..\Lib\RabbitMQClient.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQModel">
+      <HintPath>..\Lib\RabbitMQModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.Cache">
+      <HintPath>..\Lib\Retech.Cache.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.Core">
+      <HintPath>..\Lib\Retech.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.Extensions">
+      <HintPath>..\Lib\Retech.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Retech.LearningAPI">
+      <HintPath>..\Lib\Retech.LearningAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="SpreadsheetGear">
+      <HintPath>..\Lib\SpreadsheetGear.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AllTeacherCourse\AllTeacherCourseController.cs" />
+    <Compile Include="AttendceManage\AttendceCommonController.cs" />
+    <Compile Include="AttendceManage\AttendceManageController.cs" />
+    <Compile Include="BaseController.cs" />
+    <Compile Include="ClassRoom\ClassRoomController.cs" />
+    <Compile Include="Common\CommonController.cs" />
+    <Compile Include="CourseLearn\CourseLearnController.cs" />
+    <Compile Include="CourseManage\CalendarTaskController.cs" />
+    <Compile Include="CourseManage\CourseAppraiseController.cs" />
+    <Compile Include="CourseManage\CourseAssignController.cs" />
+    <Compile Include="CourseManage\CourseManageController.cs" />
+    <Compile Include="CourseManage\CourseSystemTreeController.cs" />
+    <Compile Include="CourseManage\CourseManageCommonController.cs" />
+    <Compile Include="CourseManage\VideoManageController.cs" />
+    <Compile Include="CutPhotoHelp.cs" />
+    <Compile Include="Dynamic.cs" />
+    <Compile Include="Filter\AjaxSessionAttribute.cs" />
+    <Compile Include="Filter\BaseAccessAttribute.cs" />
+    <Compile Include="Filter\FilterContextInfo.cs" />
+    <Compile Include="Filter\SystemLogAttribute.cs" />
+    <Compile Include="GlobalThreading.cs" />
+    <Compile Include="Home\HomeController.cs" />
+    <Compile Include="LogHelper.cs" />
+    <Compile Include="MyAfterCourse\MyAfterCourseController.cs" />
+    <Compile Include="MyApply\MyApplyController.cs" />
+    <Compile Include="MyApproval\MyApprovalController.cs" />
+    <Compile Include="MyAttendce\MyAttendceController.cs" />
+    <Compile Include="MyCourse\MyCourseController.cs" />
+    <Compile Include="MyExam\MyExamController.cs" />
+    <Compile Include="MyPlan\MyPlanCommonController.cs" />
+    <Compile Include="MyPlan\MyPlanController.cs" />
+    <Compile Include="Mypropose\MyproposeController.cs" />
+    <Compile Include="PlanManage\MonthPlanController.cs" />
+    <Compile Include="PlanManage\PlanCommonController.cs" />
+    <Compile Include="PlanManage\YearPlanController.cs" />
+    <Compile Include="Spreadsheet.cs" />
+    <Compile Include="Survey\SurveyCheckController.cs" />
+    <Compile Include="Survey\SurveyController.cs" />
+    <Compile Include="Survey\SurveyManageController.cs" />
+    <Compile Include="SystemManage\NoteManageControllers.cs" />
+    <Compile Include="ParamConfig\ParamConfigControllers.cs" />
+    <Compile Include="SystemManage\SystemCommonController.cs" />
+    <Compile Include="SystemManage\SystemManageController.cs" />
+    <Compile Include="SystemManage\SysLeaderController.cs" />
+    <Compile Include="TeacherCourse\TeacherCourseControllers.cs" />
+    <Compile Include="TeacherManage\TeacherManageController.cs" />
+    <Compile Include="TrainGradeManage\TrainGradeManageController.cs" />
+    <Compile Include="UserFingerInfor\UserFingerInforController.cs" />
+    <Compile Include="User\LoginController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="User\DeptManageController.cs" />
+    <Compile Include="User\PostManageController.cs" />
+    <Compile Include="User\RightManageController.cs" />
+    <Compile Include="User\RoleManageController.cs" />
+    <Compile Include="User\SysUserManageController.cs" />
+    <Compile Include="User\UserCommonController.cs" />
+    <Compile Include="User\UserManageController.cs" />
+    <Compile Include="User\UserInfoController.cs" />
+    <Compile Include="Video\VideoController.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LiXinBLL\LiXinBLL.csproj">
+      <Project>{FE9334C9-5A94-4429-8294-842234AAE7BE}</Project>
+      <Name>LiXinBLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinCommon\LiXinCommon.csproj">
+      <Project>{6A0DD56D-A2DD-49B7-9A1A-4D7C8D485104}</Project>
+      <Name>LiXinCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinInterface\LiXinInterface.csproj">
+      <Project>{17E752C8-5549-4A84-B378-71BFEC4DCD3F}</Project>
+      <Name>LiXinInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinLanguage\LiXinLanguage.csproj">
+      <Project>{BDC752A7-873B-4D28-AE35-FD24CF8C3813}</Project>
+      <Name>LiXinLanguage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LixinModels\LiXinModels.csproj">
+      <Project>{9F7DCE1F-6769-4BED-8876-B3D118306F57}</Project>
+      <Name>LiXinModels</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiXinSync\LiXinSync.csproj">
+      <Project>{270BFF0B-8C14-4C6A-BC85-2DB704FAB745}</Project>
+      <Name>LiXinSync</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpZipLib\SharpZipLib.csproj">
+      <Project>{384c2a4e-5b3e-4fea-a973-b851281e0a74}</Project>
+      <Name>SharpZipLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

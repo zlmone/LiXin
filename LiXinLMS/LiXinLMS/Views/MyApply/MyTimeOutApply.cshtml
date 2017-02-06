@@ -1,0 +1,44 @@
+﻿@{
+    Layout = null;
+}
+<div class="tab-bk">
+    <ul id="pop_tagTimeOuts">
+        <li class="On" id="pop_tagTimeOut0">补预定</li>
+        <li id="pop_tagTimeOut1">请假</li>
+    </ul>
+</div>
+<div id="order"></div>
+<div id="leave"></div>
+<script type="text/javascript">
+
+    $(document).ready(function ()
+    {
+
+        $("#pop_tagTimeOuts li").click(function ()
+        {
+            $("#pop_tagTimeOuts li").removeClass("On");
+            $(this).addClass("On");
+
+            var index = $(this).index();
+            flag = index;
+            if (index == 0)
+            {
+                $("#order").show();
+                $("#leave").hide();
+                $("#leave").html("");
+                $("#order").load("MyTimeOutApplyOrder");
+            }
+            else
+            {
+                $("#order").hide();
+                $("#leave").show();
+                $("#order").html("");
+                $("#leave").load("MyTimeOutApplyLeave");
+            }
+        });
+
+        $("#pop_tagTimeOut0").click();
+    });
+
+
+</script>

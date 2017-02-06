@@ -1,0 +1,261 @@
+﻿@{
+    ViewBag.Title = "我的考勤";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var StrYear = ViewData["StrYear"] as List<LiXinModels.PlanManage.Tr_YearPlan>;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "我的考勤"
+}))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">
+                    课程名称：
+                </td>
+                <td class="span12">
+                    <input type="text" id="txt_courseName" class="span20 searchclass" value="请输入搜索内容"
+                        info="" />
+                </td>
+                <td class="Tit span6">
+                    讲师姓名：
+                </td>
+                <td>
+                    <input type="text" class="span20 searchclass" id="teachername" value="请输入搜索内容" info="" />
+                </td>
+                <td rowspan="2" class="so-do">
+                    <input type="button" value="查询" id="btn_Add" class="btn" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">
+                    选修/必修：
+                </td>
+                <td>
+                    <input name="isMaster" type="checkbox" value="0" />必修
+                    <input name="isMaster" type="checkbox" value="1" />选修
+                </td>
+                <td class="Tit span6">
+                   开课时间：
+                </td>
+                <td>
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" />
+                        <i></i>
+                    </div>
+                    至
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" />
+                        <i></i>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="sel_YearPlan">
+            <option value="">请选择年度</option>
+            @{ 
+                for (int i = 0; i < StrYear.Count; i++)
+                {
+                <option value="@(StrYear[i].Year)">@(StrYear[i].Year)</option>
+                }
+            }
+        </select>
+        <select id="sel_Status">
+            <option value="10">考勤情况</option>
+            <option value="0">正常</option>
+            <option value="1">缺勤</option>
+            <option value="2">迟到</option>
+            <option value="3">早退</option>
+            <option value="4">迟到且早退</option>
+            <option value="5">课程未开始</option>
+            <option value="6">等待考勤上传</option>
+        </select>
+        <select id="sel_Way">
+            <option value="0">选择培训形式</option>
+            <option value="1">集中授课</option>
+            <option value="2">视频课程</option>
+            <option value="3">CPA课程</option>
+        </select>
+        <select id="sel_Sort">
+            <option value="0">选择培训类型</option>
+            <option value="1">内部培训</option>
+            <option value="2">社会招聘</option>
+            <option value="3">新进员工</option>
+            <option value="4">实习生</option>
+        </select>
+        <div class="course-tysel">
+                <span class="c-it">内部培训<i></i></span>
+                <span class="c-sr">社会招聘<i></i></span>
+                <span class="c-ne">新进员工<i></i></span>
+                <span class="c-tr">实习生<i></i></span>
+            </div>
+    </div>
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">
+                    序号
+                </th>
+                <th>
+                    课程名称
+                </th>
+                <th class="span8">
+                    课程学时
+                </th>
+                <th class="span8">
+                    选/必修
+                </th>
+                <th class="span8">
+                    讲师
+                </th>
+                @*<th class="span10">
+                    培训类型
+                </th>*@
+                <th class="span8">
+                    培训形式
+                </th>
+                <th class="span14">
+                    开课时间
+                </th>
+                <th class="span14">
+                    实际考勤时间
+                </th>
+                <th class="span15">
+                    考勤情况
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Courstlist">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        InitData();
+
+        $(".att").mouseover(function ()
+        {
+            $(this).find("p").css("display", "inline-block");
+        });
+        $(".att").mouseout(function ()
+        {
+            $(this).find("p").css("display", "none");
+        });
+
+
+        $("#btn_Add").click(function ()
+        {
+            InitData();
+        });
+        $("#sel_Sort").change(function ()
+        {
+            InitData();
+        });
+        $("#sel_Way").change(function ()
+        {
+            InitData();
+        });
+        $("#sel_Status").change(function ()
+        {
+            InitData();
+        });
+        $("#sel_YearPlan").change(function ()
+        {
+            InitData();
+
+        });
+
+
+    });
+
+    function InitData()
+    {
+        var isMaster = -1;
+        var obj = $("input[name='isMaster']:checked");
+        isMaster = (obj.length == 1) ? obj.val() : -1;
+
+        var v = "CourseName=" +escape($.trim(getSearchWord("txt_courseName")))+ "&year="
+                + $("#sel_YearPlan").val() + "&status=" + $("#sel_Status").val() + "&Way=" + $("#sel_Way").val() + "&Sort=" + $("#sel_Sort").val()
+                + "&teachername=" + escape($.trim(getSearchWord("teachername"))) + "&isMaster=" + isMaster
+                + "&start=" + $("#start").val() + "&end=" + $("#end").val();
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/MyAttendce/AttendceList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "CourseListTemplate",
+            funCallback: function ()
+            {
+                $(".att").mouseover(function ()
+                {
+                    $(this).find("p").css("display", "inline-block");
+                });
+                $(".att").mouseleave(function ()
+                {
+                    $(this).find("p").css("display", "none");
+                });
+            }
+        });
+    }
+
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+            
+            {{if MidAttendceCount==0}}
+                {{:#index+1}}
+            {{/if}}
+            {{if MidAttendceCount>0}}
+                 <div class="att lt ma">
+                <span>{{:#index+1}}</span><i></i>
+                <p>多次考勤</p></div>
+            {{/if}}
+            </td>
+            <td style="text-align:left;">
+                <div class="course-type" title="课程类型：{{:SortStr==""?"无":SortStr}}">
+                     <i class="c-it {{:SortStr.indexOf('内部培训')>=0?"":"c-no"}}">内部培训</i>
+                     <i class="c-sr {{:SortStr.indexOf('社会招聘')>=0?"":"c-no"}}" title="">社会招聘</i>
+                     <i class="c-ne {{:SortStr.indexOf('新进员工')>=0?"":"c-no"}}">新进员工</i>
+                     <i class="c-tr {{:SortStr.indexOf('实习生')>=0?"":"c-no"}}">实习生</i>
+                 </div>
+                <div class="tl ovh span16" title="{{:CourseName}}">{{:CourseName}}</div>
+            </td>
+           <td>
+                {{:CourseLength}}
+            </td>
+            <td>
+                {{:IsMust==0?"必修":"选修"}}
+            </td>        
+           <td>
+                <div class="ovh tl span8" title="{{:Realname}}">{{:Realname}}</div>
+           </td>
+           <td>
+                {{:WayStr}}
+           </td>
+           <td>
+               <div class="f11 tl">{{:CourseTime}}</div>
+           </td>
+           <td>
+               <div class="f11 tl">{{:StartTimeM==""?"——":StartTimeM}} -- {{:EndTimeM==""?"——":EndTimeM}}</div>
+           </td>
+           <td id="td_display">
+            <div class="tl"></div>{{:Status}}
+           </td>                  
+            <td style="display:none">
+            上课时间:{{:StartTimeStr}}  下课时间:{{:EndTimeStr}}
+           </td>
+        </tr> 
+        {{/for}}
+</script>

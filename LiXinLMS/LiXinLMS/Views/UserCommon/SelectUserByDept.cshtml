@@ -1,0 +1,252 @@
+﻿@*
+在调本页面时，要注意，页面载入方法中有一个参数，可传可不传都有默认值
+type            ''：啥不带；'checkbox'：带checkbox；'radio'带radio；默认为''
+
+    加入方法，形如：
+    获取选择到的userID
+	方法名不要改
+	function GetUserIDList()
+	{
+		var userIds = GetChecked('pop_userList');
+		...
+        ...
+        ...
+		closePopWindow();
+	}
+	AllUserID 已经存在的userID，放置这个之后，在其中保存已经添加的userID,在弹出框中会将其置灰
+*@
+@{
+    Layout = null;
+}
+<style type="text/css">
+    .treeview-box {
+        width: 100%;
+    }
+    .tree-list {
+        height: 420px;
+    }
+</style>
+<div class="clb" id="pop_deptUser">
+<input type="hidden" id="commonSelectedIdStr" value=""/>
+<input type="hidden" id="commonSelectedNameStr" value=""/>
+    <div class="fl span20">
+        <div class="menu-list">
+            <h3>
+                <i class="il"></i><i class="ir"></i>立信组织结构</h3>
+        </div>
+        <div>
+            <input type="text" class="searchclass span13" id="pop_searchdept" value="请输入搜索内容"
+                info="" />
+            <input class="btn btn-co" type="button" value="搜索" onclick="pop_resetDeptTree(); " />
+        </div>
+        <div class="treeview-box">
+            <div id="pop_deptTreePage" class="tree-list">
+            </div>
+        </div>
+    </div>
+    <div id="deptUser" class="fr span70 ml10">
+        <div class="so-set">
+            <table class="tab-Form">
+                <tbody>
+                    <tr>
+                        <td class="Tit span4">
+                            姓名：
+                        </td>
+                        <td class="span11">
+                            <input type="text" class="span10 searchclass" value="请输入搜索姓名" info="" id="pop_realName" />
+                        </td>
+                        <td class="so-do">
+                            <input type="button" id="btnSearch" class="btn" value="搜索" onclick="pop_InitUserData();" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="pop_sltSex" onchange="pop_InitUserData();">
+                <option value="99">性别</option>
+                <option value="0">男士</option>
+                <option value="1">女士</option>
+            </select>
+            <select id="pop_sltTrainGrade" onchange="pop_InitUserData();">
+                <option value="">培训级别</option>
+                @{
+                    foreach (var item in ViewBag.TrainGrade)
+                    {
+                    <option value="@item">@item</option>
+                    }
+                }
+            </select>
+            <select id="pop_sltCPA" onchange=" pop_InitUserData(); ">
+                <option value="99">是否CPA</option>
+                <option value="1">CPA</option>
+                <option value="0">非CPA</option>
+            </select>
+            @* <label>
+                账号状态：</label>
+            <select id="pop_sltStatus" onchange="pop_InitUserData();">
+                <option value="99">显示全部</option>
+                <option value="0">正常</option>
+                <option value="1">冻结</option>
+            </select>*@
+        </div>
+        <!-- 列表 -->
+        <div id="pop_deptUserTemplateList" class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th>
+                            @{
+                                if (ViewBag.type == "checkbox")
+                                {
+                                <input type="checkbox" value="0" id="pop_selectAllUser" />
+                                }
+                            }
+                        </th>
+                        <th>
+                            姓名
+                        </th>
+                        <th>
+                            性别
+                        </th>
+                        <th>
+                            培训级别
+                        </th>
+                        <th>
+                            部门/分所
+                        </th>
+                        <th class="span8">
+                            是否CPA
+                        </th>
+                        <th>
+                            账号状态
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="pop_deptUserList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="mt10 tc">
+    <input type="button" id="pop_btnSure" class="btn btn-co" value="确定" onclick="GetUserIDList(); " />
+    <input id="pop_hidDeptID" type="hidden" value="0" />
+</div>
+<script id="pop_deptUserTemplate" type="text/x-jsrender"> 
+{{for #data}}
+<tr> 
+    <td> 
+    {{if '@ViewBag.type'=='radio'}}
+        <input type='radio' id='{{:UserId}}' value='{{:UserId}}' username='{{:Realname}}' name='radioUser' /> 
+    {{else}} 
+        <input type='checkbox' id='{{:UserId}}' username='{{:Realname}}' value='{{:UserId}}' /> 
+    {{/if}} 
+    </td> 
+    <td title="{{:Realname}}">{{:Realname}}</td>
+    <td>{{:SexStr}}</td> 
+    <td>{{:TrainGrade}}</td> 
+    <td title="{{:DeptName}}">{{:DeptName}}</td> 
+    <td>{{:CPA}}</td>
+    <td>{{:StatusStr}}</td>
+</tr> 
+{{/for}} 
+</script>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        initSearch("pop_deptUser");
+        pop_resetDeptTree();
+        pop_InitUserData();
+    });
+
+    function pop_resetDeptTree() {
+        $.getJSON("/UserCommon/GetDeptTree?flag=1&type=&clickFunction=pop_deptNodeClick(this)&name=" + escape(getSearchWord("pop_searchdept")),
+            function (data) {
+                $("#pop_deptTreePage").html(data);
+                $("#pop_deptTreePage").treeview({
+                    persist: "location",
+                    collapsed: false,
+                    unique: false
+                });
+                $("#pop_deptTreePage").removeClass("treeview");
+                $("#pop_hidDeptID").val(0);
+                $("#pop_deptTreePage>ul>li>ul>li>div").each(function () {
+                    $(this).click();
+                });
+            });
+    }
+
+    function pop_deptNodeClick(obj) { //获取具体的分类信息 
+        var ids = $(obj).attr("id");
+        var id = ids.split("_")[0];
+        var pid = ids.split("_")[1];
+        var Name = $(obj).text();
+        $("#pop_hidDeptID").val(id);
+        pop_deptNodeClickSelect(obj);
+        pop_InitUserData();
+    }
+
+    function pop_deptNodeClickSelect(obj) {
+        $("#pop_deptTreePage").find("a").each(function () {
+            $(this).removeClass("On");
+        });
+        $(obj).addClass("On");
+    }
+
+    function NodeDeptClick() {
+        pop_InitUserData();
+    }
+
+    //初始化列表
+    function pop_InitUserData() {
+        var v = "flag=1&jobNum=&deptName=&sex=" + $("#pop_sltSex").val()
+        + "&status=0&deptId=" + $("#pop_hidDeptID").val()+"&cpa=" + $("#pop_sltCPA").val()
+        + "&realName=" + escape(getSearchWord("pop_realName")) + "&email=&trainGrade=" + $("#pop_sltTrainGrade").val();
+        $("#pop_deptUserList").JsRenderData({
+            sourceUrl: '/UserManage/GetUserInfoList?' + v,
+            isPage: true,
+            pageSize: @ViewBag.pageSize,
+            pageIndex: 1,
+            templateID: 'pop_deptUserTemplate',
+            funCallback: function () {
+                SetCheckBox('pop_selectAllUser', 'pop_deptUserList');
+                HiddenSelectUser("@ViewBag.type");
+                try {
+                    fnCallBackInvokeByRichter();
+                } catch (e) {
+                }
+            }
+        });
+    }
+//    function HiddenSelectUser(obj) {
+//        if ($("#AllUserID") != undefined && $("#AllUserID") != null) {
+//            $("#pop_deptUserTemplateList tbody input[type='" + obj + "']").each(function () {
+//                if ((',' + $("#AllUserID").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+//                    $(this).attr('disabled', 'disabled');
+//                }
+//            });
+//        }
+//    }
+
+   function HiddenSelectUser(obj,ID) {
+        if ($("#"+ID) != undefined && $("#"+ID) != null) {
+            $("#pop_deptUserTemplateList tbody input[type='" + obj + "']").each(function () {
+                if ((',' + $("#"+ID).val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('disabled', 'disabled');
+                }
+                if($("#commonSelectedIdStr").length>0){
+                if((',' +$("#commonSelectedIdStr").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0) {
+                    $(this).attr('checked', true);
+                }
+                }
+                if($("#commonSelectedNameStr").length>0){
+                if((';' +$("#commonSelectedNameStr").val() + ';').indexOf(';' + $(this).attr('id') +','+$(this).attr('username') + ';') >= 0) {
+                    $(this).attr('checked', true);
+                }
+                }
+            });
+        }
+    }
+</script>

@@ -1,0 +1,63 @@
+﻿@using LiXinLanguage
+@using System.Configuration
+@{
+    Layout = null;
+    string aid = Request.QueryString["id"] == null ? "0" : Request.QueryString["id"];
+}
+<div class="centerbody">
+    <form id="formattend" method="post" enctype="multipart/form-data" action="">
+    <div class="ma">
+        <table class="tab-Form">
+            <tr>
+                <td>
+                    <input type="file" id="attendExcel" name="attendExcel"  />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="c99 tc">可选的文件格式为：*.xls; *.xlsx</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="tc">
+                    <input type="button" id="btnUpload" class="btn btn-co mt10" flag="0" value="提交" />
+                    <input type="button" class="btn mt10 ml10" flag="0" onclick="art.dialog.list['Inputatt'].close();" value="取消" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnUpload").click(function () {
+            if ($("#attendExcel").val() != null && $("#attendExcel").val() != "") {
+                var strpic = $("#attendExcel").val();
+                var pos = strpic.lastIndexOf(".");
+                var lastname = strpic.substring(pos, strpic.length);
+                var resultName = lastname.toLowerCase();
+                var xls = ".xls";
+                var xlsx = ".xlsx";
+                if (xls == resultName || xlsx == resultName) {
+                    $("#formattend").submitForm({
+                        url: "/AttendceManage/SubmitImport?id=@(aid)&t=" + new Date(),
+                        //dataType: "json",
+                        callback: function (data) {
+                            if (data.result == 1) {
+                                art.dialog.list['Inputatt'].close();
+                                art.dialog.tips(data.content, 3);
+                                InitList(getyearUrl());
+                            } else {
+                                art.dialog.tips(data.content, 3);
+                                $("#attendExcel").val("");
+                            }
+                        }
+                    }).submit();
+                } else {
+                    art.dialog.tips("只能上传.xls、.xlsx格式的文件，您上传的文件类型为" + lastname + "，请重新上传", 3);
+                    return;
+                }
+            } else { art.dialog.tips("请选择签到表", 3); }
+        });
+    });
+</script>

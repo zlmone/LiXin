@@ -1,0 +1,129 @@
+﻿@{
+    Layout = null;
+    var flag = Request.QueryString["flag"] ?? "";
+}
+<div class="menu-list">
+<h3>
+    <i class="il"></i><i class="ir"></i>政策类别</h3>
+
+<div class="list-con">
+    @if (ViewBag.showManage == 1)
+    {
+        <div class="list-do pb5">
+            <input type="button" value="新增" class="btn btn-co" onclick="fnAddNoteSort(0);$('#ul_SysNoteList a').removeClass('On');" />
+            <input type="button" value="修改" class="btn btn-co" onclick="fnAddNoteSort(1)" />
+            <input type="button" value="删除" class="btn btn-cancel" onclick="fnDelNoteSort()" /></div>
+    }
+    <input type="hidden" id="txthidNoteSortId" value="0" />
+</div>
+</div>
+    <div class="treeview-box" style="margin-top:-5px;">
+        <div id="ul_SysNoteList" class="tree-list">
+        </div>
+    </div>
+<script id="noteSortListTemplate" type="text/x-jsrender">
+{{for #data}}
+    <li><a id="li_NoteSort_{{:NoteId}}" title="{{:SortName}}" onclick="fnChooseNote({{:NoteId}})">{{:SortName}}<i></i></a></li>
+{{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () { InitNoteList(); });
+    function fnChooseNote(Id)
+    {
+
+        //加上选中class
+        $("#ul_SysNoteList a").removeClass("On");
+        $("#ul_SysNoteList #li_NoteSort_" + Id).addClass("On");
+        $("#txthidNoteSortId").val(Id);
+        if ($("#lblCurrentSort") != undefined)
+        {
+            $("#lblCurrentSort").removeClass("On");
+        }
+        Getdata();
+    }
+
+    function InitNoteList()
+    {
+        //$.getJSON("/SystemManage/GetNoteSortList?type=1", function (data)
+        //{
+        //    $("#ul_SysNoteList").html(setHead() + $("#noteSortListTemplate").render(data.dataList));
+        //});
+        $.getJSON("/SystemManage/GetAllSystemSortTree?sortType=1", function (data) {
+            $("#ul_SysNoteList").html(data.popTreeHtml);
+            $("#ul_SysNoteList").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#ul_SysNoteList").removeClass("treeview");
+            $("#ul_SysNoteList>ul>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+
+    function fnAddNoteSort(flag)
+    {
+       // if (flag == 0)
+            //$("#txthidNoteSortId").val(0);
+        var Id = $("#txthidNoteSortId").val();
+        var sortName = "";
+        if (Id == 0 && flag == 1)//选择根节点 并点击修改 
+        {
+            art.dialog.tips("请选择要修改的政策类别！", 3);
+            return;
+        } else if (Id > 0 && flag == 1)
+        {
+            sortName = escape($("#li_NoteSort_" + Id).attr("title"));
+
+        }
+        art.dialog.load("/SystemManage/FAQ_EditNoteSort?Id=" + Id + "&flag=" + flag,
+        { title: '编辑政策类别', id: "pop_EditNoteSort"
+        }, false);
+
+    }
+
+    function fnDelNoteSort()
+    {
+
+        var Id = $("#txthidNoteSortId").val();
+        var sortName = "";
+        if (Id == 0)
+        {
+            art.dialog.tips("请选择要删除的政策类别！", 3);
+            return;
+        } else
+        {
+            art.dialog({
+                content: "您确认删除吗？",
+                ok: function ()
+                {
+                    $.post("/SystemManage/DeleteNoteSort?type=1&Id=" + Id, function (data)
+                    {
+                        if (data.result == 1)
+                        {
+                            $("#txthidNoteSortId").val(0);
+                            InitNoteList();
+                        }
+                        else
+                        {
+                            art.dialog.tips(data.content, 3);
+                        }
+                        
+                    });
+                },
+                cancel: true
+            });
+        }
+
+    }
+
+    function setHead()
+    {
+        if ("@flag" == "0")
+        {
+            return "<li><a id=\"lblCurrentSort\" onclick=\"fnChooseNote(0);$(this).parent().parent().parent().parent().find('a').removeClass('On');$(this).addClass('On');\">所有类别政策<i></i></a></li>";
+        }
+        return "";
+    }
+</script>

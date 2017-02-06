@@ -1,0 +1,91 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+
+    var modell = ViewBag.model as Sys_ParamConfig;
+}
+<!DOCTYPE html>
+<form id="fnSumitConfig">
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con"> CPA培训周期设定</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit">CPA培训周期设定：</td>
+            <td>
+                <select id="sel_one">
+                    <option value="1">当年</option>
+                </select>
+                <select id="sel_two">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select> 月
+                至
+                <input type="text" id="txt_year" maxlength="1" name="port" class="Box span2 inpbor" value="@modell.ConfigValue.Split(';')[0]"/>年后
+                @*<select  id="sel_three">
+                    <option value="2">次年</option>
+                </select>*@
+                <select  id="sel_four">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select> 月
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td><input type="submit" value="确定" id="btn_Add" class="btn"/></td>
+        </tr>
+    </table>
+</form>
+    <script type="text/javascript">
+        $(document).ready(function() {            
+
+            $("#sel_two option[value="+@(modell.ConfigValue.Split(';')[1])+"]").attr("selected", "selected");
+            $("#sel_four option[value="+@(modell.ConfigValue.Split(';')[2])+"]").attr("selected", "selected");
+            
+            $("#fnSumitConfig").validate({
+                event: "blur",
+                rules: {
+                    port: { required: true, digits: true, min: 1,max:100 }
+                },
+                messages: {
+                    port: { required: "请输年周期", digits: "请输入大于0的正整数", min: "请输入大于0的正整数" ,max:"请输入小于100的正整数"}
+                },
+                submitHandler: fnSumitConfig
+            });
+
+        });
+        
+        function fnSumitConfig() {
+                var t = $("#txt_year").val() + ";" + $("#sel_two").val() + ";"  + $("#sel_four").val();
+                $.post("/ParamConfig/fUpdateParamConfig?configType=8&configValue=" + t, function (data) {
+                    if (data.result == 1) {
+                        art.dialog.tips('配置成功', 3);
+                    } else {
+                       art.dialog.tips('配置失败', 3);
+                    }
+                });
+        }
+    </script>
+

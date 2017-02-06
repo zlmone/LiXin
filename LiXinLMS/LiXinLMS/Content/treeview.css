@@ -1,0 +1,27 @@
+@charset "utf-8";
+/* CSS Document */
+.treeview-box{height:100%;background:#e5e5e5;}
+.treeview-box p{padding:10px 0;text-align:center;}
+.tree-list{width:100%;height:380px;overflow:auto;}
+.treeview{display:inline-block;width:auto;min-width:100%;}
+.treeview li{line-height:30px;position:relative;}
+.treeview li input{ position:absolute;top:8px;left:17px;}
+.treeview li ul li{padding-left:30px;}
+.treeview li ul .hitarea{position:absolute;left:0;top:8px;width:16px;height:16px;overflow:hidden;display:inline-block; cursor:pointer;}
+.treeview li ul li ul li .hitarea{width:12px;height:12px;}
+.treeview li .collapsable-hitarea{background:#c7000b url(../images/other-bg.png) -36px -215px;}
+.treeview li .expandable-hitarea{background:#333 url(../images/other-bg.png) -36px -235px;}
+.treeview li ul ul .collapsable-hitarea{background-position:-38px -217px;}
+.treeview li ul ul .expandable-hitarea{background-position:-38px -237px;background-color:#aaa;}
+.treeview a,.treeview .rootNote{display:block;background:#333;color:#fff;text-indent:10px;font-weight:bold;cursor:pointer;text-overflow:ellipsis;-o-text-overflow:ellipsis;white-space:nowrap;overflow:hidden;}
+.treeview li a:hover{color:#fff;}
+.treeview li ul a{text-indent:0;color:#666;background:none;}
+.treeview li ul ul a{font-weight:normal;}
+.treeview li ul a:hover{text-decoration:none;font-weight:bold;color:#333;}
+.treeview {background:url(../images/treeview-line.gif) 0 29px;}
+.treeview ul{background:none;}
+.treeview a.On,.treeview a.On:hover{color:#c7000b;font-weight:bold;}
+.menu-list .treeview li,
+.menu-list .treeview ul li{border:none 0;}
+.menu-list .treeview ul li a{height:auto;line-height:18px;}
+

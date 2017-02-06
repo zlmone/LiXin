@@ -1,0 +1,250 @@
+﻿@using System.Configuration
+@using LiXinLanguage.Login
+@{
+    string loginReqVCode = ViewBag.loginReqVCode;
+    Layout = null;
+    var admin = Request.QueryString["login"] ?? "";
+    var loginflag = admin == ConfigurationManager.AppSettings["adminloginer"];
+}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="bg">
+<head>
+    <title>登录</title>
+    <link href="@Url.Content("~/Content/Raster.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/base.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/index.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/type.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/table.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/jquery-1.8.1.min.js")" type="text/javascript"> </script>
+    <script src="@Url.Content("~/Scripts/artDialog4.1.6/jquery.artDialog.js")" type="text/javascript"> </script>
+    <script type="text/javascript">
+            var valdator;
+            $(document).ready(function() {
+                $("#txtUserName").focus();
+                if ("true" != "@loginReqVCode") {
+                    $("#vcodeDiv").hide();
+                } else {
+                    $("#imgCode").attr("src", "/Login/GetVCode?d=" + (new Date().valueOf()));
+                }
+                $("#txtUserName").val("@Html.Raw(ViewBag.userName.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+                $("#txtPwd").val("@ViewBag.password");
+                if ("@ViewBag.remember" == "1") {
+                    $("#cbRememberPwd").attr("checked", "checked");
+                }
+            });
+
+            function getNewCode() {
+                $("#imgCode").attr("src", "/Login/GetVCode?d=" + (new Date().valueOf()));
+            }
+
+//已经不需要了
+
+            function checkCode() {
+                if ($("#vcodeDiv").attr("display") == "none") {
+                    return true;
+                }
+                var code = Replace($("#tCode").val());
+                if (code == "") {
+                    $("#spanError").html("@LoginLanguage.Login_ValidateCode");
+                    return false;
+                } else {
+                    $.getJSON("/Login/CheckVCode?code=" + $("#tCode").val(), function(data) {
+                        if (data == 0) {
+                            $("#spanError").html("@LoginLanguage.Login_ValidateCodeTrue");
+                            return false;
+                        } else {
+                            $("#spanError").html("");
+                            return true;
+                        }
+                    });
+                }
+            }
+
+            function Replace(obj) {
+                return obj.replace(/(^\s*)|(\s*$)/g, "");
+            }
+
+            document.onkeydown = function(e) {
+                var keyCode;
+                if (window.event) //IE
+                {
+                    keyCode = event.keyCode;
+                } else //Netscape/Firefox/Opera
+                {
+                    keyCode = e.which;
+                }
+                if (keyCode == 13) {
+                    goLogin();
+                }
+            };
+
+            function goLogin() {
+                if (!checkinput()) {
+                    return false;
+                }
+                $.post("/Login/LoginVerify", {
+                        username: $("#txtUserName").val(),
+                        password: $("#txtPwd").val(),
+                        code: $("#tCode").val(),
+                        rememberPwd: $("#cbRememberPwd").attr("checked") ? 1 : 0,
+                        backUrl: "@ViewBag.backUrl",
+                        style:$("#style").val()
+                    }, function(data) {
+                        switch (data.result) {
+                        case 0:
+                            window.location.href = data.url;
+                            break;
+                        case 1:
+                            $("#tCode").addClass("errobg").focus();
+                            break;
+                        case 2:
+                            $("#txtUserName").addClass("errobg").focus();
+                            break;
+                        case 3:
+                        default:
+                            $("#txtPwd").addClass("errobg").focus();
+                            break;
+                        }
+                        if (data.content != undefined) {
+                            $("#spanError").html(data.content);
+                        }
+                        ;
+                    });
+            }
+
+            function checkinput() {
+                if ($("#txtUserName").val() == "") {
+                    $("#txtUserName").addClass("errobg");
+                    $("#spanError").html("@LoginLanguage.Login_ValidateUserName");
+                    return false;
+                } else
+                    $("#txtUserName").removeClass("errobg");
+                if ($("#txtPwd").val() == "") {
+                    $("#txtPwd").addClass("errobg");
+                    $("#spanError").html("@LoginLanguage.Login_ValidatePassword");
+                    return false;
+                } else
+                    $("#txtUserName").removeClass("errobg");
+                if ("true" == "@loginReqVCode") {
+                    if ($("#tCode").val() == "") {
+                        $("#tCode").addClass("errobg");
+                        $("#spanError").html("@LoginLanguage.Login_ValidateCode");
+                        return false;
+                    } else
+                        $("#txtUserName").removeClass("errobg");
+                }
+                return true;
+            }
+
+            function remoteCheck() {
+                if ($("#tCode").val() == "") {
+                    $("#spanError").html("@LoginLanguage.Login_ValidateCode");
+                    return false;
+                }
+                $.getJSON("/Login/CheckVCode?code=" + $("#tCode").val(), function(data) {
+                    if (data == 0) {
+                        $("#spanError").html("@LoginLanguage.Login_ValidateCodeTrue");
+                        return false;
+                    } else {
+                        $("#spanError").html("");
+                        return true;
+                    }
+                });
+            }
+    </script>
+</head>
+    <body id="record">
+        <div class="error">
+            <h2 style="font-size:16px;padding:0;">欢迎使用立信内部培训管理系统，请使用安全客户端登录！</h2>
+        </div>
+        @{
+            if (true)
+            {
+                
+                <form method="post" action="/Login/LoginVerify" id="LoginForm">
+                    <table class="tab-Form">
+                        <tr>
+                            <td class="Tit all40">
+                            </td>
+                            <td>
+                                <span id="spanError" class="red"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="Tit">@LoginLanguage.Login_UserName
+                            </td>
+                            <td>
+                                <input type="text" id="txtUserName" name="txtUserName" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="Tit">@LoginLanguage.Login_Password
+                            </td>
+                            <td>
+                                <input type="password" id="txtPwd" name="txtPwd" />
+                                <a>忘记密码？</a><span class="ml20">版本：V0.03</span>
+                            </td>
+                        </tr>
+                        <tr id="vcodeDiv">
+                            <td class="Tit">@LoginLanguage.Login_Code
+                            </td>
+                            <td>
+                                <input type="text" id="tCode" style="width: 80px;" name="tCode" onblur=" remoteCheck(); " />
+                                <img alt="@LoginLanguage.Login_Code" onclick=" getNewCode(); " src="" id="imgCode" style="cursor: pointer;" />
+                                <span id="checkCodeStr" class="red"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="Tit">
+                            </td>
+                            <td>
+                        
+                                
+                                <div class="sel">
+                                    <input type="checkbox" name="cbRememberPwd" id="cbRememberPwd" />
+                                    <label class="login-font">@LoginLanguage.Login_RememberPassword</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                                <input id="btnLogin" type="button" onclick="goLogin(); " class="btn" value="登录" />
+                            </td>
+                        </tr>
+                    </table>
+        
+                </form>
+            
+            }
+        }
+    </body>
+<script type="text/javascript">
+    function changeheight() {
+        if (document.documentElement.clientHeight - 270 > 440) {
+            $("#Main").css("height", document.documentElement.clientHeight - 270 + "px");
+        }
+    }
+
+    $(document).ready(function () {
+        changeheight();
+    });
+
+    //兼容IE和Firefox，其他的浏览器未找到方法，暂时写提示，有方法的童鞋请帮忙加上。。谢谢
+    function addToFav() {
+        var url = window.location.href;
+        var title = "睿泰学习系统";
+        if (window.ActiveXObject)// IE Favorite
+            window.external.AddFavorite(url, title);
+        else if (document.getBoxObjectFor)// Mozilla Firefox Bookmark
+            window.sidebar.addPanel(title, url, "");
+        else  //chrome opera safari
+            art.dialog({
+                content: '你的浏览器不支持此功能，请使用Ctrl+D进行添加！',
+                time: 3
+            });
+        }
+
+</script>
+</html>

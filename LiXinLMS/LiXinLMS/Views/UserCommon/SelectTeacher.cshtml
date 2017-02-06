@@ -1,0 +1,150 @@
+﻿@*
+在调本页面时，要注意，页面载入方法中有一个参数，可传可不传都有默认值
+type            ''：啥不带；'checkbox'：带checkbox；'radio'带radio；默认为'radio'
+
+    加入方法，形如：
+    获取选择到的userID
+	方法名不要改
+	function GetUserIDList()
+	{
+		var userIds = GetChecked('pop_userList');
+		...
+        ...
+        ...
+		closePopWindow();
+	}
+	AllUserID 已经存在的userID，放置这个之后，在其中保存已经添加的userID,在弹出框中会将其置灰
+*@
+@{
+    ViewBag.Title = "选择讲师";
+    Layout = null;
+}
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">讲师姓名：</td>
+            <td class="span11"><input id="RealName" type="text" class="span10 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="Tit span6">讲师薪酬：</td>
+            <td><input id="PayGrade" type="text" class="span10 searchclass" value="请输入搜索内容" info="" /></td>
+            <td class="so-do"><input type="button" value="搜索" onclick="Getdata()" class="btn" /></td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <select id="isTeacher" onchange="TeacherChange();">
+        <option value="0">请选择讲师性质</option>
+        <option value="1">内部</option>
+        <option value="2">外聘</option>
+    </select>
+</div>
+<div id="allTeacher">
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span3">
+                    @{
+                        if (ViewBag.type == "checkbox")
+                        {
+                            <input type="checkbox" value="0" id="selectAllUser" />
+                        }
+                    }
+                </th>
+                <th class="span4">序号</th>
+                <th class="span10">
+                    讲师姓名
+                </th>
+                <th class="span6">
+                    性别
+                </th>
+                <th class="span8">
+                    讲师性质
+                </th>
+                <th class="span10">
+                    讲师薪酬
+                </th>
+                <th class="span12">
+                    联系方式
+                </th>
+                <th>
+                    邮箱
+                </th>
+            </tr>
+        </thead>
+        <tbody id="teacherList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<div class="mt10 tc"><input type="button" value="添加" onclick="GetUserIDList()" class="btn btn-co" /></div>
+<script id="teacherListTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+       <td>
+        {{if '@ViewBag.type'=='radio'}}
+            <input type='radio' id='{{:UserId}}' value='{{:UserId}}' username="{{:Realname}}" PayGrade="{{:PayGrade}}"  name='radioUser' />
+        {{else}}
+        <input type='checkbox' id='{{:UserId}}' value='{{:UserId}}' />
+        {{/if}}</td>
+        <td>{{:#index+1}}</td>
+          <td>
+             <div class="span9 ovh" title="{{:Realname}}">{{:Realname}}</div> 
+          </td>
+          <td>{{:SexStr}}</td>
+          <td>{{:teacherType}}</td>
+          <td>
+             <div class="span10 ovh" title="{{:PayGrade}}">{{:PayGrade}}</div>  
+          </td>
+          <td>{{:Telephone}}</td>
+          <td>
+             <div class="span15 ovh" title="{{:Email}}"> {{:Email}}</div>
+          </td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        Getdata();
+    });
+
+    function Getdata()
+    {
+        $("#teacherList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "teacherListTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox('selectAllUser', 'teacherList');
+                HiddenSelectUser("@ViewBag.type");
+            }
+        });
+    }
+
+    function getParamUrl()
+    {
+        return "/TeacherManage/GetAllTeacher?RealName=" + escape(getSearchWord("RealName"))
+               + "&isTeacher=" + $("#isTeacher").val() + "&PayGrade=" + escape(getSearchWord("PayGrade")) + "&t=" + Date();
+    }
+    function TeacherChange() {
+        Getdata();
+    }
+    function HiddenSelectUser(obj)
+    {
+        if ($("#AllUserID") != undefined && $("#AllUserID") != null)
+        {
+            //debugger;
+            $("#allTeacher tbody input[type='" + obj + "']").each(function ()
+            {
+                if ((',' + $("#AllUserID").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0)
+                {
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+        }
+    }
+</script>

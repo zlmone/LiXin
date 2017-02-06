@@ -1,0 +1,149 @@
+﻿@{
+    
+    ViewBag.Title = "CourseSystemTree";
+    /// <param name="checkBoxFlag">0：木有复选框，1：前置复选框</param>
+    ///<param name="showButton">0：木有确定按钮，1：显示确定按钮</param>
+        Layout = null;
+    //带有管理页面选中节点触发的事件 为 fnSelectCourseSystem()
+    //确定按钮 触发的事件为 fnSelectChooseSystem()  当showButton为1 时 显示
+    //hidHaveID 已选ID的集合，会质灰滴哦
+    
+    var sid = Request.QueryString["sid"] ?? "0";
+    var type = Request.QueryString["type"] ?? "0";
+}
+<div class="menu-list">
+@if (ViewBag.showManage == 1)
+{
+<div class="list-do">
+ <input type="button" value="新增体系" onclick="fnAddCourseSystem(0)" class="btn btn-co" />
+<input type="button" value="修改体系" onclick="fnAddCourseSystem(1)" class="btn btn-co" />
+<input type="button" value="删除体系" onclick="fnDelCourseSystem()" class="btn btn-cancel" />
+</div>
+}
+</div>
+<input type="hidden"  id="pop_txtchooseId" value="0" />
+<input type="hidden"  id="pop_txtchooseIdS"/>
+<div class="treeview-box">
+<div id="pop_courseSystemTree" class="tree-list">
+</div></div>
+@if (ViewBag.showButton==1)
+{
+    <center class="mt10"><input type="button" value="确定" onclick="fnSelectChooseSystem()" class="btn" /></center>
+} 
+<script type="text/javascript">
+    $(document).ready(function () {
+        courseSystemReady();
+    });
+
+    function courseSystemReady() {
+        $.getJSON("/CourseManage/GetAllCourseSystem?type=@ViewBag.Type&checkBoxFlag=@ViewBag.checkBoxFlag&radioFlag=@ViewBag.radioFlag", function (data) {
+            $("#pop_courseSystemTree").html(data.popTreeHtml);
+            $("#pop_courseSystemTree").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#pop_courseSystemTree").removeClass("treeview");
+
+            if ("@sid" == "0") {
+                $("#pop_courseSystemTree>ul>li>ul>li>div").each(function() {
+                    $(this).click();
+                });
+            }
+            if ("@sid" != "0") {
+                fnSelectCourseSystem(@sid, null);
+            }
+            if("@type"!="0")
+            {
+                disChecked();
+            }
+        });
+
+    }
+
+    function disChecked()
+    {
+        if( $("#hidHaveID").val()!="")
+        {
+            $.each($("#hidHaveID").val().split(','),function(index,value){
+                $("#chb_"+value).attr("checked",true);
+                $("#chb_"+value).attr("disabled",true);
+            });
+        }
+       
+    }
+
+    function fnAddCourseSystem(flag) {
+        var Id = $("#pop_txtchooseId").val();
+        if (Id == 0 && flag == 1)//选择根节点 并点击修改 
+         {
+             art.dialog.tips("请选择要修改的体系！",3);
+             return;
+         }
+         art.dialog.load("/CourseManage/EditCourseSystem?Id=" + Id + "&flag=" + flag,
+        { title: '编辑胜任力课程体系',id:"pop_EditCourseSystem"
+        }, false);
+     }
+
+    function fnSelectCourseSystem(Id, obj) {
+        var oldId= $("#pop_txtchooseId").val();
+        if (oldId!=0) {
+            $("#sys_a_" + oldId).removeClass("On");
+        }
+        if (Id!=0) {
+        $("#sys_a_" + Id).addClass("On");
+        }
+
+        $("#pop_txtchooseId").val(Id);
+        if ($("#chb_" + Id).attr("checked") == "checked") {
+             $("#chb_" + Id).attr("checked", false);
+         }
+         else {
+             $("#chb_" + Id).attr("checked", "checked");
+         }
+        //刷新课程列表
+         fnGetCourseList();
+     }
+     function fnDelCourseSystem() {
+         var Id = $("#pop_txtchooseId").val();
+         if (Id==0) {
+             art.dialog.tips("请选择要删除的体系！",3);
+             return;
+         }
+         art.dialog({
+             content: "确定要删除该体系吗？",
+             ok: function () {
+                 $.post("/CourseManage/DeleteCourseSystemByID?Id=" + Id, function (data) {
+                     art.dialog.tips(data.content,3);
+                     if (data.result == 1) {
+                         courseSystemReady();
+                         $("#pop_txtchooseId").val(0);
+                     }
+
+                 });
+             },
+             cancel: function () {
+                 return;
+             }
+         });
+     }
+
+
+     //获取选中的课程体系节点ID
+     //function fnSelectChooseSystem() {
+     //    var ids = "";
+     //    var names = "";
+     //    $("#pop_courseSystemTree input:checked").each(function () {
+     //        var s = $(this).attr("value");
+     //        ids = ids + s + ",";
+     //        names = names + $(this).next().text() + "❤";
+     //    });
+     //    if (ids.length > 0) {
+     //        ids = ids.substring(0, ids.length - 1);
+     //        names = names.substring(0, names.length - 1);
+     //    }
+     //             $("#pop_txtchooseIdS").val(ids+"@@"+names);
+     //    return { ids: ids, names: names };
+
+     //}
+</script>

@@ -1,0 +1,141 @@
+﻿@{
+    ViewBag.Title = "逾时审批";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input class="btn" value="补预定审批" type="button" onclick="approvalTest();"/>
+<div class="tab-bk mt10">
+    <ul id="tagTimeOutApplys">
+        <li id="tagTimeOutApply0" class="On">待审批</li>
+        <li id="tagTimeOutApply1">全部</li>
+        <li id="tagTimeOutApply2">已审批</li>
+    </ul>
+</div>
+<div>
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">
+                    课程名称：
+                </td>
+                <td>
+                    <input type="text" class="span30 Box searchclass" id="course" value="请输入课程名称" info="" />
+                </td>
+                <td class="Tit span6">
+                    姓名：
+                </td>
+                <td>
+                    <input type="text" class="span10 Box searchclass" id="realname" value="请输入姓名" info="" />
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- 列表 -->
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="tl">
+                        课程名称
+                    </th>
+                    <th class="tl Raster_12">
+                        姓名
+                    </th>
+                    <th class="tl Raster_12">
+                        补预订时间
+                    </th>
+                    <th class="tl Raster_12">
+                        审批状态
+                    </th>
+                    <th class="tl Raster_12">
+                        审批人
+                    </th>
+                    <th class="tl Raster_12">
+                        审批时间
+                    </th>
+                    <th class="tl Raster_12">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="courseList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="courseListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:Course_Name}}</td>   
+        <td>{{:realname}}</td> 
+        <td>{{:MakeUpTime}}</td>
+        <td>
+            {{if ApprovalFlag == 2}}
+                <a href="javascript:void(0);" title="审批理由：{{:ApprovalMemo}}">{{:ApprovalStatusStr}}</a>
+            {{else}}
+                {{:ApprovalStatusStr}}
+            {{/if}}
+        </td> 
+        <td>{{:ApprovalRealName}}</td>
+        <td>{{:ApprovalDateTime}}</td>
+        <td>
+        {{if ApprovalFlag == 0}}
+            <a onclick="Approval({{:Id}},1);">同意</a>   <a onclick="Approval({{:Id}},2);">拒绝</a> 
+        {{else}}
+            同意   拒绝
+        {{/if}}
+        </td>
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    //测试专用
+    function approvalTest() {
+        $.getJSON("/MyApply/ApprovalTest", function (data) {
+            alert(data.result);
+        });
+    }
+
+
+
+    var flag = 0;
+    $(document).ready(function () {
+        initSearch();
+        InitData();
+        $("#tagTimeOutApplys>li").click(function () {
+            $("#tagTimeOutApplys li").removeClass("On");
+            $(this).addClass("On");
+
+            flag = $(this).index();
+            InitData();
+        });
+    });
+
+    function InitData() {
+        var v = "course=" + escape(getSearchWord("course")) + "&realname=" + escape(getSearchWord("realname")) + "&Approval=" + flag;
+        $("#courseList").JsRenderData({
+            sourceUrl: '/MyApply/GetTimeOutApplyApprovalList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "courseListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+
+    function Approval(id, flag) {
+        $.getJSON("/MyApply/ApprovalTimeOut?id=" + id + "&flag=" + flag, function (da) {
+            if (da == 1) {
+                art.dialog.tips("成功！", 3);
+                InitData();
+            } else {
+                art.dialog.tips("失败！", 3);
+            }
+        });
+    }
+</script>

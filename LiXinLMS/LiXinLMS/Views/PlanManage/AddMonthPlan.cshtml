@@ -1,0 +1,619 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.AddMonthPlan;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "AddMonthPlan"
+}))
+    <script src="../../Scripts/js_pagerNew.js" type="text/javascript"></script>
+    <!--月度计划内的课程--->
+    <div class="so-seq">
+        <select id="selyear" onchange="GetMonth()" class="span10">
+            @{ 
+                if (ViewBag.id == 0)
+                {
+                <option value="999">请选择年度</option>
+                    foreach (var year in ViewBag.year)
+                    {
+                <option value="@year">@year</option>
+                    }
+                }
+                else
+                {
+                <option value="@ViewBag.planyear">@ViewBag.planyear</option>
+                }
+            }
+        </select>
+        <select id="selmonth" class="span10">
+            @{
+                if (ViewBag.id == 0)
+                {
+                <option value="-1">请选择月份</option>   
+                }
+                else
+                {
+                <option value="@ViewBag.planmonth">@ViewBag.planmonth</option>        
+                }
+            }
+        </select>
+        <div class="list-do">
+            <input type="button" class="btn" value="删除" onclick="DeleteCourse()" />
+        </div>
+    </div>
+    <table class="tab-List mt10" id="tbmonthCourse">
+        <thead>
+            <tr>
+                <th class="span4">
+                    <input id="selectAll" type="checkbox" />
+                </th>
+                <th>课程名称
+                </th>
+                <th class="span16">预计开课时间
+                </th>
+                <th class="span12">开放级别
+                </th>
+                <th class="span8">培训形式
+                </th>
+                <th class="span8">学时</th>
+                <th class="span8">是否可折算CPA学时</th>
+                <th class="span8">地点</th>
+                <th class="span7">讲师姓名
+                </th>
+                <th class="span12">讲师薪酬
+                </th>
+                <th class="span8">必修/选修
+                </th>
+                <th class="span4">框架内/外
+                </th>
+            </tr>
+        </thead>
+        <tbody id="monthCourseList" class="tc">
+            <tr>
+                <td colspan="12" class="tc">暂无数据
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="12">
+                    <div class="divpage listPage" id="listPage" style="">
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <h3 class="tit-h3">添加课程信息</h3>
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">月份：
+                </td>
+                <td colspan="3">
+                    <div id="searchmonth" class="sel">
+                    </div>
+                </td>
+                <td rowspan="2" class="so-do">
+                    <input type="button" value="搜索" class="btn" onclick="GetYearCourse()" />
+                    <input type="button" value="新增课程" class="btn btn-co" onclick="AddCourse()" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit span6">开放级别：
+                </td>
+                <td>
+                    <div class="sel span28">
+                        @{
+                            foreach (var item in @ViewBag.trainGrade)
+                            {
+                            <input type="checkbox" value="@item" name="OpenLevel" /><label>@item</label>
+                            }      
+                        }
+                    </div>
+                </td>
+                <td class="Tit span6">课程名称：
+                </td>
+                <td>
+                    <input id="txtCourseName" type="text" class="span30 searchclass" value="请输入搜索课程"
+                        info="" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4"></th>
+                    <th class="span4">序号
+                    </th>
+                    <th>课程名称
+                    </th>
+                    <th class="span14">预计开课时间
+                    </th>
+                    <th class="span10">开放级别
+                    </th>
+                    <th class="span8">培训形式
+                    </th>
+                    <th class="span8">学时</th>
+                    <th class="span8">是否可折算CPA学时</th>
+                    <th class="span8">讲师姓名
+                    </th>
+                    <th class="span10">讲师薪酬
+                    </th>
+                    <th class="span8">必修/选修
+                    </th>
+                    <th class="span8">框架内/外
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="yearCourseList" class="tc">
+                <tr>
+                    <td colspan="13" class="tc">暂无数据
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="10">
+                        <div id="listPage" class="listPage" style="">
+                            <span class="c38">第1页/共1页(共0条)</span><span class="first status_disabled">首页</span>&nbsp;<span
+                                class="previous status_disabled">&nbsp;</span>&nbsp;<span class="status_disabled status-on">&nbsp;1&nbsp;</span>&nbsp;<span
+                                    class="next status_disabled">&nbsp;</span>&nbsp;<span class="last status_disabled">末页</span><span
+                                        class="c38">转到&nbsp;<a class="curp c2934f3" id="btnpagegoto">GO</a><input type="text"
+                                            id="txtpagegoto" class="w24 h16 line_h16" maxlength="3"></span>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="mt10 tc">
+        <input type="button" class="btn" value="保存" onclick="Save()" />
+        <input type="button" class="btn btn-cancel" value="返回" onclick="back()" />
+    </div>
+    <div id="cname" style="display: none;">
+    </div>
+    <div id="pGrade" style="display: none;">
+    </div>
+    <input id="selectCourse" type="hidden" />
+    <input id="deleteCourse" type="hidden" />
+    <input id="hidid" type="hidden" />
+</div>
+<script id="monthCourseTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr class="child">
+            <td>
+                <input name="{{:SurveyPaperId}}" id="month_{{:Id}}" type="checkbox" />
+            </td>
+            <td >
+              <div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div>
+           </td>
+            <td >{{:PreCourseTimeStr}}</td>
+            <td ><div class="ovh span8 tl" title="{{:OpenLevel}}">{{:OpenLevel}}</div></td>
+            <td >{{:WayStr}} </td>
+            <td>{{:CourseLength}}</td>
+            <td>{{:IsCPAstr}}</td>
+            <td>
+                <div class="ovh span8 tl" title=" {{:RoomNamestr}}"> {{:RoomNamestr}}</div>
+            </td>
+            <td ><div class="ovh span8 tl" title="{{:Realname}}">{{:Realname}}</div></td>
+            <td ><div class="ovh span10 tl" title="{{:PayGrade}}">{{:PayGrade}}</div></td>
+            <td >{{:IsMustStr}} </td>
+            <td >{{:IsSystemStr}} </td>
+            </tr>
+   {{/for}}
+</script>
+<script id="yearCourseTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+            <td >
+                <input id="{{:Id}}" name="yearCourse" code="{{:Code}}" onclick="CourseAdd(this,{{:Year}},{{:Id}})" type="radio" />
+            </td>
+            <td>{{:#index+1}} </td>
+            <td><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td>{{:OpenTime}}</td>
+            <td><div class="ovh span10 tl" title="{{:OpenLevel}}">{{:OpenLevel}}</div></td>
+            <td name="{{:Way}}">{{:WayStr}} </td>
+            <td>{{:CourseLength}}</td>
+            <td id="{{:IsCPA}}">{{:IsCPAstr}}</td>
+           
+            <td name="{{:UserId}}"><div class="ovh span8 tl" title="{{:Realname}}">{{:Realname}}</div></td>
+            <td><div class="ovh span8 tl" title="{{:PayGrade}}">{{:PayGrade}}</div></td>
+            <td name="{{:IsMust}}">{{:IsMustStr}} </td>
+            <td name="{{:IsSystem}}">{{:IsSystemStr}} </td>
+                     </tr>
+   {{/for}}
+</script>
+<script id="monthNewAddCourseTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr class="child">
+            <td >
+                <input name="{{:id}}" id="monthNew_{{:index}}" type="checkbox" />
+            </td>
+            <td ><div class="ovh span18 tl" title="{{:CourseName}}">{{:CourseName}}</div></td>
+            <td >{{:PreCourseTime}}</td>
+            <td ><div class="ovh span10 tl" title="{{:OpenLevel}}">{{:OpenLevel}}</div></td>
+            <td >{{:WayStr}} </td>
+            <td>{{:CourseLength}}</td>
+            <td>{{:IsCPAstr}}</td>
+            <td>
+                <div class="ovh span8 tl" title=" {{:RoomNamestr}}"> {{:RoomNamestr}}</div>
+            </td>
+            <td ><div class="ovh span8 tl" title="{{:Realname}}">{{:Realname}}</div></td>
+            <td ><div class="ovh span8 tl" title="{{:PayGrade}}">{{:PayGrade}}</div></td>
+            <td >{{:IsMustStr}} </td>
+            <td>{{:IsSystemStr}} </td>
+        </tr>
+   {{/for}}
+</script>
+<script id="monthListTemplate" type="text/x-jsrender">
+   {{for monthList}}
+       <option value="{{:#data}}">{{:#data}}</option>
+   {{/for}}
+</script>
+<script id="searchTemplate" type="text/x-jsrender">
+   {{for monthList}}
+      <input type="checkbox" value="{{:#data}}"  name="Month"  /><label>{{:#data}}</label>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        fenye();
+        //修改的时候才执行查询操作
+        if (@ViewBag.id >0)
+        {
+            Getdata();
+            //GetMonth();
+            $.getJSON("/PlanManage/GetMonthByYear?year=" + $("#selyear").val(), function (data)
+            {
+                $("#searchmonth").html("");
+                $("#searchmonth").append($("#searchTemplate").render(data));
+            });
+        }
+    });
+
+    //年度下拉框中的事件
+    function GetMonth()
+    {
+        var selstr="";
+        var year = $("#selyear").val();
+        if(year!=999)
+        {
+            $.getJSON("/PlanManage/GetMonthByYear?year=" + year, function (data)
+            {
+                $("#selmonth").html("");
+                $("#selmonth").append("<option value='-1' >请选择月份</option>"+$("#monthListTemplate").render(data));
+                $("#searchmonth").html("");
+                $("#searchmonth").append($("#searchTemplate").render(data));
+            });
+        }
+        else
+        {
+
+            $("#selmonth").html("");
+            $("#selmonth").append("<option value='-1' >请选择月份</option>");
+        } 
+        change();
+        GetYearCourse();
+    }
+
+    //月度课程
+    function Getdata()
+    {
+
+        $.getJSON(getmonthUrl(),function(data){
+            $("#monthCourseList").html($("#monthCourseTemplate").render(data.dataList));
+            SetCheckBox('selectAll', 'monthCourseList');
+            $("#selectCourse").val(data.courseIds);
+            GetYearCourse();
+            fenye();
+        });
+    }
+
+    //年度课程
+    function GetYearCourse()
+    {
+        $("#yearCourseList").JsRenderData({
+            sourceUrl: getyearUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "yearCourseTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox('selectyearAll', 'yearCourseList');
+                radioCourse();
+            }
+        });
+    }
+
+    function change()
+    {
+        $("#selectCourse").val("");
+        if ($("#monthCourseList").find("#null").length == 0)
+        {
+            $("#monthCourseList").html("<tr><td colspan='10'><div id='null' class='tc c38 line_h30'>暂无数据</div></td></tr>");
+        }
+        //updateSelectCourse();
+    }
+
+    //已选的课程置灰
+    function radioCourse()
+    {
+        //先全部不选中
+        $("input[name='yearCourse']").attr("checked",false).removeAttr("disabled");
+        var courses=$("#selectCourse").val();
+        if(courses!="")
+        {
+            $.each(courses.split(','),function(index,value){
+                $("#"+value).attr("disabled","disabled");
+            });
+          
+        }
+    }
+
+
+    //月度的课程相关的url
+    function getmonthUrl()
+    {
+        return '/PlanManage/GetMonthplanCourse?id=@ViewBag.id&type=0&t=' + Date();
+    }
+
+    //年度的课程相关的url
+    function getyearUrl()
+    {
+        var year = $("#selyear").val();
+        var searchMonth = $("#selmonth").val();
+        var month = "";
+        var openLevel = "";
+        if (year > 0)
+        {
+            $("input[name='Month']").each(function (index)
+            {
+                if ($(this).attr("checked") == "checked")
+                {
+                    month = month == "" ? $(this).val() : month + "," + $(this).val();
+                }
+            });
+
+            $("input[name='OpenLevel']").each(function (index)
+            {
+                if ($(this).attr("checked") == "checked")
+                {
+                    openLevel = openLevel == "" ? $(this).val() : openLevel + "," + $(this).val();
+                }
+            });
+
+            var url = "/PlanManage/GetYearplanCourse?year=" + year + "&month=" + month
+                     + "&openLevel=" + openLevel + "&courseName=" + escape(getSearchWord("txtCourseName"));
+            return url;
+        }
+
+    }
+
+
+    //新增
+    function AddCourse()
+    {
+        $("#hidid").val(0);
+        var year = $("#selyear").val();
+        var month = $("#selmonth").val();
+        if (year == -1 || month == -1)
+        {
+           
+            art.dialog.tips("请选择正确的年，月",3);
+            return false;
+        }
+        art.dialog.load("/PlanManage/AddCourse?year="+year+"&month=" + month+"&id=0", { title: '新增课程', id: "art_AddCourse", width: 600 });
+    }
+
+    //弹出新增课程页面
+    function CourseAdd(obj,year,id)
+    {
+        var year = $("#selyear").val();
+        var month = $("#selmonth").val();
+        if (year == -1 || month == -1)
+        {
+            art.dialog.tips("请选择正确的年，月",3);
+            return false;
+        }
+        var code=$(obj).attr("code");
+        // var month=$("#selmonth").val();
+        $("#hidid").val($(obj).attr("id"));
+        art.dialog.load("/PlanManage/AddCourse?year="+year+"&month=" + month+"&id="+id+"&code="+code, { title: '新增课程', id: "art_AddCourse", width: 400, height: 400 });
+       
+      
+    }
+    var courseArray = [];
+
+    //新增的课程
+    function NewCourseToMonthPlan()
+    {
+        var courses=$("#selectCourse").val();
+        
+        var OpenLevel = "";
+        $("input[name='pop_OpenLevel']").each(function ()
+        {
+            if ($(this).attr("checked") == "checked")
+            {
+                OpenLevel = OpenLevel == "" ? $(this).val() : OpenLevel + "," + $(this).val();
+            }
+        });
+        
+        var id=$("#pop_id").val();
+        var newCourses=courses==""?id:courses+","+id;
+        $("#selectCourse").val(newCourses);
+        var name=$("#pop_CourseName").val();
+        $("#cname").text(name);
+        $("#pGrade").text($("#pop_PayGrade").val());
+        var Course = {
+            index: courseArray.length,
+            id:id,
+            Code:$("#pop_Code").val(),
+            CourseName:$("#cname").html(),
+            PreCourseTime:$("#pop_Day").val(),
+            OpenLevel: OpenLevel,
+            IsMust: $("input[name='pop_IsMust']:checked").val(),
+            Way: $("#pop_Way").val(),
+            IsMustStr: $("input[name='pop_IsMust']:checked").attr("text"),
+            IsSystemStr: $("#pop_IsSystem").val()=="0"?"外":"内",
+            IsSystem: $("#pop_IsSystem").val(),
+            SystemTree:$("#pop_id").val()=="0"?"--": $("#pop_Systemtree").val(),
+            WayStr: $("#pop_Way option:selected").text(),
+            teacher: $("#pop_teacherID").val(),
+            Realname: $("#pop_Realname").html(),
+            PayGrade: $("#pGrade").html(),
+            CourseLength:$("#txtCourseLength").val(),
+            IsCPA:$("input[name='IsCPA']:checked").val(),
+            IsCPAstr:$("input[name='IsCPA']:checked").attr("text"),
+            roomID:$("#sel_RoomId").val(),
+            RoomNamestr:$("#sel_RoomId").val()==0?"":$("#sel_RoomId option:selected").text()
+        };
+        courseArray.push(Course);
+
+        closeDialog("art_AddCourse");
+        if ($("#monthCourseList").find("#null").length > 0)
+        {
+            $("#monthCourseList").html("");
+        }
+        $('#monthCourseList').append($("#monthNewAddCourseTemplate").render(Course));
+
+        //ShowPages("tbmonthCourse", 1, 2);
+        SetCheckBox('selectAll', 'monthCourseList');
+        radioCourse();
+        fenye();
+        
+    }
+
+    //保存所有
+    function Save()
+    {
+        var year = $("#selyear").val();
+        var month = $("#selmonth").val();
+       
+        if (year == -1 || month == "-1")
+        {
+            art.dialog.tips("请选择正确的年，月",3);
+            return false;
+        }
+        if ($("#monthCourseList").find("#null").length > 0)
+        {
+          
+            art.dialog.tips("请至少添加一门课程",3);
+            return false;
+        }
+     
+        $.post("/PlanManage/AddMonthPlanAndCourse", {monPlan:JSON.stringify(getData(year,month)) }, function (data)
+        {   if (data.result == 1)
+        {
+            monthPlanID = data.monthPlanID;
+               
+            window.location.href = "/PlanManage/MonthPlan";
+        }
+        else
+        {
+            art.dialog.tips( data.content,3);
+        }
+        });
+    }
+
+
+    function getData(year,month)
+    {
+        var plan={};
+        plan.id=@ViewBag.id;
+        plan.year=year;
+        plan.month=month;
+        plan.newCourse=courseArray;
+        plan.deleteCourse=$("#deleteCourse").val();
+        return plan;
+    }
+
+    //删除计划中的课程
+    function DeleteCourse()
+    {
+        $("#selectAll").removeAttr("checked");
+
+        var ids = GetChecked('monthCourseList');
+
+        var deleteCourse=$("#deleteCourse").val();
+        var Courses="";
+        if (ids == "")
+        {
+           
+            art.dialog.tips("请选择要删除的课程",3);
+            return false;
+        }
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function ()
+            {
+                $.each(ids.split(','), function (index, value)
+                {
+                    var id = value;
+                    //年度的课程ID
+                    var yid=$("#"+id).attr("name");
+                    if (id.indexOf("month_") > -1)
+                    {
+                        
+                        //月度课程的ID
+                        var mid=id.replace("month_","");
+                        DeleteSelectCourseID(yid);
+                        Courses=deleteCourse==""?mid:deleteCourse+mid;
+                        $("#deleteCourse").val(mid.replace("month_",""));
+                    }
+                    else if (id.indexOf("monthNew_") > -1)
+                    {
+                        //月度课程的ID
+                        var mid=id.replace("month_","");
+                        DeleteSelectCourseID(yid);
+                        Courses=deleteCourse==""?mid:deleteCourse+mid;
+                        courseArray.splice(mid, 1);
+                    }
+                    $("#" + value).parent().parent().remove()
+                });
+                // updateSelectCourse();
+                radioCourse();
+                fenye();
+            },
+            cancel: true
+        });
+    }
+
+    //删除其中的课程ID，此为下面的年度计划添加上来的课程的保存
+    function DeleteSelectCourseID(id)
+    {
+        var selectCourseIDs = $("#selectCourse").val();
+        var newCourseID = "";
+        $.each(selectCourseIDs.split(','), function (index, value)
+        {
+            if (id != value)
+            {
+                newCourseID = newCourseID == "" ? value : newCourseID + "," + value;
+            }
+        });
+        $("#selectCourse").val(newCourseID);
+        
+    }
+
+    //假分页
+    function fenye()
+    {
+        var tmp = $('#monthCourseList').find('tr');
+        $.divpager($("#listPage"), tmp.length, $("#monthCourseList .child"), 10,"#monthCourseList");
+
+    }
+
+
+    function back()
+    {
+        window.location.href = "MonthPlan";
+    }
+</script>

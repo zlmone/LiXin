@@ -1,0 +1,52 @@
+﻿@using LiXinModels.User
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "个人中心";
+    
+}
+<style type="text/css">
+   /* .tit-h2 a{behavior:url(css/PIE.htc);}*/
+</style>
+<div class="main-l">
+    @Html.Action("UserInfoComm")
+    <div class="menu-list mt10">
+        <ul>
+            <li><a href="#" onclick="showmian(0);$(this).parent().parent().find('a').removeClass('On');$(this).addClass('On');" title="我的主页">我的主页<i></i></a></li>
+            <li><a href="#" onclick="showmian(1);$(this).parent().parent().find('a').removeClass('On');$(this).addClass('On');" title="我的档案">我的档案<i></i></a></li>
+            <li><a href="#" onclick="showmian(2);$(this).parent().parent().find('a').removeClass('On');$(this).addClass('On');" title="我的胜任力配套课程">我的胜任力配套课程<i></i></a></li>
+            <li><a href="#" class="On" onclick="showmian(3);$(this).parent().parent().find('a').removeClass('On');$(this).addClass('On');" title="我的年度培训目标">我的年度培训目标<i></i></a></li>
+            @{
+                if (Model!=null && Model.CPA == "是")
+                {
+                    <li><a href="#" onclick="showmian(4);$(this).parent().parent().find('a').removeClass('On');$(this).addClass('On');" title="我的CPA培训目标">我的CPA培训目标<i></i></a></li>
+                }
+            }
+        </ul>
+    </div>
+</div>
+<div class="main-r" id="mian_content"></div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        showmian(3);
+    });
+    function showmian(type) {
+        switch (type) {
+            case 0:
+                $("#mian_content").load("/UserManage/MyCourseTop?t=" + (new Date()).getUTCMilliseconds());
+                break;
+            case 1:
+                $("#mian_content").load("/UserManage/BaseInfo?t=" + (new Date()).getUTCMilliseconds());
+                break;
+            case 2:
+                $("#mian_content").load("/CourseManage/CompetencyCourseShowList?ShowLayout=1&t=" + (new Date()).getUTCMilliseconds());
+                break;
+            case 3:
+                var url = "/UserManage/MyCourse?TrGrade=" + $("#TrGrade").html()+"&t="+(new Date()).getUTCMilliseconds();
+                $("#mian_content").load(url);
+                break;
+            case 4:
+                $("#mian_content").load("/UserManage/CPAYearCourse?t=" + (new Date()).getUTCMilliseconds());
+                break;
+        }
+    }
+</script>

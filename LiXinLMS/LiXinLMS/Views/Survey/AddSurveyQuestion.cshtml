@@ -1,0 +1,384 @@
+﻿@{
+    ViewBag.Title = "添加问题";
+    Layout = null;
+    var type = Request.QueryString["type"];
+}
+<div class="pl10 pt10 pb20">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">
+                <span class="must">*</span>题型：
+            </td>
+            <td>
+                <select id="questionType" class="sel">
+                    @{
+                        if (type == "1")
+                        { 
+                        <option value="0">单选题</option>
+                        <option value="1">多选题</option>
+                        <option value="2">主观题</option>
+                        <option value="3">星评题</option>
+                        }
+                        else
+                        {
+                        <option value="2">主观题</option>
+                        <option value="3">星评题</option>
+                        }  
+                    
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <span class="must">*</span>题目：
+            </td>
+            <td id="tdQuestionContent">
+                <input type="text" name="QuestionContent" id="txtQuestionContent" class="span30" />
+            </td>
+        </tr>
+        <tr id="pop_CourseTree" style="display: none">
+            <td class="Tit">
+            </td>
+            <td>
+                <table id="pop_Course" class="tab-List mb10">
+                </table>
+                <input id="pop_AddCourseTree" class="btn btn-co" type="button" value="选择课程" onclick="AddCourseTree()"
+                    style="display: none" />
+            </td>
+        </tr>
+        <tr id="answer2" style="display: none">
+            <td colspan="2">
+                <table class="tab-List">
+                    <thead>
+                        <tr>
+                            <th class="span5">
+                                序号
+                            </th>
+                            <th>
+                                问题选项
+                            </th>
+                            <th class="span6">
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="answerList">
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr id="answer1">
+            <td class="Tit">
+            </td>
+            <td>
+                <input type="button" id="btnAddAnswer" value="新增选项" class="btn btn-co" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input type="button" class="btn" value="保存" id="btn_OK" onclick="SaveQuestion()" />
+                <input type="button" class="btn  btn-cancel" value="取消" id="close" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div>
+    <input id="haveSystemID" type="hidden" value="0" />
+</div>
+<script id="answerListTemplate" type="text/x-jsrender">
+   {{for #data}}
+   <tr>
+      <td>{{:id}}</td>
+      <td><input class="span30" type="text" id="{{:id}}_answer"></td>
+      <td><a class="icon idel" style="margin-top:5px;" onclick="del(this)" title="删除"></a></td>
+      </tr>
+   {{/for}}
+</script>
+<script id="courseTreeTemplate" type="text/x-jsrender">
+   {{for #data}}
+     <tr id="course_{{:systemID}}">
+         <td><div class="tl ovh span26" title="{{:systemtext}} -- {{:paytext}}"><strong>{{:systemtext}}</strong> -- {{:paytext}}</div></td>
+         <td class="span2"><input class="icon idel" type='button' value="删除" onclick="removeCourse({{:systemID}},this,{{:index}})" /></td>
+     </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    var treeObj = [];
+    $(document).ready(function (data)
+    {
+        // qType();
+        changeQuestionType();
+        Init();
+
+        //题型下拉框
+        $("#questionType").bind("change", function ()
+        {
+            changeQuestionType();
+        });
+
+        //新增选项
+        $("#btnAddAnswer").click(function ()
+        {
+            $("#answer2").show();
+            var count = $("#answerList tr td > input").length;
+            if (count == 26)
+            {
+                art.dialog.tips("选项最大项为26项，不可再新增", 3);
+                return;
+            }
+            var order = {
+                id: GetChar(GetMaxChar() + 1)
+            };
+            $("#answerList").append($("#answerListTemplate").render(order));
+        });
+
+        $("#close").click(close);
+    });
+
+
+    function Init()
+    {
+        if (editDiv != null)
+        {
+            debugger;
+            //修改
+            $("#questionType").val(editDiv.find("div").first().attr("type"));
+            changeQuestionType(0);
+            $("#tdQuestionContent").html('<input type="text" id="txtQuestionContent"  class="span30" />');
+
+            $("#txtQuestionContent").val(html_decode(editDiv.find("div").first().find("h5 .tl").html()));
+
+            $("#answerList").html('');
+            editDiv.find(".answer").each(function ()
+            {
+                var order = GetChar(GetMaxChar() + 1);
+                var row = jQuery.validator.format("<tr  ><td>{0}</td><td><input type='text' class='span30' id='{0}_answer'  /></td><td><a onclick='del(this)' title='删除' class='icon idel' style='margin-top:5px;'></a></td></tr>", order);
+                $("#answerList").append(row);
+                $("#" + order + "_answer").val($(this).text());
+                //var row = jQuery.validator.format("<tr  ><td>{0}</td><td><input type='text' class='Box Raster_20' id='{0}_answer' value='{1}' /></td><td><a onclick='del(this)' title='删除' >删除</a></td></tr>", order, $(this).html());
+            });
+            var courseTree = "";
+
+            var obj = editDiv.find("div").first().find(".sortpayGrade a");
+            var sID = $("#haveSystemID").val();
+            if (obj.length > 0)
+            {
+                $(obj).each(function ()
+                {
+
+                    var text = $(this).html().split("--");
+                    var course = {};
+                    course.index = treeObj.length;
+                    course.systemID = $(this).attr("id").replace("course_", "");
+                    course.systemtext = $(this).attr("text");
+                    course.paytext = text[1];
+                    course.payID = $(this).attr("payID");
+                    treeObj.push(course);
+                    sID = sID == 0 ? course.systemID : sID + "," + course.systemID;
+                    //courseTree = courseTree == "" ? $("#courseTreeTemplate").render(course) : courseTree + "," + $("#courseTreeTemplate").render(course)
+                    courseTree += $("#courseTreeTemplate").render(course);
+                });
+                $("#haveSystemID").val(sID);
+                $("#pop_Course").append(courseTree);
+            }
+        }
+
+    }
+    //更改题型的时候
+    function changeQuestionType(type)
+    {
+        switch ($("#questionType").val())
+        {
+            case "0":
+            case "1":
+                $("#answer1").show();
+                if (type == undefined)
+                {
+                    $("#answer2").hide();
+                }
+                else
+                {
+                    $("#answer2").show();
+                }
+                $("#pop_AddCourseTree").css("display", "none");
+                $("#pop_CourseTree").css("display", "none");
+                break;
+            case "2":
+                $("#answer1,#answer2").hide();
+                $("#pop_AddCourseTree").css("display", "");
+                $("#pop_CourseTree").css("display", "");
+                break;
+            case "3":
+                $("#answer1,#answer2").hide();
+                $("#pop_CourseTree").css("display", "none");
+                $("#pop_Course").remove();
+                $("#txtQuestionContent").val("");
+                break;
+        }
+    }
+
+    //删除选项
+    function del(obj)
+    {
+        $(obj).parent().parent().remove();
+        var initChar = 64;
+        $("#answerList > tr").each(function ()
+        {
+            $(this).find("td").eq(0).html(GetChar(++initChar));
+        });
+    }
+
+
+    //获取以及存在的最大序号
+    function GetMaxChar()
+    {
+        if ($("#answerList > tr").length == 0)
+            return 64;
+        return $("#answerList > tr").last().find("td").eq(0).html().charCodeAt();
+    }
+
+    function GetChar(code)
+    {
+        return String.fromCharCode(code);
+    }
+
+    //保存问题
+    function SaveQuestion()
+    {
+        if ($.trim($("#txtQuestionContent").val()) == "")
+        {
+            art.dialog.tips("题目内容不能为空", 3);
+            return;
+        }
+        if ($("#txtQuestionContent").val().length > 500)
+        {
+            art.dialog.tips("题目名称不能多于500个字符！", 3);
+            return;
+        }
+        var flag = 0;
+        var sflag = 0;
+        var qtype = $("#questionType").val();
+        if (qtype == 0 || qtype == 1)
+        {
+            var question = jQuery.format("<div type='{2}' class='title' > <div class='info'><span class='orderNum'></span>、 [{1}]</div>  <h5>  <span class='tl'>{0}</span><div class='do'><a onclick='modQuestion(this);' title='修改' class='icon iedit'></a> <a onclick='delQuestion(this);' title='删除' class='icon idel'></a></div></h5></div>",
+              $("#htmlConvert").text($("#txtQuestionContent").val()).html(),
+                $("#questionType option:selected").html(),
+               qtype);
+            question += "<div class='content'>";
+            $("#answerList > tr").each(function ()
+            {
+                if ($.trim($(this).find("td").eq(1).find("input").eq(0).val()) == "")
+                {
+                    flag = flag + 1;
+                }
+                sflag = sflag + 1;
+                question += jQuery.validator.format("<div><span>{0}</span>.<span class='answer'>{1}</span></div>", $(this).find("td").eq(0).html(),$("#htmlConvert").text($(this).find("td").eq(1).find("input").eq(0).val()).html());
+            });
+            question += "</div>"
+        }
+        //主观题
+        else if (qtype == 2)
+        {
+            var content = $("#txtQuestionContent").val();
+            // debugger;
+            var sortPayGrade = "";
+            if ($("#pop_Course tr").length > 0)
+            {
+                $.each(treeObj, function (index, value)
+                {
+                    //debugger;<div class='sortpayGrade'>{3}</div>
+                    var html = "<a id=\"course_" + value.systemID + "\" text=\"" + value.systemtext + "\" payID=\"" + value.payID + "\"  onclick=\"ShowCourseOfSurvey(" + value.systemID + ",'" + value.payID + "')\"><strong>" + value.systemtext + "</strong> -- " + value.paytext + "</a>";
+                    sortPayGrade = sortPayGrade == "" ? html : sortPayGrade + "," + html;
+                });
+
+            }
+            var question = jQuery.format("<div type='{2}' class='title' > <div class='info'><span class='orderNum'></span>、 [{1}]</div>  <h5>  <span class='tl'>{0}</span><div class='do'><a onclick='modQuestion(this);' title='修改' class='icon iedit'></a> <a onclick='delQuestion(this);' title='删除' class='icon idel'></a></div></h5><div class='sortpayGrade'>{3}</div></div>",
+                $("#txtQuestionContent").val(),
+                $("#questionType option:selected").html(),
+                qtype, sortPayGrade);
+        }
+        //星评题
+        else
+        {
+            var question = jQuery.format("<div type='{2}' class='title' > <div class='info'><span class='orderNum'></span>、 [{1}]</div>  <h5>  <span class='tl'>{0}</span><div class='do'><a onclick='modQuestion(this);' title='修改' class='icon iedit'></a> <a onclick='delQuestion(this);' title='删除' class='icon idel'></a></div></h5><div class='content'> <div id='divScore_1'  title='5'></div></div></div>",
+                $("#txtQuestionContent").val(),
+                $("#questionType option:selected").html(),
+                qtype);
+        }
+        if (flag > 0 && (qtype == "0" || qtype == "1"))
+        {
+            art.dialog.tips("题目选项不能为空", 3);
+            return;
+        }
+        if (sflag < 2 && (qtype == "0" || qtype == "1"))
+        {
+            art.dialog.tips("题目选项不能少于2个", 3);
+            return;
+        }
+        if (editDiv == null)
+        {
+            //新增
+            question = "<div class='QSingle'>" + question + "</div>";
+
+            $("#questionList").append(question);
+        } else
+        {
+            editDiv.html(question);
+        }
+        ReOrderQuestions();
+        close();
+    }
+
+    function close()
+    {
+        closeDialog("art_SurveyQuestion");
+    }
+
+
+    //PopCompetencyCourseShowList弹出添加课程体系的树
+    function AddCourseTree()
+    {
+        art.dialog.load("/CourseManage/PopCourseTreeForSurvey", { title: '添加胜任力课程', id: "art_AddCourse" });
+    }
+
+    function AddCourseForSurvey()
+    {
+        var obj = $("input[name='chbCourseSystem']:checked");
+        if (obj.length == 0) {
+            art.dialog.tips("暂无课程体系，请先添加", 3);
+            return false;
+        }
+        var systemObj = {};
+        systemObj.index = treeObj.length;
+        systemObj.systemID = $(obj).val();
+        systemObj.systemtext = $(obj).next().text();
+        var paytext = "";
+        var payID = "";
+        $("input[name='sys_PayGrade']:checked").each(function ()
+        {
+            payID = payID == "" ? $(this).val() : payID + "," + $(this).val();
+            paytext = paytext == "" ? $(this).attr("title") : paytext + "," + $(this).attr("title");
+        });
+
+        systemObj.payID = payID;
+        systemObj.paytext = paytext;
+        $("#pop_Course").append($("#courseTreeTemplate").render(systemObj));
+        var sID = $("#haveSystemID").val();
+        sID = sID == 0 ? $(obj).val() : sID + "," + $(obj).val();
+        $("#haveSystemID").val(sID);
+        treeObj.push(systemObj);
+        closeDialog("art_AddCourse");
+    }
+
+
+
+    function removeCourse(id, obj, index)
+    {
+        $("#course_" + id).remove();
+        $(obj).remove()
+        treeObj.splice(index, 1);
+    }
+</script>
+<div id="htmlConvert" style="display: none;">
+</div>

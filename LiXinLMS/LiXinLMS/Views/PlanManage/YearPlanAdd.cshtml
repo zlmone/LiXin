@@ -1,0 +1,259 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "新增年度计划";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var StrYears = ViewData["years"] as List<int>;
+}
+<script src="../../Scripts/js_pagerNew.js" type="text/javascript"></script>
+<div class="main-c">
+   @(Html.Action("SiteMapLink", "Common", new { linkName = "新增年度计划" }))
+    <form id="YearPlanForm" method="post" action="">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span10">请选择年度：</td>
+            <td>
+                <select id="selyear" name="selyear">
+                    <option value="-1">请选择年度</option>
+                    @{ 
+                        var year = ViewBag.year;
+                        for (int i = 1; i <= 5; i++)
+                        {
+                         if(!StrYears.Contains(year))
+                         {
+                        <option value="@year">@year</option>
+                        }
+                            year++;
+                        }
+                    }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            <span>选择课程：</span>
+        </td>
+        <td>
+            <input type="button" id="btnAdd" class="btn btn-co" style="margin-top: 0;" value="新增课程" />
+            <input type="button" id="btnSel" class="btn btn-co" style="margin-top: 0;" value="胜任力课程" onclick="AddPopCo()" />
+        </td>
+    </tr>
+</table>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th>课程名称</th>
+                <th>学时</th>
+                <th>预计开课时间</th>
+                <th>开放级别</th>
+                <th>培训形式</th>
+                <th>授课讲师</th>
+                <th>讲师薪酬</th>
+                <th>必修/选修</th>
+                <th>是否折算CPA学时</th>
+                <th>框架内/外</th>
+                @*<th>框架类别</th>*@
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="yearCourseList">
+            <tr id="tr0"><td colspan="11"><div class="tc c38 line_h30">暂无数据</div></td></tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="11">
+                <div id="listPage" class="listPage">
+                    <span class="c38">第1页/共1页(共0条)</span><span class="first status_disabled">首页</span><span class="previous status_disabled">&nbsp;</span><span class="status_disabled status-on">&nbsp;1&nbsp;</span><span class="next status_disabled">&nbsp;</span><span class="last status_disabled">末页</span><span class="c38">转到&nbsp;<a id="btnpagegoto" class="curp c2934f3">GO</a><input type="text" maxlength="3" class="w24 h16 line_h16" id="txtpagegoto"></span>
+                </div>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+    <div class="mt10 tc">
+        <input type="button" class="btn" value="保存" onclick="$(this).submit();" />
+        <input type="button" id="btnback" class="btn btn-cancel" value="返回" />
+    </div>
+    </form>
+</div>
+<input id="hidSelectCourseIds" type="hidden" />
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#YearPlanForm").validate({
+            rules: {
+                selyear: {
+                    required: true,
+                    min: 0,
+                    remote: {
+                        type: "POST",
+                        dataType: "json",
+                        url: "/PlanManage/CheckYear",
+                        data: { etitle: function () { return jQuery("#selyear").val(); } }
+                    }
+                }
+            },
+            messages: {
+                selyear: {
+                    required: "请选择年度",
+                    min: "请选择年度",
+                    remote: "年度计划已存在"
+                }
+            },
+            submitHandler: function (form) {
+                var tmp = $("#yearCourseList").find("tr.child");
+                if (tmp.length > 0) {
+                    var datatemp = {
+                        selyear: $("#selyear").val(),
+                        courlist: function () {
+                            var a = "";
+                            $(".flag_hidlbl").each(function () {
+                                a += $(this).html() + ",";
+                            }); return a;
+                        },
+                        DelID: ""
+                    };
+
+                    $.post("/PlanManage/SubmitYear?id=0", datatemp, function (data) {
+                        if (data.result == 1) {
+                            art.dialog.tips(data.content, 3, function () {
+                                window.location.href = "/PlanManage/YearPlan?t=" + new Date();
+                            });
+                            
+                        } else {
+                            art.dialog.tips(data.content, 3);
+                        }
+                    });
+                } else {
+                    art.dialog.tips("请添加课程", 3);
+                }
+            }
+        });
+
+        //新增课程
+        $("#btnAdd").bind("click", function () {
+            if ($("#selyear").val() > 0) {
+                art.dialog.load("/PlanManage/AddYearCourse?type=&ccid=0&str=&t=" + new Date(), { title: "新增课程", id: "EditCourse", width: 600 });
+            } else {
+                art.dialog.tips("请选择年度", 3);
+            }
+        });
+
+        //取消
+        $("#btnback").bind("click", function () {
+            window.location.href = "/PlanManage/YearPlan";
+        });
+    });
+
+    //修改课程
+    function EditCourse(obj) {
+        var tid = $(obj).parent().parent().attr('id');
+        var str = $($(obj).parent().parent().find('td')[0]).html();
+        art.dialog.load("/PlanManage/AddYearCourse?type=&ccid=0&str=" + encodeURIComponent(str) + "&tid=" + tid + "&t=" + new Date(), { title: "修改课程", id: "EditCourse", width: 500, height: 400 });
+    }
+    //选择课程体系
+    function AddPopCo() {
+        if ($("#selyear").val() > 0) {
+            art.dialog.load("/PlanManage/SelCompetencyCourse", { title: "胜任力课程", id: "SelCCourse", width: 860, height: 400 });
+        } else {
+            art.dialog.tips("请选择年度", 3);
+        }
+    }
+    //课程体系保存
+    function fnChooseSelectCourse() {
+        var obj = $('input:radio[name=popchbCourse]:checked');
+        var objid = $('input:radio[name=popchbCourse]:checked').val();
+        var cname = $(obj).parent().parent().find("div").eq(0).html();
+        if (cname != null && cname != "" && cname != undefined) {
+            art.dialog.list['SelCCourse'].close();
+            art.dialog.load("/PlanManage/AddYearCourse?type=" + escape(cname) + "&ccid=" + objid + "&str=&t=" + new Date(), { title: "胜任力课程", id: "EditCourse", width:500, height: 400 });
+        } else {
+            art.dialog.tips("请选择课程", 3);
+        }
+    }
+    //新增课件保存
+    function NewCourseToMonthPlan() {
+        var tempyear = $("#yearCourseList").find("tr.child");
+        if (tempyear.length == 0) {
+            $("#yearCourseList").html("");
+        }
+        var temp = $("#ycinfo").find("tr.chtime");
+        var hidSystem = parseInt($("#hidSystem").val());
+        for (var i = 0; i < temp.length; i++) {
+            
+            var month = $("#month"+i).val();
+            if (month.indexOf("-0") > -1) {
+                month=month.replace("-0","年");
+            }else if(month.indexOf("-") > -1){
+                month=month.replace("-","年");
+            }
+            var time = month +"月"+ $("#Day"+i).find("option:selected").text();
+            var chk_value = "";
+            $('input[name="pop_OpenLevel"]:checked').each(function () {
+                chk_value += $(this).val() + ",";
+            });
+            chk_value = chk_value.substring(0,chk_value.length - 1);
+            var ismust = $('input[name="IsMust"]:checked').val();
+            var iscpa = $('input[name="IsCPA"]:checked').val();
+            var valueStr = $("#hidCoID").val() + "♣" + $("#CourseName").val() + "♣" + $("#Code").val() + "♣" + $("#year" + i).val() + "♣" + $("#month" + i).val() + "♣" + $("#Day" + i).val() + "♣" + chk_value + "♣" + ismust + "♣" + $("#Way").val() + "♣" + $("#teacherID").val() + "♣" + $("#teaNmae").val() + "♣" + $("#newPayGrade").val() + "♣" + hidSystem + "♣" + iscpa + "♣" + $("#CourseLength").val();
+            var strhtml = "";
+            strhtml += "<tr class='child'>";
+            strhtml += "<td style='display:none;' class='flag_hidlbl'>" + base64encode(utf16to8(valueStr)) + "</td>";
+            strhtml += "<td><div class='ovh tl span20' title='" + replaceMsg($("#CourseName").val()) + "'>" + replaceMsg($("#CourseName").val()) + "</div></td>";
+            strhtml += "<td>" + $("#CourseLength").val() + "</td>";
+            strhtml += "<td>" + time + "</td>";
+            strhtml += "<td><div class='ovh span8' title='" + chk_value + "'>" + chk_value + "</div></td>";
+            strhtml += "<td>" + $("#Way").find("option:selected").text(); +"</td>";
+            strhtml += "<td><div class='ovh span10' title='" + replaceMsg($("#teaNmae").val()) + "'>" + replaceMsg($("#teaNmae").val()) + "</div></td>";
+            strhtml += "<td><div class='ovh span10' title='" + replaceMsg($("#newPayGrade").val()) + "'>" + replaceMsg($("#newPayGrade").val()) + "</div></td>";
+            if (ismust == 0) {
+                strhtml += "<td>必修</td>";
+            } else {
+                strhtml += "<td>选修</td>";
+            }
+            if (iscpa == 0) {
+                strhtml += "<td>否</td>";
+            } else {
+                strhtml += "<td>是</td>";
+            }
+            if (hidSystem >0) {
+                strhtml += "<td>内</td>";
+            } else {
+                strhtml += "<td>外</td>";
+            } 
+            //strhtml += "<td></td>";
+            strhtml += "<td><a onclick='EditCourse(this)' class='icon iedit' title='修改'></a><a name='rmlink' class='icon idel' title='删除'></a></td>";
+            strhtml += "</tr>";
+            $("#yearCourseList").append(strhtml);
+            var trid = $("#hidtr").val();
+            if (trid.indexOf("tr") > -1) {
+                $("#" + trid).remove();
+            }
+            bindListener();
+        }
+        art.dialog.list['EditCourse'].close();
+        TrNumber();
+        var tmp = $("#yearCourseList").find("tr.child");
+        $.divpager($("#listPage"), tmp.length, $("tr.child"), 10);
+    }
+
+    //删除
+    function bindListener() {
+        $("a[name=rmlink]").unbind().click(function () {
+            $(this).parent().parent().remove();
+            var tempyear = $("#yearCourseList").find("tr.child");
+            if (tempyear.length == 0) {
+                var strhtml = '<tr id="tr0"><td colspan="9"><div class="tc c38 line_h30">暂无数据</div></td></tr>';
+                $("#yearCourseList").html(strhtml);
+            }
+            TrNumber();
+            var tmp = $("#yearCourseList").find("tr.child");
+            $.divpager($("#listPage"), tmp.length, $("tr.child"), 10);
+        });
+    }
+
+    //tr编号
+    function TrNumber() {
+        var tmp = $("#yearCourseList").find("tr");
+        for (var i = 0; i < tmp.length; i++) {
+            tmp[i].id = "tr" + i;
+        }
+    }
+</script>

@@ -1,0 +1,182 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.MyExamination;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="contentInfor" class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new {linkName = "MyExamination"}))
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">考试名称：</td>
+                <td><input type="text" class="span30" id="examName" value="请输入搜索内容" info="" /></td>
+                <td class="so-do"><input type="button" class="btn" id="btnSearch" name="搜索" value="搜索"/></td>
+            </tr>
+        </table>
+        @*<a class="search_hold">收起搜索</a>*@
+    </div>
+    <div class="so-seq" id="statusCondition" style="display: none;">
+        <select id="selPass">
+            <option value="0">考试状态</option>
+            <option value="1">通过</option>
+            <option value="2">未通过</option>
+        </select>
+        @*<li class="fr ShowType"><a  id="view_list" class="listOn mRight_1" onclick="changeView('list');">
+            <span></span>列表</a> <a  id="view_pic" class="pic" onclick="changeView('pic');">
+                <span></span>大图</a> </li>*@
+    </div>
+    <!-- 列表 -->
+    <div id="Content">
+        <div class="tab-bk mt10">
+            <ul id="menuList" class="clb">
+                <li class="On" onclick=" selTab(this, 0); " type="0"><a>未开始</a> </li>
+                <li onclick=" selTab(this, 1); " type="1">进行中</li>
+                <li onclick=" selTab(this, 2); " type="2">已结束</li>
+                <li onclick=" selTab(this, 3); " type="3">已过期</li>
+            </ul>
+        </div>
+        <table class="tab-List">
+            <thead> 
+                <tr>
+                    <th>考试名称</th>
+                    <th class="span14">起止时间</th>
+                    <th class="span6">得分</th>
+                    <th class="span6">状态</th>
+                    <th class="span6">名次</th>
+                    <th class="span8">操作</th>
+                </tr>
+            </thead>
+            <tbody id="examinationList" class="list"></tbody>
+            <tfoot></tfoot>
+        </table>
+        @*<a href="#" class="Remark_hold" title="查看备注">备注</a>
+        <div class="dis" id="MemoTip">
+            <div class="tiptitle">温馨提示</div>
+            <div class="tipcontent">温馨提示</div>
+        </div>*@
+    </div>
+</div>
+<div class="clear"></div>
+<script id="examListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>
+                <div class="tl">
+                    <p title="{{:ExamTitle}}" class="span30 ovh"><strong>{{:ExamTitle}}</strong></p>
+                    <p class="Info">
+                    时长：{{:ExamLength}}<i>|</i>通过线/总分：{{:ExamScore}}<i>|</i>已考次数/总次数：{{:ExamTestTimes}}
+                    </p>
+                </div>
+            </td>
+            <td><div class="f11 tl">{{:ExamTime}}</div></td>
+            {{if examStatus == 2 || examStatus == 1}}
+                <td><strong>{{:GetScore}}<strong></td>
+                <td>{{:Status}}</td>
+                <td>{{:ScoreOrder}}</td>
+            {{else}}
+                <td><strong>--<strong></td>
+                <td>--</td>
+                <td>--</td>
+            {{/if}}
+            <td>
+                {{if examStatus == 0 || examStatus == 1}}
+                   <a title="进入考试" onclick="goIntoExam({{:ExamUserID}});" class="icon iexam"></a>
+                {{/if}}
+                {{if examStatus == 2}}
+                <a title="答卷详情" onclick="browseDetail({{:ExamUserID}});" class="icon iview-ans"></a>
+                {{/if}}
+                {{if examStatus == 3}}
+                <a title="试卷详情" onclick="lookPaper({{:ExampaperID}},{{:ExampaperSortID}});" class="icon iview-exam"></a>
+                {{/if}}
+            </td>
+        </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        initData("", 0, 0);
+        //查询事件
+        $("#btnSearch").bind("click", function() {
+            initData($("#examName").val(), $(".On").attr("type"), $("#selPass").val());
+        });
+        //通过状态
+        $("#selPass").bind("change", function() {
+            initData($("#examName").val(), $(".On").attr("type"), $("#selPass").val());
+        });
+    });
+
+    ///tab页的事件
+
+    function selTab(obj, index) {
+        $("#menuList li").removeClass("On").addClass("");
+        $(obj).removeClass("").addClass("On");
+        $("examName").val("");
+        if (index == 2)
+            $("#statusCondition").show();
+        else
+            $("#statusCondition").hide();
+        initData("", index, 0);
+    }
+
+    //初始化数据
+
+    function initData(name, type, passflag) {
+        $("#examinationList").JsRenderData({
+            sourceUrl: '/ExamTest/GetMyExamTestList?examName=' + escape($.trim(getSearchWord(name))) + '&type=' + type + '&passflag=' + passflag + '&t=' + new Date(),
+            isPage: true,
+            pageSize: 20,
+            pageIndex: 1,
+            templateID: 'examListTemplate'
+        });
+    }
+
+    //进入考试
+
+    function goIntoExam(examUserId) {
+        $.getJSON('/ExamTest/JudgeCanExamTest?euID=' + examUserId + '&flag=0', function(data) {
+            if (data.result == 1) {
+//                if ($("#examTestMain").length == 0) {
+//                    $("body").append('<div id="examTestMainBody" class="popwindow" style="display: none;"></div><div id="examTestMain" class="popmask" style="display: none;"></div><iframe id="examTestMainMask" class="popIframe" frameborder="0" style="display: none;"></iframe>');
+//                }
+//                $("#examTestMainBody,#examTestMain,#examTestMainMask").show();
+//                $("#examTestMainBody").html('<div class="ma mTop_2">想要更好的效果，请按F1</div>');
+//                $.get('/ExamTest/ExamTestOnline?euID=' + examUserId, function (data) {
+//                    $("#examTestMainBody").html(data);
+//                });
+                window.location.href = '/ExamTest/ExamTestOnline?euID=' + examUserId;
+            } else {
+                //art.dialog({ title: '温馨提示', content: data.message, width: 200, height: 50, fixed: true, lock: true, time: 3 });
+                art.dialog.tips(data.message, 3);
+            }
+        });
+    }
+
+    //查看考试详情
+
+    function browseDetail(examUserId) {
+        window.location.href = '/ExamTest/ExamTestDetail?euID=' + examUserId;
+    }
+
+    //查看试卷
+
+    function lookPaper(id, sid) {
+        var openurl = "/Exampaper/ExampaperDetail?type=1&id=" + id + "&sortID=" + sid;
+        art.dialog({
+            title: "@Exampaper.ExampaerDetail",
+            lock: true,
+            fixed: true,
+            width: 700,
+            height: 450,
+            time: false,
+            content: '<div class="tac mt20"><img src="../Images/loading.gif" alt="loading"/></div>',
+            close: function() {
+                $('#popIframe').hide();
+                $(".aui_content").css({ "height": "auto", "width": "auto", "overflow": "auto" });
+            }
+        });
+        $(".aui_content").css({ "height": "450px", "width": "700px", "overflow": "auto" });
+        $.get(openurl + "&t=" + new Date(), function(data) {
+            $(".aui_content").html(data);
+        });
+    }
+</script>

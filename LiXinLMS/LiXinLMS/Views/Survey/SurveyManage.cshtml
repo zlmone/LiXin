@@ -1,0 +1,206 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.SurveyManage;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "SurveyManage"
+}))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">
+                    调查名称：
+                </td>
+                <td>
+                    <input id="txtName" type="text" class="span16  searchclass" value="请输入搜索内容" info="" />
+                </td>
+                <td class="Tit span6">
+                    发布时间：
+                </td>
+                <td>
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'end\',{m:-1})}' });"
+                            readonly="readonly" id="start" />
+                       <i></i>
+                    </div>
+                    至
+                    <div class="data-choose">
+                        <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'start\',{m:1})}' });"
+                            readonly="readonly" id="end" />
+                         <i></i>
+                    </div>
+                </td>
+                <td>
+                    <select id="selStatus" onchange="Getdata()">
+                        <option value="-1">请选择调查状态</option>
+                        <option value="0">未发布</option>
+                        <option value="1">已发布</option>
+                    </select>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="立即搜索" onclick="Getdata()" />
+                    <input type="button" class="btn btn-co" value="新建调查" onclick="AddSurvey()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">
+                        序号
+                    </th>
+                    <th style="text-align: left;">
+                        调查名称
+                    </th>
+                    <th class="span20" jsrendersortfield="starttime" sort="desc">
+                        调查时间
+                    </th>
+                    <th class="span12" jsrendersortfield="PublishTime" sort="desc">
+                        发布时间
+                    </th>
+                    <th class="span10">
+                        状态
+                    </th>
+                    <th class="span10">
+                        是否在期限内
+                    </th>
+                    <th class="span12">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="surveyList" class="tc">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="surveyListTemplate" type="text/x-jsrender">
+   {{for #data}}
+         <tr>
+            <td>{{:#index+1}}</td>
+            <td>
+               <div class="span25 ovh tl" title="{{:Name}}">{{:Name}}</div>
+            </td>
+             <td>{{:DoTime}}</td>
+            <td>{{:PublishTimeStr}}</td>
+            <td>{{:status}}</td>
+            <td>{{:IsInDate}}</td>
+            <td>
+               <a onclick="Brower({{:Id}})"  class="icon iview"  title="查看详情"></a>
+               {{if PublishFlag==1}}
+                  <a disabled="disabled"  class="icon idel"  title="删除">删除</a>
+                   <a disabled="disabled" class="icon iedit" title="编辑">编辑</a>
+               {{else}}
+                   <a onclick="Delete({{:Id}})" class="icon idel" title="删除"></a>
+                 <a onclick="Edit({{:Id}})" class="icon iedit" title="编辑"></a>
+               {{/if}}
+               {{if IsPublish=="否"}}
+                   <a disabled="disabled" class="icon ipub" title="发布"></a>
+               {{else}}
+                   {{if PublishFlag==1}}
+                      <a disabled="disabled" class="icon ipub" title="发布"></a>
+                   {{else}}
+                      <a onclick="Publish({{:Id}})" class="icon ipub" title="发布"></a>
+                   {{/if}}
+               {{/if}}
+              
+            </td>
+         </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        Getdata();
+    });
+
+    function Getdata()
+    {
+        $("#surveyList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "PublishTime",
+            jsRenderASC: "desc",
+            templateID: "surveyListTemplate"
+        });
+    }
+
+    function getParamUrl()
+    {
+        return "/Survey/GetSurveyList?Name=" + escape($.trim(getSearchWord("txtName"))) + "&startTime=" + $("#start").val()
+        + "&endTime=" + $("#end").val() + "&status=" + $("#selStatus").val();
+    }
+
+    //新增
+    function AddSurvey()
+    {
+        window.location.href = "SurveyEdit";
+    }
+
+    //删除
+    function Delete(id)
+    {
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function ()
+            {
+                $.post("/Survey/Delete?id=" + id, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //发布
+    function Publish(id)
+    {
+        art.dialog({
+            content: "您确认发布吗？",
+            ok: function ()
+            {
+                $.post("/Survey/Publish?id=" + id, function (data)
+                {
+                    if (data.result == 1)
+                    {
+                        Getdata();
+                    }
+                    else
+                    {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    function Edit(Id)
+    {
+        window.location.href = "SurveyEdit?id=" + Id;
+    }
+
+    function Brower(surveyID)
+    {
+        window.location.href = "BrowseSurvey?surveyID=" + surveyID;
+    }
+</script>

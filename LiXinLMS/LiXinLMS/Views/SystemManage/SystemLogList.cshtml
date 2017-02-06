@@ -1,0 +1,116 @@
+﻿@using LiXinLanguage
+@{
+    //Layout = null;
+    ViewBag.Title = NavigateMenuLanguage.LogManage;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "LogManage" }))
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">
+                日志内容：
+            </td>
+            <td class="span31">
+                <input type="text" class="span30 Box searchclass" id="txtlogContent" value="请输入搜索内容"
+                    info="" />
+            </td>
+            <td class="Tit span4">
+                姓名：
+            </td>
+            <td>
+                <input type="text" class="span10 Box searchclass" id="txtUserName" value="请输入搜索内容"
+                    info="" />
+            </td>
+            <td class="Tit span6">
+                记录时间：
+            </td>
+            <td>
+                <div class="data-choose">
+                    <input onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'txtlogTimeStart\')}' });"
+                        type="text" id="txtlogTimeStart" /><i></i></div>
+                至
+                <div class="data-choose">
+                    <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'txtlogTimeEnd\')}' });"
+                        id="txtlogTimeEnd" /><i></i></div>
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick="fnSearchLog();" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <select id="sel_logType" onchange="fnSearchLog();">
+        <option value="-1">日志类型</option>
+        <option value="0">操作日志</option>
+        <option value="1">登录日志</option>
+        <option value="2">错误日志</option>
+        <option value="3">同步日志</option>
+    </select>
+</div>
+<div class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">
+                    序号
+                </th>
+                <th>
+                    日志内容
+                </th>
+                <th class="span10">
+                    类型
+                </th>
+                <th class="span10">
+                    姓名
+                </th>
+                <th class="span14">
+                    记录时间
+                </th>
+            </tr>
+        </thead>
+        <tbody id="tbLogList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+</div>
+<script id="logListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td style="text-align: left;">
+                <div class="ovh span50" title="{{:LogContent}}">{{:LogContent}}</div>
+            </td>
+            <td>{{:LogType}}</td>
+            <td>{{:UserName}}</td>
+            <td>{{:LogTimeStr}}</td>
+        </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        fnGetLogList();
+        $.get("SystemLogTrainList", function (data) {
+            $("#trainlog").html(data);
+        });
+    });
+
+    function fnSearchLog() {
+        fnGetLogList();
+    }
+
+    function fnGetLogList() {
+        $("#tbLogList").JsRenderData({
+            sourceUrl: "/SystemManage/GetSysLogList?logType=" + $("#sel_logType").val() + "&logTimeStart=" + $("#txtlogTimeStart").val() + "&logTimeEnd=" + $("#txtlogTimeEnd").val() + "&logContent=" + escape(getSearchWord("txtlogContent")) + "&UserName=" + escape(getSearchWord("txtUserName")),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "logListTemplate"
+        });
+    }
+</script>

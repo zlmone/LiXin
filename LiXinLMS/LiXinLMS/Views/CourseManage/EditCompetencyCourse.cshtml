@@ -1,0 +1,345 @@
+﻿@model LiXinModels.CourseManage.Sys_SortGradeCourse
+@{
+    ViewBag.Title = "编辑胜任力课程";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "编辑胜任力课程"
+}))
+    <form id="forEditCourseTogether">
+        <h3 class="tit-h3">课程基本信息</h3>
+        <input type="hidden" name="Id" id="txtId" value="@Model.Id"  />
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span10">课程名称：
+                </td>
+                <td>
+                    <input type="text" id= "txtCourseName" name="Name" value="@Model.Name" class="span30" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">课程开放级别：
+                </td>
+                <td>
+                    <div>
+                        @{
+                            foreach (var item in @ViewBag.trainGrade)
+                            {
+
+                            <span>
+                                <input type="checkbox" value="@item" name="OpenLeavel" /><label class="mr10">@item</label></span>
+                            }      
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit"> 培训形式：
+                </td>
+                <td>
+                    <select name="Type" id="sel_Type">
+                        <option value="0">请选择培训形式</option>
+                        <option value="1">集中授课</option>
+                        <option value="2">视频课程</option>
+                        <option value="3">CPA课程</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">必修/选修：
+                </td>
+                <td>
+                    <div class="sel">
+                        <input type="radio" name="IsMust" value="0" /><label>必修</label>
+                        <input type="radio" name="IsMust" value="1" /><label>选修</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">薪酬级别：
+                </td>
+                <td>
+                    <div class="sel salary" style="height: 160px;">
+                        @if (ViewBag.SysPayGradeList != null)
+                        {
+                            foreach (var item in (List<LiXinModels.CourseManage.Sys_PayGrade>)ViewBag.SysPayGradeList)
+                            {
+                            <span>
+                                <input type="checkbox" name="sys_PayGrade" value="@item.Id" /><label title="@item.GradeName" style="width:140px;">@item.GradeName</label></span>
+                            }
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">课程体系：
+                </td>
+                <td>
+                    <input type="button" name="btn" value="请选择体系" onclick="fnShowCourseSystem()" class="btn btn-co" />
+                   @* <input type="hidden" name="sortIds" value="@ViewBag.SysLinkSortIds" id="hidSysLinkSortIds" />*@
+                    <input type="hidden" name="sortIds" value="@ViewBag.haveID" id="hidHaveID" />
+                    <div id="div_courseSystem">
+                        @if (ViewBag.SysLinkSort != null)
+                        {
+                            <div class="seled-list">
+                                <ul>
+                                    @{
+                            foreach (var item in (IEnumerable<LiXinModels.CourseManage.Co_CourseSystem>)ViewBag.SysLinkSort)
+                            {
+                                        <li id="div_SystemItem_@(item.Id)"><span title="@item.CourseSystemName">
+                                            @item.CourseSystemName
+                                        </span>
+                                            <input  type="button" name="btn" value="X" title="移除" class="btn btn-cancel" onclick="fnRemoveSystemItem('div_SystemItem_@(item.Id)    ',@item.Id)" />
+                                        </li>
+                            }
+                                    }
+                                </ul>
+                            </div>
+
+
+                        }
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <center class="mt10">
+        <input type="submit" value="确定" class="btn" />
+        <a href="/CourseManage/CompetencyCourseManageList" class="btn btn-cancel">返回</a>
+    </center>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(
+     function ()
+     {
+         if ("@ViewBag.SysLinkGradeIds" != "")
+         {
+             var checkboxArray = $('input[name=sys_PayGrade]');
+             var openList = "@ViewBag.SysLinkGrade".split(',');
+             for (key in openList)
+             {
+                 $.each(checkboxArray, function (index, value)
+                 { // value or jquery object
+                     if (openList[key] == $(value).val())
+                     { // $(this).val() == $(value).val()//与页面上的值进行比较，如果相等就“打勾”
+                         $(this).attr('checked', true);
+                     }
+                 });
+             }
+         }
+
+         $("#txtMemo").textareaCount({ maxCharacterSize: 200 });
+         //radio
+         $("input[name=IsMust][value='@Model.IsMust']").attr("checked", true);
+
+
+         if ('@(Model.Id)' > 0)
+         {
+             //checkbox
+             if ("@Model.OpenLeavel" != "")
+             {
+                 var checkboxArray = $('input[name=OpenLeavel]');
+                 var openList = "@Model.OpenLeavel".split(',');
+                 for (key in openList)
+                 {
+                     $.each(checkboxArray, function (index, value)
+                     { // value or jquery object
+                         if (openList[key] == $(value).val())
+                         { // $(this).val() == $(value).val()//与页面上的值进行比较，如果相等就“打勾”
+                             $(this).attr('checked', true);
+                         }
+                     });
+                 }
+             }
+             if ("@ViewBag.SysLinkGradeIds" != "null")
+             {
+                 var checkboxArray = $('input[name=sys_PayGrade]');
+                 var openList = "@ViewBag.SysLinkGradeIds".split(',');
+                 for (key in openList)
+                 {
+                     $.each(checkboxArray, function (index, value)
+                     { // value or jquery object
+                         if (openList[key] == $(value).val())
+                         { // $(this).val() == $(value).val()//与页面上的值进行比较，如果相等就“打勾”
+                             $(this).attr('checked', true);
+                         }
+                     });
+                 }
+             }
+
+         }
+         $('#sel_Type').attr('value', '@Model.Type');
+         $("#forEditCourseTogether").validate(
+                {
+                    errorPlacement: function (error, element)
+                    {
+                        if (element.is(':radio') || element.is(':checkbox'))
+                        {
+                            var eid = element.attr('name');
+                            $('input[name=' + eid + ']:last').next().after(error);
+                        } else
+                        {
+                            error.insertAfter(element);
+                        }
+
+                    },
+                    debug: true,
+                    submitHandler: fnSubmitEditCourseTogether,
+                    event: "blur",
+                    rules: {
+                        Name: {
+                            required: true,
+                            maxlength: 30
+                            //                            ,remote: {
+                            //                                type: "get",
+                            //                                dataType: "json",
+                            //                                url: "/CourseManage/CheckCourseName?t=" + new Date(),
+                            //                                data: {
+                            //                                    CourseName: function () { return $("#txtCourseName").val(); },
+                            //                                    Id: function () { return $("#txtId").val(); }
+                            //                                }
+                            //                            }
+                        },
+                        OpenLeavel: { required: true },
+                        Type: { min: 1 },
+                        sortIds: { required: true }
+                        //sys_PayGrade:{required:true}
+                    },
+                    messages: {
+                        Name: {
+                            required: "课程名称不能为空！",
+                            maxlength: "课程名称不能多于30个字符！"
+                            // ,remote: "该课程名称已存在！"
+                        },
+                        OpenLeavel: { required: "请选择课程开放级别！" },
+                        Type: { min: "请选择培训形式！" },
+                        sortIds: { required: "请选择课程体系！" }
+                        //sys_PayGrade:{required:"请选择薪酬级别！"}
+                    }
+                }
+        );
+     }
+    );
+
+    function fnSubmitEditCourseTogether()
+    {
+        if ($("input[name='sys_PayGrade']:checked").length > 0)
+        {
+            $.post("/CourseManage/SubmitSys_SortGradeCourse", $("#forEditCourseTogether").formSerialize(), function (data)
+            {
+                art.dialog.tips(data.content, 3);
+                window.location.href = "/CourseManage/CompetencyCourseManageList";
+            });
+        } else
+        {
+            art.dialog.tips("请选择薪酬级别！", 3);
+        }
+    }
+
+    function fnShowCourseSystem()
+    {
+        art.dialog.load("/CourseManage/CourseSystemTree?type=1&checkBoxFlag=1&showButton=1&type=1",
+            { id: 'pop_chooseSystem', title: "添加课程体系", width: 400, init: function () { $("#pop_courseSystemTree").css("width", "400px"); disCheck(); }, close: function ()
+            {
+
+            }
+            }, false);
+    }
+
+    //获取选中的课程体系节点ID
+    function fnSelectChooseSystem()
+    {
+        var groupIds = "";
+        var groupName = "";
+        var html = "";
+        var end="</ul></div>";
+        if ($("#div_courseSystem ul").length==0) {
+            html += "<div class='seled-list'><ul>";
+            
+        }
+
+        $("#pop_courseSystemTree input:checked").each(function ()
+        {
+            if($(this).attr("disabled"))
+            {
+                return;
+            }
+            var s = $(this).attr("value");
+            groupIds = groupIds + s + ",";
+
+            groupName = groupName + $(this).next().text() + ",";
+            html += "<li id='div_SystemItem_" + s + "'><span title='" + $(this).next().text() + "'>" + $(this).next().text() + "</span>";
+            html += "<input  type='button' name='btn' value='X' title='移除' class='btn btn-cancel' onclick=fnRemoveSystemItem(\'div_SystemItem_" + s + "\'," + s + ") /></li>";
+        });
+        if (groupIds.length > 0)
+        {
+            groupIds = groupIds.substring(0, groupIds.length - 1);
+            var str = $("#hidHaveID").val();
+            str = str == "" ? groupIds : str + "," + groupIds;
+            $("#hidHaveID").val(str);
+            groupName = groupName.substring(0, groupName.length - 1);
+            
+        } else
+        {
+            html = "";
+        }
+       // $("#hidSysLinkSortIds").val(groupIds);
+        if ($("#div_courseSystem ul").length>0) {
+            $("#div_courseSystem ul").append(html);
+        }
+        else
+        {
+            $("#div_courseSystem").html(html+end);
+        }
+       
+        $("#div_courseSystem").show()
+
+        art.dialog.list["pop_chooseSystem"].close();
+    }
+    //从隐藏域中移除相关的群组编号
+    function fnRemoveSystemItem(id, groupId)
+    {
+        $("#" + id).remove();
+        //var oldGroupIds = $("#hidSysLinkSortIds").val();
+
+        //oldGroupIds = "," + oldGroupIds + ",";
+        //var str = "," + groupId + ",";
+        //if (oldGroupIds == str)
+        //{
+        //    oldGroupIds = oldGroupIds.replace(str, "");
+        //} else
+        //{
+        //    oldGroupIds = oldGroupIds.replace(str, ",");
+        //}
+        //oldGroupIds = oldGroupIds.substring(1, oldGroupIds.length - 1);
+        //$("#hidSysLinkSortIds").val(oldGroupIds);
+        ReomveArray("hidHaveID", groupId);
+        if ($("#div_courseSystem ul li").length == 0)
+        {
+            $("#div_courseSystem").hide()
+        }
+        
+    }
+
+    //置灰checkbox
+    function disCheck()
+    {
+        var hidHaveID = $("#hidHaveID").val();
+        if (hidHaveID != "")
+        {
+            var array = hidHaveID.split(',');
+            $("#pop_courseSystemTree  [type=checkbox]").each(function ()
+            {
+                var id = $(this).val();
+                if ($.inArray(id, array) != -1)
+                {
+                    $(this).attr("disabled", "disabled");
+                }
+            });
+        }
+    }
+
+    
+   
+</script>

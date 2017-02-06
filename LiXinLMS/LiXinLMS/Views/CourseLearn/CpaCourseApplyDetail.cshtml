@@ -1,0 +1,150 @@
+﻿@{
+    ViewBag.Title = "CPA课程报名详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "CPA课程报名详情" }))
+    <div>
+        <div id="SearchTrainGrade" class="so-set">
+            <table class="tab-Form">
+                <tbody>
+                    <tr>
+                        <td class="Tit span6">
+                            培训级别：
+                        </td>
+                        <td>
+                            <div class="sel">
+                                @{
+                                    foreach (var item in ViewBag.trainGrade)
+                                    {
+                                        <input name="cbxTrainGrade" value="@item" type="checkbox" /><label>@item</label>
+                                    }      
+                                }
+                            </div>
+                        </td>
+                        <td class="Tit span6">
+                            报名率：
+                        </td>
+                        <td>
+                            <input type="text" class="span10  searchclass" id="startTrainGrade" value="请输入数字"
+                                   info="" />% 至
+                            <input type="text" class="span10  searchclass" id="endTrainGrade" value="请输入数字" info="" />%
+                        </td>
+                        <td class="so-do">
+                            <input type="button" class="btn" value="搜索" onclick=" InitDataTrainGrade(); " />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="lh30 tr">
+            <label>安排人数合计：</label>
+            <span id="all"></span>
+            <label class="ml20">已报名人数合计：</label>
+            <span id="sub"></span>
+            <label class="ml20">报名率合计：</label>
+            <span id="per" class="mr20"></span>
+        </div>
+        <!-- 列表 -->
+        <div id="Content">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="tc span4">
+                            序号
+                        </th>
+                        <th class="tl" id="showName">
+                            培训级别
+                        </th>
+                        <th class="tl Raster_12">
+                            安排人数
+                        </th>
+                        <th class="tl Raster_12">
+                            已报名人数
+                        </th>
+                        <th class="tl Raster_12">
+                            报名率
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="subscribeList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="tc">
+        <a id="btnBack" class="btn btn-cancel" onclick=" window.location.href = '/CourseLearn/CourseSubscribe?flag=cpa&cp=1'; ">
+            返回</a>
+    </div>
+</div>
+<script id="subscribeListTemplate" type="text/x-jsrender"> 
+{{for #data}} 
+<tr> 
+    <td>{{:#index+1}}</td>
+    <td>{{:Name}}</td> 
+    <td>{{:AllCount}}</td> 
+    <td>{{:SubscribeCount}}</td> 
+    <td>{{:Percent}}%</td>
+</tr> 
+{{/for}} 
+</script>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        InitDataTrainGrade();
+    });
+    
+    function InitDataTrainGrade() {
+        var trainGrade = "";
+
+        $("input[name=cbxTrainGrade]").each(function () {
+            if ($(this).attr("checked")) {
+                trainGrade += $(this).val();
+            }
+        });
+        var start = getSearchWord("startTrainGrade");
+        if (start != "") {
+            if (isNaN(start) == false) {
+                if (parseInt(start, 10) < 0 || parseInt(start, 10) > 100 || parseInt(start, 10) != $("#startTrainGrade").val()) {
+                    art.dialog.tips("要大于等于0，小于等于100的整数！", 3);
+                    return;
+                } else {
+                    start = parseInt(start, 10);
+                }
+            } else {
+                art.dialog.tips("要大于等于0，小于等于100的整数！", 3);
+                return;
+            }
+        }
+        var end = getSearchWord("endTrainGrade");
+        if (end != "") {
+            if (isNaN(end) == false) {
+                if (parseInt(end, 10) < 0 || parseInt(end, 10) > 100 || parseInt(end, 10) != $("#endTrainGrade").val()) {
+                    art.dialog.tips("要大于等于0，小于等于100的整数！", 3);
+                    return;
+                } else {
+                    end = parseInt(end, 10);
+                }
+            }
+            else {
+                art.dialog.tips("要大于等于0，小于等于100的整数！", 3);
+                return;
+            }
+        }
+        var v = "courseId=@ViewBag.Id&trainGrade=" + trainGrade + "&start=" + start + "&end=" + end;
+        $("#subscribeList").JsRenderData({
+            sourceUrl: '/CourseLearn/GetCpaCourseTrainGradeSubscribe?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "subscribeListTemplate",
+            funCallback: function (data) {
+                $("#all").text(data.all);
+                $("#sub").text(data.sub);
+                $("#per").text(data.per+"%");
+            }
+        });
+    } 
+</script>

@@ -1,0 +1,488 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common_Add" xml:space="preserve">
+    <value>新建</value>
+    <comment>新建</comment>
+  </data>
+  <data name="Common_All" xml:space="preserve">
+    <value>全部</value>
+    <comment>全部</comment>
+  </data>
+  <data name="Common_AddFailed" xml:space="preserve">
+    <value>添加失败！</value>
+    <comment>添加失败！</comment>
+  </data>
+  <data name="Common_AddSuccess" xml:space="preserve">
+    <value>添加成功！</value>
+    <comment>添加成功！</comment>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>取消</value>
+    <comment>取消</comment>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>删除</value>
+    <comment>删除</comment>
+  </data>
+  <data name="Common_DeleteFailed" xml:space="preserve">
+    <value>删除失败！</value>
+    <comment>删除失败！</comment>
+  </data>
+  <data name="Common_DeleteSuccess" xml:space="preserve">
+    <value>删除成功！</value>
+    <comment>删除成功！</comment>
+  </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>编辑</value>
+    <comment>编辑</comment>
+  </data>
+  <data name="Common_EditSuccess" xml:space="preserve">
+    <value>编辑成功！</value>
+    <comment>编辑成功！</comment>
+  </data>
+  <data name="Common_Error" xml:space="preserve">
+    <value>错误</value>
+    <comment>错误</comment>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>否</value>
+    <comment>否</comment>
+  </data>
+  <data name="Common_OpenFreeze" xml:space="preserve">
+    <value>解冻</value>
+    <comment>解冻</comment>
+  </data>
+  <data name="Common_SaveFailed" xml:space="preserve">
+    <value>保存失败！</value>
+    <comment>保存失败!</comment>
+  </data>
+  <data name="Common_SaveSuccess" xml:space="preserve">
+    <value>保存成功！</value>
+    <comment>保存成功!</comment>
+  </data>
+  <data name="Common_Search" xml:space="preserve">
+    <value>查询</value>
+    <comment>查询</comment>
+  </data>
+  <data name="Common_SetError" xml:space="preserve">
+    <value>设置错误！</value>
+    <comment>设置错误！</comment>
+  </data>
+  <data name="Common_SetSuccess" xml:space="preserve">
+    <value>设置成功！</value>
+    <comment>设置成功！</comment>
+  </data>
+  <data name="Common_Sex_Female" xml:space="preserve">
+    <value>女士</value>
+    <comment>女士</comment>
+  </data>
+  <data name="Common_Sex_Male" xml:space="preserve">
+    <value>先生</value>
+    <comment>先生</comment>
+  </data>
+  <data name="Common_State_Deleted" xml:space="preserve">
+    <value>删除</value>
+    <comment>删除</comment>
+  </data>
+  <data name="Common_State_Freeze" xml:space="preserve">
+    <value>冻结</value>
+    <comment>冻结</comment>
+  </data>
+  <data name="Common_State_Normal" xml:space="preserve">
+    <value>在职</value>
+    <comment>在职</comment>
+  </data>
+  <data name="Common_Sure" xml:space="preserve">
+    <value>确定</value>
+    <comment>确定</comment>
+  </data>
+  <data name="Common_Update" xml:space="preserve">
+    <value>更新</value>
+    <comment>更新</comment>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>是</value>
+    <comment>是</comment>
+  </data>
+  <data name="Common_SaveAndAdd" xml:space="preserve">
+    <value>保存并新增</value>
+    <comment>保存并新增</comment>
+  </data>
+  <data name="Common_DouHao" xml:space="preserve">
+    <value>，</value>
+    <comment>，</comment>
+  </data>
+  <data name="Common_DataIsNull" xml:space="preserve">
+    <value>暂无相关记录！</value>
+    <comment>暂无相关记录！</comment>
+  </data>
+  <data name="Common_Browse" xml:space="preserve">
+    <value>查看</value>
+    <comment>查看</comment>
+  </data>
+  <data name="Common_Confirm" xml:space="preserve">
+    <value>确认</value>
+    <comment>确认</comment>
+  </data>
+  <data name="Common_Confirm_Delete" xml:space="preserve">
+    <value>确定删除吗？</value>
+    <comment>确定删除吗？</comment>
+  </data>
+  <data name="Common_Do" xml:space="preserve">
+    <value>操作</value>
+    <comment>操作</comment>
+  </data>
+  <data name="Common_ImportSuccess" xml:space="preserve">
+    <value>导入成功</value>
+    <comment>导入成功</comment>
+  </data>
+  <data name="Common_Modify" xml:space="preserve">
+    <value>修改</value>
+    <comment>修改</comment>
+  </data>
+  <data name="Common_Tip" xml:space="preserve">
+    <value>小提示</value>
+    <comment>提示</comment>
+  </data>
+  <data name="Common_Tip_UpLoadFileLimit" xml:space="preserve">
+    <value>上传附件大小不符合要求</value>
+    <comment>上传附件大小不超过</comment>
+  </data>
+  <data name="Common_Back" xml:space="preserve">
+    <value>返回</value>
+    <comment>返回</comment>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>保存</value>
+    <comment>保存</comment>
+  </data>
+  <data name="Common_EditFailed" xml:space="preserve">
+    <value>编辑失败</value>
+    <comment>编辑失败</comment>
+  </data>
+  <data name="Common_GoInto" xml:space="preserve">
+    <value>进入</value>
+    <comment>进入</comment>
+  </data>
+  <data name="Common_NoPublish" xml:space="preserve">
+    <value>未发布</value>
+    <comment>未发布</comment>
+  </data>
+  <data name="Common_Publish" xml:space="preserve">
+    <value>发布</value>
+    <comment>发布</comment>
+  </data>
+  <data name="Common_Published" xml:space="preserve">
+    <value>已发布</value>
+    <comment>已发布</comment>
+  </data>
+  <data name="Common_Publish_Failed" xml:space="preserve">
+    <value>发布失败！</value>
+    <comment>发布失败</comment>
+  </data>
+  <data name="Common_Publish_Success" xml:space="preserve">
+    <value>发布成功！</value>
+    <comment>发布成功</comment>
+  </data>
+  <data name="Common_Select" xml:space="preserve">
+    <value>选择</value>
+    <comment>选择</comment>
+  </data>
+  <data name="Common_Preview" xml:space="preserve">
+    <value>预览</value>
+    <comment>预览</comment>
+  </data>
+  <data name="Common_FootNotDelete" xml:space="preserve">
+    <value>根节点不可以删除</value>
+    <comment>根节点不可删除</comment>
+  </data>
+  <data name="Common_FootNotModify" xml:space="preserve">
+    <value>根节点不可以修改</value>
+    <comment>根节点不可以修改</comment>
+  </data>
+  <data name="Common_DateCompapareMessage" xml:space="preserve">
+    <value>请输入正确的时间范围！</value>
+    <comment>结束时间要大于等于开始时间！</comment>
+  </data>
+  <data name="Common_Operational" xml:space="preserve">
+    <value>操作</value>
+    <comment>操作</comment>
+  </data>
+  <data name="Common_LoginMessage" xml:space="preserve">
+    <value>由于您长时间未做操作，请重新登录！</value>
+    <comment>由于您长时间未做操作，请重新登录！</comment>
+  </data>
+  <data name="Comon_Return" xml:space="preserve">
+    <value>返回</value>
+    <comment>返回</comment>
+  </data>
+  <data name="Common_Time" xml:space="preserve">
+    <value>时间</value>
+    <comment>时间</comment>
+  </data>
+  <data name="Common_Export" xml:space="preserve">
+    <value>导出</value>
+    <comment>导出</comment>
+  </data>
+  <data name="Common_State" xml:space="preserve">
+    <value>状态</value>
+    <comment>状态：</comment>
+  </data>
+  <data name="Common_NeedLogin" xml:space="preserve">
+    <value>您需要登录才能操作！</value>
+    <comment>您需要登录才能操作！</comment>
+  </data>
+  <data name="Common_OtherLogin" xml:space="preserve">
+    <value>您已在别处登录，请重新登录。</value>
+    <comment>您已在别处登录，请重新登录。</comment>
+  </data>
+  <data name="Common_NoRight" xml:space="preserve">
+    <value>您没有权限</value>
+    <comment>您没有权限</comment>
+  </data>
+  <data name="Common_TreeFootName" xml:space="preserve">
+    <value>立信</value>
+    <comment>树形根节点：丝芙兰中国</comment>
+  </data>
+  <data name="Common_FirstPage" xml:space="preserve">
+    <value>首页</value>
+    <comment>首页</comment>
+  </data>
+  <data name="Common_Colon" xml:space="preserve">
+    <value>：</value>
+    <comment>：</comment>
+  </data>
+  <data name="Common_CancelAll" xml:space="preserve">
+    <value>全部取消</value>
+    <comment>全部取消</comment>
+  </data>
+  <data name="Common_UploadRate" xml:space="preserve">
+    <value>上传速率为</value>
+    <comment>上传速率为</comment>
+  </data>
+  <data name="Common_DataListPage" xml:space="preserve">
+    <value>zh_cn</value>
+    <comment>数据列表分页，中文形式</comment>
+  </data>
+  <data name="Common_Submit" xml:space="preserve">
+    <value>提交</value>
+    <comment>提交</comment>
+  </data>
+  <data name="Common_allsel" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Common_SubmitFailed" xml:space="preserve">
+    <value>提交失败！</value>
+    <comment>提交失败！</comment>
+  </data>
+  <data name="Common_SubmitSuccess" xml:space="preserve">
+    <value>提交成功！</value>
+    <comment>提交成功！</comment>
+  </data>
+  <data name="Common_Write" xml:space="preserve">
+    <value>填写</value>
+    <comment>填写</comment>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>关闭</value>
+    <comment>关闭</comment>
+  </data>
+  <data name="ContinueAdd" xml:space="preserve">
+    <value>继续添加</value>
+    <comment>继续添加</comment>
+  </data>
+  <data name="Common_Selete" xml:space="preserve">
+    <value>请选择</value>
+    <comment>请选择</comment>
+  </data>
+  <data name="Common_InterrogationMark" xml:space="preserve">
+    <value>？</value>
+    <comment>？</comment>
+  </data>
+  <data name="Common_Exclamation_Mark" xml:space="preserve">
+    <value>！</value>
+    <comment>！</comment>
+  </data>
+  <data name="Common_Import" xml:space="preserve">
+    <value>导入</value>
+    <comment>导入</comment>
+  </data>
+  <data name="Comon_SuggestPictureSize" xml:space="preserve">
+    <value>建议图片的大小为（长*宽）：{0}*{1}</value>
+    <comment>建议图片大小</comment>
+  </data>
+  <data name="Comon_Nothing" xml:space="preserve">
+    <value>暂无</value>
+    <comment>暂无</comment>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>至</value>
+    <comment>至</comment>
+  </data>
+  <data name="CommonAdd" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>下载</value>
+    <comment>下载</comment>
+  </data>
+  <data name="Comon_DataNull" xml:space="preserve">
+    <value>暂无相关记录</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>退出</value>
+    <comment>退出</comment>
+  </data>
+  <data name="Message" xml:space="preserve">
+    <value>消息</value>
+    <comment>消息</comment>
+  </data>
+  <data name="Common_Confirm_Publish" xml:space="preserve">
+    <value>您确定要发布吗？</value>
+  </data>
+  <data name="Comon_More" xml:space="preserve">
+    <value>更多</value>
+  </data>
+  <data name="Comon_No" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="Common_See" xml:space="preserve">
+    <value>查看</value>
+    <comment>查看</comment>
+  </data>
+  <data name="ParentDept" xml:space="preserve">
+    <value>立信</value>
+    <comment>睿泰科技</comment>
+  </data>
+  <data name="ParentPost" xml:space="preserve">
+    <value>立信</value>
+    <comment>睿泰科技</comment>
+  </data>
+  <data name="Anonymous" xml:space="preserve">
+    <value>匿名</value>
+    <comment>匿名</comment>
+  </data>
+  <data name="Common_FootNotAdduser" xml:space="preserve">
+    <value>根节点不可以添加专家</value>
+  </data>
+  <data name="Common_FootNotRemoveKL" xml:space="preserve">
+    <value>根节点不可以批量转移</value>
+  </data>
+</root>

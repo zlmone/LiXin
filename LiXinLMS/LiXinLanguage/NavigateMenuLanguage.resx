@@ -1,0 +1,476 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AuthorizedExamManage" xml:space="preserve">
+    <value>考试授权</value>
+    <comment>考试授权</comment>
+  </data>
+  <data name="DeptManage" xml:space="preserve">
+    <value>部门管理</value>
+    <comment>部门管理</comment>
+  </data>
+  <data name="EditExampaper" xml:space="preserve">
+    <value>编辑试卷</value>
+    <comment>编辑试卷</comment>
+  </data>
+  <data name="EditKnowledgeKey" xml:space="preserve">
+    <value>编辑知识点</value>
+    <comment>编辑知识点</comment>
+  </data>
+  <data name="ExaminationList" xml:space="preserve">
+    <value>考试管理</value>
+    <comment>考试管理</comment>
+  </data>
+  <data name="ExaminationManage" xml:space="preserve">
+    <value>考试管理</value>
+    <comment>考试管理</comment>
+  </data>
+  <data name="ExampaperManage" xml:space="preserve">
+    <value>试卷管理</value>
+    <comment>试卷管理</comment>
+  </data>
+  <data name="HomeIndex" xml:space="preserve">
+    <value>首页</value>
+    <comment>首页</comment>
+  </data>
+  <data name="MyExamination" xml:space="preserve">
+    <value>我的考试</value>
+    <comment>我的考试</comment>
+  </data>
+  <data name="PeopleManage" xml:space="preserve">
+    <value>人员管理</value>
+    <comment>人员管理</comment>
+  </data>
+  <data name="PostManage" xml:space="preserve">
+    <value>岗位管理</value>
+    <comment>岗位管理</comment>
+  </data>
+  <data name="QuestionAdd" xml:space="preserve">
+    <value>新增试题</value>
+    <comment>新增试题</comment>
+  </data>
+  <data name="QuestionEdit" xml:space="preserve">
+    <value>编辑试题</value>
+    <comment>编辑试题</comment>
+  </data>
+  <data name="QuestionManage" xml:space="preserve">
+    <value>题库管理</value>
+    <comment>试题管理</comment>
+  </data>
+  <data name="RightManage" xml:space="preserve">
+    <value>权限管理</value>
+    <comment>权限管理</comment>
+  </data>
+  <data name="RoleManage" xml:space="preserve">
+    <value>角色管理</value>
+    <comment>角色管理</comment>
+  </data>
+  <data name="TestingAssessment" xml:space="preserve">
+    <value>考试评估</value>
+    <comment>考试评估</comment>
+  </data>
+  <data name="UserManage" xml:space="preserve">
+    <value>账户管理</value>
+    <comment>账户管理</comment>
+  </data>
+  <data name="EvaluationManage" xml:space="preserve">
+    <value>复评管理</value>
+    <comment>复评管理</comment>
+  </data>
+  <data name="ReEvaluation" xml:space="preserve">
+    <value>人工复评</value>
+    <comment>人工复评</comment>
+  </data>
+  <data name="UserEdit" xml:space="preserve">
+    <value>编辑人员</value>
+    <comment>编辑人员</comment>
+  </data>
+  <data name="DeptEdit" xml:space="preserve">
+    <value>编辑部门</value>
+    <comment>编辑部门</comment>
+  </data>
+  <data name="PostEdit" xml:space="preserve">
+    <value>编辑岗位</value>
+    <comment>编辑岗位</comment>
+  </data>
+  <data name="BrowseQuestion" xml:space="preserve">
+    <value>试题预览</value>
+    <comment>试题预览</comment>
+  </data>
+  <data name="EditExamination" xml:space="preserve">
+    <value>编辑考试</value>
+    <comment>编辑考试</comment>
+  </data>
+  <data name="ExamTestDetail" xml:space="preserve">
+    <value>答卷详情</value>
+    <comment>答卷详情</comment>
+  </data>
+  <data name="AssignRight" xml:space="preserve">
+    <value>分配权限</value>
+    <comment>分配权限</comment>
+  </data>
+  <data name="RoleEdit" xml:space="preserve">
+    <value>编辑角色</value>
+    <comment>编辑角色</comment>
+  </data>
+  <data name="ExamTestOnline" xml:space="preserve">
+    <value>在线考试</value>
+    <comment>在线考试</comment>
+  </data>
+  <data name="ExaminationDetail" xml:space="preserve">
+    <value>考试详情</value>
+    <comment>考试详情</comment>
+  </data>
+  <data name="AddExampaper" xml:space="preserve">
+    <value>新增试卷</value>
+    <comment>新增试卷</comment>
+  </data>
+  <data name="ModifyPersonalInfo" xml:space="preserve">
+    <value>修改个人资料</value>
+    <comment>修改个人资料</comment>
+  </data>
+  <data name="UserBaseInfo" xml:space="preserve">
+    <value>编辑用户信息</value>
+    <comment>编辑用户信息 </comment>
+  </data>
+  <data name="EditNote" xml:space="preserve">
+    <value>编辑政策</value>
+    <comment>编辑政策</comment>
+  </data>
+  <data name="NoteManage" xml:space="preserve">
+    <value>公告列表</value>
+    <comment>公告列表</comment>
+  </data>
+  <data name="GroupManage" xml:space="preserve">
+    <value>群组管理</value>
+    <comment>群组管理</comment>
+  </data>
+  <data name="LogManage" xml:space="preserve">
+    <value>日志管理</value>
+    <comment>日志管理</comment>
+  </data>
+  <data name="PlanManage" xml:space="preserve">
+    <value>培训计划管理</value>
+    <comment>培训计划管理</comment>
+  </data>
+  <data name="YearPlan" xml:space="preserve">
+    <value>年度计划管理</value>
+    <comment>年度计划管理</comment>
+  </data>
+  <data name="ClassRoomEdit" xml:space="preserve">
+    <value>编辑教室</value>
+    <comment>编辑教室</comment>
+  </data>
+  <data name="ClassRoomManage" xml:space="preserve">
+    <value>教室管理</value>
+    <comment>教室管理</comment>
+  </data>
+  <data name="KnowledgeKeyManage" xml:space="preserve">
+    <value>知识点管理</value>
+    <comment>知识点管理</comment>
+  </data>
+  <data name="ParamConfig" xml:space="preserve">
+    <value>参数配置</value>
+    <comment>参数配置</comment>
+  </data>
+  <data name="SurveyExampaperEdit" xml:space="preserve">
+    <value>编辑问卷</value>
+    <comment>编辑问卷</comment>
+  </data>
+  <data name="SurveyExampaperList" xml:space="preserve">
+    <value>问卷管理</value>
+    <comment>问卷管理</comment>
+  </data>
+  <data name="SurveyManage" xml:space="preserve">
+    <value>调查管理</value>
+    <comment>调查管理</comment>
+  </data>
+  <data name="CourseSubscribe" xml:space="preserve">
+    <value>课程预订查询</value>
+    <comment>课程预订查询</comment>
+  </data>
+  <data name="MyCourseSubscribe" xml:space="preserve">
+    <value>我的可预订课程</value>
+    <comment>我的可预订课程</comment>
+  </data>
+  <data name="CourseApplyDetail" xml:space="preserve">
+    <value>课程报名详情</value>
+    <comment>课程报名详情</comment>
+  </data>
+  <data name="CourseDetail" xml:space="preserve">
+    <value>课程详情</value>
+    <comment>课程详情</comment>
+  </data>
+  <data name="CourseSubscribeDetail" xml:space="preserve">
+    <value>集中授课课程预订详情</value>
+    <comment>集中授课课程预订详情</comment>
+  </data>
+  <data name="AttendceManage" xml:space="preserve">
+    <value>考勤管理</value>
+    <comment>考勤管理</comment>
+  </data>
+  <data name="MyApply" xml:space="preserve">
+    <value>我的申请</value>
+    <comment>我的申请</comment>
+  </data>
+  <data name="UserDetail" xml:space="preserve">
+    <value>用户详情</value>
+    <comment>用户详情</comment>
+  </data>
+  <data name="TimeOutApply" xml:space="preserve">
+    <value>逾时审批申请</value>
+    <comment>逾时审核申请</comment>
+  </data>
+  <data name="TimeOutApplyDetail" xml:space="preserve">
+    <value>逾时审批申请详情</value>
+    <comment>逾时审核申请详情</comment>
+  </data>
+  <data name="TimeOutApproval" xml:space="preserve">
+    <value>逾时申请审批管理</value>
+    <comment>逾时申请审核管理</comment>
+  </data>
+  <data name="TimeOutApprovalDetail" xml:space="preserve">
+    <value>逾时申请审批详情</value>
+    <comment>逾时申请审核详情</comment>
+  </data>
+  <data name="CourseDeptSubscribe" xml:space="preserve">
+    <value>课程预订状态查询（部门负责人）</value>
+    <comment>课程预订状态查询（部门负责人）</comment>
+  </data>
+  <data name="CourseDeptSubscribeDetail" xml:space="preserve">
+    <value>课程预订状态详情</value>
+    <comment>课程预订状态详情</comment>
+  </data>
+  <data name="GradeManage" xml:space="preserve">
+    <value>培训级别变更</value>
+    <comment>培训级别变更</comment>
+  </data>
+  <data name="MonthPlanScheduleTask" xml:space="preserve">
+    <value>我的月度计划课程表</value>
+    <comment>我的月度计划课程表</comment>
+  </data>
+  <data name="TeacherIndex" xml:space="preserve">
+    <value>讲师管理</value>
+    <comment>讲师管理</comment>
+  </data>
+  <data name="TrainGrade" xml:space="preserve">
+    <value>培训级别维护</value>
+    <comment>培训级别维护</comment>
+  </data>
+  <data name="GroupEdit" xml:space="preserve">
+    <value>编辑群组</value>
+    <comment>编辑群组</comment>
+  </data>
+  <data name="MonthPlan" xml:space="preserve">
+    <value>月度大纲</value>
+    <comment>月度大纲</comment>
+  </data>
+  <data name="MonthPlanDetail" xml:space="preserve">
+    <value>月度大纲详情</value>
+    <comment>月度大纲详情</comment>
+  </data>
+  <data name="AddMonthPlan" xml:space="preserve">
+    <value>月度计划分解</value>
+    <comment>月度计划分解</comment>
+  </data>
+  <data name="BrowsePaper" xml:space="preserve">
+    <value>预览问卷</value>
+    <comment>预览问卷</comment>
+  </data>
+  <data name="MySurvey" xml:space="preserve">
+    <value>我的需求</value>
+    <comment>我的需求</comment>
+  </data>
+  <data name="BrowseSurvey" xml:space="preserve">
+    <value>查看答卷情况</value>
+    <comment>查看答卷情况</comment>
+  </data>
+  <data name="SurveyEdit" xml:space="preserve">
+    <value>编辑调查</value>
+    <comment>编辑调查</comment>
+  </data>
+  <data name="MyCourse" xml:space="preserve">
+    <value>我已预订的课程</value>
+    <comment>我已预订的课程</comment>
+  </data>
+  <data name="SurveyCheckDeatils" xml:space="preserve">
+    <value>部门问卷审核明细</value>
+    <comment>部门问卷审核明细</comment>
+  </data>
+  <data name="SurveyCheckForDept" xml:space="preserve">
+    <value>问卷审核</value>
+    <comment>问卷审核</comment>
+  </data>
+  <data name="SurveyCheckForOffice" xml:space="preserve">
+    <value>问卷审核汇总</value>
+    <comment>问卷审核汇总</comment>
+  </data>
+  <data name="SystemManageIndex" xml:space="preserve">
+    <value>系统管理首页</value>
+    <comment>系统管理首页</comment>
+  </data>
+  <data name="FAQManage" xml:space="preserve">
+    <value>政策管理</value>
+    <comment>政策管理</comment>
+  </data>
+  <data name="MyTrainIndex" xml:space="preserve">
+    <value>我的培训首页</value>
+    <comment>我的培训首页</comment>
+  </data>
+  <data name="CompetencyCourseShowList" xml:space="preserve">
+    <value>胜任力课程</value>
+    <comment>胜任力课程</comment>
+  </data>
+  <data name="NoteDetail" xml:space="preserve">
+    <value>公告详情</value>
+    <comment>公告详情</comment>
+  </data>
+  <data name="CourseManage" xml:space="preserve">
+    <value>课程管理</value>
+    <comment>课程管理</comment>
+  </data>
+  <data name="UserFingerInfor" xml:space="preserve">
+    <value>指纹管理</value>
+    <comment>指纹管理</comment>
+  </data>
+  <data name="TrainGradeDetail" xml:space="preserve">
+    <value>维护级别详情</value>
+    <comment>维护级别详情</comment>
+  </data>
+  <data name="FAQ_NoteManage" xml:space="preserve">
+    <value>政策管理</value>
+    <comment>政策管理</comment>
+  </data>
+  <data name="VideoManage" xml:space="preserve">
+    <value>视频管理</value>
+    <comment>视频管理</comment>
+  </data>
+  <data name="NoteManageDetail" xml:space="preserve">
+    <value>公告详情</value>
+    <comment>公告详情</comment>
+  </data>
+  <data name="VideoCourseMain" xml:space="preserve">
+    <value>课程详情</value>
+    <comment>课程详情</comment>
+  </data>
+  <data name="MyApprovalOutTimeLeaveInfor" xml:space="preserve">
+    <value>逾时申请审批详情</value>
+    <comment>逾时申请审批详情</comment>
+  </data>
+</root>

@@ -1,0 +1,56 @@
+﻿@{
+    Layout = null;
+}
+<div class="centerbody">
+    <form method="post" action="" id="keyForm">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span10"><span class="must">*</span>知识点名称：</td>
+                <td><input type="text" id="keyName" maxlength="30" name="keyName" value="@Html.Raw(Model.KeyName)" class="span30"/></td>
+            </tr>
+            <tr>
+                <td class="Tit">知识点描述：</td>
+                <td><textarea id="keyDescription" name="keyDescription" class="span30">@Html.Raw(Model.KeyDescription)</textarea></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <a id="btnAdd" class="btn">提交</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#keyForm").validate({
+            debug: true,
+            submitHandler: submitform,
+            event: "blur",
+            rules: {
+                keyName: {
+                    required: true,
+                    remote: { type: "post", dataType: "json", url: "/KnowledgeKey/IsExsitSortName", data: { keyName: function() { return $.trim($("#keyName").val()); }, id: @(Model._id) } }
+                }
+            },
+            messages: {
+                keyName: {
+                    required: "请输入知识点名称",
+                    remote: "已存在此知识点名称"
+                }
+            }
+        });
+        $("#btnAdd").bind("click", function() {
+            $("#keyForm").submit();
+        });
+        $("#keyDescription").textareaCount({maxCharacterSize:200});
+    });
+
+    function submitform(form) {
+        $.post("/KnowledgeKey/SubmitKnowledgeKey?id=@(Model._id)", $("#keyForm").formSerialize(), function(data) {
+            if (data.result == 1) {
+                InitData();
+                art.dialog.list['EditKnow'].close();
+            }
+        });
+    }
+</script>

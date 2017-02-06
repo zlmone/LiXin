@@ -1,0 +1,83 @@
+@charset "utf-8";
+/* CSS Document */
+
+.calendarTask{width:360px;float: left;background: #D8D8D8;border: 1px solid #999;}
+.calendarTask table tbody{border-top: 3px solid #d1d1d1;background: #FFF;}
+.calendarTask a{cursor: pointer;text-decoration: none;}
+.calendarTask table{width: 100%;}
+.calendarheadone{height: 40px;line-height: 40px;background: url(../Images/other-bg.png) 0 -290px repeat-x;}
+.calendarheadone td{height: 26px;line-height: 26px;border-bottom: 1px solid #dfdfdf;}
+.calendarheadone td, .calendarheadone td a:hover{color: #333;}
+.calendarheadone td a{color: #8a9abd;}
+.calendarheadone select{background: #fff;border: 1px solid #aaa;border-radius: 3px;font-weight: bold;color: #333;}
+.calendarheadtwo{height: 26px;line-height: 26px;}
+.calendarheadtwo td{font-size: 14px;height: 26px;line-height: 26px;text-align: center;background: #d0d0d0;text-shadow: 1px 1px 1px #fff;border-bottom: 2px solid #fff;border-top:1px solid #fff;}
+.calendarTask table tbody td{vertical-align: middle;background:#eff2f7;border-right: 1px solid #fff;border-bottom: 1px solid #fff;}
+.calendarTask table tbody td:hover{background:#d5dce7;}
+.calendarTask table tbody td div{position: relative;padding:15px 0 10px;height:30px;}
+
+.calendarTask table tbody td div span{position:absolute;width:100%;height:50%;font:11px verdana;display:block;text-align:center;overflow:hidden;}
+.calendarTask table tbody td div span.am{top:0;line-height:22px;}
+.calendarTask table tbody td div span.pm{top:50%;line-height:28px;}
+.calendarTask table tbody td div p{position:absolute;left:0;top:30%;z-index:0;text-align:center;width:100%;font:bold 16px verdana;}
+.calendarTask table tbody td[order="6"] div p, .calendarTask table tbody td[order="7"] div p{color: #284b9c;}
+.calendarTask table tbody td.taskdaybg div p, .calendarTask table tbody td.bg-red div p{}
+.calendarTask table tfoot{display:none;}
+
+/*��Ԫ�񱳾�*/
+
+.calendarheadtwo td.headworkweekbg{background:#e8e8e8;}
+.calendarheadtwo td.headrestweekbg{background:#e8e8e8;color:#284B9C;}
+.calendarTask table tbody td.passdaybg{background: #eff2f7;}
+.calendarTask table tbody td.passdaybg div p{color: #cdcdcd;}
+.passdaybg div span{color:#d5d5d5;}
+.passdaybg div span.am{background:#f6f9fd;}
+.passdaybg div span.pm{background:#eff2f7;}
+.mondaybg div span{color:#b8b8b8;}
+.mondaybg div span.am{background:#dbe6f7;}
+.mondaybg div span.pm{background:#d0ddf0;}
+.mondaybg div p{color: #333;}
+.taskdaybg{background-color: #12346d;}
+.calendarTask table tbody .taskdaybg{}
+.calendarTask table tbody .bg-red{background:#efd5d6;}
+
+.calendarTask table tbody .bg-red:hover{background:#ecc0c1;}
+.calendarTask table tbody .taskdaybg div, .calendarTask table tbody .bg-red div{cursor: pointer;}
+.calendarTask table tbody .taskdaybg span, .calendarTask table tbody .taskdaybg p,
+.calendarTask table tbody .bg-red p{}
+.singleday{color: #8dcf02;}
+.fs24{font-size: 24px;}
+.fs20{font-size: 20px;}
+.fs40{font-size: 40px;}
+.posr{position: relative;}
+.posa{position: absolute;}
+.t0{top: 0px;}
+.r0{right: 0px;}
+.t20{padding-top: 17px;}
+#showDetail{float: right;width: 600px;z-index: 999;}
+#detailList dl{border: 1px solid #DDDDDD;padding: 10px;background-color: #FFFFFF;margin-bottom: 10px;}
+#detailList dl dd{padding: 3px 0;}
+#detailList dl dt{float: right;}
+#showDetail .arrow{display: block;height: 20px;position: relative;width: 20px;}
+#preMonth, #nextMonth{padding: 0 5px;}
+
+.mondaybg.bg-red{cursor:pointer;}
+.mondaybg.bg-red span.am,
+.mondaybg div span.am.bl{background:#efd5d6;color:#d2888b;}
+.mondaybg.bg-red span.pm,
+.mondaybg div span.pm.bl{background:#e8b3b4;color:#bf6d71;}
+.mondaybg div span.am.bl,.mondaybg div span.pm.bl{cursor:pointer;}
+.mondaybg.bg-red:hover span,
+.mondaybg div span.am.bl:hover,.mondaybg div span.pm.bl:hover{background:#e75159;color:#fff;}
+.mondaybg.bg-red:hover p{color:#fff;}
+.mondaybg.bg-red:hover span{color:#f2898e;}
+.mondaybg.bg-red:hover span.pm{background:#d9454d;}
+.calendarTask table tbody div i{display:none;}
+.calendarTask table tbody .bg-on i{display:block;position:absolute;top:0;left:0;width:6px;height:6px;background:url(../Images/other-bg.png) -102px -192px no-repeat;z-index:10;}
+
+@media projection{
+.mondaybg.bg-red span.am,
+.mondaybg div span.am.bl{background:#efd5d6;color:#d2888b;}
+.mondaybg.bg-red span.pm,
+.mondaybg div span.pm.bl{background:#e8b3b4;color:#bf6d71;}
+}

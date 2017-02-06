@@ -1,0 +1,95 @@
+﻿@{
+    Layout = null;
+}
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">课程名称： </td>
+            <td><input type="text" class="span20 Box searchclass" id="txtCourseName" value="请输入搜索内容" info=""/></td>
+            <td class="Tit span6">开课时间：</td>
+            <td><div class="data-choose"><input id="txtStartTime" class="span12" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' , maxDate: '#F{$dp.$D(\'txtEndTime\',{m:-1})}' });"/><i></i></div>
+            至
+            <div class="data-choose"><input id="txtEndTime" class="span12" type="text" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' , minDate: '#F{$dp.$D(\'txtStartTime\',{m:1})}' });"/><i></i></div></td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" btnSearch(); "/>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="so-seq">
+    <label>出勤情况：</label>
+    <select id="selAttStatus">
+        <option value="-1">显示全部</option>
+        <option value="0">迟到</option>
+        <option value="1">早退</option>
+        <option value="2">缺勤</option>
+    </select>
+    <label class="ml20">申批状态：</label>
+    <select id="selAttAppStatus">
+        <option value="-1">显示全部</option>
+        <option value="0">未审批</option>
+        <option value="1">通过</option>
+        <option value="2">拒绝</option>
+    </select>
+</div>
+<div class="mt10">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th>课程名称</th>
+                <th class="span8">课程学时</th>
+                <th class="span14" jsRenderSortField="StartTime" sort="desc">开课时间</th>
+                <th class="span8">出勤情况</th>
+                <th class="span8">扣除学时</th>
+                <th class="span10">是否已申辩</th>
+                <th class="span8">申辩状态</th>
+            </tr>
+        </thead>
+        <tbody id="prinList"></tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+<!--列表模板-->
+<script id="prinListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div  title="{{:CourseName}}" class="ovh span20 tl">{{:CourseName}}</div></td>
+        <td>{{:CourseLength}}</td>
+        <td><div class="tl f11">{{:CourseTimeShow}}</div></td>
+        <td>{{:AttStatusShow}}</td>
+        <td>{{:LessLength}}</td>
+        <td>{{:IsAppShow}}</td>
+        <td>{{:StatusShow}}</td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        //初始化列表
+        InitOrderData();
+        //下拉框绑定
+        $("#selAttStatus,#selAttApp,#selAttAppStatus").bind("change", function () {
+            InitOrderData();
+        });
+    });
+    //初始化列表
+    function InitOrderData() {
+        $("#prinList").JsRenderData({
+            sourceUrl: '/MyApproval/GetMyPrincipleRecordPaging?courseName=' + escape(getSearchWord("txtCourseName")) + "&ast=" + $("#selAttStatus").val() + "&aast=" + $("#selAttAppStatus").val() + "&startTime=" + ($("#txtStartTime").val() == "" ? "2000-1-1" : $("#txtStartTime").val()) + "&endTime=" + ($("#txtEndTime").val() == "" ? "2050-1-1" : $("#txtEndTime").val()),
+            isPage: true,
+            pageSize: 10,
+            jsRenderSortField: "StartTime",
+            jsRenderASC: "desc",
+            pageIndex: 1,
+            templateID: 'prinListTemplate'
+        });
+    }
+    //查询按钮
+    function btnSearch() {
+        InitOrderData();
+    }
+</script>

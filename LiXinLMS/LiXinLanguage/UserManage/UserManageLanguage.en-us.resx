@@ -1,0 +1,420 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Department_NoSelectUsers" xml:space="preserve">
+    <value>Please Select Users!</value>
+    <comment>Please Select Users!</comment>
+  </data>
+  <data name="UserManage_AddUser_Failure" xml:space="preserve">
+    <value>User Added Success!</value>
+    <comment>User Added Success!</comment>
+  </data>
+  <data name="UserManage_AddUser_Success" xml:space="preserve">
+    <value>User Added Failure!</value>
+    <comment>User Added Failure!</comment>
+  </data>
+  <data name="UserManage_Freeze_Failure" xml:space="preserve">
+    <value>冻结失败!</value>
+    <comment>冻结失败!</comment>
+  </data>
+  <data name="UserManage_Freeze_Success" xml:space="preserve">
+    <value>冻结成功!</value>
+    <comment>冻结成功!</comment>
+  </data>
+  <data name="UserManage_Free_Failure" xml:space="preserve">
+    <value>解冻失败!</value>
+    <comment>解冻失败!</comment>
+  </data>
+  <data name="UserManage_Free_Success" xml:space="preserve">
+    <value>解冻成功!</value>
+    <comment>解冻成功!</comment>
+  </data>
+  <data name="UserManage_Job" xml:space="preserve">
+    <value>Job</value>
+    <comment>职务</comment>
+  </data>
+  <data name="UserManage_RealName" xml:space="preserve">
+    <value>Real Name</value>
+    <comment>真实姓名</comment>
+  </data>
+  <data name="UserManage_Sex" xml:space="preserve">
+    <value>Sex</value>
+    <comment>性别</comment>
+  </data>
+  <data name="UserManage_UserName" xml:space="preserve">
+    <value>User Name</value>
+    <comment>用户名</comment>
+  </data>
+  <data name="UserManage_Jump_Confirm" xml:space="preserve">
+    <value>是否跳转帐号管理页?</value>
+    <comment>是否跳转帐号管理页?</comment>
+  </data>
+  <data name="UserManage_MobileNumFormat_Error" xml:space="preserve">
+    <value>手机号码格式不正确</value>
+    <comment>手机号码格式不正确</comment>
+  </data>
+  <data name="UserManage_NoSelectUsers" xml:space="preserve">
+    <value>请选择要删除的用户!</value>
+    <comment>请选择要删除的用户!</comment>
+  </data>
+  <data name="UserManage_NoUsername_Error" xml:space="preserve">
+    <value>请输入正确姓名，文本形式输入，小于等于30字符</value>
+    <comment>请输入正确姓名，文本形式输入，小于等于30字符</comment>
+  </data>
+  <data name="UserManage_PhoneFormat_Error" xml:space="preserve">
+    <value>电话号码格式不正确</value>
+    <comment>电话号码格式不正确</comment>
+  </data>
+  <data name="UserManage_SuccessJump_Confirm" xml:space="preserve">
+    <value>页面信息已修改!是否跳转帐号管理页?</value>
+    <comment>页面信息已修改!是否跳转帐号管理页?</comment>
+  </data>
+  <data name="UserManage_UsernameFormat_Error" xml:space="preserve">
+    <value>请输入正确工号，输入数字，最多三位数，如ADD-000001，ADD-系统默认，不可删除</value>
+    <comment>请输入正确工号，输入数字，最多三位数，如ADD-000001，ADD-系统默认，不可删除</comment>
+  </data>
+  <data name="UserManage_UserManager" xml:space="preserve">
+    <value>帐号管理</value>
+    <comment>帐号管理</comment>
+  </data>
+  <data name="UserManage_SaveUser" xml:space="preserve">
+    <value>保存用户</value>
+    <comment>保存用户</comment>
+  </data>
+  <data name="UserManage_SetUserState" xml:space="preserve">
+    <value>设置用户状态</value>
+    <comment>设置用户状态</comment>
+  </data>
+  <data name="UserManage_Delete_Confirm" xml:space="preserve">
+    <value>您确定要删除此用户吗?</value>
+    <comment>您确定要删除此用户吗?</comment>
+  </data>
+  <data name="UserManage_AddUser" xml:space="preserve">
+    <value>增加用户</value>
+    <comment>增加用户</comment>
+  </data>
+  <data name="UserManage_DeleteUser" xml:space="preserve">
+    <value>删除用户</value>
+    <comment>删除用户</comment>
+  </data>
+  <data name="UserManage_FreezeUser" xml:space="preserve">
+    <value>账号冻结</value>
+    <comment>账号冻结</comment>
+  </data>
+  <data name="UserManage_SelectUser" xml:space="preserve">
+    <value>查询用户</value>
+    <comment>查询用户</comment>
+  </data>
+  <data name="UserManage_SetUserRole" xml:space="preserve">
+    <value>设置用户角色</value>
+    <comment>设置用户角色</comment>
+  </data>
+  <data name="UserManage_AdmeasureRole" xml:space="preserve">
+    <value>角色分配</value>
+    <comment>角色分配</comment>
+  </data>
+  <data name="UserManage_CannotNoFreeze" xml:space="preserve">
+    <value>当前登录帐号不能冻结!</value>
+    <comment>当前登录帐号不能冻结!</comment>
+  </data>
+  <data name="UserManage_DeleteFailure" xml:space="preserve">
+    <value>删除失败!</value>
+    <comment>删除失败!</comment>
+  </data>
+  <data name="UserManage_DeleteSucceed" xml:space="preserve">
+    <value>删除成功!</value>
+    <comment>删除成功!</comment>
+  </data>
+  <data name="UserManage_ExistUser" xml:space="preserve">
+    <value>用户已存在！</value>
+    <comment>用户已存在！</comment>
+  </data>
+  <data name="UserManage_ForeverFreeze" xml:space="preserve">
+    <value>永久冻结</value>
+    <comment>永久冻结</comment>
+  </data>
+  <data name="UserManage_Freeze" xml:space="preserve">
+    <value>冻结</value>
+    <comment>冻结</comment>
+  </data>
+  <data name="UserManage_FreezeTimeLessThanNowTime" xml:space="preserve">
+    <value>冻结时间需要大于当前时间</value>
+    <comment>冻结时间需要大于当前时间</comment>
+  </data>
+  <data name="UserManage_NoSex" xml:space="preserve">
+    <value>请选择用户性别</value>
+    <comment>请选择用户性别</comment>
+  </data>
+  <data name="UserManage_NoUserID" xml:space="preserve">
+    <value>请输入用户工号！</value>
+    <comment>请输入用户工号！</comment>
+  </data>
+  <data name="UserManage_NoUserName" xml:space="preserve">
+    <value>请输入用户姓名</value>
+    <comment>请输入用户姓名</comment>
+  </data>
+  <data name="UserManage_Numbering" xml:space="preserve">
+    <value>编号为</value>
+    <comment>编号为</comment>
+  </data>
+  <data name="UserManage_SaveUser_Failure" xml:space="preserve">
+    <value>用户保存失败！</value>
+    <comment>用户保存失败！</comment>
+  </data>
+  <data name="UserManage_SaveUser_Success" xml:space="preserve">
+    <value>用户保存成功！</value>
+    <comment>用户保存成功！</comment>
+  </data>
+  <data name="UserManage_ThawFreeze" xml:space="preserve">
+    <value>解冻</value>
+    <comment>解冻</comment>
+  </data>
+  <data name="UserManage_TransitorilyFreeze" xml:space="preserve">
+    <value>临时冻结</value>
+    <comment>临时冻结</comment>
+  </data>
+  <data name="UserManage_ChineseName" xml:space="preserve">
+    <value>中文名</value>
+    <comment>中文名</comment>
+  </data>
+  <data name="UserManage_ChineseName_Format" xml:space="preserve">
+    <value>（文本形式输入，小于等于30字符）</value>
+    <comment>（文本形式输入，小于等于30字符）</comment>
+  </data>
+  <data name="UserManage_Dept" xml:space="preserve">
+    <value>部门(店铺)</value>
+    <comment>部门(店铺)</comment>
+  </data>
+  <data name="UserManage_Dept_Hierarchy" xml:space="preserve">
+    <value>层级</value>
+    <comment>层级</comment>
+  </data>
+  <data name="UserManage_Email" xml:space="preserve">
+    <value>邮箱：</value>
+    <comment>邮箱：</comment>
+  </data>
+  <data name="UserManage_EmailFormat" xml:space="preserve">
+    <value>（例：xxxxxx@@xx.xxx）</value>
+    <comment>（例：xxxxxx@@xx.xxx）</comment>
+  </data>
+  <data name="UserManage_Memo" xml:space="preserve">
+    <value>简介：</value>
+    <comment>简介：</comment>
+  </data>
+  <data name="UserManage_MobileNum" xml:space="preserve">
+    <value>手机：</value>
+    <comment>手机：</comment>
+  </data>
+  <data name="UserManage_MobileNumFormat" xml:space="preserve">
+    <value>（数字输入，11位数）</value>
+    <comment>（数字输入，11位数）</comment>
+  </data>
+  <data name="UserManage_RealName_" xml:space="preserve">
+    <value>姓名：</value>
+    <comment>姓名：</comment>
+  </data>
+  <data name="UserManage_RollBack" xml:space="preserve">
+    <value>返回</value>
+    <comment>返回</comment>
+  </data>
+  <data name="UserManage_Save" xml:space="preserve">
+    <value>保存</value>
+    <comment>保存</comment>
+  </data>
+  <data name="UserManage_Sex_" xml:space="preserve">
+    <value>性别：</value>
+    <comment>性别：</comment>
+  </data>
+  <data name="UserManage_Sex_F" xml:space="preserve">
+    <value>F</value>
+    <comment>F</comment>
+  </data>
+  <data name="UserManage_Sex_M" xml:space="preserve">
+    <value>M</value>
+    <comment>M</comment>
+  </data>
+  <data name="UserManage_State" xml:space="preserve">
+    <value>状态</value>
+    <comment>状态</comment>
+  </data>
+  <data name="UserManage_Telephone" xml:space="preserve">
+    <value>电话：</value>
+    <comment>电话：</comment>
+  </data>
+  <data name="UserManage_TelephoneFormat" xml:space="preserve">
+    <value>（区号-电话号-分机号）</value>
+    <comment>（区号-电话号-分机号）</comment>
+  </data>
+  <data name="UserManage_TelephoneFormat_Error" xml:space="preserve">
+    <value>请输入真确电话号码！</value>
+    <comment>请输入真确电话号码！</comment>
+  </data>
+  <data name="UserManage_UsernameFormat" xml:space="preserve">
+    <value>（输入数字，最多6位数，如ADD-000001，ADD-系统默认，不可删除）</value>
+    <comment>（输入数字，最多6位数，如ADD-000001，ADD-系统默认，不可删除）</comment>
+  </data>
+  <data name="UserManage_UserName_" xml:space="preserve">
+    <value>工号：</value>
+    <comment>工号：</comment>
+  </data>
+  <data name="UserSelect_NoSelected" xml:space="preserve">
+    <value>未选择用户！</value>
+    <comment>未选择用户！</comment>
+  </data>
+  <data name="UserManage_NotHaveUpdate" xml:space="preserve">
+    <value>不存在要修改的层级！</value>
+    <comment>不存在要修改的层级！</comment>
+  </data>
+  <data name="UserManage_PostNotHave" xml:space="preserve">
+    <value>岗位不存在！</value>
+    <comment>岗位不存在！</comment>
+  </data>
+  <data name="UserManage_Tishi" xml:space="preserve">
+    <value>同一层级下不能有同名的层级！</value>
+    <comment>同一层级下不能有同名的层级！</comment>
+  </data>
+  <data name="Usermanage_PersonalCenter" xml:space="preserve">
+    <value>Personal</value>
+    <comment>个人中心</comment>
+  </data>
+  <data name="UserManage_Memo_Format" xml:space="preserve">
+    <value>简介必须小于等于200个字符</value>
+    <comment>简介必须小于等于200个字符</comment>
+  </data>
+  <data name="UserManage_Post" xml:space="preserve">
+    <value>岗位</value>
+    <comment>岗位</comment>
+  </data>
+  <data name="UserManage_Post_" xml:space="preserve">
+    <value>岗位：</value>
+    <comment>岗位：</comment>
+  </data>
+  <data name="UserManage_StartTime" xml:space="preserve">
+    <value>开始时间：</value>
+    <comment>开始时间：</comment>
+  </data>
+  <data name="UserManage_Store" xml:space="preserve">
+    <value>店铺</value>
+    <comment>店铺</comment>
+  </data>
+  <data name="UserManage_Store_" xml:space="preserve">
+    <value>店铺：</value>
+    <comment>店铺：</comment>
+  </data>
+</root>

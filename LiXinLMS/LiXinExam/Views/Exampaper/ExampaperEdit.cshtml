@@ -1,0 +1,734 @@
+﻿@using LiXinLanguage
+@using LiXinModels.Examination.DBModel
+@using LiXinModels.Examination.ShowModel
+@{
+    var expape = ViewData["expape"] as tbExampaper;
+    var expapeQuestion = ViewData["expapeQuestion"] as List<tbQuestion>;
+    var expapeRule = ViewData["expapeRule"] as List<MExamRuleShow>;
+    string fsort = Request.QueryString["sortID"] == null ? "0" : Request.QueryString["sortID"];
+    string selectSortID = Request.QueryString["selectSortID"] ?? "0";
+    ViewBag.Title = ViewData["id"].ToString() == "0" ? NavigateMenuLanguage.AddExampaper : NavigateMenuLanguage.EditExampaper;
+}
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.dragsort-0.4.min.js")"> </script>
+<div class="main-c">
+    @Html.Action("SiteMapLink", "Common", new
+    {
+        linkName = ViewData["id"].ToString() == "0" ? "AddExampaper" : "EditExampaper"
+    })
+    @*<style type="text/css">
+    .aui_main{  overflow-y:scroll; height:expression(this.scrollHeight > 540 ? "540px" : (this.scrollHeight < 400 ? "400px" : "auto"));}
+    </style>*@
+    <form id="EditExampaerForm" method="post" action="">
+    <h3 class="tit-h3 mt10">试卷基本信息</h3>
+    <table class="tab-Form tab-now mt10">
+        <tr>
+            <td class="Tit all15"><span title="必填项" class="must">*</span>@Exampaper.ExampaperTitle：</td>
+            <td>
+                <input class="span20" type="text" id="tbExamTitle" name="tbExamTitle" maxlength="30" value="@(expape == null ? "" : expape.ExampaperTitle)"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"><span title="必填项" class="must">*</span>@Exampaper.Score：</td>
+            <td>
+                <input class="span5" type="text" id="question_sum" name="question_sum" readonly="readonly" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"><span title="必填项" class="must">*</span>@Exampaper.ExampaperSortName：</td>
+            <td>
+                <input class="span20" type="text" id="fatherid" name="fatherid" disabled="disabled" value="@ViewData["fatherModel"]" />
+                <input type="button" id="btnSelecte" class="btn btn-co" value="选择试卷库" />
+                <input type="hidden" id="Sortid" name="Sortid" value="@fsort" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit"><span title="必填项" class="must">*</span>试卷类型：</td>
+            <td>
+                <div class="sel">
+                @{
+                    if (expape == null || expape.ExamType == 0)
+                    {
+                    <input type="radio" id="examType0" name="examType" value="0" checked="checked" onclick="checkType(0)" /><label>普通</label>
+                    <input type="radio" id="examType1" name="examType" value="1" onclick="checkType(1)" /><label>随机</label>
+                    }
+                    else
+                    {
+                    <input type="radio" id="examType0" name="examType" value="0" onclick="checkType(0)" /><label>普通</label>
+                    <input type="radio" id="examType1" name="examType" value="1" checked="checked" onclick="checkType(1)" /><label>随机</label>
+                    }
+                }
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">@Exampaper.Description：
+            </td>
+            <td>
+                <textarea class="span40" id="txtDescription" name="tbRemark" onkeydown=" TextearaMaxlength(this); "
+                    onkeyup=" TextearaMaxlength(this); " maxlength="200" textmode="MultiLine">@(expape == null ? "" : expape.Description)</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">题型排序：</td>
+            <td class="c99"><div class="charleft originalTextareaInfo">( 请前后拖动调整排序方式 )</div></td>
+        </tr>
+        <tr>
+            <td class="Tit">
+            </td>
+            <td id="paixu" class="qorder">
+                <ul id="typeorder" class="clb">
+                    @{
+                        if (expape != null)
+                        {
+                            string[] parr = expape.QuestionTypeOrder.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                            for (int i = 0; i < parr.Length; i++)
+                            {
+                                switch (parr[i])
+                                {
+                                    case "1":
+                        <li id="t1">问答题</li>
+                                        break;
+                                    case "2":
+                        <li id="t2">单选题</li>
+                                        break;
+                                    case "3":
+                        <li id="t3">多选题</li>
+                                        break;
+                                    case "4":
+                        <li id="t4">判断题</li>
+                                        break;
+                                    case "5":
+                        <li id="t5">填空题</li>
+                                        break;
+                                    case "6":
+                        <li id="t6">情景题</li>
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                </ul>
+            </td>
+        </tr>
+    </table>
+    <h3 class="tit-h3">
+        <div class="pos_a f12" style="top:-5px;right:0;">
+            @{
+                if (expape == null || expape.ExamType == 0)
+                {
+                <input id="btAddQuestion" class="btn btn-co" type="button" value="@Exampaper.SortAdd" />
+                <input id="btRandomQuestion" class="btn btn-co" type="button" value="@Exampaper.RandomAdd" />
+                <input id="btExportNewQuestion" class="btn btn-co" type="button" value="@Exampaper.ImportQuestion" />
+                <input type="button" id="btQuestionRule" class="btn btn-co" disabled="disabled"
+                    value="组卷规则" />
+                }
+                else
+                {
+                <input id="btAddQuestion" class="btn btn-co" disabled="disabled" type="button" value="@Exampaper.SortAdd" />
+                <input id="btRandomQuestion" class="btn btn-co" disabled="disabled" type="button" value="@Exampaper.RandomAdd" />
+                <input id="btExportNewQuestion" class="btn btn-co" disabled="disabled" type="button" value="@Exampaper.ImportQuestion" />
+                <input type="button" id="btQuestionRule" class="btn btn-co" value="组卷规则" />
+                }
+            }
+        </div>
+        试题信息
+    </h3>
+    <div>
+    @{
+        if ("#StatType" != "")
+        {
+        <div class="qView mt10">
+            <div id="StatType" class="clb">
+                <input type="hidden" name="desum" value="@(expape == null ? "" : expape.Distribution)"/>
+            </div>
+            <div id="StatScore" class="clb"></div>
+        </div>
+        }
+    }
+        <div id="divExamQuestions" class="mt10" style="height: 500px; overflow-y: auto;">
+            @{
+                if (expapeQuestion != null && expapeQuestion.Count > 0)
+                {
+                        int qq = 0;
+                        foreach (tbQuestion Question in expapeQuestion)
+                      {
+                    <div class="QSingle" id="QuestionID@(Question._id)">
+                        <input type="hidden" name="@(Question.QuestionType)" value="@(Question._id)|@(Question.QuestionType)"/>
+                        <div class="title">
+                            <div class="info">
+                                <input type="text" id="Order@(Question._id)" name="Order@(Question._id)" value="@(expape.QuestionList[qq].QOrder)" readonly="readonly" maxlength="3" />
+                                .[
+                                <input type="text" class="fen" id="Score@(Question._id)" name="Score@(Question._id)" readonly="readonly" maxlength="3" value="@(expape.QuestionList[qq].QScore)" />分
+                                ]
+                            </div>
+                            <h5>
+                                @(Html.Raw(Question.QuestionContent))
+                                <div class="do"><a href="#@@" onclick=" Delete(@(Question._id)) " class="icon idel" title="删除"></a></div>
+                            </h5>
+                        
+                        </div>
+                        <div class="content">
+                            @{
+                              switch (Question.QuestionType)
+                              {
+                                  case 1:
+                                <textarea disabled="disabled"></textarea>
+                                      break;
+                                  case 2:
+                                      {
+                                          int count = 0;
+                                          foreach (QuestionAnswer s in Question.QuestionAnswer)
+                                          {
+                                <div>
+                                    <input type="radio" disabled="disabled" />@((char)(65 + count)). @s.Answer</div>
+                                              count++;
+                                          }
+                                      }
+                                      break;
+                                  case 3:
+                                      {
+                                          int count = 0;
+                                          foreach (QuestionAnswer ss in Question.QuestionAnswer)
+                                          {
+                                <div>
+                                    <input type="checkbox" disabled="disabled" />@((char)(65 + count)). @ss.Answer</div>
+                                              count++;
+                                          }
+                                      }
+                                      break;
+                                  case 4:
+                                <div>
+                                    <input type="radio" disabled="disabled" /><label>@Exampaper.eTrue</label></div>
+                                <div>
+                                    <input type="radio" disabled="disabled" /><label>@Exampaper.eFalse</label></div>
+                                                                                break;
+                                  case 6:
+                                                                                if (Question.QuestionAnswer[0].AnswerType == 0)
+                                                                                {
+                                <textarea class="Boxarea" disabled="disabled"></textarea>
+                                                                                }
+                                                                                else if (Question.QuestionAnswer[0].AnswerType == 1)
+                                                                                {
+                                                                                    int count = 0;
+                                                                                    foreach (QuestionAnswer sss in Question.QuestionAnswer)
+                                                                                    {
+                                <div>
+                                    <input type="radio" disabled="disabled" />@((char)(65 + count)). @sss.Answer</div>
+                                                                                        count++;
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    int count = 0;
+                                                                                    foreach (QuestionAnswer ssss in Question.QuestionAnswer)
+                                                                                    {
+                                <div>
+                                    <input type="checkbox" disabled="disabled" />@((char)(65 + count)). @ssss.Answer</div>
+                                                                                        count++;
+                                                                                    }
+                                                                                }
+                                                                                break;
+                              }
+                            }
+                        </div>
+                    </div>
+                          qq++;
+                      }
+                    
+                }
+                if (expapeRule != null && expapeRule.Count > 0)
+                {
+                    int rid = 1;
+                    foreach (MExamRuleShow Rule in expapeRule)
+                    {
+                        <div class="exam-rule">
+                            <input type="hidden" name="Rule" value="@rid"/>
+                            <input type="hidden" id="qru@(rid)" name="qru" value="@(Rule.qitaone)"/>
+                            <input type="hidden" id="eqid@(rid)" name="eqid" value="@(Rule.qita)"/>
+                            <p class="tit">@Exampaper.qType：</p>
+                            <p class="span8">@(Rule.QuestionType)</p>
+                            <p class="tit">@Exampaper.qSort：</p>
+                            <p class="ovh span40" title="@(Rule.QuestionSort)">@(Rule.QuestionSort)</p>
+                            <p class="tit">每题分值：</p>
+                            <p><span>@(Rule.QuestingScore)</span></p>
+                            <p class="tit">@Exampaper.qLevel：</p>
+                            <p>易<span>@(Rule.Leveleasy)</span></p>
+                            <p>中<span>@(Rule.Levelcommon)</span></p>
+                            <p>难<span>@(Rule.Levelhard)</span></p>
+                            <a name="rmRule" title="@CommonLanguage.Common_Delete"  class="icon idel"></a>
+                        </div>
+                        rid++;
+                    }
+                }
+            }
+        </div>
+        <div id="hiddExamQuestions">
+        </div>
+        <div id="hiddtypeorder">
+        </div>
+    </div>
+    <center class="mt10">
+        <a id="btnSaveSort" class="btn" onclick=" $(this).submit(); ">@Exampaper.Save</a>
+        <a id="btBack" class="btn btn-cancel">@Exampaper.Back</a>
+    </center>
+    </form>
+
+</div>
+<script type="text/javascript">
+    $("#paixu ul").dragsort();
+
+    function countInstances(mainStr, subStr) {
+        var count = 0;
+        var offset = 0;
+        do {
+            offset = mainStr.indexOf(subStr, offset);
+            if (offset != -1) {
+                count++;
+                offset += subStr.length;
+            }
+        } while (offset != -1);
+        return count;
+    }
+
+    function checkType(tt) {
+        if (tt == 1) {
+            $('#StatType').html("");
+            $('#StatScore').html("");
+            $('#divExamQuestions').html("");
+            $('#hiddExamQuestions').html("");
+            $("#question_sum").val("");
+            $('#typeorder').html("");
+            $('#btAddQuestion').attr("disabled", "disabled");
+            $('#btRandomQuestion').attr("disabled", "disabled");
+            $('#btAddNewQuestion').attr("disabled", "disabled");
+            $('#btExportNewQuestion').attr("disabled", "disabled");
+            $('#btQuestionRule').removeAttr("disabled");
+        } else {
+            $('#StatType').html("");
+            $('#StatScore').html("");
+            $('#divExamQuestions').html("");
+            $('#hiddExamQuestions').html("");
+            $("#question_sum").val("");
+            $('#typeorder').html("");
+            $('#btAddQuestion').removeAttr("disabled");
+            $('#btRandomQuestion').removeAttr("disabled");
+            $('#btAddNewQuestion').removeAttr("disabled");
+            $('#btExportNewQuestion').removeAttr("disabled");
+            $('#btQuestionRule').attr("disabled", "disabled");
+        }
+    }
+
+//题型
+    function qtype() {
+        var eqids = "";
+        var tmp = $('#divExamQuestions').find('input[type=hidden]');
+        if ($('input[name=examType]:checked').val() == 1) {
+            tmp = $('#divExamQuestions').find('input[name=qru]');
+        }
+        for (var i = 0; i < tmp.length; i++) {
+            if (tmp[i].name != "" && tmp[i].name != null) {
+                var linshi = "";
+                var sum = parseInt(tmp[i].name);
+                if ($('input[name=examType]:checked').val() == 1) {
+                    var msg = tmp[i].value.split("|");
+                    sum = parseInt(msg[0]);
+                }
+                switch (sum) {
+                case 1:
+                    linshi = '<li id="t1">问答题</li>';
+                    break;
+                case 2:
+                    linshi = '<li id="t2">单选题</li>';
+                    break;
+                case 3:
+                    linshi = '<li id="t3">多选题</li>';
+                    break;
+                case 4:
+                    linshi = '<li id="t4">判断题</li>';
+                    break;
+                case 5:
+                    linshi = '<li id="t5">填空题</li>';
+                    break;
+                case 6:
+                    linshi = '<li id="t6">情景题</li>';
+                    break;
+                }
+                if (parseInt(countInstances(eqids, linshi)) < 1) {
+                    eqids += linshi;
+                }
+            }
+        }
+        $("#typeorder").html(eqids);
+    }
+
+//题型排序
+    function typeorder() {
+        var tmp = $('#paixu li');
+        var eqids = "";
+        for (var i = 0; i < tmp.length; i++) {
+            if (tmp[i].id != "" && tmp[i].id != null) {
+                var msg = tmp[i].id.replace("t", "");
+                eqids += msg + ",";
+            }
+        }
+        var qidhtml = '<input type="hidden" name="typeorder" value="' + eqids + '"/>';
+        $("#hiddtypeorder").html(qidhtml);
+    }
+
+//序号排序
+
+    function order() {
+        var tmp = $('#divExamQuestions').find('input[type=hidden]');
+        for (var i = 0; i < tmp.length; i++) {
+            if (tmp[i].value != "" && tmp[i].value != null) {
+                var msg = tmp[i].value.split("|");
+                var hidd = "Order" + msg[0];
+                $("#" + hidd).val(i + 1);
+            }
+        }
+    }
+
+    //统计类型
+
+    function StatType() {
+        var tmp1 = $("input[name='2']");
+        var tmp2 = $("input[name='3']");
+        var tmp3 = $("input[name='1']");
+        var tmp4 = $("input[name='4']");
+        var tmp5 = $("input[name='5']");
+        var tmp6 = $("input[name='6']");
+        var tmphtml = "";
+        var tmephtml = "";
+        var desum = "";
+        if (tmp1.length > 0 || tmp2.length > 0 || tmp3.length > 0 || tmp4.length > 0 || tmp5.length > 0 || tmp6.length > 0) {
+            tmphtml += '<p class="Tit"><strong>@Exampaper.QuestionNumber:</strong></p>';
+            tmephtml += '<p class="Tit"><strong>@Exampaper.QuestionScore:</strong></p>';
+
+            if (tmp1.length > 0) {
+                var single = tmp1.eq(0).val().split("|");
+                tmephtml += '<p>每题 <input type="text" class="inpbor" id="question_single" value="' + $("#Score" + single[0]).val() + '" onkeyup="verifyInput(this)" onblur="upperCase(\'single\',this.value)" />@Exampaper.Fen</p>';
+                tmphtml += '<p>@Exampaper.Single - <font>' + tmp1.length + '</font>@Exampaper.Ti</p>';
+                desum += "2:" + tmp1.length + ",";
+            }
+            if (tmp2.length > 0) {
+                var multi = tmp2.eq(0).val().split("|");
+                tmephtml += '<p>每题 <input type="text" class="inpbor" id="question_multi" value="' + $("#Score" + multi[0]).val() + '" onkeyup="verifyInput(this)" onblur="upperCase(\'multi\',this.value)" />@Exampaper.Fen</p>';
+                tmphtml += '<p>@Exampaper.Multi - <font>' + tmp2.length + '</font>@Exampaper.Ti</p>';
+                desum += "3:" + tmp2.length + ",";
+            }
+            if (tmp3.length > 0) {
+                var subject = tmp3.eq(0).val().split("|");
+                tmephtml += '<p>每题 <input type="text" class="inpbor" id="question_subject" value="' + $("#Score" + subject[0]).val() + '" onkeyup="verifyInput(this)" onblur="upperCase(\'subject\',this.value)" />@Exampaper.Fen</p>';
+                tmphtml += '<p>@Exampaper.Subject - <font>' + tmp3.length + '</font>@Exampaper.Ti</p>';
+                desum += "1:" + tmp3.length + ",";
+            }
+            if (tmp4.length > 0) {
+                var judge = tmp4.eq(0).val().split("|");
+                tmephtml += '<p>每题 <input type="text" class="inpbor" id="question_judge" value="' + $("#Score" + judge[0]).val() + '" onkeyup="verifyInput(this)" onblur="upperCase(\'judge\',this.value)" />@Exampaper.Fen</p>';
+                tmphtml += '<p>@Exampaper.Judge - <font>' + tmp4.length + '</font>@Exampaper.Ti</p>';
+                desum += "4:" + tmp4.length + ",";
+            }
+            if (tmp5.length > 0) {
+                var fill = tmp5.eq(0).val().split("|");
+                tmephtml += '<p>每题 <input type="text" class="inpbor" id="question_fill" value="' + $("#Score" + fill[0]).val() + '" onkeyup="verifyInput(this)" onblur="upperCase(\'fill\',this.value)" />@Exampaper.Fen</p>';
+                tmphtml += '<p>@Exampaper.Fill - <font>' + tmp5.length + '</font>@Exampaper.Ti</p>';
+                desum += "5:" + tmp5.length + ",";
+            }
+            if (tmp6.length > 0) {
+                var scene = tmp6.eq(0).val().split("|");
+                tmephtml += '<p>每题 <input type="text" class="inpbor" id="question_scene" value="' + $("#Score" + scene[0]).val() + '" onkeyup="verifyInput(this)" onblur="upperCase(\'scene\',this.value)" />@Exampaper.Fen</p>';
+                tmphtml += '<p>@Exampaper.Scene - <font>' + tmp6.length + '</font>@Exampaper.Ti</p>';
+                desum += "6:" + tmp6.length + ",";
+            }
+        }
+        var dehtml = '<input type="hidden" name="desum" value="' + desum + '"/>';
+        $("#StatType").html("");
+        $("#StatType").append(tmphtml);
+        $("#StatType").append(dehtml);
+        $("#StatScore").html(tmephtml);
+    }
+
+    //统计QuestionID
+
+    function statID() {
+        var tmp = $('#divExamQuestions').find('input[type=hidden]');
+        var eqids = "";
+        for (var i = 0; i < tmp.length; i++) {
+            if (tmp[i].value != "" && tmp[i].value != null) {
+                eqids += tmp[i].value + ",";
+            }
+        }
+        var qidhtml = '<input type="hidden" id="Queid" name="Queid" value="' + eqids + '"/>';
+        $("#hiddExamQuestions").html(qidhtml);
+    }
+
+    function statRule() {
+        var tmp = $('#divExamQuestions').find('input[name=Rule]');
+        var eqids = "";
+        for (var i = 0; i < tmp.length; i++) {
+            if (tmp[i].value != "" && tmp[i].value != null) {
+                eqids += $("#eqid" + tmp[i].value).val() + ",";
+            }
+        }
+        var qidhtml = '<input type="hidden" id="Queid" name="Queid" value="' + eqids + '"/>';
+        $("#hiddExamQuestions").html(qidhtml);
+    }
+
+//初始化计分
+
+    function Score() {
+        var sum = 0;
+        if ($('input[name=examType]:checked').val() == 0) {
+            var tmp = $('#divExamQuestions').find('input[type=hidden]');
+            for (var i = 0; i < tmp.length; i++) {
+                if (tmp[i].value != "" && tmp[i].value != null) {
+                    var msg = tmp[i].value.split("|");
+                    var tom = "#Score" + msg[0];
+                    sum = parseInt(sum) + parseInt($(tom).val());
+                }
+            }
+        } else {
+            var tmp = $('#divExamQuestions').find('input[name=Rule]');
+            for (var i = 0; i < tmp.length; i++) {
+                if (tmp[i].value != "" && tmp[i].value != null) {
+                    var su = $("#eqid" + tmp[i].value).val();
+                    var msg = su.split("|");
+                    var so = msg[2];
+                    if (parseInt(so) > 0) {
+                        sum += (parseInt(msg[3]) + parseInt(msg[4]) + parseInt(msg[5])) * parseInt(so);
+                    }
+                }
+            }
+        }
+        $("#question_sum").val(sum);
+    }
+
+//批量修改分值
+
+    function upperCase(num, sum) {
+        var tmp = null;
+        switch (num) {
+        case 'single':
+            tmp = document.getElementsByName("2");
+            break;
+        case 'multi':
+            tmp = document.getElementsByName("3");
+            break;
+        case 'subject':
+            tmp = document.getElementsByName("1");
+            break;
+        case 'fill':
+            tmp = document.getElementsByName("5");
+            break;
+        case 'judge':
+            tmp = document.getElementsByName("4");
+            break;
+        case 'scene':
+            tmp = document.getElementsByName("6");
+            break;
+        }
+        var str = sum.replace(/\s+/g, "");
+        var r = /^[0-9]*[1-9][0-9]*$/;
+        if (sum != "" && str != "" && r.test(sum)) {
+            for (var i = 0; i < tmp.length; i++) {
+                if (tmp[i].value != "" && tmp[i].value != null) {
+                    var msg = tmp[i].value.split("|");
+                    $("#Score" + msg[0]).val(sum);
+                }
+            }
+            Score();
+        }
+    }
+
+    function upScore() {
+        if ($("#question_fill").length > 0) {
+            upperCase("fill", $("#question_fill").val());
+        }
+        if ($("#question_single").length > 0) {
+            upperCase("single", $("#question_single").val());
+        }
+        if ($("#question_multi").length > 0) {
+            upperCase("multi", $("#question_multi").val());
+        }
+        if ($("#question_subject").length > 0) {
+            upperCase("subject", $("#question_subject").val());
+        }
+        if ($("#question_judge").length > 0) {
+            upperCase("judge", $("#question_judge").val());
+        }
+        if ($("#question_scene").length > 0) {
+            upperCase("scene", $("#question_scene").val());
+        }
+    }
+
+    $(document).ready(function() {
+        StatType();
+        upScore();
+        Score();
+        statID();
+        bindRule();
+//        jQuery.validator.addMethod("stringCheck", function (value, element) {
+//            return this.optional(element) || /^[\u0391-\uFFE5\w]+$/.test(value);
+//        }, "只能包括中文字、英文字母、数字和下划线");
+
+        $("#EditExampaerForm").validate({
+            rules: {
+                tbExamTitle: {
+                    required: true,
+                    maxlength: 30,
+//                    stringCheck:true,
+                    remote: {
+                        type: "post",
+                        dataType: "json",
+                        url: "/Exampaper/CheckExampaper",
+                        data: { etitle: function() { return $.trim($("#tbExamTitle").val()); }, eid: function() { return @(expape == null ? 0 : expape._id); } }
+                    }
+                },
+                tbRemark: {
+                    maxlength: 200
+                }
+            },
+            messages: {
+                tbExamTitle: {
+                    required: "请填名称",
+                    maxlength: "字数不能超过30个字符",
+//                    stringCheck: "只能包括中文字、英文字母、数字和下划线",
+                    remote: "试卷已经存在"
+                },
+                tbRemark: {
+                    maxlength: "字数不能超过200个字符"
+                }
+            },
+            errorElement: "span",
+            submitHandler: function(form) {
+                if ($('input[name=examType]:checked').val() == 0) {
+                    statID();
+                } else {
+                    statRule();
+                }
+                typeorder();
+                if ($("#Queid").val() != "" && $("#Queid").val() != null) {
+                    jQuery(form).ajaxSubmit({
+                        url: '/Exampaper/SubmitExampaer?id=@(expape == null ? 0 : expape._id)',
+                        type: "post",
+                        dataType: "json",
+                        success: function(data) {
+                            if (data.result == 1) {
+                                window.location.href = "/Exampaper/ExampaperList?sortID=@selectSortID";
+                            } else {
+                                art.dialog.tips(data.content, 3);
+                                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, width: 400, height: 100, fixed: true, lock: true, time: 3 });
+                            }
+                        }
+                    });
+                } else {
+                    art.dialog.tips("请选择试卷题目", 3);
+                    //art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请选择试卷题目！", width: 400, height: 100, fixed: true, lock: true, time: 3 });
+                }
+            }
+        });
+        //重新选择试卷库
+        $("#btnSelecte").bind("click", function() {
+            art.dialog.load("/Exampaper/ExampaperSort",{ title: "试卷库", id:"ExamSort",close:function () {
+                $("#sortList").css({"height":"auto"});
+            }
+            });
+        });
+
+        $("#btBack").bind("click", function() {
+            window.location.href = "/Exampaper/ExampaperList?sortID=@selectSortID";
+        });
+        //题库添加
+        $("#btAddQuestion").bind("click", function() {
+            art.dialog.load("/Exampaper/ExamQuestionList", {title: "@Exampaper.SortAdd",id:"QueList" });
+        });
+        //自由组卷
+        $("#btRandomQuestion").bind("click", function() {
+            art.dialog.load("/Exampaper/ExampaperRandom", {title: "@Exampaper.RandomAdd", id:"ExamRan", height: 200});
+        });
+        //导入新试题
+        $("#btExportNewQuestion").bind("click", function() {
+            art.dialog.load("/Exampaper/ImportQuestions?id=0", {title: "@Exampaper.ImportQuestion",id:"NewQue"});
+        });
+        //组卷规则
+        $("#btQuestionRule").bind("click", function() {
+            art.dialog.load("/Exampaper/ExampaperRule", {title: "组卷规则",id:"ExamRule", height: 200 });
+        });
+    });
+    //删除试题
+
+    function Delete(id) {
+        var hiddID = "#QuestionID" + id;
+        $(hiddID).remove();
+        StatType();
+        upScore();
+        order();
+        Score();
+        qtype();
+        statID();
+    }
+
+//验证正整数
+
+    function verifyInput(obj) {
+        var r = /^[0-9]*[1-9][0-9]*$/;
+        if (obj.value != "" && obj.value != null) {
+            if (!(r.test(obj.value))) {
+                art.dialog.tips("请输入正整数", 3);
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请输入正整数", width: 400, height: 100, fixed: true, lock: true, time: 3 });
+                obj.value = "";
+                return false;
+            } else {
+                if (parseInt(obj.value) > 100) {
+                    obj.value = 100;
+                    art.dialog.tips("请输入1-100的正整数", 3);
+                    //art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请输入1-100的正整数", width: 400, height: 100, fixed: true, lock: true, time: 3 });
+                    return false;
+                }
+            }
+        } else {
+            art.dialog.tips("请输入正整数", 3);
+            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请输入正整数", width: 400, height: 100, fixed: true, lock: true, time: 3 });
+            obj.value = "";
+            return false;
+        }
+    }
+    //验证规则正整数
+
+    function verifyInput1(obj) {
+        var r = /^[0-9]*[1-9][0-9]*$/;
+        if (obj.value != "" && obj.value != null) {
+            if (!(r.test(obj.value))) {
+                art.dialog.tips("请输入正整数", 3);
+                //art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请输入正整数", width: 400, height: 100, fixed: true, lock: true, time: 3 });
+                obj.value = 0;
+                return false;
+            } else {
+                if (parseInt(obj.value) > 100) {
+                    obj.value = 0;
+                    art.dialog.tips("请输入1-100的正整数", 3);
+                    //art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请输入1-100的正整数", width: 400, height: 100, fixed: true, lock: true, time: 3 });
+                    return false;
+                }
+            }
+        } else {
+            art.dialog.tips("请输入正整数", 3);
+            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: "请输入正整数", width: 400, height: 100, fixed: true, lock: true, time: 3 });
+            obj.value = 0;
+            return false;
+        }
+    }
+    //删除
+
+    function bindRule() {
+        $("a[name=rmRule]").unbind().click(function() {
+            $(this).parent().remove();
+            StatType();
+            upScore();
+            order();
+            Score();
+            qtype();
+            statID();
+        });
+    }
+</script>

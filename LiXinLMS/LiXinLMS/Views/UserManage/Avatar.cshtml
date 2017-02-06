@@ -1,0 +1,196 @@
+﻿@using System.Configuration
+@{
+    Layout = null;
+}
+<script type="text/javascript" src="../../Scripts/jquery.ui.core.js"></script>
+<script type="text/javascript" src="../../Scripts/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="../../Scripts/jquery.ui.mouse.js"></script>
+<script type="text/javascript" src="../../Scripts/jquery.ui.draggable.js"></script>
+<script src="../../Scripts/jquery.imagecropper.js" type="text/javascript"></script>
+<form id="Photoform" method="post" action="" enctype="multipart/form-data">
+    <div>
+     <div class="fl span40">
+         <!--当前照片-->
+         <div id="CurruntPicContainer">
+            <div class="title"><b>当前头像</b></div>
+            <div class="photocontainer">
+                <img id="imgphoto" src="../../Images/man.GIF" />
+            </div>
+         </div>
+         <!--Step 2-->
+         <div id="Step2Container">
+           <div class="uploadtooltip">您可以拖动照片以裁剪满意的头像</div>   
+            <div id="Canvas" class="uploaddiv">                                        
+                <img id="ImageIcon" class="imagePhoto" src="../../Images/blank.jpg" />
+            </div>
+            <div style="display:none;">
+            <input type="hidden" id="picname" name="picname" />
+            <table>
+                <tr>
+                    <td>
+                        image path:
+                    </td>
+                    <td>
+                        <input type="text" value="" id="txtImgPath" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        zoom level:
+                    </td>
+                    <td>
+                        <input type="text" value="" id="txtZoomLevel" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        left:
+                    </td>
+                    <td>
+                        <input type="text" value="" id="txtLeft" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        top:
+                    </td>
+                    <td>
+                        <input type="text" value="" id="txtTop" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        width:
+                    </td>
+                    <td>
+                        <input type="text" value="" id="txtWidth" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        height:
+                    </td>
+                    <td>
+                        <input type="text" value="" id="txtHeight" />
+                    </td>
+                </tr>
+            </table>
+            </div>
+         </div>
+     </div>
+     <div class="fl span30 ml30">
+         <!--Step 1-->
+         <div id="Step1Container">
+            <div class="title"><b>更换头像</b></div>
+            <div id="uploadcontainer">
+                <div class="uploadtooltip">请选择新的图片，图片需小于2.5MB</div>
+                <div class="uploaddiv">
+                    <input type="file" id="fuPhoto" name="fuPhoto" />
+                </div>
+                <div class="uploaddiv">
+                    <input type="button" id="btnUpload" class="btn btn-co" value="上传" />
+                    <input type="button" id="btn_Image" class="btn btn-co ml10" style="margin-top: 0;" value="保存头像" />
+                </div>
+            </div>
+         </div>
+     </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#imgphoto").attr("src", $("#my_img").attr("src"));
+        $("#Step2Container").hide();
+        $("#CurruntPicContainer").show();
+        var imageCropper = $('#ImageIcon').imageCropper({
+            callbacks: {
+                dragging: updateStatus,
+                zoomed: updateStatus
+            }
+        });
+        updateStatus();
+        //上传
+        $("#btnUpload").click(function () {
+            if ($("#fuPhoto").val() != null && $("#fuPhoto").val() != "") {
+                var strpic = $("#fuPhoto").val();
+                var pos = strpic.lastIndexOf(".");
+                var lastname = strpic.substring(pos, strpic.length);
+                var resultName = lastname.toLowerCase();
+                var jpg = ".jpg";
+                var png = ".png";
+                var gif = ".gif";
+                if (jpg == resultName || png == resultName || gif == resultName) {
+                    $("#Photoform").submitForm({
+                        url: "/UserManage/UploadPhoto?t=" + new Date(),
+                        //dataType: "json",
+                        callback: function (data) {
+                            if (data.result == 1) {
+                                var picurl = '@ConfigurationManager.AppSettings["OLDphotoUrl"].Replace("~","..")' + data.content;
+                                $("#picname").val(data.content);
+                                var obj = new Image();
+                                obj.onload = function () {
+                                    obj.onload = null;
+                                    $("#ImageIcon").attr('src', this.src);
+                                    imageCropper.settings.imagePath = this.src;
+                                    imageCropper.settings.zoomLevel = parseFloat($('#txtZoomLevel').val());
+                                    imageCropper.settings.left = parseInt($('#txtLeft').val());
+                                    imageCropper.settings.top = parseInt($('#txtTop').val());
+                                    imageCropper.settings.width = parseInt($('#txtWidth').val());
+                                    imageCropper.settings.height = parseInt($('#txtHeight').val());
+                                    imageCropper.reset(obj);
+                                }
+                                obj.src = picurl;
+                                $('#txtImgPath').val(picurl);
+                                $("#Step2Container").show();
+                                $("#CurruntPicContainer").hide();
+                            } else {
+                                art.dialog.tips(data.content, 3);
+                            }
+                        }
+                    }).submit();
+                } else {
+                    art.dialog.tips("只能上传.jpg、.png、.gif格式的图片，您上传的文件类型为" + lastname + "，请重新上传", 3);
+                    return;
+                }
+            } else { art.dialog.tips("请选择图片", 3); }
+        });
+        //保存头像
+        $("#btn_Image").click(function () {
+            if ($("#fuPhoto").val() != null && $("#fuPhoto").val() != "") {
+                if ($("#CurruntPicContainer").is(":hidden")) {
+                    $("#Photoform").submitForm({
+                        url: "/UserManage/SavePhoto?z=" + imageCropper.settings.zoomLevel + "&t=" + imageCropper.settings.top + "&l=" + imageCropper.settings.left + "&w=" + imageCropper.settings.width + "&h=" + imageCropper.settings.height + "&t=" + new Date(),
+                        //dataType: "json",
+                        callback: function (data) {
+                            if (data.result == 1) {
+                                var picurl = '@ConfigurationManager.AppSettings["NEWphotoUrl"].Replace("~","..")' + data.content;
+                                $("#imgphoto").attr("src", picurl);
+                                $("#my_img").attr("src", picurl);
+                                $("#CurruntPicContainer").show();
+                                $("#Step2Container").hide();
+                                $("#fuPhoto").val("");
+                            } else {
+                                art.dialog.tips(data.content, 3);
+                            }
+                        }
+                    }).submit();
+                } else {
+                    art.dialog.tips("请先上传图片", 3);
+                }
+            } else {
+                art.dialog.tips("请选择图片", 3);
+            }
+        });
+
+        function updateStatus() {
+            $('#txtImgPath').val(imageCropper.settings.imagePath);
+            $('#txtZoomLevel').val(imageCropper.settings.zoomLevel);
+            $('#txtImgPath').val(imageCropper.settings.imagePath);
+            $('#txtLeft').val(imageCropper.settings.left);
+            $('#txtTop').val(imageCropper.settings.top);
+            $('#txtWidth').val(imageCropper.settings.width);
+            $('#txtHeight').val(imageCropper.settings.height);
+        }
+
+    }); 
+
+</script>

@@ -1,0 +1,131 @@
+﻿@using LiXinModels.PlanManage
+@{
+    Layout = null;
+    ViewBag.Title = "MyCPACourse";
+    var StrYear = ViewData["StrYear"] as List<Tr_YearPlan>;
+    var allsum = ViewData["allsum"] as string;
+}
+<h2 class="tit-h2">
+    <i></i>
+    <span class="tit-con">我的CPA培训目标</span>
+</h2>
+<div class="tab-red">
+    <ul>
+        <li class="On" onclick="showmian(4);$(this).parent().find('li').removeClass('On');$(this).addClass('On');" title="CPA年度目标">CPA年度目标<i></i></li>
+        <li onclick="showCPAdiv(1);$(this).parent().find('li').removeClass('On');$(this).addClass('On');" title="CPA周期目标">CPA周期目标<i></i></li>
+    </ul>
+</div>
+<div id="div_basic">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：</td>
+                <td>
+                    <input type="text" class="span30 searchclass" id="tbTitle" value="请输入搜索课程" info=""/>
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="ibtnCPASearch"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selyear" onchange="cpaChange();">
+            @{ 
+                for (int i = 0; i < StrYear.Count; i++)
+                {
+                    <option value="@(StrYear[i].Year)">@(StrYear[i].Year)</option>
+                }
+            }
+        </select>
+        <div class="list-do lh30">
+            <label>CPA课程目标学时：</label><span id="allsum">@(allsum)</span>
+            <label class="ml20">已获得学时：</label><span id="passsum">0</span>
+            <label class="ml20">职业道德已获得学时：</label><span id="daode">0</span>
+            <label class="ml20">完成率：</label><span id="lengthRate">0</span>
+        </div>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>课程名称</th>
+                    <th>学时类型</th>
+                    <th>课程学时</th>
+                    <th>课程时间</th>
+                    <th class="span8">获得学时</th> 
+                </tr>
+            </thead>
+            <tbody id="CPAYearCourseList">
+            </tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+</div>
+<script id="CPAYearCourseTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="tl span30 ovh">{{:CourseName}}</div></td>
+            <td>{{:CpaFlagStr}}</td>
+            <td>{{:CourseLength}}</td>
+            <td><div class="f11">{{:CourseTime}}</div></td>
+            <td>{{:GetLength}}</td>
+        </tr>  
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //查询条件输入框初始化
+        initSearch();
+        if ($("#selyear option").length > 0)
+            InitCPAYearList(getCPAYearUrl());
+        else
+            $("#mycourseList").html('<tr><td colspan="5">暂无数据</td></tr>');
+        //查询
+        $("#ibtnCPASearch").bind("click", function () {
+            InitCPAYearList(getCPAYearUrl());
+        });
+    });
+
+    //显示年度培训课程列表
+    function InitCPAYearList(url) {
+        var templateId = 'CPAYearCourseTemplate';
+        $("#CPAYearCourseList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function (data) {
+                if (data.dataList.length != 0) {
+                    $("#passsum").html(data.dataList[0].passsum);
+                    $("#daode").html(data.dataList[0].daode);
+                    $("#lengthRate").html(data.dataList[0].lengthRate);
+                } else {
+                    $("#passsum").html("0");
+                    $("#daode").html("0");
+                    $("#lengthRate").html("0%");
+                }
+            }
+        });
+    }
+
+    function getCPAYearUrl() {
+        return "/UserManage/GetMyCPAYearCourse?year=" + $("#selyear").val() + "&name=" + escape($.trim(getSearchWord("tbTitle"))) + "&allsum=@(allsum)&t=" + new Date();
+    }
+
+    function cpaChange() {
+        InitCPAYearList(getCPAYearUrl());
+    }
+
+    function showCPAdiv(type) {
+        switch (type) {
+            case 1:
+                $("#div_basic").load("/UserManage/CPACourse?t=" + (new Date()).getUTCMilliseconds());
+                break;
+        }
+    }
+</script>
+

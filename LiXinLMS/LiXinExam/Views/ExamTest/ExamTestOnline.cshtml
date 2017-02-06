@@ -1,0 +1,293 @@
+﻿@{
+    ViewBag.Title = "在线考试";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string examUserID = Request.QueryString["euID"];
+    string txtsourceType = Request.QueryString["SourceType"];
+}
+<script src="@Url.Content("~/Scripts/exam.js")" type="text/javascript"> </script>
+<script src="@Url.Content("~/Scripts/ckplayer5.8/ckplayer.js")" type="text/javascript"> </script>
+<input id="examUserID" name="examUserID" type="hidden" value="@(examUserID)"/>
+<input id="txtsourceType" name="txtsourceType" type="hidden" value="@(txtsourceType)" />
+<form id="submitAnswerForm" method="post" action="">
+<input id="questionOrder" name="questionOrder" type="hidden" />
+<input id="userAnswer" name="userAnswer" type="hidden" />
+<input id="questionScore" name="questionScore" type="hidden" />
+</form>
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{ 
+    linkName = "ExamTestOnline"
+}))
+    <!-- 考试基本信息 -->
+    <div id="examBaseInfor">
+    </div>
+    <!-- 考试内容 -->
+    <div id="examTestMain" style="display: none;">
+        <div id="examTest">
+        </div>
+        <div class="exam-main">
+            <div class="fl span77">
+                <div class="tab-bk tab-exam"><ul id="operation"></ul></div>
+                <div id="questionList" class="exam-con"></div>
+            </div>
+            <div class="fr span22">
+                <div id="questionCountTotal"></div>
+                <div id="questionCountDetail">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 试题填空题输入框模板 -->
+<script id="fillBlankTemplate" type="text/x-jsrender">
+    <p><input type="text" class="Box all50" count="{{:#data}}" questionID="0"/></p>
+</script>
+<!-- 试题显示模板 -->
+<script id="questionShowTemplate" type="text/x-jsrender">
+    <div id="q{{:QuestionID}}" type="{{:QType}}" class="singleQuestion">
+        <dl class="clb">
+            <dt>
+                <a sign="sign" class="signf" signflag="0" onclick="Exam.ChangeSign({{:QuestionID}},this);"></a>{{:QuestionOrder}} <span class="c_green">({{:Score}}分) . </span> 
+            </dt>
+            <dd>
+                <h5 style="overflow:auto;">{{:QuestionContent}}</h5>
+                {{if QType==6}}
+                    <a class="icon iview" title='查看' onclick='Exam.BrowQuestionFiles({{:QuestionID}});'></a>
+                {{/if}}
+            </dd>
+            <dd class="questionAnswer">
+                {{if QType==1}}
+                    <!-- 问答题 -->
+                    {{for QuestionAnswer}}
+                        <p><textarea id="answer_{{:QuID}}_0" class="Boxarea all50" onblur="Exam.UpdateUserAnswer({{:QuID}},{{:QType}});">{{:UserAnswer}}</textarea><p>
+                    {{/for}}
+                {{/if}}
+                {{if QType==2}}
+                    <!-- 单选题 -->
+                    {{for QuestionAnswer}}
+                        <p><input type="radio" name="answer_{{:QuID}}" order="{{:Order}}" id="answer_{{:QuID}}_{{:Order}}" onchange="Exam.UpdateUserAnswer({{:QuID}},{{:QType}});"/>{{:OrderShow}}. {{:AnswerContent}}</p>
+                    {{/for}}    
+                {{/if}}
+                {{if QType==3}}
+                    <!-- 多选题 -->
+                    {{for QuestionAnswer}}
+                        <p><input type="checkbox" id="answer_{{:QuID}}_{{:Order}}" order="{{:Order}}" onchange="Exam.UpdateUserAnswer({{:QuID}},{{:QType}});"/>{{:OrderShow}}. {{:AnswerContent}}</p>
+                    {{/for}}
+                {{/if}}
+                {{if QType==4}}
+                    <!-- 判断题 -->
+                    <p><input type="radio" name="answer_{{:QuestionID}}" order="0" id="answer_{{:QuestionID}}_0" onchange="Exam.UpdateUserAnswer({{:QuestionID}},{{:QType}});"/>A. 正确</p>
+                    <p><input type="radio" name="answer_{{:QuestionID}}" order="1" id="answer_{{:QuestionID}}_1" onchange="Exam.UpdateUserAnswer({{:QuestionID}},{{:QType}});"/>B. 错误</p>
+                {{/if}}
+                {{if QType==5}}
+                    <!-- 填空题 -->
+                {{/if}}
+                {{if QType==6}}
+                    <!-- 多选题 -->
+                    {{for QuestionAnswer}}
+                        {{if AnswerType==0}}
+                            <p><textarea id="answer_{{:QuID}}_0" class="Boxarea all50" onblur="Exam.UpdateUserAnswer({{:QuID}},{{:QType}});">{{:UserAnswer}}</textarea></p>
+                        {{/if}}
+                        {{if AnswerType!=0}}
+                            <p><input type="{{:AnswerType==1?"radio":"checkbox"}}" order="{{:Order}}" name="answer_{{:QuID}}" id="answer_{{:QuID}}_{{:Order}}" onchange="Exam.UpdateUserAnswer({{:QuID}},{{:QType}});"/>{{:OrderShow}}. {{:AnswerContent}}</p>
+                        {{/if}}
+                    {{/for}}
+                {{/if}}
+            </dd>
+        </dl>
+    </div>
+
+</script>
+<!-- 右侧单个显示 -->
+<script id="questionSingleShowTemplate" type="text/x-jsrender">
+    <div id="order{{:QuestionID}}"  class="singlequ {{:UserAnswer.length>0?'done':'nodone'}}" doflag="{{:UserAnswer.length>0?1:0}}" signflag="0" onclick="Exam.GetShowSingleQuestion({{:QuestionID}},{{:QuestionOrder}});">
+        {{:QuestionOrder}}
+    </div>
+</script>
+<!-- 右侧题目数目统计 -->
+<script id="questionCountTotalTemplate" type="text/x-jsrender">
+    <div class="tab-topic">
+        <ul>
+            <li onclick=" Exam.QuestionStatusSelect(this,0); " class="On">全部<div>(<span id="quAllTotal">{{:QuAllTotal}}</span>)</div><i></i></li>
+            <li onclick=" Exam.QuestionStatusSelect(this,1); ">未完成<div>(<span id="quNoTotal">{{:QuNoTotal}}</span>)</div><i></i></li>
+            <li onclick=" Exam.QuestionStatusSelect(this,2); ">已完成<div>(<span id="quOverTotal">{{:QuOverTotal}}</span>)</div><i></i></li>
+            <li onclick=" Exam.QuestionStatusSelect(this,3); ">已标记<div>(<span id="quSignTotal">{{:QuSignTotal}}</span>)</div><i></i></li>
+        </ul>
+    </div>
+
+</script>
+<!-- 右侧题目列表 -->
+<script id="questionCountDetailTemplate" type="text/x-jsrender">
+    <h4>{{:#data}}</h4>
+    <div type="{{:#data}}" class="Numlist"></div>
+</script>
+<!-- 试题上部的操作按钮模板(单题可逆) -->
+<script id="examOperationSingleBackTemplate" type="text/x-jsrender">
+        <input id="btnPreQuestion" value="上一题" type="button" onclick="Exam.GetShowQuestionList(1,-1);" class="btn"/>
+        <input id="btnNextQuestion" value="下一题" type="button" onclick="Exam.GetShowQuestionList(1,1);" class="btn btn-co"/>
+</script>
+<!-- 试题上部的操作按钮模板(单题不可逆) -->
+<script id="examOperationSingleNoBackTemplate" type="text/x-jsrender">
+        <input id="btnNextQuestion" value="下一题" type="button" onclick="Exam.GetShowQuestionList(2,1);" class="btn btn-co" />
+</script>
+<!-- 试题上部的操作按钮模板(整体显示) -->
+<script id="examOperationAllShowTemplate" type="text/x-jsrender">
+    <li onclick="Exam.QuestionTypeSelect(this,'{{:#data}}');">{{:#data}}</li>
+</script>
+<!--考试头部信息模板-->
+<script id="examTopTemplate" type="text/x-jsrender">
+    <div class="examTit">
+        <h2>{{:ExamTitle}}</h2>
+        <dl>
+            <dd>总分：<strong>{{:ExamScore}}</strong>分</dd>
+            <dd>及格分数：<strong>{{:PassScore}}</strong>分</dd>
+            <dd>考试时长：<strong>{{:ExamLength}}</strong>分钟</dd>
+            <dt>
+                <span>距本场考试结束时间还有：<strong id="examlefttime"></strong></span>
+                <input type="button" id="btnSubmitExam" onclick="Exam.SubmitExam('');" value="提交试卷" class="btn btn-co"/>
+            </dt>
+        </dl>
+    </div>
+</script>
+<!--进入考试提示信息模板-->
+<script id="examTemplate" type="text/x-jsrender">
+    <div class="exam-info">
+        <div class="pic"></div>
+        <table class="tab-Form">
+            <tr><td class="Tit"><i></i>考试总分：</td><td><strong>{{:ExamScore}}</strong>分</td></tr>
+            <tr><td class="Tit"><i></i>及格分数：</td><td><strong>{{:PassScore}}</strong>分</td></tr>
+            <tr><td class="Tit"><i></i>考试时长：</td><td><strong>{{:ExamLength}}</strong>分钟</td></tr>
+            <tr><td class="Tit"><i></i>显示方式：</td><td>{{:ExamShowWay==0?"整卷显示":(ExamShowWay==1?"单题可逆":"单题不可逆")}}</td></tr>
+        </table>
+        <div class="time">
+            <p>距本场考试还有:<strong id="leftTime"></strong></p>
+            <div><input type="button" class="btn-blue" onclick="Exam.StartExamTest();" id="btnGoExam" disabled="disabled" value="点击进入考试"/></div>
+        </div>
+    </div>
+    <ul class="examrule">
+        <li><h5>考试必读: </h5></li>
+        <li>1、本场考试考试时间为：<strong>{{:ExamStartTime}}</strong> 至 <strong>{{:ExamEndTime}}</strong>；</li>
+        <li>2、当考试时间到了，请点击“<strong>点击进入考试</strong>”，进入考试，同时考试计时开始；</li>
+        <li>3、进入考试页面请不要刷新页面，后果自负；</li>
+        <li>4、考试倒计时结束会自动交卷，您也可以手动交卷；</li>
+        <li>5、祝大家考出好成绩；</li>
+    </ul>
+</script>
+<!--试题附件查看模板-->
+<script id="questionFileTemplate" type="text/x-jsrender">
+    <table >
+        <tr>
+            {{if #data.FileUpload[0]._fileType==0}}
+                <td class="QSingle">
+                <center>
+                    <div id="imageCollection">
+                        <a class="pl" onclick=" turnToNext(this, 'left'); "></a>
+                        <input type="hidden" value="1" />
+                        {{for FileUpload}}
+                            <img src="../../ClientBin/UploadFile/{{:_fileName}}" style="{{:#index == 0 ? 'display:block; ' : ' display:none; '}}" />
+                        {{/for}}
+                        <a class="pr" onclick=" turnToNext(this, 'right'); " ></a>
+                    </div>
+                </center>
+                </td>
+            {{else if #data.FileUpload[0]._fileType==1}}
+               <td>
+                 {{for FileUpload}}
+                    <embed type="application/x-mplayer2" src="../../ClientBin/UploadFile/{{:_fileName}}" name="mediaplayer" width="400" height="250" showcontrols="1" showstatusbar="0" showdisplay="0" autostart="0"></embed>
+                 {{/for}} 
+               </td>
+            {{else}}
+                <td>
+                {{for FileUpload}}
+                 <input name="FlvName" value="{{:_fileName}}" type="hidden" />
+                  <div id='{{:_fileName==null?"":_fileName.substring(0,_fileName.length-4)}}'>
+                  </div> 
+                {{/for}}
+                </td>
+            {{/if}}
+        </tr>
+    </table>
+</script>
+<script type="text/javascript">
+
+    var timer = 0;
+    $(document).ready(function () {
+        //隐藏头部、底部
+        //……
+
+        //弹出加载提示
+        art.dialog({ width: 400, height: 150, id: "loadcounter", content: '正在加载，请稍后……<span id="process">0%</span>' });
+
+        //考试基本信息
+        $.getJSON("/ExamTest/GetExaminationInformation?examUserID=@(examUserID)&SourceType=@(txtsourceType)", function (exam) {
+            if (exam.result == 1) {
+                $("#process").html("30%");
+                Exam.Examination = exam.data;
+                $("#examBaseInfor").html($("#examTemplate").render(exam.data));
+                //获取时间
+                var tempI = setInterval("countTimer()", 1000);
+
+                $.getJSON("/ExamTest/GetSericeTimeDifference?euID=@(examUserID)&SourceType=@(txtsourceType)", function(time) {
+                    if (time.result == 1) {
+                        clearInterval(tempI);
+                        Exam.timeGoInToTicker = time.timeLength - timer; //局考试开始时间还有多少
+                        //倒计时
+                        Exam.GoInToTicker();
+                        $("#process").html("50%");
+                        $.getJSON("/ExamTest/GetExampaperInformation?examUserID=@(examUserID)&SourceType=@(txtsourceType)", function(data) {
+                            if (data.result == 1) {
+                                $("#process").html("100%");
+                                art.dialog.list['loadcounter'].close();
+                                Exam.ExampaperShow = data.data; //试题
+                                Exam.UserAnswer = data.data.StudentAnswer; //学员答案
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    //计数
+
+    function countTimer()
+    {
+        timer++;
+    }
+    function player()
+    {
+        $("input[name='FlvName']").each(function ()
+        {
+            ckplay($(this).val());
+        });
+    }
+    function ckplay(name)
+    {
+
+        var url = '@Url.Content("~/ClientBin/UploadFile/")' + name;
+        var id = name.substring(0, name.length - 4);
+        var s1 = new swfupload();
+        s1.ckplayer_url = '@Url.Content("~/Scripts/ckplayer5.8/ckplayer.swf")'; //播放器文件名
+        s1.ckplayer_flv = url; //视频地址,这里也可以填写一个网址或xml地址或flash文件,具体的设置请到网站了解
+        s1.ckplayer_pat = '1'; //传递的参数,这里的具体参数设置方式到网站了解
+        s1.ckplayer_style = 0; //传递的方式,0是普通方式，1是网址传送，2是xml传送，3是flash传送
+        s1.ckplayer_default = 0; //读取文本配置，此参数具有非常强大的功能，（比如外站引用视频只需一个参数即可）说来话长，请到网站了解详情
+        s1.ckplayer_xml = ''; //风格配置xml文件，如果为空的话将使用js文件配置
+        s1.ckplayer_loadimg = ''; //初始图片地址
+        s1.ckplayer_pauseflash = ''; //暂停时播放的广告，只支持flash和图片
+        s1.ckplayer_pauseurl = ''; //暂停时播放图片时需要加一个链接
+        s1.ckplayer_loadadv = ''; //视频开始前播放的广告，可以是flash,也可是视频格式
+        s1.ckplayer_loadurl = ''; //视频开始前广告的链接地址，主要针对视频广告，如果是flash可以不填写
+        s1.ckplayer_loadtime = 0; //视频开始前广告播放的秒数,只针对flash或图片有效
+        s1.ckplayer_endstatus = 2; //视频结束后的动作，0停止播放并发送js,1是不发送js且重新循环播放,2停止播放
+        s1.ckplayer_volume = 40; //视频默认音量0-100之间
+        s1.ckplayer_play = 0; //视频默认播放还是暂停，0是暂停，1是播放
+        s1.ckplayer_width = 300; //播放器宽度
+        s1.ckplayer_height = 150; //播放器高度
+        s1.ckplayer_bgcolor = '#000000'; //播放器背景颜色
+        s1.ckplayer_allowFullScreen = true; //是否支持全屏，true支持，false不支持，默认支持
+        s1.swfwrite(id); //div的id
+
+    }
+
+</script>

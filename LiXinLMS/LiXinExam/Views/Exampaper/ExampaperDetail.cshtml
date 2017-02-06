@@ -1,0 +1,259 @@
+﻿@using LiXinLanguage
+@using LiXinModels.Examination.DBModel
+@using LiXinModels.Examination.ShowModel
+@{
+    Layout = null;
+    var expape = ViewData["expape"] as tbExampaper;
+    var expapeQuestion = ViewData["expapeQuestion"] as List<tbQuestion>;
+    var expapeRule = ViewData["expapeRule"] as List<MExamRuleShow>;
+    string type = Request.QueryString["type"]; //为0隐藏返回按钮，1不隐藏
+    var url = Url.Content("~/ClientBin/UploadFile/");
+}
+@*试卷查看*@
+<script src="@Url.Content("~/Scripts/ckplayer5.8/ckplayer.js")" type="text/javascript"> </script>
+<h3 class="tit-h3">@(expape.ExampaperTitle)</h3>
+<div class="c80">
+    @Exampaper.ExampaperSortName：@ViewData["fatherModel"]
+    <span class="ml10">创建于 @(expape.LastUpdateTime.ToString("yyyy-MM-dd"))</span>
+</div>
+<div id="Questions" class="exam-list mt10">
+    @{
+        if (expapeQuestion.Count > 0)
+        {
+            int qq = 0;
+            foreach (tbQuestion Question in expapeQuestion)
+            {
+                        
+                <div id="QuestionID@(Question._id)" class="QSingle">
+                    <input type="hidden" name="@(Question.QuestionType)" value="@(Question._id)"/>
+                    <div class="title"><div class="info"><span>@(expape.QuestionList[qq].QOrder)</span>. [ <span class="fen">@(expape.QuestionList[qq].QScore)</span> 分 ]</div><h5>@(Html.Raw(Question.QuestionContent))</h5></div>
+                    <div class="content">
+                        @{
+                switch (Question.QuestionType)
+                {
+                    case 1:
+                                    <div><textarea readonly="readonly"></textarea></div>
+                                    <div class="ans"><div class="ans-ok">
+                                            <span class="tit"><i></i>正确答案</span>
+                                            <p>@(Question.QuestionAnswer.Count > 0 ? Question.QuestionAnswer[0].Answer : "")</p>
+                                    </div></div>
+                                    break;
+                                case 2:
+                                    {
+                                        int count = 0;
+                                        var an="";
+                                        foreach (QuestionAnswer s in Question.QuestionAnswer)
+                                        {
+                                            if (s.AnswerFlag == 1){
+                                                an = ((char)(65 + count)).ToString();
+                                            }
+                                            <div><input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.Answer</label></div>
+                                            count++;
+                                        }
+                                        <div class="ans"><div class="ans-ok">
+                                            <span class="tit"><i></i>正确答案</span>
+                                            <p>@an</p>
+                                        </div></div>
+                                    }
+                                    break;
+                                case 3:
+                                    {
+                                        int count = 0;
+                                        var an = "";
+                                        foreach (QuestionAnswer s in Question.QuestionAnswer)
+                                        {
+                                            if (s.AnswerFlag == 1)
+                                            {
+                                                an = an == "" ? ("<span>" + ((char)(65 + count)).ToString() + "</span>") : ("<span>" + ((char)(65 + count)).ToString() + "</span>");
+                                            }
+                                            <div><input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.Answer</label></div>
+                                            count++;
+                                        }
+                                        <div class="ans"><div class="ans-ok">
+                                            <span class="tit"><i></i>正确答案</span>
+                                            <p>@Html.Raw(an)</p>
+                                        </div></div>
+                                    }
+                                    break;
+                                case 4:
+                                    {
+                                        var an = Exampaper.eTrue;
+                                        if (Question.QuestionAnswer.Count > 0){
+                                            an = Question.QuestionAnswer[0].Answer == "0" ? Exampaper.eTrue : Exampaper.eFalse;
+                                        }
+                                        
+                                        <div class="jud">
+                                        <input type="radio" disabled="disabled"/>
+                                        <label>@Exampaper.eTrue</label>
+                                        <input type="radio" disabled="disabled"/>
+                                        <label>@Exampaper.eFalse</label>
+                                        </div>
+                                        <div class="ans"><div class="ans-ok">
+                                            <span class="tit"><i></i>正确答案</span>
+                                            <p>@an</p>
+                                        </div></div>
+                                    }
+                                    break;
+                                case 5:
+                                    {
+                                        <div class="ans"><div class="ans-ok">
+                                            <span class="tit"><i></i>正确答案</span>
+                                            <p>
+                                                @{
+                                        if (Question.QuestionAnswer.Count > 0)
+                                        {
+                                            foreach (string s in Question.QuestionAnswer[0].Answer.Split(new[] { "!!%%!!" }, StringSplitOptions.None))
+                                            {
+                                                            <span>@(s)</span>
+                                            }
+                                        }
+                                                }
+                                            </p>
+                                        </div></div>
+                                    }
+                                    break;
+                                case 6:
+                                    {
+                                        string name = Question.FileUpload[0].FileName;
+                                        switch (Question.FileUpload[0].FileType)
+                                        {
+                                            case 0:
+                                                <center class="all70 pos_r">
+                                                        <a id="k-prev" onclick=" turnToNext(this, 'left'); " class="pl"></a>
+                                                        <span id="imageCollection">
+                                                            <input type="hidden" value="1" />
+                                                            @{
+                                                for (int i = 0; i < Question.FileUpload.Count; i++)
+                                                {
+                                                                    <img src="../../ClientBin/UploadFile/@Question.FileUpload[i].FileName" style="@(i == 0 ? " display:block; " : " display:none; ")" />
+                                                }
+                                                            }
+                                                        </span>
+                                                        <a id="k-next" onclick=" turnToNext(this, 'right'); " class="pr"></a>
+                                                </center>
+                                                break;
+                                            case 1:
+                        <embed class="mLeft_1" src="../../Scripts/mp3player/player.swf?url=../../ClientBin/UploadFile/@name&amp;autoplay=0;autostart=0" 
+                                                    type="application/x-shockwave-flash" wmode="transparent"  allowscriptaccess="always" height="25" width="400"></embed> 
+                                                                                                                 break;
+                                            case 2:
+                                                                                                                 var id = name.Substring(0, name.Length - 4);   
+                                                <input name="FlvName" value="@name" type="hidden" />
+                                                <div id='@id' class="mLeft_1">
+                                                </div> 
+                                                    break;
+                                        }
+                                        if (Question.QuestionAnswer[0].AnswerType == 0)
+                                        {
+                                            <div><textarea class="Boxarea all50 " readonly="readonly"></textarea></div>
+                            <div class="ans"><div class="ans-ok">
+                                            <span class="tit"><i></i>正确答案</span>
+                                            <p>@(Question.QuestionAnswer.Count > 0 ? Question.QuestionAnswer[0].Answer : "")</p>
+                                    </div></div>
+                                        }
+                                        else if (Question.QuestionAnswer[0].AnswerType == 1)
+                                        {
+                                            int count = 0;
+                                            var an="";
+                                            foreach (QuestionAnswer s in Question.QuestionAnswer)
+                                            {
+                                                if (s.AnswerFlag == 1)
+                                                {
+                                                    an = ((char)(65 + count)).ToString();
+                                                }
+                                                <div><input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.Answer</label></div>
+                                                count++;
+                                            }
+                                            <div class="ans"><div class="ans-ok">
+                                                <span class="tit"><i></i>正确答案</span>
+                                                <p>@an</p>
+                                            </div></div>
+                                        }
+                                        else
+                                        {
+                                            int count = 0;
+                                            var an = "";
+                                            foreach (QuestionAnswer s in Question.QuestionAnswer)
+                                            {
+                                                if (s.AnswerFlag == 1)
+                                                {
+                                                    an = an == "" ? ("<span>" + ((char)(65 + count)).ToString() + "</span>") : ("<span>" + ((char)(65 + count)).ToString() + "</span>");
+                                                }
+                                                <div><input type="checkbox" disabled="disabled" @(s.AnswerFlag == 1 ? "checked=checked" : "")/><label>@((char)(65 + count)). @s.Answer</label></div>
+                                                count++;
+                                            }
+                                            <div class="ans"><div class="ans-ok">
+                                                <span class="tit"><i></i>正确答案</span>
+                                                <p>@Html.Raw(an)</p>
+                                            </div></div>
+                                        }
+                                    }
+                                    break;
+                }
+                        }
+                    </div>
+                </div>
+                qq++;
+            }
+        }
+        if (expapeRule != null && expapeRule.Count > 0)
+        {
+            foreach (MExamRuleShow Rule in expapeRule)
+            {
+                <div class="mt10"><table class="tab-Form">
+                    <tr><td class="Tit">@Exampaper.qType: </td>
+                    <td class="all30">@(Rule.QuestionType)</td>
+                    <td class="Tit">@Exampaper.qSort: </td>
+                    <td class="all40" title="@(Rule.QuestionSort)">@(Rule.QuestionSort)</td></tr>
+                    <tr><td class="Tit">分值: </td>
+                    <td>@(Rule.QuestingScore)</td>
+                    <td class="Tit">@Exampaper.qLevel: </td>
+                    <td>
+                    易<strong class="c_orange">@(Rule.Leveleasy)</strong>
+                    中<strong class="c_orange">@(Rule.Levelcommon)</strong>
+                    难<strong class="c_orange">@(Rule.Levelhard)</strong></td>
+                    </tr>
+                </table></div>
+            }
+        }
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("input[name='FlvName']").each(function ()
+        {
+            ckplay($(this).val());
+        });
+        //ckplay();
+    });
+    function ckplay(name)
+    {
+
+        var url = '@Url.Content("~/ClientBin/UploadFile/")' + name;
+        var id = name.substring(0, name.length - 4);
+        var s1 = new swfupload();
+        s1.ckplayer_url = '@Url.Content("~/Scripts/ckplayer5.8/ckplayer.swf")'; //播放器文件名
+        s1.ckplayer_flv = url; //视频地址,这里也可以填写一个网址或xml地址或flash文件,具体的设置请到网站了解
+        s1.ckplayer_pat = '1'; //传递的参数,这里的具体参数设置方式到网站了解
+        s1.ckplayer_style = 0; //传递的方式,0是普通方式，1是网址传送，2是xml传送，3是flash传送
+        s1.ckplayer_default = 0; //读取文本配置，此参数具有非常强大的功能，（比如外站引用视频只需一个参数即可）说来话长，请到网站了解详情
+        s1.ckplayer_xml = ''; //风格配置xml文件，如果为空的话将使用js文件配置
+        s1.ckplayer_loadimg = ''; //初始图片地址
+        s1.ckplayer_pauseflash = ''; //暂停时播放的广告，只支持flash和图片
+        s1.ckplayer_pauseurl = ''; //暂停时播放图片时需要加一个链接
+        s1.ckplayer_loadadv = ''; //视频开始前播放的广告，可以是flash,也可是视频格式
+        s1.ckplayer_loadurl = ''; //视频开始前广告的链接地址，主要针对视频广告，如果是flash可以不填写
+        s1.ckplayer_loadtime = 0; //视频开始前广告播放的秒数,只针对flash或图片有效
+        s1.ckplayer_endstatus = 2; //视频结束后的动作，0停止播放并发送js,1是不发送js且重新循环播放,2停止播放
+        s1.ckplayer_volume = 40; //视频默认音量0-100之间
+        s1.ckplayer_play = 0; //视频默认播放还是暂停，0是暂停，1是播放
+        s1.ckplayer_width = 300; //播放器宽度
+        s1.ckplayer_height = 150; //播放器高度
+        s1.ckplayer_bgcolor = '#000000'; //播放器背景颜色
+        s1.ckplayer_allowFullScreen = true; //是否支持全屏，true支持，false不支持，默认支持
+        s1.swfwrite(id); //div的id
+
+    }
+
+</script>

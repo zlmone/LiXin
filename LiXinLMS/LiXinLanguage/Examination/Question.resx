@@ -1,0 +1,392 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Question_QuestionManage_AddFiles" xml:space="preserve">
+    <value>添加附件</value>
+    <comment>添加附件</comment>
+  </data>
+  <data name="Question_QuestionManage_AddItemAnswer" xml:space="preserve">
+    <value>添加选项</value>
+    <comment>添加选项</comment>
+  </data>
+  <data name="Question_QuestionManage_AddQuestion" xml:space="preserve">
+    <value>新增试题</value>
+    <comment>新增试题</comment>
+  </data>
+  <data name="Question_QuestionManage_AddSort" xml:space="preserve">
+    <value>添加题库</value>
+    <comment>添加题库</comment>
+  </data>
+  <data name="Question_QuestionManage_BrowseQuestion" xml:space="preserve">
+    <value>浏览试题</value>
+    <comment>浏览试题</comment>
+  </data>
+  <data name="Question_QuestionManage_CommonLevel" xml:space="preserve">
+    <value>中</value>
+    <comment>中</comment>
+  </data>
+  <data name="Question_QuestionManage_DeleteQuestion" xml:space="preserve">
+    <value>删除试题</value>
+    <comment>删除试题</comment>
+  </data>
+  <data name="Question_QuestionManage_DeleteSort" xml:space="preserve">
+    <value>删除题库</value>
+    <comment>删除题库</comment>
+  </data>
+  <data name="Question_QuestionManage_EasyLevel" xml:space="preserve">
+    <value>易</value>
+    <comment>易</comment>
+  </data>
+  <data name="Question_QuestionManage_Failed" xml:space="preserve">
+    <value>失败</value>
+    <comment>失败</comment>
+  </data>
+  <data name="Question_QuestionManage_FileNotNull" xml:space="preserve">
+    <value>上传附件不可以为空</value>
+    <comment>上传附件不可以为空</comment>
+  </data>
+  <data name="Question_QuestionManage_Files" xml:space="preserve">
+    <value>试题附件</value>
+    <comment>试题附件</comment>
+  </data>
+  <data name="Question_QuestionManage_FileType_Audio" xml:space="preserve">
+    <value>音频</value>
+    <comment>音频</comment>
+  </data>
+  <data name="Question_QuestionManage_FileType_Picture" xml:space="preserve">
+    <value>图片</value>
+    <comment>图片</comment>
+  </data>
+  <data name="Question_QuestionManage_FileType_Vidio" xml:space="preserve">
+    <value>视频</value>
+    <comment>视频</comment>
+  </data>
+  <data name="Question_QuestionManage_FillBlank" xml:space="preserve">
+    <value>填空题</value>
+    <comment>填空题</comment>
+  </data>
+  <data name="Question_QuestionManage_HardLevel" xml:space="preserve">
+    <value>难</value>
+    <comment>难</comment>
+  </data>
+  <data name="Question_QuestionManage_ImportQuestion" xml:space="preserve">
+    <value>导入试题</value>
+    <comment>导入试题</comment>
+  </data>
+  <data name="Question_QuestionManage_ItemAnswer" xml:space="preserve">
+    <value>试题选项</value>
+    <comment>试题选项</comment>
+  </data>
+  <data name="Question_QuestionManage_ItemContent" xml:space="preserve">
+    <value>选项内容</value>
+    <comment>选项内容</comment>
+  </data>
+  <data name="Question_QuestionManage_ItemContentNotNull" xml:space="preserve">
+    <value>选项内容不可以为空</value>
+    <comment>选项内容不可以为空</comment>
+  </data>
+  <data name="Question_QuestionManage_ItemCountLimit" xml:space="preserve">
+    <value>试题最多可以26个选项</value>
+    <comment>试题最多可以26个选项</comment>
+  </data>
+  <data name="Question_QuestionManage_Judge" xml:space="preserve">
+    <value>判断题</value>
+    <comment>判断题</comment>
+  </data>
+  <data name="Question_QuestionManage_Level" xml:space="preserve">
+    <value>试题难度</value>
+    <comment>试题难度</comment>
+  </data>
+  <data name="Question_QuestionManage_Manage" xml:space="preserve">
+    <value>试题管理</value>
+    <comment>试题管理</comment>
+  </data>
+  <data name="Question_QuestionManage_MediaFileLimit" xml:space="preserve">
+    <value>多媒体题型至少有一个附件</value>
+    <comment>多媒体题型至少有一个附件</comment>
+  </data>
+  <data name="Question_QuestionManage_Mediea" xml:space="preserve">
+    <value>情景题</value>
+    <comment>情景题</comment>
+  </data>
+  <data name="Question_QuestionManage_ModifySort" xml:space="preserve">
+    <value>修改题库</value>
+    <comment>修改题库</comment>
+  </data>
+  <data name="Question_QuestionManage_Mulitple" xml:space="preserve">
+    <value>多选题</value>
+    <comment>多选题</comment>
+  </data>
+  <data name="Question_QuestionManage_MustOneItem" xml:space="preserve">
+    <value>试题至少有2个选项</value>
+    <comment>试题至少有一个选项</comment>
+  </data>
+  <data name="Question_QuestionManage_MustOneRightItem" xml:space="preserve">
+    <value>试题必须有一个正确选项</value>
+    <comment>试题必须有一个正确选项</comment>
+  </data>
+  <data name="Question_QuestionManage_QueationAnswerNotNull" xml:space="preserve">
+    <value>试题答案不可以为空</value>
+    <comment>试题答案不可以为空</comment>
+  </data>
+  <data name="Question_QuestionManage_QueationContentNotNull" xml:space="preserve">
+    <value>试题题干不可以为空</value>
+    <comment>试题题干不可以为空</comment>
+  </data>
+  <data name="Question_QuestionManage_QuestionBaseInformation" xml:space="preserve">
+    <value>试题基本信息</value>
+    <comment>试题基本信息</comment>
+  </data>
+  <data name="Question_QuestionManage_QuestionContent" xml:space="preserve">
+    <value>试题题干</value>
+    <comment>试题题干</comment>
+  </data>
+  <data name="Question_QuestionManage_QuestionEdit" xml:space="preserve">
+    <value>试题编辑</value>
+    <comment>试题编辑</comment>
+  </data>
+  <data name="Question_QuestionManage_QuestionFormat" xml:space="preserve">
+    <value>试题形式</value>
+    <comment>试题形式</comment>
+  </data>
+  <data name="Question_QuestionManage_RightAnswer" xml:space="preserve">
+    <value>正确答案</value>
+    <comment>正确答案</comment>
+  </data>
+  <data name="Question_QuestionManage_SelectSort" xml:space="preserve">
+    <value>选择题库</value>
+    <comment>选择题库</comment>
+  </data>
+  <data name="Question_QuestionManage_Single" xml:space="preserve">
+    <value>单选题</value>
+    <comment>单选题</comment>
+  </data>
+  <data name="Question_QuestionManage_Sort" xml:space="preserve">
+    <value>所属题库</value>
+    <comment>所属题库</comment>
+  </data>
+  <data name="Question_QuestionManage_Subject" xml:space="preserve">
+    <value>问答题</value>
+    <comment>问答题</comment>
+  </data>
+  <data name="Question_QuestionManage_Tip_FileCountLimit" xml:space="preserve">
+    <value>上传文件的个数在5个以内</value>
+    <comment>上传文件的个数在5个以内</comment>
+  </data>
+  <data name="Question_QuestionManage_Tip_FileFormat" xml:space="preserve">
+    <value>文件格式错误</value>
+    <comment>文件格式错误</comment>
+  </data>
+  <data name="Question_QuestionManage_Tip_FileType_AudioFormat" xml:space="preserve">
+    <value>上传格式：MP3 大小在8M以内</value>
+    <comment>上传格式：MP3 大小在8M以内</comment>
+  </data>
+  <data name="Question_QuestionManage_Tip_FileType_PictureFormat" xml:space="preserve">
+    <value>上传格式：jpg、png大小在500K以内</value>
+    <comment>上传格式：jpg、png,大小在500K以内</comment>
+  </data>
+  <data name="Question_QuestionManage_Tip_FileType_VidioFormat" xml:space="preserve">
+    <value>上传格式：wmv 大小在8M以内</value>
+    <comment>上传格式：wmv 大小在8M以内</comment>
+  </data>
+  <data name="Question_QuestionManage_Tip_SelectQuestion" xml:space="preserve">
+    <value>请选择试题</value>
+    <comment>请选择试题</comment>
+  </data>
+  <data name="Question_QuestionManage_Tip_SelectSort" xml:space="preserve">
+    <value>请先选择题库</value>
+    <comment>请先选择题库</comment>
+  </data>
+  <data name="Question_QuestionManage_TotalImport" xml:space="preserve">
+    <value>共成功导入</value>
+    <comment>共成功导入</comment>
+  </data>
+  <data name="Question_QuestionManage_Type" xml:space="preserve">
+    <value>试题题型</value>
+    <comment>试题题型</comment>
+  </data>
+  <data name="Question_QuestionManage_UpLoader" xml:space="preserve">
+    <value>创建者</value>
+    <comment>上传者</comment>
+  </data>
+  <data name="Question_QuestionManage_UpLoadTime" xml:space="preserve">
+    <value>创建时间</value>
+    <comment>上传时间</comment>
+  </data>
+  <data name="Question_QuestionManage_VoidTimes" xml:space="preserve">
+    <value>调用次数</value>
+    <comment>调用次数</comment>
+  </data>
+  <data name="Question_QuestionManage_AddRightAnswer" xml:space="preserve">
+    <value>添加正确答案</value>
+    <comment>添加正确答案</comment>
+  </data>
+  <data name="Question_QuestionManage_BtnAddRightAnswer" xml:space="preserve">
+    <value>（点击‘添加正确答案’按钮添加正确答案）</value>
+    <comment>(点击‘添加正确答案’按钮添加正确答案)</comment>
+  </data>
+  <data name="Question_QuestionManage_FillBlankTip" xml:space="preserve">
+    <value>需要加填空的地方请输入</value>
+    <comment>需要加空格的地方请输入</comment>
+  </data>
+  <data name="Question_QuestionManage_Right" xml:space="preserve">
+    <value>正确</value>
+    <comment>正确</comment>
+  </data>
+  <data name="Question_QuestionManage_Tip_BlankNumberIsOK" xml:space="preserve">
+    <value>填空的个数与答案的个数不符合</value>
+    <comment>填空的个数与答案的个数不符合</comment>
+  </data>
+  <data name="Question_QuestionManage_Wrong" xml:space="preserve">
+    <value>错误</value>
+    <comment>错误</comment>
+  </data>
+  <data name="Question_QuestionManage_WrongRow" xml:space="preserve">
+    <value>错误的行为</value>
+    <comment>错误的行为</comment>
+  </data>
+  <data name="Question_QuestionManage_QuestionTemplete" xml:space="preserve">
+    <value>试题模板</value>
+    <comment>请选择试题模板</comment>
+  </data>
+  <data name="Question_ExamManage" xml:space="preserve">
+    <value>考试管理</value>
+    <comment>考试管理</comment>
+  </data>
+  <data name="Question_QuestionManage_TimeLimit" xml:space="preserve">
+    <value>请输入正确的查询时间</value>
+    <comment>请输入正确的查询时间</comment>
+  </data>
+  <data name="Question_QuestionManage_SelectItem" xml:space="preserve">
+    <value>选项：</value>
+    <comment>选项</comment>
+  </data>
+  <data name="Question_QuestionManage_FileDataWrong" xml:space="preserve">
+    <value>导入的数据模板内容不正确</value>
+    <comment>导入的数据模板内容不正确</comment>
+  </data>
+  <data name="Question_QuestionManage_TempleteFormat" xml:space="preserve">
+    <value>试题模板不符合要求</value>
+    <comment>试题模板不符合要求</comment>
+  </data>
+  <data name="Question_QuestionManage_ViewQuestion" xml:space="preserve">
+    <value>请选择要预览的试题</value>
+    <comment>请选择要预览的试题</comment>
+  </data>
+</root>

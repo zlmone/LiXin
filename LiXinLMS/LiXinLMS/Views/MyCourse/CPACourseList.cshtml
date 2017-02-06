@@ -1,0 +1,211 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "我的已预订课程";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <div class="main-c">
+        @(Html.Action("SiteMapLink", "Common", new { linkName = "我的已预订课程" }))
+        <div class="tab-bk">
+            <ul>
+                <li onclick="showTags(0)">集中授课               
+                </li>
+
+                <li class="On" onclick="showTags(2)">注协课程               
+                </li>
+            </ul>
+        </div>
+        <div class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">课程名称：</td>
+                    <td class="span17">
+                        <input type="text" id="txt_CourseName" value="请输入搜索内容" info="" class="Box span16 searchclass" /></td>
+                    <td class="Tit span6">开课时间：</td>
+                    <td>
+                        <div class="time-choose">
+                            <input type="text" id="txt_StartTime" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', maxDate: '#F{$dp.$D(\'txt_EndTime\',{m:-1})}' })  " />
+                            @*<span class="Icon_16 iTime Inp_iTime" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd' }) "></span>*@
+                            <i></i>
+                        </div>
+                        至
+                        <div class="time-choose">
+                            <input type="text" id="txt_EndTime" readonly="readonly" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm', minDate: '#F{$dp.$D(\'txt_StartTime\',{m:1})}' })" />
+                            @*<span class="Icon_16 iTime Inp_iTime" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' }) "></span>*@
+                            <i></i>
+                        </div>
+                    </td>
+                    <td class="so-do">
+                        <input type="button" value="查询" id="btn_Select" class="btn" /></td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="sel_LearnStatus">
+                <option value="3">请选择课程状态</option>
+                <option value="0">未开始</option>
+                <option value="1">进行中</option>
+                <option value="2">已结束</option>
+            </select>
+            @*<select id="sel_PassStatus">
+                <option value="3">请选择课程状态</option>
+                <option value="0">未通过</option>
+                <option value="1">通过</option>
+            </select>*@
+        </div>
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th>课程名称
+                    </th>
+                    <th class="span7">课程学时
+                    </th>
+                    <th class="span12">开放级别
+                    </th>
+                    <th class="span7">授课讲师
+                    </th>
+                    <th class="span7">允许人数
+                    </th>
+                    <th class="span21">开课时间
+                    </th>
+                    <th class="span7">培训天数
+                    </th>
+                    <th class="span15">授课地点
+                    </th>
+                    <th class="span7">获得学时
+                    </th>
+                    <th class="span6">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="Courstlist">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</body>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        initSearch();
+        $("#txt_CourseName").val('@(ViewBag.Attname)');
+
+        if ("@(ViewBag.AttstartTime)" != "")
+        {
+            $("#txt_StartTime").val('@(ViewBag.AttstartTime)');
+            }
+        if ("@(ViewBag.AttendTime)" != "")
+        {
+            $("#txt_EndTime").val('@(ViewBag.AttendTime)');
+            }
+        $("#sel_LearnStatus").val('@(ViewBag.Attstate)');
+        fOnload(@(ViewBag.page));
+
+        $("#sel_LearnStatus").change(function ()
+        {
+            var t = "CourseName=" + encodeURIComponent(getSearchWord("txt_CourseName")) + "&LearnStatus=" + $("#sel_LearnStatus").val()
+                    + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val();// + "&PassStatus=" + $("#sel_PassStatus").val();
+
+            $("#Courstlist").JsRenderData({
+                sourceUrl: '/MyCourse/FCPACourseList?' + t,
+                isPage: true,
+                pageSize: 10,
+                pageIndex: 1,
+                templateID: "CourseListTemplate",
+            });
+
+        });
+
+        $("#btn_Select").click(function ()
+        {
+            fOnload(1)
+        });
+
+    });
+    function fOnload(page)
+    {
+        var t = "CourseName=" + encodeURIComponent(getSearchWord("txt_CourseName")) + "&LearnStatus=" + $("#sel_LearnStatus").val()
+                + "&StartTime=" + $("#txt_StartTime").val() + "&EndTime=" + $("#txt_EndTime").val();
+        $("#Courstlist").JsRenderData({
+            sourceUrl: '/MyCourse/FCPACourseList?' + t,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: page,
+            templateID: "CourseListTemplate",
+        });
+    }
+    function showTags(flag)
+    {
+        switch (flag)
+        {
+            case 0: //在线测试
+                location.href = "/MyCourse/MyCourseList";
+                break;
+            case 1: //在线测试
+                location.href = "/MyCourse/VideoCourseList";
+                break;
+            case 2: //课后评估
+                location.href = "/MyCourse/CPACourseList";
+                break;
+            default:
+        }
+    }
+
+</script>
+<script id="CourseListTemplate" type="text/x-jsrender">
+        {{for #data}}
+        <tr>
+            <td>
+            {{:#index+1}}
+            </td>
+            <td style="text-align:left;">
+                <div class="ovh span20" title="{{:CourseNameStr}}">{{:CourseNameStr}}</div>
+            </td>
+            <td>
+               {{:CourseLength}}
+            </td>
+            <td>
+                {{:OpenLevel}}
+            </td>
+            <td>
+             <div class="ovh span12" title="{{:CpaTeacher}}">  {{:CpaTeacher}}</div>
+             
+            </td>
+            <td>
+               {{:NumberLimited}}
+            </td>
+             <td class="f11" style="text-align:left;">
+                {{:CourseTime}}
+            </td>         
+             <td>
+               {{:TrainDays}}
+            </td>
+            <td>
+                <div class="ovh span14" title="{{:CourseAddress}}">{{:CourseAddress}}</div>
+            </td>             
+            <td>            
+              {{:GetLength}}
+            </td>
+            <td>
+                <a onclick="ViewCPA({{:Id}});" class="icon iview" title="详情"></a>
+            </td>
+        </tr> 
+        {{/for}}
+</script>
+</html>
+<script type="text/javascript">
+    function ViewCPA(id)
+    {//详情
+        window.location.href = "/CourseManage/FromCourseCPAList/" + id; // +"&flag=4";
+    }
+</script>

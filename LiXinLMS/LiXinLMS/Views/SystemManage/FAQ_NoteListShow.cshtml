@@ -1,0 +1,95 @@
+﻿@{
+    ViewBag.Title = "培训政策及FAQ";
+    Layout = "../Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "培训政策及FAQ" }))
+    <div class="span20 fl">
+        <div id="div_NoteSortManage">
+        </div>
+    </div>
+    <div id="Search" class="search_box" style="display: none">
+        <div class="clb">
+            <input type="button" value="立即搜索" class="Btn Btn_blue" onclick="Getdata()" />
+            <p>
+                <label>
+                    发布人：</label>
+                <input type="text" id="txtName" class="Box Box Raster_12" />
+                <label>
+                    标题:</label>
+                <input type="text" id="txtTitle" class="Box Raster_20" />
+            </p>
+        </div>
+        <ul class="clb">
+            <li class="fl">
+                <select id="selPublish" class="sel Raster_8" onchange="Getdata()">
+                    <option value="-1">所有状态</option>
+                    <option value="0">未发布</option>
+                    <option value="1">已发布</option>
+                </select>
+            </li>
+        </ul>
+    </div>
+    <div id='div_noteList' class="fr span78">
+        <table class="tab-List tab-Info">
+            <tbody id="ul_noteList"></tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+</div>
+<script id="noteListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr class="{{:(#index+1)%2==0?"even":"odd"}}">
+        <td>
+            <h5>{{:#index+1}}、<a href='FAQDetail?noteID={{:NoteId}}'>{{:NoteTitle}}</a></h5>
+            <div class="con allcontent">{{:NoHtmlNoteContent.length>100?NoHtmlNoteContent.substring(0,100)+"......":NoHtmlNoteContent}}<a style="color:#888;" class="ml10 mr10" href="FAQDetail?noteID={{:NoteId}}">详情>></a></div>
+            <p class="tr mr10">发布时间：{{:publishtimeStr}}</p>
+        </td>
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        Getdata();
+    });
+
+    function Getdata() {
+        $("#ul_noteList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "noteListTemplate",
+            funCallback: function () {
+                if ($("#txthidNoteSortId").length == 0) {
+                    $.get("/SystemManage/FAQ_NoteSortList?flag=0", function (data) {
+                        $("#div_NoteSortManage").html(data);
+                        $("#ul_SysNoteList").removeClass("treeview");
+
+                    });
+                }
+            }
+        });
+    }
+
+    function fnShowAllNote() {
+        if ($("#txthidNoteSortId").length != 0) {
+            $("#txthidNoteSortId").val(0);
+            Getdata();
+        }
+        else {
+            Getdata();
+        }
+    }
+
+    function getParamUrl() {
+        var SortID = 0;
+        if ($("#txthidNoteSortId").length != 0) {
+            if ($("#txthidNoteSortId").val() != 0) {
+                SortID = $("#txthidNoteSortId").val();
+            }
+        }
+
+        return "/SystemManage/GetNoteList?type=1&title=" + escape($.trim($("#txtTitle").val())) + "&realName=" + escape($.trim($("#txtName").val())) + "&Publish=1&SortID=" + SortID + "&t=" + new Date();
+    }
+</script>

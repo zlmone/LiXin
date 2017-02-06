@@ -1,0 +1,192 @@
+﻿@using LiXinModels.PlanManage
+@{
+    ViewBag.Title = "年度计划管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var StrYear = ViewData["StrYear"] as List<Tr_YearPlan>;
+}
+<div class="main-c">
+   @(Html.Action("SiteMapLink", "Common", new{linkName = "YearPlan"}))
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">创建时间：</td>
+                <td>
+                    <div class="data-choose">
+                        <input type="text" name="beginTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'endTime\')}' }) " id="beginTime" />
+                        @*<span class="Icon_16 iTime Inp_iTime" onclick=" WdatePicker({ el:'beginTime',dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'endTime\')}' }) "></span>*@
+                        <i></i>
+                    </div>
+                    至
+                    <div class="data-choose">
+                        <input type="text" name="endTime" value="" onclick=" WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'beginTime\')}' }) " id="endTime" />
+                        @*<span class="Icon_16 iTime Inp_iTime" onclick=" WdatePicker({ el:'endTime',dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'beginTime\')}' }) "></span>*@
+                        <i></i>
+                    </div>
+                </td>
+                <td class="so-do">
+                    <input type="button" value="搜索" class="btn" id="ibtnSearch" />
+                    <a id="btnAdd" onclick="AddYear();" class="btn btn-co">新增年度计划</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selyear" onchange="yearChange();">
+            <option value="0">请选择年度</option>
+            @{ 
+                for (int i = 0; i < StrYear.Count; i++)
+                {
+                    <option value="@(StrYear[i].Id)">@(StrYear[i].Year)</option>
+                }
+            }
+        </select>
+        <div class="list-do">
+            <a id="btnDelete">批量删除</a> 
+        </div>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th><input id="selAll" type="checkbox" /></th>
+                <th>序号</th>
+                <th>年度</th>
+                <th>包含课程</th>
+                <th>创建人</th>
+                <th>创建时间</th>
+                <th class="tc Raster_15">操作</th> 
+            </tr>
+        </thead>
+        <tbody id="yearList">
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+<script id="yearListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td>
+            {{if PublishFlag==0}}
+                <input id="G{{:Id}}" type="checkbox" name="checkyear" value="{{:Id}}" />
+            {{/if}}
+            </td>
+            <td>{{:#index+1}}</td>
+            <td>{{:Year}}</td>
+            <td>{{:courseCount}}</td>
+            <td>{{:Realname}}</td>
+            <td>{{:CreateTimeStr}}</td>
+            <td class="tc">
+                <a title="编辑" onclick="EditYear({{:Id}});" class="icon iedit"></a>
+            {{if PublishFlag==0}}
+                <a title="删除" onclick="Delete({{:Id}});" class="icon idel"></a>
+                <a title="发布" onclick="Publish({{:Id}});" class="icon ipub"></a>
+            {{else}}
+                <span class="icon idel idis" title="删除"></span>
+                <span class="icon ipub" disabled="disabled" title="发布"></span>
+            {{/if}}
+                <a title="查看详情" onclick="LookYear({{:Id}});" class="icon iview"></a>
+            </td>
+        </tr>  
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        InitializeTargetList(getParamUrl());
+        //查询
+        $("#ibtnSearch").bind("click", function () {
+            InitializeTargetList(getParamUrl());
+        });
+        //批量删除
+        $("#btnDelete").bind("click", function () {
+            var flag = false;
+            var check = document.getElementsByName("checkyear");
+            var checkList = "";
+            for (var i = 0; i < check.length; i++) {
+                if (check[i].checked) {
+                    checkList = checkList + check[i].value + ",";
+                    flag = true;
+                }
+            }
+            checkList = checkList.substring(0, checkList.length - 1);
+            if (!flag) {
+                art.dialog.tips("请选择年度计划", 3);
+                return false;
+            } else {
+                Delete(checkList);
+            }
+        });
+    });
+
+    //显示年度计划列表
+    function InitializeTargetList(url) {
+        var templateId = 'yearListTemplate';
+        $("#yearList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function () {
+                SetCheckBox("selAll", "yearList");
+                $("#selAll").removeAttr("checked");
+            }
+        });
+    }
+
+    function getParamUrl() {
+        return "/PlanManage/GetAllYearList?id=" + $("#selyear").val() + "&startTime=" + $("#beginTime").val() + "&endTime=" + $("#endTime").val() + "&t=" + new Date();
+    }
+
+    function yearChange() {
+        InitializeTargetList(getParamUrl());
+    }
+    //新增
+    function AddYear() {
+        window.location.href = "/PlanManage/YearPlanAdd?t=" + new Date();
+    }
+    //修改
+    function EditYear(id) {
+        window.location.href = "/PlanManage/YearPlanEdit?id=" + id + "&t=" + new Date();
+    }
+    //预览
+    function LookYear(id) {
+        window.location.href = "/PlanManage/YearPlanDetail?id=" + id + "&t=" + new Date();
+    }
+    //发布
+    function Publish(id) {
+        art.dialog({
+            content: "您确认发布吗？",
+            ok: function () {
+                $.post("/PlanManage/PublishYear?id=" + id, function (data) {
+                    if (data.result == 1) {
+                        InitializeTargetList(getParamUrl());
+                    }
+                    else {
+                        art.dialog.tips(data.content, 3);
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+
+    //删除
+    function Delete(id) {
+        art.dialog({
+            content: "您确认删除吗？",
+            ok: function () {
+                $.post("/PlanManage/DeleteYear?ids=" + id, function (data) {
+                    if (data.result == 1) {
+                        InitializeTargetList(getParamUrl());
+                    }
+                    else {
+                        art.dialog({
+                            content: data.content,
+                            time: 3
+                        });
+                    }
+                });
+            },
+            cancel: true
+        });
+    }
+</script>

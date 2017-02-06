@@ -1,0 +1,94 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var zhi = ViewBag.model as Sys_ParamConfig;
+    var list = ViewBag.list as List<string>;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+    <body>
+        <div>
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">各级别当年度内部培训的目标学时</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <input type="hidden" id="txt" value="@zhi.ConfigValue"/>
+        @*<li>
+            培训级别A:<input type="text" class="Box Raster_16" id="level_A"/>学时
+        </li>
+        <li>
+            培训级别B:<input type="text" class="Box Raster_16" id="level_B"/>学时
+        </li>
+        <li>
+            培训级别C:<input type="text" class="Box Raster_16" id="level_C"/>学时
+        </li>
+        <li>
+            培训级别D:<input type="text" class="Box Raster_16" id="level_D"/>学时
+        </li>*@
+        @foreach (string tt in list)
+        {
+            <tr><td class="Tit span20">培训级别 @tt：</td><td><input type="text" maxlength="4" class="span20" id="level_@(tt)" jibie="@tt" /></td></tr>
+        }                       
+        <tr>
+            <td class="Tit"></td>
+            <td><input type="button" value="确定" id="btn_Add" class="btn"/></td>
+        </tr>
+    </table>
+        
+    </body>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var re = /^\d+(?=\.{0,1}\d+$|$)/;
+            
+            var ttt = $("#txt").val();
+            for (var i = 0; i < ttt.split(';').length; i++) {
+                $("#level_" + ttt.split(';')[i].split('-')[0] + "").val(ttt.split(';')[i].split('-')[1]);
+                //alert();
+                //alert(i);
+            }
+            
+            $("#btn_Add").click(function () {
+                var t = "";
+                var a = 0;
+                //var t = $("#level_A").val() + ";" + $("#level_B").val() + ";" + $("#level_C").val() + ";" + $("#level_D").val();
+                $("input[type='text']").each(function () {
+                    var type = $(this).attr("jibie");
+                    if ($(this).val() != "") {
+                        if (!(/^(\+|-)?\d+$/.test($(this).val())) || parseInt($(this).val()) < 0) {
+                            art.dialog.tips('请输入正整数', 3);
+                            $(this).focus();
+                            a = 1;
+                            return;
+                        }
+                        else {
+                            t += type + "-" + $(this).val() + ";";
+                        }
+                    } else {
+                        art.dialog.tips('请输入目标学时', 3);
+                        a = 1;
+                        return;
+
+                    }
+                });
+                if (a == 1)
+                    return;
+                t = t.substring(0, t.lastIndexOf(';'));
+                $.post("/ParamConfig/fUpdateParamConfig?configType=13&configValue=" + t, function (data) {
+                    if (data.result == 1) {
+                        art.dialog.tips('配置成功', 3);
+                    } else {
+                        art.dialog.tips('配置失败', 3);
+                    }
+                });
+            });
+        })
+
+
+    </script>
+</html>

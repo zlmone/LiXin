@@ -1,0 +1,492 @@
+﻿@using LiXinModels.User
+@{
+    ViewBag.Title = "我的培训首页";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var model = ViewData["model"] as Sys_User;
+}
+<div class="main-c">
+<input type="hidden" id="qiehuan" value="0" />
+<div class="clb">
+    <div class="fl span19">
+        <div class="perInfo" style="height:330px;">
+            <h4>基本信息</h4>
+            <ul class="pi-list">
+                <li class="name"><span>@(model.Realname)</span></li>
+                <li>部门/分所：<span>@(model.DeptName)</span></li>
+            </ul>
+            <div class="pi-re">
+                <h5 class="tit-pc">我的成绩单</h5>
+                <ul>
+                <li>所内/目标学时：@(ViewBag.UserScore)/@(ViewBag.CourseLe)</li>
+                @{
+                    if (model.CPA=="是"){
+                        <li>CPA/目标学时：@(model.CPAScore)/@(ViewBag.CPACourseLe)</li>
+                    }    
+                }
+                <li>我的级别：<span id="TrGrade" >@(model.TrainGrade)</span></li>
+                <li>我的测试：<span id="TestNum" title="考试通过次数/全年在线测试完成次数">@(ViewBag.PassOnLineTestNum)/@(ViewBag.ALLOnLineTestNum)</span></li>
+                <li>我的补预订次数：@(model.ordertimes)/@(ViewBag.OrderCount)</li>
+                </ul>
+            </div>
+            <div class="per"><a href="/Common/RedirectUrl?blockName=Person" class="btn-blue span9">个人中心</a></div>
+        </div>
+    </div>
+    <div class="pic-show fl ml10">
+        <ol id="piccourse"></ol>
+        <ul id="picnumber"></ul>
+        <div class="num-bg"></div>
+    </div>
+    <div class="calendarTask fr">
+        <h4>我的课程</h4>
+        <table>
+            <thead>
+                <tr class="calendarheadone">
+                    <td colspan="7">
+                        <a id="preMonth" class="fr" onclick=" goAnotherMonth(1); ">>></a> <a id="nextMonth" class="fl" onclick=" goAnotherMonth(-1); "><<</a>
+                        <div class="ma tac">
+                            <select id="currentYear" class="sel" onchange=" goAnotherMonth(0); ">
+                                @{
+                                    for(var i=DateTime.Now.Year-1;i<=DateTime.Now.Year+2;i++)
+                                    {
+                                        <option value="@(i)" @(i == DateTime.Now.Year?"selected=selected":"")>@(i)</option>
+                                    }
+                                }
+                            </select>
+                            <span class="line_h20 c3c">年</span>
+                            <select id="currentMonth" class="sel" onchange=" goAnotherMonth(0); ">
+                                @{
+                                    for(var i=1;i<=12;i++)
+                                    {
+                                        <option value="@(i)" @(i == DateTime.Now.Month?"selected=selected":"")>@(i)</option>
+                                    }
+                                }
+                            </select>
+                            <span class="line_h20 c3c">月</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="calendarheadtwo">
+                    <td class="headworkweekbg">
+                        周一
+                    </td>
+                    <td class="headworkweekbg">
+                        周二
+                    </td>
+                    <td class="headworkweekbg">
+                        周三
+                    </td>
+                    <td class="headworkweekbg">
+                        周四
+                    </td>
+                    <td class="headworkweekbg">
+                        周五
+                    </td>
+                    <td class="headrestweekbg">
+                        周六
+                    </td>
+                    <td class="headrestweekbg">
+                        周日
+                    </td>
+                </tr>
+            </thead>
+            <tbody id="calendarTask">
+                <tr>
+                    <td class="passdaybg" order="1" isday="0">
+                        <div>
+                            <p>25</p>
+                            <span class="am">am</span>
+                            <span class="pm">pm</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr><td colspan="7" id="totaltask"></td></tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="clb mt10">
+    <div class="span23 fr">
+        <div class="list-h">
+            <div class="list-scr">
+                <a href="#" class="up"></a><a href="#" class="down"></a>
+            </div>
+            <div class="treeview-box">
+            <div id="courseSystem" class="tree-list" style="height:340px;"></div></div>
+        </div>
+    </div>
+    <div class="last-comm fl">
+        <h4 title="最新开课">
+        </h4>
+        <div class="tab-red">
+            <ul id="newcourselist">
+                <li class="On" order="0" >集中授课<i></i></li>
+                <li order="1">视频课程<i></i></li>
+                @{
+                    if(model.CPA=="是")
+                    {
+                        <li order="2">注协课程<i></i></li>
+                    }
+                }
+              
+            </ul>
+        </div>
+        <div class="list">
+            <ul id="jizhongshouke"></ul>
+            <ul id="shipinkecheng" style="display:none;"></ul>
+            @{
+                if (model.CPA == "是")
+                {
+                    <ul id="cpakecheng" style="display: none;"></ul>
+                }
+            }
+        </div>
+    </div>
+    <div class="app-list">
+        <div class="list list-al fl" style="height:160px;">
+            <h5 class="tit-co">
+                <span><a class="pointer" href="/MyApply/MyApply">我的申请</a></span><b class="fr"><a class="more" href="/MyApply/MyApply">更多</a></b></h5>
+            <table class="tab-List all">
+                <thead>
+                    <tr>
+                        <th class="span4">
+                            序号
+                        </th>
+                        <th>
+                            课程名称
+                        </th>
+                        <th>
+                            申请时间
+                        </th>
+                        <th>
+                            审批状态
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="myleave">
+                    <tr class="odd">
+                        <td colspan="4">
+                            暂无
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="list list-od fr" style="height:160px;">
+            <h5 class="tit-co">
+                <span><a href="/MyAttendce/MyAttendceList" class="pointer">我的考勤</a></span><b class="fr"><a class="more" href="/MyAttendce/MyAttendceList">更多</a></b></h5>
+            <table class="tab-List all">
+                <thead>
+                    <tr>
+                        <th class="span4">
+                            序号
+                        </th>
+                        <th>
+                            课程名称
+                        </th>
+                        <th>
+                            考勤状态
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="myatt">
+                    <tr class="odd">
+                        <td colspan="4">
+                            暂无
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+<!--模板-->
+<script id="listTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr class="{{:(#index+1)%2==0?"odd":"even"}}">
+            <td>{{:#index+1}}</td>
+            <td style="text-align:left;"><div class="span12 ovh" title="{{:name}}"><a class="pointer" href="{{:url==0?"/MyApply/MyApply":"/MyAttendce/MyAttendceList"}}">{{:name}}</a></div></td>
+            {{if flag==0}}
+            <td>{{:date}}</td>
+            {{/if}}
+            <td>{{:status}}</td>
+        </tr>
+    {{/for}}
+</script>
+<!--日历单元格模板-->
+<script id="calendarTaskTemplte" type="text/x-jsrender">
+    {{for #data}}
+        {{if (#index%7==0)}}
+            <tr>
+        {{/if}}
+        {{if Bg==0}}
+        <td class="passdaybg" isday="0" order="{{:(#index%7+1)}}">
+        <div><span class="am">am</span><span class="pm">pm</span><p>{{:Day}}</p></div>
+        </td>
+        {{/if}}
+         {{if (Bg==1 || Bg==3)}}
+        <td id="bg1td_{{:Day}}" year="{{:Year}}" month="{{:Month}}" day="{{:Day}}" class="{{:Bg==1?"mondaybg":"mondaybg bg-on"}} {{:(MoringStr=="" && AfterStr=="")?"":"pointer"}}" isday="{{:TaskTotal>0?1:0}}" order="{{:(#index%7+1)}}" onclick="{{:(MoringStr=="" && AfterStr=="")?"":"browseCourse(this);"}}">
+        <div><i title="今天"></i><span class="am {{:MoringStr==""?"":"bl"}}" title="{{:MoringStr==""?"":MoringStr}}">am</span><span class="pm {{:AfterStr==""?"":"bl"}}" title="{{:AfterStr==""?"":AfterStr}}">pm</span><p>{{:Day}}</p></div>
+        </td>
+        {{/if}}
+        {{if (#index+1)%7==0}}
+            </tr>
+        {{/if}}
+    {{/for}}
+</script>
+<!--模板-->
+<script id="picTemplate" type="text/x-jsrender">
+    {{for #data}}
+        {{if type==0}}
+        <li class="pointer" order="{{:order}}" style="background-image:url('../../Images/index/0.jpg');" onclick="window.location.href='/CourseLearn/CourseDetail?id={{:id}}&from=index';">
+        {{else}}
+        <li class="pointer" order="{{:order}}" style="background-image:url('../../Images/index/1.jpg');" onclick="window.location.href='/SystemManage/NoteDetail?noteID={{:id}}&from=index';">
+        {{/if}}
+            <dl>
+                {{if type==0}}
+                <dt>《<span class="ovh"style="display:inline-block;margin-bottom:-7px;max-width:400px;" title="{{:name}}">{{:name}}</span>》</dt>
+                <dd>讲师：{{:teacher}}</dd>
+                <dd>时间：{{:date}}</dd>
+                {{else}}
+                <dt><span class="ovh"style="display:inline-block;margin-bottom:-7px;max-width:400px;" title="{{:name}}">{{:name}}</span></dt>
+                <dd>时间：{{:notedate}}</dd>
+                <dd id="memoinfor">内容：{{:memo}}</dd>
+                {{/if}}
+            </dl>
+        </li>
+    {{/for}}
+</script>
+@*<dd class="info h6" style="overflow:hidden;">课程大纲：{{:memo==""?"暂无":memo}}</dd>*@
+<script type="text/javascript">
+    var courselist = [];
+    var intevalfun;
+    var currentorder = 1;
+     
+
+    $(document).ready(function () {
+        //最新课程切换
+        $("#newcourselist li").bind("click", function() {
+            $("#newcourselist li").removeClass("On");
+            $(this).addClass("On");
+            $("#jizhongshouke,#shipinkecheng,#cpakecheng").hide();
+            $("#qiehuan").val($(this).attr("order"));
+            switch($(this).attr("order")) {
+                case "0":
+                    $("#jizhongshouke").show();
+                    break;
+                case "1":
+                    $("#shipinkecheng").show();
+                    break;
+                case "2":
+                    $("#cpakecheng").show();
+                    break;
+            }
+        });
+
+
+        $("#gengduo").click(function() {
+            var i = $("#qiehuan").val();
+            switch (i) {
+            case "0":
+                location.href = "/CourseLearn/MyCourseSubscribe";
+                break;
+            case "1":
+                location.href = "/MyCourse/VideoCourseList";
+                break;
+            case "2":
+                location.href = "/CourseLearn/MyCourseSubscribe?showflag=1";
+                break;
+            }
+        });
+        //加载图片切换
+        initindexad();
+        //加载最新课程
+        initjizhong(0);
+        initjizhong(1);
+        if('@(model.CPA)' =='是') {
+            initjizhong(2);
+        }
+        //加载我的请假申请
+        initMyLeave();
+        //加载我的补预定申请
+        //initMakeUp();
+        //加载考勤
+        initMyAtt();
+        //加载胜任力体系
+        initCourseSystem();
+        //加载我的课程表
+        initCalendarTask(@(DateTime.Now.Year), @(DateTime.Now.Month), 0);
+    });
+    
+    //查看课程
+    function browseCourse(obj) {
+        window.location.href = '/MyCourse/MyCourseList?s=' + $(obj).attr("year") + '-' + $(obj).attr("month") + '-' + $(obj).attr("day");
+    }
+
+    //图片切换
+    function exchangepic(o) {
+        if(o!=undefined)
+            clearInterval(intevalfun);
+        var order = currentorder;
+        currentorder = o == undefined ? (currentorder + 1 > courselist.length ? 1 : currentorder + 1) : o;
+        $("#piccourse li[order='" + order + "']").eq(0).fadeOut();
+        $("#piccourse li[order='" + currentorder + "']").eq(0).fadeIn();
+
+        $("#picnumber li").removeClass("On");
+        $("#picnumber li[order='" + currentorder + "']").eq(0).addClass("On");
+    }
+    
+    //开始切换图片
+    function beginchangepic() {
+        if(courselist.length>1) {
+            intevalfun = setInterval(exchangepic, 4000);
+        }
+    }
+
+    //加载切换的图片课程
+    function changepicture() {
+        if(courselist.length>0) {
+            for(var i=0;i<courselist.length;i++) {
+                //加载图片数字
+                $("#picnumber").append('<li order="'+(i+1)+'" class="'+(i+1==1?"On":"")+'" onmouseleave="beginchangepic();" onmouseover="exchangepic('+(i+1)+')">'+(i+1)+'</li>');
+                //加载图片课程
+                $("#piccourse").append($("#picTemplate").render(courselist[i]));
+                $("#piccourse li:last #memoinfor").html($("#piccourse li:last #memoinfor").text());
+            }
+            //开始切换
+            if(courselist.length>1) {
+                intevalfun = setInterval(exchangepic, 4000);
+            }
+        }
+    }
+
+
+    //加载数据
+    function initCalendarTask(year, month, addMonth) {
+        $("#calendarTask").html('<tr><td colspan="7"><div class="tc"><img src="../../Images/loading.gif" /></div></td></tr>');
+
+        $.getJSON("/Home/GetCalendarTask?year=" + year + "&month=" + month + "&addMonth=" + addMonth, function(data) {
+            
+            $("#currentYear").val(data.year);
+            $("#currentMonth").val(data.month);
+            InitTask(data);
+        });
+    }
+
+    function InitTask(data) {
+
+        $("#calendarTask").JsRenderData({
+            dataSource: data,
+            isPage: false,
+            templateID: "calendarTaskTemplte",
+            funCallback:function()
+            {
+            }
+        });
+    }
+
+    //查看上月（下月）的信息
+    function goAnotherMonth(addMonth) {
+        if (($("#currentYear").val() == $("#currentYear option:first").text() && (parseInt($("#currentMonth").val()) + parseInt(addMonth)) < 1) || ($("#currentYear").val() == $("#currentYear option:last").text() && (parseInt($("#currentMonth").val()) + parseInt(addMonth)) > 12))
+            return;
+        initCalendarTask($.trim($("#currentYear").val()), $.trim($("#currentMonth").val()), addMonth);
+    }
+
+    //加载胜任力体系
+    function initCourseSystem() {
+        $.getJSON("/CourseManage/GetAllCourseSystem?type=0&checkBoxFlag=0&radioFlag=0&arrow=1", function (data) {
+            $("#courseSystem").html(data.popTreeHtml);
+            $("#courseSystem").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#courseSystem").removeClass("treeview");
+            $("#courseSystem>ul>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+
+    //课程体系树连接
+    function fnSelectCourseSystem(id,obj) {
+        window.location.href = "/CourseManage/CompetencyCourseShowList?sid="+id;
+    }
+    //加载考勤
+    function initMyAtt() {
+        $.getJSON("/MyAttendce/AttendceListIndex?t="+new Date(), function (data) {
+            if(data.length>0)
+                $("#myatt").html($("#listTemplate").render(data));
+        });
+    }
+    //加载我的补预定申请
+    function initMakeUp() {
+        $.getJSON("/Home/GetMyMakeUpList", function (data) {
+            if (data.length > 0)
+                $("#mymakeup").html($("#listTemplate").render(data));
+        });
+    }
+    //加载我的请假申请
+    function initMyLeave() {
+        $.getJSON("/Home/GetMyLeaveList", function (data) {
+            if (data.length > 0)
+                $("#myleave").html($("#listTemplate").render(data)); 
+        });
+    }
+    //加载最新课程
+    function initjizhong(type) {
+        $.getJSON("/Home/GetMyTrainIndexCourse?type=" + type, function (data) {
+            if (type == 0) {
+                $("#jizhongshouke").html("");
+                if (data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#jizhongshouke").append('<li><span>' + data[i].date + '</span><a href="/CourseLearn/CourseDetail?id=' + data[i].id + '&flag=1" class="ovh " title="' + data[i].name + '">' + data[i].name + '</a></li>'); 
+                    }
+                     $("#jizhongshouke").append("<a class='more' href='/CourseLearn/MyCourseSubscribe'>更多</a>");            
+                } else {
+                    $("#jizhongshouke").append('<li classt="tc" style="width:100%;"><span class="ovh tc" style="width:100%;">暂无</span></li>');
+                }
+                
+            }
+            if (type == 1) {
+                $("#shipinkecheng").html("");
+                if (data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#shipinkecheng").append('<li class="sp"><a href="/MyCourse/VideoCourseMain?id=' + data[i].id + '&flag=1" title="' + data[i].name + '" class="ovh">' + data[i].name + '</a><span class="ovh">' + data[i].length + '</span><span class="ovh">' + data[i].teacher + '</span></li>');
+                    }
+                     $("#shipinkecheng").append("<a class='more' href='/MyCourse/VideoCourseList'>更多</a>");
+                } else {
+                    $("#shipinkecheng").html('<li classt="tc" style="width:100%;"><span class="ovh tc" style="width:100%;">暂无</span></li>');
+                }
+               
+            }
+            if (type == 2) {
+                $("#cpakecheng").html("");
+                if (data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#cpakecheng").append('<li><span class="ovh">' + data[i].date + '</span><a href="/CourseManage/CourseCPADetialForLearn?Id=' + data[i].id + '&flag=1" class="ovh" title="' + data[i].name + '">' + data[i].name + '</a></li>');
+                    }
+                     $("#cpakecheng").append("<a class='more' href='/CourseLearn/MyCourseSubscribe?showflag=1'>更多</a>");
+                } else {
+                    $("#cpakecheng").html('<li classt="tc" style="width:100%;"><span class="ovh tc" style="width:100%;">暂无</span></li>');
+                }
+                
+
+            }
+        });
+    }
+
+    //加载图片切换
+    function initindexad() {
+        $.getJSON("/Home/GetIndexAdList", function(data) {
+            for (var i = 0; i < data.length; i++) {
+                courselist.push({ id: data[i].id, name: data[i].name, date: data[i].picdate,notedate:data[i].date, teacher: data[i].teacher, order: i + 1, memo: data[i].memo, type: data[i].type });
+            }
+            //加载切换的图片课程
+            changepicture();
+        });
+    }
+
+</script>

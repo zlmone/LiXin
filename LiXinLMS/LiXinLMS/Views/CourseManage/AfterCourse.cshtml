@@ -1,0 +1,381 @@
+﻿@using LiXinModels.CourseLearn
+@using LiXinModels.CourseManage
+@using LiXinModels.Survey
+@{
+    ViewBag.Title = "学员评估明细";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var course = ViewBag.course as Co_Course;
+    var courseOrder = ViewBag.CourseOrder as Cl_CourseOrder;
+    var examPaper = ViewBag.examPaper as Survey_Exampaper;
+    var TeacherexamPaper = ViewBag.TeacherexamPaper as Survey_Exampaper;
+    var shijuan = ViewBag.SurveyPaperId as string;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new{linkName = "学员评估明细"}))
+    <table class="tab-Form mt10">
+        @if (course != null)
+        { 
+            <tr>
+                <td class="Tit span10">
+                    课程名称：
+                </td>
+                <td colspan="7">
+                    <strong>@course.CourseName</strong>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    开课时间：
+                </td>
+                <td>
+                    <strong class="c_col">@course.TeacherCourseTime</strong>
+                </td>
+                <td class="Tit span10">
+                    授课讲师：
+                </td>
+                <td>
+                    <strong>@course.TeacherName</strong>
+                </td>
+                <td class="Tit span10">
+                    课程开放级别：
+                </td>
+                <td>
+                    <strong>@course.OpenLevel</strong>
+                </td>
+                <td class="Tit span10">
+                    课程学时：
+                </td>
+                <td>
+                    <strong>@course.CourseLength</strong>
+                </td>
+            </tr>
+           
+            <tr>
+                 @if (course.Way == 1)
+                { 
+                <td class="Tit">
+                    开课地点：
+                </td>
+                <td>
+                    <div class="ovh span30" title="@course.RoomName">
+                        <strong>@course.RoomName</strong></div>
+                </td>
+                }
+                <td class="Tit">
+                    课程状态：
+                </td>
+                <td>
+                    <strong class="c_col">@course.CourseStatus</strong>
+                </td>
+            </tr>
+        }
+    </table>
+    <div class="mt10">
+        <input type="hidden" id="txt_CourseId" value="@ViewBag.Id"/>
+        <input type="hidden" id="txt_SurveyPaperId" value="@ViewBag.SurveyPaperId"/>
+        <div class="tab-red">
+            <ul id="ul_main">
+                @if (examPaper != null && TeacherexamPaper != null)
+                {
+                    <li class="On">课程评估<i></i></li>
+                    <li>讲师评估<i></i></li>
+                }
+                @if (examPaper != null && TeacherexamPaper == null)
+                {
+                    <li class="On">课程评估<i></i></li>
+                }
+                @if (examPaper == null && TeacherexamPaper != null)
+                {
+                    <li class="On">讲师评估<i></i></li>
+                }
+            </ul>
+        </div>
+        <div id="div_list">
+            <div>
+                @if (examPaper != null)
+                { 
+                    <table class="tab-Form">
+                        <tr>
+                            <td class="Tit span7">
+                                问卷标题：
+                            </td>
+                            <td>
+                                <strong>@examPaper.ExamTitle</strong>
+                            </td>
+                            <td class="Tit span6">
+                                问卷类型：
+                            </td>
+                            <td>
+                                <strong>@examPaper.ExamTypeShow</strong>
+                            </td>
+                            <td class="Tit span6">
+                                问卷分类：
+                            </td>
+                            <td>
+                                <strong>@examPaper.CategoryName</strong>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="sur-do">
+                        @{
+                    foreach (var Question in @examPaper.Questions)
+                    {
+                            <div id="QuestionID@(Question.QuestionID)" class="afterlist list">
+                                <input type="hidden" class="questionid" name="@(Question.QuestionType)" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                                <div class="tit">
+                                    <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                                </div>
+                                @{
+                        if (Question.QuestionType == 2)
+                        {
+                                    <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                        }
+                                }
+                                @{  switch (Question.QuestionType)
+                                    {
+                                        //单选题
+                                        case 0:
+                                            {
+                                                int count = 0;
+
+                                                foreach (var s in Question.Answers)
+                                                {
+                                    <p>
+                                        <input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                                    </p>
+                                                    count++;
+                                                }
+                                            }
+                                    <div class="why">
+                                        <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                                    </div>
+                                            break;
+                                        //多选题
+                                        case 1:
+                                            {
+                                                int count = 0;
+
+                                                foreach (var s in Question.Answers)
+                                                {
+                                    <p>
+                                        <input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                                    </p>
+                                                    count++;
+                                                }
+                                            }
+                                    <div class="why">
+                                        <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                                    </div>
+                                            break;
+                                        //主观题
+                                        case 2:
+                                    <p>
+                                        <textarea style="width: 338px; height: 104px;" disabled="disabled" onkeyup="TextearaMaxlength(this)"
+                                            onchange="TextearaMaxlength(this)" maxlength="500">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                                    </p> 
+                                                                                           break;
+                                        case 3:
+                                    <input type="hidden" class="xp" />
+                                    <div id='divScore_@(Question.QuestionOrder)' class="ml35 "  >
+                                    </div>
+                                    <div class="why mt5">
+                                        <span>理由：</span><input name="xingPReplay"  disabled="disabled" type="text" maxlength="200" />
+                                    </div>
+                                                  break;
+                                    }
+                                }
+                            </div>
+                    }   
+                        }
+                    </div>
+                }
+            </div>
+            <div style="display: none;">
+                @if (TeacherexamPaper != null)
+                { 
+                    <table class="tab-Form">
+                        <tr>
+                            <td class="Tit span7">
+                                问卷标题：
+                            </td>
+                            <td>
+                                <strong>@TeacherexamPaper.ExamTitle</strong>
+                            </td>
+                            <td class="Tit span6">
+                                问卷类型：
+                            </td>
+                            <td>
+                                <strong>@TeacherexamPaper.ExamTypeShow</strong>
+                            </td>
+                            <td class="Tit span6">
+                                问卷分类：
+                            </td>
+                            <td>
+                                <strong>@TeacherexamPaper.CategoryName</strong>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="sur-do">
+                        @{
+                    foreach (var Question in @TeacherexamPaper.Questions)
+                    {
+                            <div id="QuestionID@(Question.QuestionID)" class="Teacherlist list">
+                                <input type="hidden" class="questionid" name="@(Question.QuestionType)" value="@(Question.QuestionID)" ExampaperID="@(Question.ExampaperID)"/>
+                                <div class="tit">
+                                    <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)
+                                </div>
+                                @{
+                        if (Question.QuestionType == 2)
+                        {
+                                    <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGradeNoClick)</div> 
+                        }
+                                }
+                                @{  switch (Question.QuestionType)
+                                    {
+                                        //单选题
+                                        case 0:
+                                            {
+                                                int count = 0;
+
+                                                foreach (var s in Question.Answers)
+                                                {
+                                    <p>
+                                        <input type="radio" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                                    </p>
+                                                    count++;
+                                                }
+                                            }
+                                    <div class="why">
+                                        <span>理由：</span><input name="singReplay" type="text" disabled="disabled" />
+                                    </div>
+                                            break;
+                                        //多选题
+                                        case 1:
+                                            {
+                                                int count = 0;
+
+                                                foreach (var s in Question.Answers)
+                                                {
+                                    <p>
+                                        <input type="checkbox" disabled="disabled" /><label>@((char)(65 + count)). @s.AnswerContentNohtml</label>
+                                    </p>
+                                                    count++;
+                                                }
+                                            }
+                                    <div class="why">
+                                        <span>理由：</span><input name="muiltReplay" type="text" disabled="disabled" />
+                                    </div>
+                                            break;
+                                        //主观题
+                                        case 2:
+                                    <p>
+                                        <textarea style="width: 338px; height: 104px;"  disabled="disabled" onkeyup="TextearaMaxlength(this)"
+                                            onchange="TextearaMaxlength(this)" maxlength="500">@(Question.Answers.Count > 0 ? Question.Answers[0].AnswerContentNohtml : "")</textarea>
+                                    </p> 
+                                                                                           break;
+                                        case 3:
+                                    <input type="hidden" class="xp" />
+                                    <div id='divScore_@(Question.QuestionOrder)' class="ml35 " >
+                                    </div>
+                                    <div class="why mt5">
+                                        <span>理由：</span><input disabled="disabled" name="xingPReplay" type="text" maxlength="200" />
+                                    </div>
+                                                  break;
+                                    }
+                                }
+                            </div>
+                    }   
+                        }
+                    </div>
+                }
+            </div>
+            <center class="mt10">
+                <a href="@Url.Content(@ViewBag.backurl)" class="btn btn-cancel">返回</a>
+            </center>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($("#txt_SurveyPaperId").val().split(';')[0] == "" && $("#txt_SurveyPaperId").val().split(';')[1] != "") {
+            $("#div_list").children("div:eq(1)").css("display", "");
+        }
+        showStars(0);
+        fOnload();        
+        $("#ul_main li").click(function () {
+            if ($("#ul_main li").size() > 1) {
+                var index = $(this).index();
+                $("#div_list").children("div:eq(" + index + ")").css("display", "").siblings("div").css("display", "none");
+                $("#ul_main li").removeClass("On");
+                $(this).addClass("On");
+            }
+        });
+    });
+    function fOnload() {
+        var CourseId = $("#txt_CourseId").val();
+        var SurveyPaperId = $("#txt_SurveyPaperId").val();
+        //alert(SurveyPaperId);
+        $.post("/CourseManage/FBindSurvey_ReplyAnswer?CourseId=" + CourseId + "&userid=" + @(ViewBag.userid) + "&SurveyPaperId=" + SurveyPaperId, function (data) {
+            if (data.result == 1) {
+                //$(".studyplay_starBg").attr("Enabled", false);
+                if (data.content != "") {
+                    if (data.status == 1) {
+                        //$("#btn_Add").attr("disabled", "true");
+                        //$("#btn_Save").attr("disabled", "true");
+                        //showStars(0);
+                    }
+                    var arr = data.content.split('♥');
+                    //alert(arr[0]);
+                    for (var i = 0; i < arr.length; i++) {
+
+                        $(".afterlist:eq(" + i + ")").children(".xp").val(arr[i].split('♣')[1]);
+                        $(".afterlist:eq(" + i + ")").children(".ml35").attr("title", arr[i].split('♣')[1]);
+                        if (arr[i].split('♣')[2] == "") {
+                            $(".afterlist:eq(" + i + ")").children("p").children("textarea").val(arr[i].split('♣')[1]); //.attr("disabled", "disabled");
+                        } else {
+                            $(".afterlist:eq(" + i + ")").children("div:eq(2)").children("input[name='xingPReplay']").val(arr[i].split('♣')[2]); //.attr("disabled", "disabled");
+                        }
+                        showStars(0);
+                        $(".studyplay_starBg li").css({ "cursor": "" });
+                    }
+
+                }
+                //alert(data.teachercontent);
+                if (data.teachercontent != "") {
+                    if (data.teacherstatus == 1) {
+                        //$("#btn_TeacherAdd").attr("disabled", "true");
+                        //$("#btn_TeacherSave").attr("disabled", "true");
+                        //showStars(0);
+                    }
+                    var arr = data.teachercontent.split('♥');
+                    //alert(arr[0]);
+                    for (var i = 0; i < arr.length; i++) {
+                        $("div .Teacherlist:eq(" + i + ")").children(".xp").val(arr[i].split('♣')[1]);
+                        $("div .Teacherlist:eq(" + i + ")").children(".ml35").attr("title", arr[i].split('♣')[1]);
+                        if (arr[i].split('♣')[2] == "") {
+                            $("div .Teacherlist:eq(" + i + ")").children("p").children("textarea").val(arr[i].split('♣')[1]); //.attr("disabled", "disabled");
+                        } else {
+                            $("div .Teacherlist:eq(" + i + ")").children("div:eq(2)").children("input[name='xingPReplay']").val(arr[i].split('♣')[2]); //.attr("disabled", "disabled");
+                        }
+                    }
+                    showStars(0);
+                    $(".studyplay_starBg li").css({ "cursor": "" });
+                }
+            }
+        });
+    }
+    //加载星评题
+    function showStars(t) {
+        if ($("div[id^='divScore_']").length > 0) {
+            $("div[id^='divScore_']").each(function () {
+                var star = $(this).attr("title");
+
+                var obj = this;
+                $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: t }, function (value) {
+                    $(obj).parent().find(".xp").val(value);
+                });
+            });
+        }
+    }
+</script>

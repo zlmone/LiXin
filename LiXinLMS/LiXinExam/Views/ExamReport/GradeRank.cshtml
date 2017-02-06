@@ -1,0 +1,169 @@
+﻿@using LiXinModels.User
+@{
+    ViewBag.Title = "成绩与排名统计";
+    var postlist = (List<Sys_Post>)ViewData["listPost"];
+    var deptlist = (List<Sys_Department>)ViewData["listDept"];
+    Layout = null;
+}
+<div>
+    <!--查询条件-->
+    <div class="search_box">
+        <div class="clb">
+            <input id="btnSearchGrade" type="button" value="查询" onclick=" InitTable() " class="Btn Btn_blue" />
+            <p>
+                <label>
+                    考试名称:
+                </label>
+                <input id="txtexamname" class="Box Raster_16" type="text" />
+                <label>
+                    岗位:
+                </label>
+                <input id="txtpostcode" class="Box Raster_16" type="text" />
+            </p>
+            <p>
+                <label>
+                    部门:
+                </label>
+                <input id="txtdeptcode" class="Box Raster_16" type="text" />
+                <label>
+                    工号:
+                </label>
+                <input id="jobnum" type="text" class="Box Raster_6" />
+                <label>
+                    姓名:
+                </label>
+                <input id="realname" type="text" class="Box Raster_6" />
+                <label>
+                    是否通过:
+                </label>
+                <select id="isPass" class="sel">
+                    <option value="-1">显示全部</option>
+                    <option value="1">是</option>
+                    <option value="0">否</option>
+                </select></p>
+        </div>
+    </div>
+    <!--数据列表-->
+    <div class="mTop_1 btop_so_ce">
+        <table class="blue_table all">
+            <thead>
+                <tr>
+                    <th class="w100">
+                        考试名称
+                    </th>
+                    <th>
+                        姓名(工号)
+                    </th>
+                    <th>
+                        部门&岗位
+                    </th>
+                    <th>
+                        得分
+                    </th>
+                    <th>
+                        已答题数
+                    </th>
+                    <th>
+                        未答题数
+                    </th>
+                    <th>
+                        <p>
+                            正确率</p>
+                        <p>
+                            (答对/总题数)</p>
+                    </th>
+                    <th>
+                        <p>
+                            错误率</p>
+                        <p>
+                            (答错/总题数)</p>
+                    </th>
+                    <th>
+                        是否通过
+                    </th>
+                    <th>
+                        排名
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="gradeRank">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="rankTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td title="{{:examinationTitle}}" class="tc c33"><strong>{{:examinationTitle}}</strong></td>
+        <td class="w120 tc">
+            <p title="{{:realname}}">{{:realname}}</p>
+            <p title="{{:jobnum}}">{{:jobnum}}</p>
+        </td>
+        <td class="w120 tc">
+            <p title="{{:deptcode}}">{{:deptcode.length>8?deptcode.substring(0,8)+"......":deptcode}}</p>
+            <p title="{{:postcode}}" class="c_green">{{:postcode.length>8?postcode.substring(0,8)+"......":postcode}}</p>
+        </td>  
+        <td title="{{:GetScore}}" class="c_green f14"><strong>{{:GetScore}}</strong></td>
+        
+        <td title="{{:hasAnswerNumber}}">{{:hasAnswerNumber}}</td>
+        <td title="{{:NotAnswerNumber}}">{{:NotAnswerNumber}}</td>
+        <td title="{{:CorrectRate+"%"}}" class="tr">
+            <p class="c_green f14"><strong>{{:CorrectRate+"%"}}</strong></p>
+            <p>( {{:CorrectAnswerNumber}}/{{:(hasAnswerNumber+NotAnswerNumber)}} )</p>
+        </td>
+        <td title="{{:WrongRate+"%"}}" class="tr">
+            <p class="f14"><strong>{{:WrongRate+"%"}}</strong></p>
+            <p>( {{:WrongAnswerNumber}}/{{:(hasAnswerNumber+NotAnswerNumber)}} )</p>
+        </td>
+        <td title="{{:passState}}" class="tc">{{:passState}}</td>
+        <td title="{{:Rank}}" class="tc">{{:Rank}}</td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        InitTable();
+
+        //下拉框事件
+        $("#isPass").bind("change", function () {
+            InitTable();
+        });
+    });
+
+    function InitTable()
+    {
+        $("#gradeRank").JsRenderData({
+            sourceUrl: getUrl(),
+            isPage: true,
+            pageSize: 20,
+            pageIndex: 1,
+            templateID: 'rankTemplate'
+        });
+    }
+
+    function getUrl()
+    {
+        return "/ExamReport/GetGradeRank?examname=" + escape($("#txtexamname").val()) +
+            "&deptcode=" + escape($("#txtdeptcode").val()) + "&postcode=" +
+            escape($("#txtpostcode").val()) + "&jobnum=" + $("#jobnum").val()
+            + "&realname=" + escape($("#realname").val()) + "&isPass=" + $("#isPass").val()
+            + "&startDate=" + $("#startDate").val() + "&endDate=" + $("#endDate").val();
+    }
+
+    //导出
+
+    function ExportReportChart()
+    {
+        window.location.href = "/ExamReport/ExportGrandRank?examname=" + escape($("#txtexamname").val()) +
+            "&deptcode=" + escape($("#txtdeptcode").val()) + "&postcode=" +
+            escape($("#txtpostcode").val()) + "&jobnum=" + $("#jobnum").val()
+            + "&realname=" + escape($("#realname").val()) + "&isPass=" + $("#isPass").val()
+            + "&startDate=" + $("#startDate").val() + "&endDate=" + $("#endDate").val()
+            + "&t=" + new Date();
+
+    }
+
+</script>

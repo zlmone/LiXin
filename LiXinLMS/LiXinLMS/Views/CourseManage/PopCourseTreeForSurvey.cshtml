@@ -1,0 +1,103 @@
+﻿@{
+    ViewBag.Title = "为主观题添加树";
+    Layout = null;
+}
+<form id="formAddCourseTree">
+@*<div id="div_courseSystem">
+</div>*@
+<div class="clb ">
+    <div class="treeview-box span22 fl mb10">
+        <div id="pop_courseSystemTree" class="tree-list" style="height:400px;">
+        </div>
+    </div>
+    <div class="span48  fr ml10">
+        <table class="tab-Form">
+            <tr>
+                <td>
+                    <div class="sel salary mb10" style="height: 400px">
+                        @{
+                            if (ViewBag.SysPayGradeList != null)
+                            {
+                                foreach (var item in @ViewBag.SysPayGradeList)
+                                {
+                            <span class="no_warp">
+                                <input type="checkbox" name="sys_PayGrade" title="@item.GradeName" value="@item.Id" />
+                                <label class="mr10 ml5" title="@item.GradeName">@item.GradeName</label>
+                            </span>
+                                }
+                            }   
+                        }
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<center class="mt10">
+    <input type="submit" value="确定" class="btn" /></center>
+</form>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //$.get("/CourseManage/CourseSystemTree?radioFlag=1", function (data) { $("#div_courseSystem").html(data); initRadio(); });
+        courseSystemReady();
+
+        $("#formAddCourseTree").validate(
+            {
+                event: "blur",
+                rules: {
+                    sys_PayGrade: { required: true },
+                    chbCourseSystem: { required: true }
+                },
+                messages: {
+                    sys_PayGrade: { required: "请选择薪酬级别！" },
+                    chbCourseSystem: { required: "请选择体系！" }
+
+                },
+                errorPlacement: function (error, element)
+                {
+                    if (element.is(':checkbox'))
+                    {
+                        error.appendTo(element.parent().parent().parent());
+                    } else if(element.is(':radio'))
+                    {
+                        error.appendTo($("#pop_courseSystemTree").parent().parent());
+                    }
+                },
+                submitHandler: AddCourseForSurvey
+            });
+    });
+    function courseSystemReady() {
+        $.getJSON("/CourseManage/GetAllCourseSystem?type=0&checkBoxFlag=0&radioFlag=1", function (data) {
+            
+                $("#pop_courseSystemTree").html(data.popTreeHtml);
+                $("#pop_courseSystemTree").treeview({
+                    persist: "location",
+                    collapsed: false,
+                    unique: false
+                });
+                $("#pop_courseSystemTree>ul>li>ul>li>div").each(function () {
+                    $(this).click();
+                });
+                $("#pop_courseSystemTree").removeClass("treeview");
+                if ($("#pop_courseSystemTree ul li").length == 1) {
+                    $("#pop_courseSystemTree ul").append("<li>暂无数据</li>");
+                }
+
+            initRadio();
+        });
+    }
+    function initRadio()
+    {
+        var sID = $("#haveSystemID").val();
+        if (sID.length > 0)
+        {
+            //debugger;
+            $.each(sID.split(','), function (index, value)
+            {
+                // debugger;
+                $("#chb_" + value).attr("disabled", true);
+            });
+        }
+    }
+</script>

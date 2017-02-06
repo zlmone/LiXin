@@ -1,0 +1,172 @@
+﻿@{
+    ViewBag.Title = "我的审批记录";
+    Layout = null;
+    var c_flag = Request.QueryString["c_flag"] ?? "3";
+}
+<div class="main-c">
+    <div class="tab-bk mt10">
+        <input type="hidden" id="pop_tabtype" value="0" />
+        <ul id="pop_tab">
+            <li id="pop_tab3" class="On" onclick="changetabclick(3);">补预定</li>
+            <li id="pop_tab4" onclick="changetabclick(4);">请假</li>
+        </ul>
+    </div>
+</div>
+<div id="ordermain">
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">课程名称：
+                </td>
+                <td class="span31">
+                    <input type="text" class="span30 searchclass" id="pop_txtCoName" value="请输入搜索课程" info="" />
+                </td>
+                <td class="Tit span4">姓名：
+                </td>
+                <td>
+                    <input type="text" id="pop_txtName" class="span10 searchclass" value="请输入搜索姓名" info="" />
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" onclick="pop_SearchOrder();" value="搜索" id="btnSearch" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="pop_isapp">
+            <option value="-1">显示全部审批</option>
+            <option value="0">未审批</option>
+            <option value="1">已审批</option>
+        </select>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th class="span8">姓名
+                    </th>
+                    <th class="span14" jsrendersortfield="l" sort="desc">申请时间
+                    </th>
+                    <th>课程名称
+                    </th>
+                    <th class="span6">学时
+                    </th>
+                    <th class="span8">是否审批
+                    </th>
+                    <th class="span8">审批结果
+                    </th>
+                    <th class="span14" jsrendersortfield="a" sort="asc">审批时间
+                    </th>
+                    <th class="span6">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="pop_orderList">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<!--逾时列表模板-->
+<script id="pop_orderListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td>{{:RealName}}</td>
+        <td>{{:SubmitTimeShow}}</td>
+        <td style="text-align:left;"><div class="span20 ovh pl5" title="{{:CourseName}}">{{:CourseName}}</div></td>
+        <td>{{:CourseLength}}</td>
+        <td>{{:IsApproval}}</td>
+        <td>{{:ApprovalResult}}</td>
+        <td>{{:ApprovalTimeShow}}</td>
+        <td><a class="icon iview" onclick="pop_DetailOrder({{:ID}},{{:TypeFlag}});" title="查看详情"></a></td>
+    </tr>
+    {{/for}}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //查询条件输入框初始化
+        initSearch();
+        //初始化参数
+        $("#pop_tabtype").val(@c_flag);
+        //审核状态下拉框事件
+        $("#pop_isapp").bind("change", function ()
+        {
+            pop_InitOrderData();
+        });
+        $("#pop_tab").parent().find('li').removeClass('On');
+        $("#pop_tab #pop_tab" + @c_flag).addClass('On');
+        pop_InitOrderData();
+        //加载培训级别
+        $.getJSON("/MyApproval/GetTrainGrade", function (data)
+        {
+            for (var i = 0; i < data.length; i++)
+            {
+                $("#selTrainGrade").append('<option value="' + data[i] + '">' + data[i] + '</option>');
+            }
+        });
+    });
+
+    //tab切换
+    function changetabclick(n)
+    {
+        $("#pop_tab").parent().find('li').removeClass('On');
+        $("#pop_tab #pop_tab" + n).addClass('On');
+        //清除帅选条件
+        $("#pop_isapp").val("-1");
+        $("#pop_txtCoName").val($("#pop_txtCoName").attr("info"));
+        $("#pop_txtName").val($("#pop_txtName").attr("info"));
+        $("#pop_txtPrinName").val($("#pop_txtPrinName").attr("info"));
+        $("#pop_selTrainGrade").val("-1");
+        $("#pop_isPrinApp").val("-1");
+        $("#pop_txtPrinCoName").val($("#pop_txtPrinCoName").attr("info"));
+        $("#pop_txtPrinStartTime").val("");
+        $("#pop_txtPrinEndTime").val("");
+
+        $("#pop_tabtype").val(n);
+
+
+        pop_InitOrderData();
+
+    }
+    //初始化补预定列表
+    function pop_InitOrderData()
+    {
+        var type = $("#pop_tabtype").val();
+        $("#pop_orderList").JsRenderData({
+            sourceUrl: '/MyApproval/GetMyApprovalLeaveList?courseName=' + escape(getSearchWord("pop_txtCoName")) + '&realName=' + escape(getSearchWord("pop_txtName")) + "&isApp=" + $("#pop_isapp").val() + "&type=" + type + '&t=' + new Date(),
+            isPage: true,
+            pageSize: 10,
+            jsRenderSortField: "l",
+            jsRenderASC: "desc",
+            pageIndex: 1,
+            templateID: 'pop_orderListTemplate'
+        });
+    }
+
+    //查询
+    function pop_SearchOrder()
+    {
+        pop_InitOrderData();
+    }
+
+    //查看详情(3：补预定,4：请假)
+    function pop_DetailOrder(id, type)
+    {
+        switch (type)
+        {
+            case 3:
+                window.location.href = "/MyApproval/MyApprovalOutTimeInfor?id=" + id;
+                break;
+            case 4:
+                window.location.href = "/MyApproval/MyApprovalOutTimeLeaveInfor?id=" + id;
+                break;
+        }
+
+    }
+</script>

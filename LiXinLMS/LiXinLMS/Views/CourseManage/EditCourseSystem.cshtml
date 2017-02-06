@@ -1,0 +1,139 @@
+﻿@model LiXinModels.CourseManage.Co_CourseSystem
+@{  
+    ViewBag.Title = "EditCourseSystem";
+    Layout = null;
+}
+<form id="forEditCourseSystem">
+<input type="hidden" name="Id" id="txtId" value="@Model.Id"  />
+<input type="hidden" name="hidOldPayGradeIds" id="hidPayGradeIds" value="@ViewBag.SysLinkGrade" />
+<table class="tab-Form tab-now">
+    @if (ViewBag.SysPayGradeList != null)
+    {
+        <tr>
+            <td class="Tit">
+                所属薪酬级别：
+            </td>
+            <td>
+                <div class="sel">
+                    @{
+        foreach (var item in (List<LiXinModels.CourseManage.Sys_PayGrade>)ViewBag.SysPayGradeList)
+        {
+                        <input type="checkbox" name="sys_PayGrade" value="@item.Id" /><label>@item.GradeName</label>
+        }
+                    }
+                </div>
+            </td>
+        </tr>
+    }
+    <input type="hidden" name="ParentID" id="txtParent" value="@Model.ParentID" />
+    <tr>
+        <td class="Tit">
+            父级体系：
+        </td>
+        <td>@ViewBag.PartentName
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            体系名称：
+        </td>
+        <td>
+            <input type="text" name="CourseSystemName" id="txtCourseSystemName" value="@Model.CourseSystemName" class="all80" />
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            体系备注：
+        </td>
+        <td>
+            <textarea rows="10" id="txtMemo" name="Memo" class="all80">@Model.Memo</textarea>
+        </td>
+    </tr>
+</table>
+<center class="mt10">
+    <input type="submit" value="确定" class="btn" />
+    <input type="button" value="取消" onclick="fnCancel()" class="btn btn-cancel" />
+</center>
+</form>
+<script type="text/javascript">
+    $(document).ready(
+    function () {
+        if ("@ViewBag.SysLinkGrade" != "") {
+            var checkboxArray = $('input[name=sys_PayGrade]');
+            var openList = "@ViewBag.SysLinkGrade".split(',');
+            for (key in openList) {
+                $.each(checkboxArray, function (index, value) { // value or jquery object
+                    if (openList[key] == $(value).val()) { // $(this).val() == $(value).val()//与页面上的值进行比较，如果相等就“打勾”
+                        $(this).attr('checked', true);
+                    }
+                });
+            }
+        }
+        $("#txtMemo").textareaCount({ maxCharacterSize: 200 });
+        $("#forEditCourseSystem").validate(
+            {
+                errorPlacement: function (error, element) {
+                    if (element.is(':radio') || element.is(':checkbox')) {
+                        var eid = element.attr('name');
+                        $('input[name=' + eid + ']:last').next().after(error);
+                    } else {
+                        error.insertAfter(element);
+                    }
+
+                },
+                submitHandler: fnSubmitEditCourseSystem,
+                event: "blur",
+                rules: {
+                    CourseSystemName: {
+                        required: true,
+                        maxlength: 30,
+                        remote: {
+                            type: "get",
+                            dataType: "json",
+                            url: "/CourseManage/CheckCourseSystemName?t=" + new Date(),
+                            data: {
+                                CourseSystemName: function () { return $.trim($("#txtCourseSystemName").val()); },
+                                Id: function () { return $("#txtId").val(); },
+                                ParentID: function () { return $("#txtParent").val(); }
+                            }
+                        }
+                    },
+                    Memo: { maxlength: 200 },
+                    sys_PayGrade: { required: true }
+                },
+                messages: {
+                    CourseSystemName: {
+                        required: "课程体系名称不能为空！",
+                        maxlength: "课程体系名称不能多于30个字符！",
+                        remote: "该课程体系名称已存在！"
+                    },
+                    Memo: { maxlength: "课程体系备注不能超过200个字符！" },
+                    sys_PayGrade: { required: "请选择薪酬级别！" }
+                }
+            }
+        );
+    }
+    );
+
+    function fnSubmitEditCourseSystem() {
+@*        if ("@Model.Id" > "0") {
+            var hidPayGradeIds = $("#hidPayGradeIds").val();
+
+            var choosePayGrade = "";
+            $("input[name=sys_PayGrade]:checked").each(function () {
+                choosePayGrade+= $(this).val()+",";
+            });
+
+        }*@
+
+
+        $.post("/CourseManage/SubmitCourseSystem", $("#forEditCourseSystem").formSerialize(), function (data) {
+            art.dialog.list["pop_EditCourseSystem"].close();
+            courseSystemReady();
+        });
+    }
+
+    function fnCancel() {
+        art.dialog.list["pop_EditCourseSystem"].close();
+    }
+</script>

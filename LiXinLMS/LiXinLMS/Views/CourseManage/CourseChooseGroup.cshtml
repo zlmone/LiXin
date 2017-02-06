@@ -1,0 +1,162 @@
+﻿@{
+    ViewBag.Title = "CourseChooseGroup";
+    Layout = null;
+}
+<div id="Search" class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">群组名称：</td>
+            <td class="span30">
+                <input type="text" class="span30" id="tbTitle" /></td>
+            <td class="Tit span5">创建者：</td>
+            <td>
+                <input type="text" class="span10" id="tbuser" /></td>
+            <td class="so-do">
+                <input type="button" class="btn" id="ibtnSearch" name="搜索" value="搜索" /></td>
+        </tr>
+    </table>
+</div>
+<table class="tab-List mt10">
+    <thead>
+        <tr>
+            <th class="span4">
+                <input id="selAll" type="checkbox" />
+            </th>
+            <th>群组名称
+            </th>
+            <th class="span8">组员数量
+            </th>
+            <th class="span8">创建者
+            </th>
+            <th class="span15">创建时间
+            </th>
+            <th class="span15">更新时间
+            </th>
+        </tr>
+    </thead>
+    <tbody id="groupList">
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+<center class="mt10">
+    <input type="button" value="确定" onclick="fnChooseGroup()" class="btn btn-co" />
+</center>
+<script id="groupListTemplate" type="text/x-jsrender">
+    {{for #data}}
+        <tr>
+            <td><input id="G{{:GroupId}}" type="checkbox" name="pop_checkgroup" GroupName="{{:GroupName}}" value="{{:GroupId}}" /></td>
+            <td>
+              <div class="span20 ovh tl" title="{{:GroupName}}">  {{:GroupName}}</div>
+           </td>
+            <td>{{:UNumber}}</td>
+            <td>{{:Realname}}</td>
+            <td>{{:CreateTimeStr}}</td>
+            <td>{{:LastUpdateTimeStr}}</td>
+        </tr>  
+    {{/for}}
+</script>
+<script type="text/javascript">
+    //显示群组列表
+    function InitializeTargetList(url) {
+        var templateId = 'groupListTemplate';
+        $("#groupList").JsRenderData({
+            sourceUrl: url,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: templateId,
+            funCallback: function () {
+                SetCheckBox("selAll", "groupList");
+                $("#selAll").removeAttr("checked");
+
+                if ("@ViewBag.ChoosedIds" != "") {
+                    var checkboxArray3 = $('input[name=pop_checkgroup]');
+                    var IsOrderList = "@ViewBag.ChoosedIds".split(',');
+                    for (key in IsOrderList) {
+                        $.each(checkboxArray3, function (index, value) {
+                            if (IsOrderList[key] == $(value).val()) {
+                                $(this).attr('checked', true);
+                                $(this).attr('disabled', "disabled");
+                            }
+                        });
+                    }
+
+@*                    var IsOrderList2 = "@ViewBag.tempGroupIds".split(',');
+                    for (key in IsOrderList2) {
+                        $.each(checkboxArray3, function (index, value) {
+                            if (IsOrderList[key] == $(value).val().split("_")[0]) {
+                                if ("@ViewBag.TokenPublishflag" == 1) { $(this).attr('disabled', "disabled"); $(this).attr('oldchoose', "oldchoose"); }
+                            }
+                        });
+                    }*@
+
+                }
+
+            }
+        });
+
+    }
+
+    function getUrlParms() {
+        return "/SystemManage/GetAllGroupList?title=" + escape($.trim($("#tbTitle").val())) + "&username=" + escape($.trim($("#tbuser").val())) + "&t=" + new Date();
+    }
+
+    $(document).ready(function () {
+        //搜索
+        $(".search_hold").bind("click", searchScorpe);
+        //初始化列表
+        InitializeTargetList(getUrlParms());
+
+        //查询
+        $("#ibtnSearch").bind("click", function () {
+            InitializeTargetList(getUrlParms());
+        });
+    });
+
+    function fnChooseGroup() {
+        var lth = $("input[name=pop_checkgroup]:checked").length;
+        if (lth == 0) {
+            art.dialog.tips("请选择群组！", 3);
+            return;
+        }
+        var groupIds = "";
+        var groupName = "";
+        var html = "";
+        var flag = 0;
+        if ($("#sp_choosegroup").length == 0) {
+            html += "     <div class='seled-list'><h4 id='sp_choosegroup'>已选群组:</h4><ul>";
+            flag = 1;
+        }
+
+        $("input[name=pop_checkgroup]:checked").each(function () {
+            var s = $(this).attr("value");
+            if ($(this).attr("disabled") == "disabled") {
+                return;
+            }
+            groupIds = groupIds + s + ",";
+
+            groupName = groupName + $(this).attr("GroupName") + ",";
+            html += "<li id='div_GroupItem_" + s + "'><span title='" + replaceMsg($(this).attr("GroupName")) + "'>" + replaceMsg($(this).attr("GroupName")) + "</span>";
+            html += "<input  type='button' name='btn'  class='btn btn-cancel' name='btn' title='移除' value='X'  onclick=fnRemoveGroupItem(\'div_GroupItem_" + s + "\'," + s + ") /></li>";
+        });
+        if (groupIds.length > 0) {
+            groupIds = groupIds.substring(0, groupIds.length - 1);
+            groupName = groupName.substring(0, groupName.length - 1);
+            $("#div_btn_goon_addgroup").remove();
+            if (flag == 1) {
+                html += "</ul><div  class='mt10'  id='div_btn_goon_addgroup'><input type='button' class='btn btn-co' id='btnGoOnAddGroups' onclick='fnGoOnAddGroups()' value='继续添加群组' /></div></div>";
+                $("#div_showgroup").append(html);
+            }
+            else {
+                $("#div_showgroup").find("ul").eq(0).append(html);
+                var h = "<div  class='mt10'  id='div_btn_goon_addgroup'><input type='button' class='btn btn-co' id='btnGoOnAddGroups' onclick='fnGoOnAddGroups()' value='继续添加群组' /></div>";
+                $("#div_showgroup").find("ul").eq(0).after(h);
+            }
+        } else {
+            html = "";
+        }
+        $("#txtOpenGroupObject").val("@ViewBag.ChoosedIds" + "," + groupIds);
+        art.dialog.list["pop_chooseGroup"].close();
+    }
+</script>

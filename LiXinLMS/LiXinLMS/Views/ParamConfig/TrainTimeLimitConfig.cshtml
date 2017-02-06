@@ -1,0 +1,102 @@
+﻿@using LiXinModels
+@{
+    Layout = null;
+    var modell = ViewBag.model as Sys_ParamConfig;
+}
+
+<form id="fnSumitConfig">
+    <h2 class="tit-h2 mt10">
+        <i></i>
+        <span class="tit-con">各培训形式当年度内部培训的获取学时上限</span>
+    </h2>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span8" rowspan="2">集中授课：</td>
+            <td class="Tit span23" rowspan="2">
+                <input type="text" class="span10 fl" maxlength="4" name="coursenumber" id="level_A" value="@(modell.ConfigValue.Split(';')[0].Split(',')[0]==""?"":modell.ConfigValue.Split(';')[0].Split(',')[0])"/>
+            </td>             
+            
+            <td class="Tit span5">必修：</td>
+            <td>
+                <input type="text" class="span10" maxlength="4" name="coursenumber_bixiu" id="level_C" value="@(modell.ConfigValue.Split(';')[0].Split(',')[1]==""?"":modell.ConfigValue.Split(';')[0].Split(',')[1])"/>
+            </td>
+        </tr>
+        <tr>            
+            <td class="Tit span5">选修：</td>
+            <td>
+                <input type="text" class="span10" maxlength="4" name="coursenumber_xuanxiu" id="level_D" value="@(modell.ConfigValue.Split(';')[0].Split(',')[2]==""?"":modell.ConfigValue.Split(';')[0].Split(',')[2])"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit span8" rowspan="2">视频课程：</td>
+            <td  class="Tit span23" rowspan="2">
+                <input type="text" class="span10 fl" maxlength="4" name="videonumber" id="level_B" value="@(modell.ConfigValue.Split(';')[1].Split(',')[0]==""?"":modell.ConfigValue.Split(';')[1].Split(',')[0])"/>
+            </td>        
+            <td class="Tit span5">必修：</td>
+            <td>
+                <input type="text" class="span10" maxlength="4" name="videonumber_bixiu" id="level_E" value="@(modell.ConfigValue.Split(';')[1].Split(',')[1]==""?"":modell.ConfigValue.Split(';')[1].Split(',')[1])"/>
+            </td>
+        </tr>
+        <tr>      
+            <td class="Tit span5">选修：</td>
+            <td>
+                <input type="text" class="span10" maxlength="4" name="videonumber_xuanxiu" id="level_F" value="@(modell.ConfigValue.Split(';')[1].Split(',')[2]==""?"":modell.ConfigValue.Split(';')[1].Split(',')[2])"/>
+            </td>
+            
+        </tr>
+        <tr>
+            <td class="Tit"></td>
+            <td><input type="submit" value="确定" id="btn_Add" class="btn"  /></td>
+               
+
+        </tr>
+    </table>
+
+</form>
+    <script type="text/javascript">
+        $(document).ready(function() {
+ 
+            $("#fnSumitConfig").validate({
+                errorPlacement: function (error, element) {
+                    var eid = element.attr('name');
+                    if (eid=="coursenumber" || eid=="videonumber"|| eid=="coursenumber_bixiu"|| eid=="coursenumber_xuanxiu"|| eid=="videonumber_bixiu"|| eid=="videonumber_xuanxiu") {
+                     
+                        error.insertAfter(element);
+                    }
+
+                },
+                event: "blur",
+                rules: {
+                    coursenumber: { required: true, digits: true, min: 1 },
+                    videonumber: { required: true, digits: true, min: 1 },
+                    coursenumber_bixiu:{required: true, digits: true, min: 1, max: 1000},
+                    coursenumber_xuanxiu:{required: true, digits: true, min: 0, max: 1000},
+                    videonumber_bixiu:{required: true, digits: true, min: 1, max: 1000},
+                    videonumber_xuanxiu:{required: true, digits: true, min: 0, max: 1000}
+                },
+                messages: {
+                    coursenumber: { required: "请输入学时", digits: "请输入大于0的正整数", min: "请输入大于0的正整数" },
+                    videonumber: { required: "请输入学时", digits: "请输入大于0的正整数", min: "请输入大于0的正整数" },
+                    coursenumber_bixiu: { required: "请输入学时", digits: "请输入大于0的正整数", min: "请输入大于0的正整数", max: "输入学时小于1000" },
+                    coursenumber_xuanxiu: { required: "请输入学时", digits: "请输入大于0的正整数", min: "请输入大于0的正整数", max: "输入学时小于1000" },
+                    videonumber_bixiu: { required: "请输入学时", digits: "请输入大于0的正整数", min: "请输入大于0的正整数", max: "输入学时小于1000" },
+                    videonumber_xuanxiu: { required: "请输入学时", digits: "请输入大于0的正整数", min: "请输入大于0的正整数", max: "输入学时小于1000" }
+                },
+                submitHandler: fnSumitConfig
+            });
+
+        });
+
+        function fnSumitConfig() {
+            var t = $("#level_A").val() +","+ $("#level_C").val()+","+ $("#level_D").val()+ ";" + $("#level_B").val()+","+ $("#level_E").val()+","+ $("#level_F").val() ;
+              
+                 $.post("/ParamConfig/fUpdateParamConfig?configType=14&configValue=" + t, function (data) {
+                    if (data.result == 1) {
+                        art.dialog.tips('配置成功', 3);
+                    } else {
+                        art.dialog.tips('配置失败', 3);
+                    }
+                });
+        }
+    </script>
+

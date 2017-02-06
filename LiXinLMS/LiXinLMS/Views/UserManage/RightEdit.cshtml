@@ -1,0 +1,146 @@
+﻿@using LiXinCommon
+@using LiXinModels.User
+@model LiXinModels.User.Sys_Right
+@{
+    Layout = null;
+    var allRights = ViewData["allrights"] as List<Sys_Right>;
+}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#rightType").val("@Model.RightType");
+        $("#parentRight").val("@Model.ParentId");
+        $("#rightForm").validate({
+            submitHandler:  submitRight,
+            event: "blur",
+            rules: {
+                rightName: "required",
+                rightPath: "required",
+                moduleName:"required"
+            },
+            messages: {
+                rightName: "请输入名称",
+                rightPath: "请输入路径",
+                moduleName:"请输入所属模块"
+            }
+        });
+    });
+
+    function submitRight(form) {
+        var flag = true;
+        if ($("#showOrder").val() != "") {
+            if ($("#showOrder").val() != parseInt($("#showOrder").val())) {
+                art.dialog.tips("显示序号必须为整数", 3);
+                flag = false;
+            }
+        }
+        if (flag) {
+            $.post("/UserManage/SaveRight", $("#rightForm").formSerialize(), function(data) {
+                if (data.result == 1) {
+                    InitalizeTree();
+                    if(@Model.RightId>0){
+                        closeDialog("art_UpdateRight");
+                    }
+                    else{
+                        closeDialog("art_addRight");
+                    }
+                } else {
+                    alert(data.content);
+                }
+            });
+        }
+    }
+
+</script>
+<div class="centerbody">
+    <form method="post" id="rightForm">
+    <input type="hidden" id="rightID" name="rightID" value="@Model.RightId" />
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span10">
+                <span class="must">*</span>权限名称：
+            </td>
+            <td>
+                <input type="text" class="Box span22" id="rightName" name="rightName" value="@Model.RightName" maxlength="50" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <span class="must">*</span>权限类型：
+            </td>
+            <td>
+                <select id="rightType" name="rightType" class="span6">
+                    <option value="0">菜单</option>
+                    <option value="1">操作</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <span class="must">*</span>上级权限：
+            </td>
+            <td>
+                <select id="parentRight" name="parentRight" class="span22">
+                    @{
+                        if (allRights.Count > 0)
+                        {
+                            foreach (Sys_Right item in allRights)
+                            {
+                                string rname = CodeHelper.GetNavigateString(item.RightName);
+                                //string rname = item.RightName;
+                                if (string.IsNullOrEmpty(rname))
+                                {
+                                    rname = item.RightName;
+                                }
+                        <option value="@item.RightId">@rname</option>
+                            }
+                        }
+                        else
+                        {
+                        <option value="0">无</option>
+                        }
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <span class="must">*</span>路径：
+            </td>
+            <td>
+                <input type="text" id="rightPath" class="Box span22" name="rightPath" value="@Html.Encode(Model.Path)" maxlength="250" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                <span class="must">*</span>所属模块：
+            </td>
+            <td>
+                <input type="text" id="moduleName" class="Box span22" name="moduleName" value="@Html.Encode(Model.ModuleName)" maxlength="250" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                描述：
+            </td>
+            <td>
+                <input type="text" id="rightDesc" class="Box span22" name="rightDesc" value="@Html.Encode(Model.RightDesc)" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                显示序号：
+            </td>
+            <td>
+                <input type="text" id="showOrder" class="Box span4" name="showOrder" value="@Html.Encode(Model.ShowOrder)" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+            </td>
+            <td>
+                <a class="btn" id="saveRight" onclick=" $('#rightForm').submit(); ">保存</a>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>

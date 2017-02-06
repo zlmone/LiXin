@@ -1,0 +1,226 @@
+﻿@model LiXinModels.Survey.Survey_Survey
+@{
+    ViewBag.Title = "参与调查";
+    var index = Request.QueryString["index"] ?? "0";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "参与调查"
+}))
+    <h3 class="tit-h3">@Model.Name</h3>
+    <div class="sur-do">
+        @{
+            
+            foreach (var Question in @Model.examPaper.Questions)
+            {
+            <!--此处的class q有用不要删除-->
+            <div class="list q" id="@(Question.QuestionID)" type="@(Question.QuestionType)" >
+                <input type="hidden" name="@(Question.QuestionType)" value="@(Question.QuestionID)"/>
+                <div class="tit">
+                    <span>@(Question.QuestionOrder). </span>@(Question.QuestionContentNoHtml)</div>
+                @{
+                if (Question.QuestionType == 2)
+                {
+                    <div class='sortpayGrade ml35'>@Html.Raw(Question.LinkSortPayGrade)</div> 
+                }
+                }
+                @{  switch (Question.QuestionType)
+                    {
+                        //单选题
+                        case 0:
+                            {
+                                int count = 0;
+                                foreach (var s in Question.Answers)
+                                {
+                    <p>
+                        <input type="radio" @(Question.ReplyAnswer == null ? "" : (Question.ReplyAnswer.ObjectiveAnswer == @s.AnswerId.ToString() ? "checked=checked" : "")) name="r_@(Question.QuestionID)" id="@(s.AnswerId)" />@((char)(65 + count)).
+                        @s.AnswerContentNohtml</p>
+                                    count++;
+                                }
+                    <div class="why">
+                        <span>理由:</span><input maxlength="200" name="singReplay" type="text" value="@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.QuestionReply)" /></div>
+                            }
+                            break;
+                        //多选题
+                        case 1:
+                            {
+                                int count = 0;
+                                foreach (var s in Question.Answers)
+                                {
+                    <p>
+                        <input type="checkbox" name="c_@(Question.QuestionID)" id="@(s.AnswerId)"
+                                @(Question.ReplyAnswer == null ? "" : (Question.ReplyAnswer.objectAnswerList.Contains(@s.AnswerId.ToString()) ? "checked=checked" : ""))
+                                 />@((char)(65 + count)).
+                        @s.AnswerContentNohtml</p>
+                                    count++;
+                                }
+                    <div class="why">
+                        <span>理由:</span><input maxlength="200"  name="muiltReplay" type="text" value="@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.QuestionReply)" /></div>
+                            }
+                            break;
+                        //主观题
+                        case 2:
+                    <p>
+                        <textarea onkeyup="TextearaMaxlength(this)" onchange="TextearaMaxlength(this)" maxlength="500">@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.SubjectiveAnswer)</textarea></p>            
+                                                                                 break;
+                        case 3:
+                    <input class="xp" type="hidden"  value="@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.SubjectiveAnswer)" />
+                    <div id='divScore_@(Question.QuestionID)' title="@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.SubjectiveAnswer)" class="ml35" title='5'>
+                    </div>
+                    <div class="why mt5">
+                        <span>理由：</span><input name="xingPReplay" type="text" value='@(Question.ReplyAnswer == null ? "" : Question.ReplyAnswer.QuestionReply)' />
+                    </div>                                       break;
+                    }
+                }
+            </div>
+            }       
+        }
+    </div>
+    <div class="mt10 tc">
+        <input type="button" value="提交" onclick="Save()" class="btn" />
+        <a href="DoSurveyList?index=@index" target="_self" class="btn btn-cancel">取消</a>
+    </div>
+</div>
+<script type="text/javascript">
+    var flag=true;
+    var count=0;
+    $(document).ready(function ()
+    {
+        showStars();
+    });
+
+    function Save()
+    {
+        var replyAnswer = {};
+        replyAnswer.ObjectID = "@Model.Id";
+        replyAnswer.ExampaperID = "@Model.PaperID"
+        replyAnswer.questionAnswer = GetQuestionAnswer();
+        if(flag)
+        {
+            $.post("/Survey/SaveReplyAnswer", { data: JSON.stringify(replyAnswer), isdo: @ViewBag.isdo }, function (data) {
+                if(data.result==1)
+                {
+                   window.location.href="DoSurveyList?index=@index";
+                }
+            });
+        }
+        else
+        {
+          art.dialog({
+            content: "您还有"+count+"题没有做，确认提交吗？",
+            ok: function ()
+            {
+                $.post("/Survey/SaveReplyAnswer", { data: JSON.stringify(replyAnswer), isdo: @ViewBag.isdo }, function (data) {
+                if(data.result==1)
+                {
+                   window.location.href="DoSurveyList?index=@index";
+                }
+            });
+            }, cancel: true
+          });
+        }
+       
+      
+
+    }
+
+    function GetQuestionAnswer()
+    {
+        var obj = [];
+       
+        flag=true;
+        count=0;
+        $(".q").each(function (index, value)
+        {
+            var q = {};
+            var type = $(this).attr("type");
+            q.QuestionID = $(this).attr("id");
+            var objecta = "";
+            switch (type)
+            {
+                //单选               
+                case "0":
+                    $(this).find("input:radio").each(function ()
+                    {
+                        if ($(this).attr("checked") == "checked")
+                        {
+                            objecta = $(this).attr("id");
+                        }
+                    });
+                    if(objecta=="")
+                    {
+                        flag=false;
+                        count++;
+                    }
+                    q.ObjectiveAnswer = objecta;
+                    q.SubjectiveAnswer = "";
+                    q.QuestionReply = $(this).find("input[name='singReplay']").val();
+                    break;
+                //多选               
+                case "1":
+                    $(this).find("input:checkbox").each(function ()
+                    {
+                        if ($(this).attr("checked") == "checked")
+                        {
+                            objecta = objecta == "" ? $(this).attr("id") : objecta + "," + $(this).attr("id");
+                        }
+                    })
+                     if(objecta=="")
+                    {
+                        flag=false;
+                        count++;
+                    }
+                    q.ObjectiveAnswer = objecta;
+                    q.SubjectiveAnswer = "";
+                    q.QuestionReply = $(this).find("input[name='muiltReplay']").val();
+                    break;
+                //主观题           
+                case "2":
+                    q.ObjectiveAnswer = "";
+                    q.SubjectiveAnswer = $(this).find("textarea").val();
+                    q.QuestionReply = "";
+                     if(q.SubjectiveAnswer=="")
+                    {
+                        flag=false;
+                        count++;
+                    }
+                    break;
+               case "3":
+                    q.ObjectiveAnswer = "";
+                    q.SubjectiveAnswer = $(this).find(".xp").val();
+                    q.QuestionReply = $(this).find("input[name='xingPReplay']").val();
+                      if(q.SubjectiveAnswer=="")
+                    {
+                        flag=false;
+                        count++;
+                    }
+                    break;
+            }
+            obj.push(q);
+
+        });
+        return obj;
+    }
+
+     function ShowCourseOfSurvey(systemID, gradeIds)
+    {
+        art.dialog.load("/CourseManage/PopCourseOfSurvey?sysIds=" + systemID + "&gradeIds=" + gradeIds, { title: '胜任力课程', id: "art_CourseOfSurvey"});
+    }
+
+     //加载星评题
+    function showStars()
+    {
+        if ($("div[id^='divScore_']").length > 0)
+        {
+            $("div[id^='divScore_']").each(function(){
+              var star= $(this).attr("title");
+               var obj=this;
+               $(obj).studyplay_star({ MaxStar: 5, CurrentStar: star, Enabled: true }, function (value)
+                {
+                     $(obj).parent().find(".xp").val(value);
+                });
+            }); 
+        }
+    }
+</script>

@@ -1,0 +1,165 @@
+﻿@using LiXinModels.CourseManage
+@{
+    ViewBag.Title = "CPA课程预订详情";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var course = ViewBag.model as Co_Course;
+    var cname = Request.QueryString["cname"] ?? "";
+    var tname = Request.QueryString["tname"] ?? "";
+    var pre = Request.QueryString["pre"] ?? "0/0";
+    var grade = Request.QueryString["grade"] ?? "无";
+    var id = Request.QueryString["id"] ?? "0";
+}
+<script src="../../Scripts/report/highcharts.js" type="text/javascript"></script>
+<script src="../../Scripts/report/column.js" type="text/javascript"></script>
+<script src="../../Scripts/report/pie.js" type="text/javascript"></script>
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "CPA课程预订详情" }))
+    <h3 class="tit-h3">
+        课程基本信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span16">
+                课程名称：
+            </td>
+            <td class="span25">
+                <strong>@cname</strong>
+            </td>
+            <td class="Tit span10">
+                课程讲师：
+            </td>
+            <td>
+                <strong>@tname</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                报名人数/最大容纳人数：
+            </td>
+            <td>
+                <strong>@pre</strong>
+            </td>
+            <td class="Tit">
+                开放级别：
+            </td>
+            <td>
+                <strong>@grade</strong>
+            </td>
+        </tr>
+    </table>
+    <h3 class="tit-h3 mt20">
+        课程预订结果分析</h3>
+    <div class="h32 mt10">
+        <div id="showpie" style="width: 50%; height: 300px; margin: auto;">
+        </div>
+    </div>
+    <h3 class="tit-h3 mt20">
+        课程预订明细</h3>
+    <div id="Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">
+                    姓名：
+                </td>
+                <td class="span11">
+                    <input type="text" class="span10 searchclass" id="realname" value="请输入搜索内容" info="" />
+                </td>
+                <td class="Tit span6">
+                    部门/分所：
+                </td>
+                <td class="span21">
+                    <input type="text" class="span20 searchclass" id="deptname" value="请输入搜索内容" info="" />
+                </td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <span class="list-do">
+            <input type="button" class="btn" value="导出EXCEL" onclick="ExportUser();" />
+        </span>
+    </div>
+    <!-- 列表 -->
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span6">
+                    序号
+                </th>
+                <th class="span10">
+                    姓名
+                </th>
+                <th class="span10" jsrendersortfield="Sys_User.Sex" sort="desc">
+                    性别
+                </th>
+                <th>
+                    部门/分所
+                </th>
+                <th class="span18" jsrendersortfield="Sys_User.TrainGrade" sort="desc">
+                    培训级别
+                </th>
+                <th>
+                 报名时间
+                </th>
+            </tr>
+        </thead>
+        <tbody id="userList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    <div class="mt20 tc">
+        <a id="btnBack" class="btn btn-cancel" onclick=" window.location.href = '/CourseLearn/CourseSubscribe?flag=cpa&cp=1'; ">返回</a>
+    </div>
+</div>
+<script id="userListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr> 
+        <td>{{:#index+1}}</td>
+        <td>{{:Realname}}</td> 
+        <td>{{:SexStr}}</td> 
+        <td><div class="ovh span40 tl">{{:DeptName}}</div></td> 
+        <td>{{:TrainGrade}}</td>
+        <td>{{:OrderTimeStr}}</td>
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        InitDraw();
+        InitData();
+    });
+    function InitDraw() {
+        $.getJSON("/CourseLearn/GetDrawCPASubscribe?id=@id", function (data) {
+            var piechart_value = DrawImagePie(data.pie);
+            var piechart = new Highcharts.Chart(piechart_value);
+        });
+    }
+
+    function InitData() {
+        var v = "id=@id&pname=" + escape(getSearchWord("realname")) + "&dname=" + escape(getSearchWord("deptname"));
+        $("#userList").JsRenderData({
+            sourceUrl: '/CourseLearn/GetCPACourseSubscribeUserList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: " LastUpdateTime",
+            jsRenderASC: "desc",
+            templateID: "userListTemplate",
+            funCallback: function () {}
+        });
+    }
+    //导出预定人员
+    function ExportUser() {
+        art.dialog({
+            content: "由于数据量比较多，需耐心等待，确定要导出吗？",
+            ok: function () {
+                var v = "&pname=" + escape(getSearchWord("realname")) + "&dname=" + escape(getSearchWord("deptname"));
+                window.location.href = "/CourseLearn/ExportCPACourseSubscribeUserList?id=@(id)" + v + "&t=" + new Date();
+            },
+            cancel: true
+        });
+    }
+</script>

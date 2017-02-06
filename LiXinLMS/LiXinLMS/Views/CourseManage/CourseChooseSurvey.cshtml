@@ -1,0 +1,165 @@
+﻿@{
+    Layout = null;
+    var sortID = Request.QueryString["sortID"] ?? "0";
+    var type = Request.QueryString["type"] ?? "-1";//为1 筛选普通问卷
+}
+<div class="clb">
+    <div class="fl treeview-box span20">
+        <div id="sortList" class="tree-list">
+        </div>
+    </div>
+    <div class="fr span70 ml10">
+        <!--搜索-->
+        <div id="Search" class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span6">问卷名称：</td>
+                    <td><input id="txtPaperName" type="text" class="span30" /></td>
+                    <td class="so-do"><input id="btnSearch" class="btn" type="button" value="搜索" name="搜索" onclick="InitPaperList(); " /></td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="selPaperType" onchange="InitPaperList(); ">
+                <option value="-1">问卷类型</option>
+                <option value="0">课程问卷</option>
+                <option value="1">普通问卷</option>
+                <option value="2">讲师问卷</option>
+            </select>
+        </div>
+        <!-- 列表 -->
+        <div id="Content">
+            <table class="tab-List mt10">
+                <thead>
+                    <tr>
+                        <th class="span3"></th>
+                        <th>问卷名称</th>
+                        <th class="span8">问卷类型</th>
+                        <th class="span12">所属分类</th>
+                        <th class="span13">创建时间</th>
+                        <th class="span5">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="paperList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<center class="mt10"><input type="button" class="btn btn-co" value="确定" onclick="GetSurveyIDList()" /></center>
+<input id="selPaperSort" type="hidden" value="@sortID" />
+<script id="paperListTemplate" type="text/x-jsrender">
+    {{for #data}}
+      <tr>
+        <td><input name="SurveyList" value="{{:ExampaperID}}" surveyName="{{:ExamTitle}}" id="pop_suvey_{{:ExampaperID}}" type="radio"/></td>
+        <td>
+            <div class="ovh tl span20" title="{{:ExamTitle}}">{{:ExamTitle}}</div>
+        </td>
+		<td>{{:ExamTypeShow}}</td>
+        <td>
+          <div class="ovh tl span15" title="{{:SortName}}"> {{:SortName}}</div>
+       </td>
+        <td><div class="f11 tl">{{:LastUpdateTimeShow}}</div></td>
+        <td><a onclick="ViewPaper({{:ExampaperID}});" class="icon iview" title="查看"></a></td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initPaperSort();
+
+        if("@(type)"!="-1")
+        {
+           $("#selPaperType").removeAttr("onchange");
+           $("#selPaperType option[value='@type']").attr("selected",true);
+           $("#selPaperType").attr("disabled","disabled");
+        }
+        InitPaperList();
+        
+    });
+
+    //预览问卷，列表内的操作
+    function ViewPaper(id) {
+        art.dialog.load("/Survey/BrowsePaper?browseType=1&id=" + id + "&sortID=" + $("#selQuestionSort").val(), { title: '问卷预览', id: "pop_BrowsePaper", }, false);
+    }
+
+    function fnBrowsePopCallBack()
+    {
+        art.dialog.list["pop_BrowsePaper"].close();
+    }
+    //初始化分类
+    function initPaperSort() {
+        $.getJSON("/Survey/GetAllPaperSortTree", function (data) {
+            $("#sortList").html(data);
+            //树的显示
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+           $("#navigation>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+        });
+    }
+
+    //问卷分类树点击事件
+    function selectSort(id, obj) {
+        $("#selPaperSort").val(id);
+        postNodeClickSelect(obj);
+        //初始化问题
+        InitPaperList();
+    }
+
+    function postNodeClickSelect(obj) {
+        $("#sortList").find("a").each(function () {
+            $(this).css("background-color", "");
+            $(this).css("color", "");
+        });
+
+        $(obj).css("background-color", "rgb(204, 204, 204)");
+        $(obj).css("color", "#cc0000");
+    }
+
+    //生成url参数字符串
+    function getUrlParms() {
+        return '/Survey/GetAllPaper?sortID=' + $("#selPaperSort").val() + '&type=' + $("#selPaperType").val() + '&name=' + escape($.trim($("#txtPaperName").val())) + '&t=' + new Date();
+    }
+
+    //初始化问题
+    function InitPaperList() {
+        $("#paperList").JsRenderData({
+            sourceUrl: getUrlParms(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: 'paperListTemplate',
+            funCallback: function (data) {
+            }
+        });
+        SetCheckBox('selectall', 'paperList');
+    }
+
+     function GetSurveyIDList() {
+         var flag = false;
+        var check = document.getElementsByName("SurveyList");
+        var checkList = "";
+        for (var i = 0; i < check.length; i++) {
+            if (check[i].checked) {
+                checkList = checkList + check[i].value + ",";
+                flag = true;
+            }
+        }
+        if (!flag) {
+            // art.dialog({ content: "请选择问卷！", time: 3, lock: true });
+            art.dialog.tips("请选择问卷！", 3);
+            return;
+        } else {
+            checkList = checkList.substring(0, checkList.length - 1);
+            fnChooseSurvey(checkList,$("#pop_suvey_"+checkList).attr("surveyName"),"@type");
+        }
+    }
+</script>

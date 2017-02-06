@@ -1,0 +1,212 @@
+﻿@using LiXinLanguage
+@using LiXinModels.User
+@{
+    ViewBag.Title = NavigateMenuLanguage.PostEdit;
+    var post = ViewBag.model as Sys_Post;
+}
+@(Html.Action("SiteMapLink", "Common", new {linkName = "PostEdit"}))
+<div id="EditMainbg" class="mBottom_2">
+    <div class="ma Raster_50">
+        <div class="editbody topleft fl">
+            &nbsp;</div>
+        <div class="editbody topcenter fl" style="width: 484px;">
+            &nbsp;</div>
+        <div class="editbody topright fl">
+            &nbsp;</div>
+        <div class="clear">
+        </div>
+        <div class="editbody left fl">
+            &nbsp;</div>
+        <div class="center fl" style="width: 484px;">
+            <div class="centerbody">
+                <table>
+                    <tr>
+                        <td class="Raster_9 tr">
+                            <span class="redstar"  title="必填项">必填</span>岗位代码: 
+                        </td>
+                        <td>
+                            <input type="text" id="postCode" maxlength="50" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_9 tr">
+                            <span class="redstar"  title="必填项">必填</span>岗位名称: 
+                        </td>
+                        <td>
+                            <input type="text" id="postName" maxlength="30" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_9 tr">
+                            <span class="redstar"  title="必填项">必填</span>上级岗位: 
+                        </td>
+                        <td>
+                            <input type="text" id="postParent" onclick=" changeParent(); " readonly="readonly" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_9 tr">
+                            岗位等级: 
+                        </td>
+                        <td>
+                            <input type="text" id="postLevel" maxlength="2" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Raster_9 tr">
+                            岗位描述: 
+                        </td>
+                        <td>
+                            <textarea id="txtDesc"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="tc">  
+                            <a id="btnSave" class="Button_24 Button70" onclick=" Save(); ">确&nbsp;&nbsp;定</a>
+                            <a id="btnBack" class="Button_24 Button70 Btn_white" onclick=" window.location.href = '/UserManage/PostManage'; ">
+                                返回</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="editbody right fl">
+            &nbsp;</div>
+        <div class="clear">
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hidId" value="0" />
+<input type="hidden" id="hidParentId" value="-1" />
+<script language="javascript" type="text/javascript">
+    $(document).ready(function() {
+        if (@post.PostId > 0) {
+            $("#postCode").val("@Html.Raw(post.PostCode.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#postName").val("@Html.Raw(post.PostName.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#postParent").val("@Html.Raw(post.parentPostName.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#hidParentId").val("@post.ParentId");
+            $("#txtDesc").val("@Html.Raw(post.Remark.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#postLevel").val("@post.PostLevel");
+            $("#hidId").val("@post.PostId");
+        } else {
+            $("#postParent").val("@Html.Raw(post.parentPostName.Replace("\"", "\\\"").Replace("\'", "\\\'"))");
+            $("#hidParentId").val("@post.ParentId");
+        }
+
+        $("#txtDesc").textareaCount({maxCharacterSize:200});
+    });
+
+    function Save() {
+        var id = $("#hidId").val();
+        var postCode = $("#postCode").val();
+        if ($.trim(postCode) == "") {
+            art.dialog({
+                content: '岗位代码不能为空！',
+                time: 3
+            });
+            return;
+        }
+        var postName = $("#postName").val();
+        if ($.trim(postName) == "") {
+            art.dialog({
+                content: '岗位名称不能为空！',
+                time: 3
+            });
+            return;
+        }
+        var parentId = $("#hidParentId").val();
+        if (parentId < 0) {
+            art.dialog({
+                content: '上级岗位不能为空！',
+                time: 3
+            });
+            return;
+        }
+
+        var level = $("#postLevel").val();
+        if (level != "") {
+            if (isNaN(level) == false) {
+                if (parseInt(level, 10) < 0 || parseInt(level, 10) > 99 || parseInt(level, 10) != $("#postLevel").val()) {
+                    art.dialog({
+                        content: '岗位等级要大于等于0，小于等于99的整数！',
+                        time: 3
+                    });
+                    return;
+                } else {
+                    level = parseInt(level, 10);
+                }
+            } else {
+                art.dialog({
+                    content: '岗位等级要大于等于0，小于等于99的整数！',
+                    time: 3
+                });
+                return;
+            }
+        } else {
+            level = -1;
+        }
+        var desc = $("#txtDesc").val();
+        if (desc.length > 200) {
+            art.dialog({
+                content: '岗位描述不能超过200个字符！',
+                time: 3
+            });
+            return;
+        }
+
+        $.post("/UserManage/SavePost",
+            {
+                postId: id,
+                postCode: postCode,
+                postName: postName,
+                parentId: parentId,
+                postLevel: level,
+                postDesc: desc
+            },
+            function(data) {
+                if (data.result == 1) {
+                    art.dialog({
+                        content: data.content,
+                        time: 3,
+                        close: function() { window.location.href = "/UserManage/PostManage"; }
+                    });
+                } else {
+                    art.dialog({
+                        content: data.content,
+                        time: 3
+                    });
+                }
+            }
+        );
+    }
+
+    function changeParent() {
+        art.dialog.load("/UserCommon/PostTree",{
+            title: "选择岗位",
+            id: "art_choosePost",
+            height: 300,
+            width: 400
+        });
+    }
+
+    function NodePostClick() {
+        $("#hidParentId").val($("#pop_hidPostID").val());
+        $("#postParent").val($("#pop_hidPostName").val());
+        closeDialog("art_choosePost");
+    }
+
+    function InitPostTree() {
+        if ($("#hidParentId").val() != "0") {
+            $("#0_-1").bind("click", function() {
+                postNodeClick("#0_-1");
+            });
+        }
+        $(".pNote").each(function() {
+            var ids = $(this).attr("id").split('_');
+            if (ids[0] == $("#hidId").val() || (",@ViewBag.childs").indexOf("," + ids[0] + ",") >= 0) {
+                $(this).attr("disabled", "disabled");
+                $(this).removeAttr("onclick");
+            }
+        });
+    }
+</script>

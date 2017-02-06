@@ -1,0 +1,64 @@
+﻿@{
+    ViewBag.Title = "PrincipleApproval";
+    Layout = null;
+    var id = Request.QueryString["id"];
+    var type = Request.QueryString["type"];
+    var userID = Request.QueryString["userID"];
+    var courseID = Request.QueryString["courseID"];
+}
+<div>
+    <input type="hidden" id="result" value="1" />
+    <table class="tab-Form">
+        <tr style="background-color:#eee;">
+            <td class="Tit span6">申辩理由：</td>
+            <td>@(ViewBag.Attendce.Reason)</td>
+        </tr>
+        <tr>
+            <td class="Tit">审批结果：</td>
+            <td>
+                <div class="sel"><input type="radio" name="btnradio" id="yes" checked="checked" onchange="if($(this).attr('checked')){$('#result').val('1');}"/><label>审批通过</label>
+                <input type="radio" name="btnradio" id="no" style="margin-left:50px;" onchange="if($(this).attr('checked')){$('#result').val('2');}"/><label>审批拒绝</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">审批理由：</td>
+            <td><textarea id="expalnPrin" style="width:350px; height:100px;"></textarea></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tc">
+                <input class="btn btn-co" type="button" value="保存" id="btnSave" onclick="SaveExplain();"/>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#expalnPrin").textareaCount({ maxCharacterSize: 200 });
+    });
+    //保存
+    function SaveExplain() {
+        if ($("#result").val()=='1' || ($("#result").val()=='2' && $("#expalnPrin").val() != "")) {
+            $.post("/MyApproval/ApprovalPrinApp", { id: @(id),userID:@(userID),courseID:@(courseID),lesslength:@(ViewBag.Attendce.LessLength),result:$("#result").val(), memo: $("#expalnPrin").val()}, function(data) {
+                if (data.result == 1) {
+                    if ('@(type)' == 'a') {
+                        InitPrinList();
+                    } else {
+                        $("#btnApp").remove();
+                        window.location.href='/MyApproval/PrincipleManage';
+                    }
+                    art.dialog.list["EditExplain"].close();
+                } else {
+                    art.dialog({
+                        content: "申批失败！",
+                        time: 3,
+                        close: function() {
+                        }
+                    });
+                }
+            });
+        }
+        else
+             art.dialog({content: "请填写审批理由！",time: 3,close: function() {}});
+    }
+</script>

@@ -1,0 +1,129 @@
+﻿@using LiXinControllers
+@using LiXinModels.CourseManage
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var course = ViewBag.Course as Co_Course;
+    var CourseResourselist = ViewBag.CourseResourse as List<Co_CourseResource>;
+    var Resourceurl = BaseController.UFCOResource as string;
+
+    ViewBag.Title = "课程详情";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "课程详情" }))
+    @Html.Action("MyCourse", "MyCourse", new { id = @course.Id }) 
+    <div class="course-de">
+        <table class="tab-Form" style="border:none;">
+            <tr><td class="Tit span13">课程类别：</td><td>@course.SortStr</td></tr>
+            <tr><td class="Tit">必修/选修：</td><td>@(course.IsMust == 0 ? "必修" : "选修")</td></tr>
+            <tr><td class="Tit">预订/指定：</td>
+                <td>
+                    @if (course.IsOrder == 0)
+                    {
+                        <span>无</span>
+                    }
+                    else if(course.IsOrder==1)
+                    {
+                        <span>预订</span>
+                    }
+                    else if (course.IsOrder == 2)
+                    {
+                        <span>指定</span>
+                    }
+                    else
+                    {
+                        <span>两者都有</span>
+                    }
+                </td>
+            </tr>
+            <tr><td class="Tit">最大允许人数：</td><td>@course.NumberLimited</td></tr>
+            <tr><td class="Tit">是否可折算CPA学时：</td><td>@(course.IsCPA == 0 ? "否" : "是")</td></tr>
+            <tr><td class="Tit">是否需请假：</td><td>@(course.IsLeave == 0 ? "否" : "是")</td></tr>
+        </table>
+        <div class="oth">
+            <h4>课程大纲：</h4>
+            <div class="co-memo  do_warp" style=" overflow:auto">
+                @if (course.Memo != null)
+                {
+                   @Html.Raw(course.Memo)
+                }
+                else 
+                {
+                    <p>暂无内容</p>
+                }
+            </div>
+            <h4>课程资源：</h4>
+            <table class="tab-List">
+                <thead>
+                        <tr>
+                        <th>资源名称</th>
+                        <th>资源类型</th>
+                        <th>资源大小</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (CourseResourselist.Find(p => p.ResourceType == 0) != null)
+                    {
+                                
+                        foreach (var coCourseResource in CourseResourselist)
+                        {
+                            if (coCourseResource.ResourceType == 0)
+                            { 
+                                <tr>
+                                    <td><div class="tl">@coCourseResource.ResourceName</div></td>
+                                    <td>@coCourseResource.ExtendName</td>
+                                    <td>@coCourseResource.ResourceSize K</td>
+                                    <td><a href="@Url.Content(Resourceurl + coCourseResource.RealName)" target="_Blank" class="icon idown" title="我要下载"></a></td>
+                                </tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="tc">暂无资源</td></tr>
+                    }
+
+                </tbody>
+            </table>
+                    
+            <h4 class="mt10">课程附件：</h4>
+            <table class="tab-List">
+                <thead>
+                        <tr>
+                        <th>附件名称</th>
+                        <th>附件类型</th>
+                        <th>附件大小</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (CourseResourselist.Find(p => p.ResourceType == 1) != null)
+                    {
+                        foreach (var coCourseResource in CourseResourselist)
+                        {
+                            if (coCourseResource.ResourceType == 1)
+                            { 
+                                <tr>
+                                    <td><div class="tl">@coCourseResource.ResourceName</div> </td>
+                                    <td>@coCourseResource.ExtendName</td>
+                                    <td>@coCourseResource.ResourceSize K</td>
+                                    <td><a href="@Url.Content(Resourceurl + coCourseResource.RealName)" target="_Blank" class="icon idown" title="我要下载"></a></td>
+                                </tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="tc">暂无资源</td></tr>
+                    }
+
+                </tbody>
+            </table>
+                 
+            
+        </div>
+    </div>
+    <div class="mt10 tc">@Html.ActionLink("返回", "MyCourseList", "MyCourse", new { p = "1" },new { @class = "btn btn-cancel" })</div>
+</div>
+

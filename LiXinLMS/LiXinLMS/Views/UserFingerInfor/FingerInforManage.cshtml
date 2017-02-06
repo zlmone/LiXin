@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = LiXinLanguage.NavigateMenuLanguage.UserFingerInfor;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "UserFingerInfor"
+}))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">姓名：
+                </td>
+                <td class="span24">
+                    <input type="text" class="span25 Box searchclass" id="RealName" value="请输入搜索内容" info="" />
+                </td>
+                <td class="so-do" rowspan="2">
+                    <input class="btn" type="button" value="搜索" id="btnSearch" onclick="Getdata();" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <div class="list-do">
+            <input class="btn" type="button" id="btnExport" value="导出人员指纹信息" onclick="ExportFingerInfor();" />
+        </div>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th class="span4">序号
+                    </th>
+                    <th class="span8">姓名
+                    </th>
+                    <th class="span20">部门
+                    </th>
+                    <th class="span8">指纹1
+                    </th>
+                    <th class="span8">指纹2
+                    </th>
+                    <th class="span8">操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="userList" class="tc">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script id="userListTemplate" type="text/x-jsrender">
+   {{for #data}}
+       <tr>
+          <td>{{:#index+1}}</td>
+          <td>{{:Realname}}</td>
+          <td>{{:deptname}}</td>
+          <td><div id="one_{{:Id}}" class="tl ovh span20" title="{{:FingerTemplate1}}">{{:FingerTemplate1}}</div></td>
+          <td><div id="two_{{:Id}}" class="tl ovh span20" title="{{:FingerTemplate2}}">{{:FingerTemplate2}}</div></td>
+          <td><a class="icon iedit" onclick="Edit({{:Id}},{{:UserId}},'{{:Realname}}')" title="编辑"></a></td>
+       </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //初始化查询条件
+        initSearch();
+        Getdata();
+    });
+
+    function Getdata() {
+        $("#userList").JsRenderData({
+            sourceUrl: "/UserFingerInfor/GetUserFingerList?realName=" + escape($.trim(getSearchWord("RealName"))),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "userListTemplate"
+        });
+    }
+
+    function Edit(id, userID, Realname) {
+        art.dialog.load("EditFingerInfor?id=" + id + "&realname=" + escape(Realname) + "&userID=" + userID, { title: '编辑指纹', id: "art_Edit", widht: 400, height: 200 });
+    }
+
+    //导出人员的指纹信息
+    function ExportFingerInfor() {
+        art.dialog({
+            content: "由于人员指纹信息比较多，需耐心等待，确定要导出吗？",
+            ok: function () {
+                window.location.href = "/UserFingerInfor/ExportUserFingerInfor?realName=" + escape($.trim(getSearchWord("RealName"))) + "&t=" + new Date();
+            },
+            cancel: true
+        });
+    }
+</script>

@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9F7DCE1F-6769-4BED-8876-B3D118306F57}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LiXinModels</RootNamespace>
+    <AssemblyName>LiXinModels</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Accessibility">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChartModel.cs" />
+    <Compile Include="CourseLearn\Cl_Attendce.cs" />
+    <Compile Include="CourseLearn\Cl_CourseAdvice.cs" />
+    <Compile Include="CourseLearn\Cl_CourseOrder.cs" />
+    <Compile Include="CourseLearn\Cl_CpaLearnStatus.cs" />
+    <Compile Include="CourseLearn\Cl_LearnVideoInfor.cs" />
+    <Compile Include="CourseLearn\Cl_MakeUpOrder.cs" />
+    <Compile Include="CourseLearn\Cl_MidAttendce.cs" />
+    <Compile Include="CourseLearn\Cl_TimeOutOrder.cs" />
+    <Compile Include="CourseManage\CalendarTask.cs" />
+    <Compile Include="CourseManage\Cl_VideoManage.cs" />
+    <Compile Include="CourseManage\Co_CourseShow.cs" />
+    <Compile Include="CourseManage\Co_CourseSystem.cs" />
+    <Compile Include="CourseManage\Co_SystemLinkCourse.cs" />
+    <Compile Include="CourseManage\Co_VideoResource.cs" />
+    <Compile Include="CourseManage\Sys_PayGrade.cs" />
+    <Compile Include="CourseManage\Sys_SortGradeCourse.cs" />
+    <Compile Include="CourseManage\Sys_SortGradeLinkCourse.cs" />
+    <Compile Include="CourseManage\Sys_SortLinkGrade.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="EmailInforMation.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="CourseManage\Co_Course.cs" />
+    <Compile Include="MyApproval\ApprovalUserInfor.cs" />
+    <Compile Include="MyApproval\AttendceInfor.cs" />
+    <Compile Include="MyApproval\BaseApprovalInfor.cs" />
+    <Compile Include="MyApproval\Cl_TimeOutLeave.cs" />
+    <Compile Include="MyApproval\PrincipleInfor.cs" />
+    <Compile Include="PlanManage\CourseShow.cs" />
+    <Compile Include="CourseManage\Co_CoursePaper.cs" />
+    <Compile Include="CourseManage\Co_CourseResource.cs" />
+    <Compile Include="PlanManage\Co_CourseResource.cs" />
+    <Compile Include="PlanManage\Tr_MonthPlan.cs" />
+    <Compile Include="PlanManage\Tr_MonthPlanCourse.cs" />
+    <Compile Include="PlanManage\Tr_YearPlan.cs" />
+    <Compile Include="PlanManage\Tr_YearPlanCourse.cs" />
+    <Compile Include="Survey\Survey_Exampaper.cs" />
+    <Compile Include="Survey\Survey_ExampaperCategory.cs" />
+    <Compile Include="Survey\Survey_Question.cs" />
+    <Compile Include="Survey\Survey_QuestionAnswer.cs" />
+    <Compile Include="Survey\Survey_ReplyAnswer.cs" />
+    <Compile Include="Survey\Survey_Survey.cs" />
+    <Compile Include="Survey\Survey_SurveyUser.cs" />
+    <Compile Include="SystemManage\SMSConfig.cs" />
+    <Compile Include="SystemManage\SmsMessage.cs" />
+    <Compile Include="SystemManage\Sys_ClassRoom.cs" />
+    <Compile Include="SystemManage\Sys_LeaderConfig.cs" />
+    <Compile Include="SystemManage\Sys_LogError.cs" />
+    <Compile Include="SystemManage\Sys_LogLogin.cs" />
+    <Compile Include="SystemManage\Sys_LogOperate.cs" />
+    <Compile Include="SystemManage\Sys_LogTrain.cs" />
+    <Compile Include="SystemManage\Sys_Log.cs" />
+    <Compile Include="Examination\DBModel\tbExamination.cs" />
+    <Compile Include="Examination\DBModel\tbExampaper.cs" />
+    <Compile Include="Examination\DBModel\tbExampaperSort.cs" />
+    <Compile Include="Examination\DBModel\tbExamSendStudent.cs" />
+    <Compile Include="Examination\DBModel\tbKnowledgeKey.cs" />
+    <Compile Include="Examination\DBModel\tbQuestion.cs" />
+    <Compile Include="Examination\DBModel\tbQuestionSort.cs" />
+    <Compile Include="Examination\Enums.cs" />
+    <Compile Include="Examination\ShowModel\ExamGradeRank.cs" />
+    <Compile Include="Examination\ShowModel\ExampaperShow.cs" />
+    <Compile Include="Examination\ShowModel\ExamTestShow.cs" />
+    <Compile Include="Examination\ShowModel\MExampaperShow.cs" />
+    <Compile Include="Examination\ShowModel\MExamRuleShow.cs" />
+    <Compile Include="Examination\ShowModel\MQuestionShow.cs" />
+    <Compile Include="Examination\ShowModel\RExamination.cs" />
+    <Compile Include="Examination\ShowModel\RExamSendStudent.cs" />
+    <Compile Include="Examination\ShowModel\TreeModel.cs" />
+    <Compile Include="SystemManage\Sys_NoteResource.cs" />
+    <Compile Include="SystemManage\Sys_Notes.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SystemManage\Sys_Group.cs" />
+    <Compile Include="SystemManage\Sys_GroupUser.cs" />
+    <Compile Include="SystemManage\Sys_NoteSort.cs" />
+    <Compile Include="SystemManage\Sys_ParamConfig.cs" />
+    <Compile Include="SystemManage\UpdateRecord.cs" />
+    <Compile Include="TrainGradeManage\Sys_TrainGrade.cs" />
+    <Compile Include="User\Sys_Department.cs" />
+    <Compile Include="User\Sys_Post.cs" />
+    <Compile Include="User\Sys_Right.cs" />
+    <Compile Include="User\Sys_RoleRight.cs" />
+    <Compile Include="User\Sys_Roles.cs" />
+    <Compile Include="User\Sys_User.cs" />
+    <Compile Include="User\Sys_UserFinger.cs" />
+    <Compile Include="User\Sys_UserFingerInfor.cs" />
+    <Compile Include="User\Sys_UserRole.cs" />
+    <Compile Include="SheetModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LiXinCommon\LiXinCommon.csproj">
+      <Project>{6A0DD56D-A2DD-49B7-9A1A-4D7C8D485104}</Project>
+      <Name>LiXinCommon</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Examination\DBModel\readme.txt" />
+    <Content Include="Examination\ShowModel\readme.txt" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

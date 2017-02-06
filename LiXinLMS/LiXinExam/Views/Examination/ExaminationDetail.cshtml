@@ -1,0 +1,208 @@
+﻿@model LiXinModels.Examination.DBModel.tbExamination
+@{
+    ViewBag.Title = "考试详情";
+}
+<div class="main-c">
+@(Html.Action("SiteMapLink", "Common", new { linkName = "ExaminationDetail" }))
+<div id="divContent">
+    <input type="hidden" id="personids" value="@ViewData["personids"]" />
+    <div class="clb">
+        <div class="examInfo fl span24">
+            <h5 class="tit-bk">@Model.ExaminationTitle</h5>
+            <table class="tab-Form tab-now">
+                <tr>
+                    <td class="Tit">考试时间：</td>
+                    <td>
+                        <span>@(Model.ExamBeginTime.ToString("yyyy-MM-dd HH:mm"))</span> -<br />
+                        <span>@(Model.ExamEndTime.ToString("yyyy-MM-dd HH:mm"))</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">考试时长：</td>
+                    <td><strong class="c_col">@(Model.ExamLength)</strong> 分钟
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">考试次数：</td>
+                    <td><strong class="c_col">@Model.TestTimes</strong></td>
+                </tr>
+                <tr>
+                    <td class="Tit">通过分数：</td>
+                    <td>
+                        试卷总分的 <strong class="c_col">@(Model.PassScore) %</strong>
+                    </td>
+                </tr>
+                <tr style="border-top:1px dotted #ccc;">
+                    <td class="Tit">是否百分制：</td>
+                    <td>
+                        <span style="display: none" id="txt_PercentFlag0">是</span> <span style="display: none"
+                            id="txt_PercentFlag1">否</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">试卷顺序：</td>
+                    <td>
+                        <span style="display: none" id="txt_RadomOrderFlag0">固定排序</span> <span style="display: none; " 
+                            id="txt_RadomOrderFlag1">随机排序</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">显示模式：</td>
+                    <td>
+                        <span style="display: none" id="txt_ShowType0">整卷显示</span> <span style="display: none"
+                            id="txt_ShowType1">单题可逆</span> <span style="display: none" id="txt_ShowType2">单题不可逆</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">选择试卷：</td>
+                    <td>
+                        <span id="lbl_PaperName">@(ViewBag.PaperName)</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">批阅人：</td>
+                    <td>
+                        <input name="ApprovalUser" id="ApprovalUserIds" type="hidden" value="@ViewBag.ApprovalUserIds" />
+                        <div id="AUser"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="fr span75">
+            <div id="Search" class="so-set">
+                <table class="tab-Form">
+                    <tr>
+                        <td class="Tit span4">工号：</td>
+                        <td class="span21"><input type="text" class="span8" id="PersonCode" /></td>
+                        <td class="Tit span4">姓名：</td>
+                        <td><input type="text" class="span8" id="PersonName" /></td>
+                        <td class="so-do" rowspan="2"><input type="button" class="btn" value="搜索" id="SelectPerson" /></td>
+                    </tr>
+                    <tr>
+                        <td class="Tit">部门：</td>
+                        <td><input type="text" class="span20" id="PersonDepartment" /></td>
+                        <td class="Tit">岗位：</td>
+                        <td><input type="text" class="span20" id="PersonPost" /></td>
+                    </tr>
+                    @*<input type="button" class="Btn Btn_Blue Btn70" value="Delete" id="DeletePerson" />*@
+                </table>
+                @*<a class="search_hold">收起搜索</a>*@
+            </div>
+            <div id="Content">
+                <table class="tab-List mt10">
+                    <thead>
+                        <tr>
+                            <th>
+                                姓名(工号)
+                            </th>
+                            <th class="span15">
+                                部门与岗位
+                            </th>
+                            <th class="span10">
+                                邮箱
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="personlist">
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <center class="mt10">
+        <input type="button" name="btnSave" value="返回" class="btn btn-cancel" id="btnBack"
+            onclick=" javascript:window.location.href='/Examination/ExaminationList';" /></center>
+</div>
+</div>
+<script id="userListTemplate" type="text/x-jsrender">
+    {{for #data}}
+     <tr>
+        <td>
+            <div class="headPic">
+                <img src="../../Images/photo/default.jpg" />
+                <span class="Icon_16 {{:Sex==1?'Icon_Girl':'Icon_Boy'}}" title="{{:SexStr}}">{{:SexStr}}</span>
+            </div>
+            <div>
+                <p class="c33" title="{{:Realname}}"><strong>{{:Realname.length>17?Realname.substring(0,17)+"...":Realname}}</strong></p>
+                <p class="Num">
+                    <span title="{{:JobNum}}">[ {{:JobNum.length>10?JobNum.substring(0,10)+"...":JobNum}} ]</span>
+                    {{if Status == 1}}
+                        <span class="Icon_16 Icon_Frost mLeft_05" title="已冻结" ></span>
+                    {{/if}}
+                </p>
+            </div>
+            {{if (RoleName!=null)&&(RoleName != "")}}
+                <div class="mTop_05"><span class="c99">角色: </span>{{:RoleName}}</div>
+            {{/if}}
+        </td>
+         <td><p>{{:DeptCode}}</p>
+         <p class="c_green">{{:PostCode}}</p></td>
+         <td>{{:Email}}</td>
+      </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        if ("@ViewBag.Msg" != "") {
+            $("#divContent").html("@(ViewBag.Msg)!");
+            return;
+        }
+        //编辑时，数据初始化radio
+        $("#txt_RadomOrderFlag" + @Model.RadomOrderFlag).show();
+        $("#txt_ShowType" + @Model.ShowType).show();
+        $("#txt_PercentFlag" + @Model.PercentFlag).show();
+        AddApprovalUser();
+        InitTable();
+        $("#SelectPerson").bind("click", function() {
+            InitTable();
+        });
+    }
+    );
+
+    function changeView(str) {
+        ChangeList({ str: str, fun: function() { InitTable(); } });
+    }
+
+    function AddApprovalUser() {
+        $("#AUser").html("");
+        $.getJSON("/Examination/GetUserByIds", { ids: $("#ApprovalUserIds").val() }, function(data) {
+            if (data.data.length > 0) {
+                for (var i = 0; i < data.data.length; i++) {
+                    var tagId = "Tag_" + data.data[i].UserId;
+                    $("#AUser").prepend('<span class="mr10" id=' + tagId + '>' + data.data[i].Realname + '</span>');
+                }
+            }
+        });
+    }
+
+    function InitTable() {
+        var templateId = '';
+//        if ($(".listOn").length > 0) {
+//            $("#personlist").addClass("Wordlist").removeClass("Piclist");
+//            templateId = 'userListTemplate';
+//        } else {
+//            $("#personlist").addClass("Piclist").removeClass("Wordlist");
+//            templateId = 'userBlockTemlpate';
+//        }
+
+
+        $("#personlist").JsRenderData({
+            sourceUrl: '/Examination/GetAuthorizedExamUserList?userIds=' + $("#personids").val() +
+                '&personName=' + escape($("#PersonName").val()) +
+                '&personCode=' + escape($("#PersonCode").val()) +
+                '&personPost=' + escape($("#PersonPost").val()) +
+                '&personDepartment=' + escape($("#PersonDepartment").val()) +
+                '&t=' + new Date(),
+            isPage: true,
+            pageSize: 20,
+            pageIndex: 1,
+            templateID: 'userListTemplate',
+//            templateID: templateId,
+            funCallback: function() {
+            }
+        });
+    }
+
+</script>

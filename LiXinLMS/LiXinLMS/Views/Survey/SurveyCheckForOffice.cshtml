@@ -1,0 +1,112 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = NavigateMenuLanguage.SurveyCheckForOffice;
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "SurveyCheckForOffice"
+}))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">
+                    调查名称：
+                </td>
+                <td class="span20">
+                    <input id="txtName" type="text" class="span16  searchclass" value="请输入搜索内容" info="" />
+                </td>
+                <td>
+                    <select id="selisInDate" onchange=" Getdata()">
+                        <option value="">是否在调研期限</option>
+                        <option value="是">是</option>
+                        <option value="否">否</option>
+                    </select>
+                </td>
+                <td class="so-do">
+                    <input type="button" class="btn" id="btnSearch" value="搜索" onclick="Getdata()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mt10">
+        <table class="tab-List">
+            <thead>
+                <tr>
+                    <th>
+                        序号
+                    </th>
+                    <th>
+                        调查名称
+                    </th>
+                     <th  jsrendersortfield="starttime" sort="asc">
+                        调查时间
+                    </th>
+                    <th>
+                        是否在调研期限内
+                    </th>
+                    <th jsrendersortfield="useNum" sort="asc">
+                        参与人数
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="surveyCheckList" class="tc">
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script id="surveyCheckTemplate" type="text/x-jsrender">
+   {{for #data}}
+         <tr>
+            <td>{{:#index+1}}</td>
+            <td><div class="span45 ovh tl" title="{{:Name}}">{{:Name}}</div></td>
+            <td>{{:DoTime}}</td>
+            <td>{{:IsInDate}}</td>
+            <td>{{:useNum}}</td>
+            <td>
+             {{if IsInDate=="是"}}
+                 <span class="icon icheck idis" title="审核"></span>
+             {{else}}
+                 <a onclick="DoSurvey({{:useNum}},{{:Id}},{{:PaperID}})" class="icon icheck" title="审核"></a>
+             {{/if}}
+            </td>
+         </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+
+        Getdata()
+    });
+    function Getdata(type)
+    {
+
+        $("#surveyCheckList").JsRenderData({
+            sourceUrl: getParamUrl(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "starttime",
+            jsRenderASC: "desc",
+            templateID: "surveyCheckTemplate"
+        });
+    }
+    function getParamUrl()
+    {
+        return "/Survey/GetSurveyCheckForOffice?Name=" + escape(getSearchWord("txtName")) + "&isInDate=" + escape($("#selisInDate").val());
+    }
+
+    function DoSurvey(userNum, Id, paperID)
+    {
+        window.location.href = "/Survey/SurveyCheckDeatilsForOffice?userNum=" + userNum + "&surveyID=" + Id + "&paperID=" + paperID;
+    }
+</script>

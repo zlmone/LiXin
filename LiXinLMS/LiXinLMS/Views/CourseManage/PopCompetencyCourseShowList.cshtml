@@ -1,0 +1,15 @@
+﻿@{
+    ViewBag.Title = "PopCompetencyCourseShowList";
+    Layout = null;
+    //fnChooseSelectCourse  为 确认按钮触发的客户端 函数 需要自定义 2013-3-22 2:29:39
+}
+
+<h2>胜任力课程展示</h2>
+<div id="div_courseSystem"></div>
+<div id="div_CompetencyCourseList"></div>
+<script type="text/javascript">    
+    $(document).ready(function () {
+        $.get("/CourseManage/CompetencyCourseList?showGrade=1&showCCSureButton=1", function (data) { $("#div_CompetencyCourseList").html(data); });
+        $.get("/CourseManage/CourseSystemTree?radioFlag=1", function (data) { $("#div_courseSystem").html(data); });
+    });
+</script>

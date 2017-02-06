@@ -1,0 +1,162 @@
+﻿@using LiXinLanguage
+@{
+    ViewBag.Title = "违纪情况查询";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "违纪情况查询" }))
+    <div class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span4">姓名：</td>
+                <td class="span11">
+                    <input type="text" class="span10 Box searchclass" id="txtPrinName" value="请输入搜索姓名" info="" /></td>
+                <td class="Tit span6">课程名称：</td>
+                <td class="span21">
+                    <input type="text" class="span20 Box searchclass" id="txtPrinCoName" value="请输入搜索课程" info="" /></td>
+                <td class="Tit span6">部门/分所：</td>
+                <td>
+                    <input type="text" class="span20 Box searchclass" id="txtDeparName" value="请输入搜索部门/分所" info="" /></td>
+                <td class="so-do">
+                    <input class="btn" type="button" value="搜索" id="btnPrinSearch" onclick="SearchPrin(1);" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="so-seq">
+        <select id="selApp">
+            <option value="-1">申辩状态</option>
+            <option value="0">未申辩</option>
+            <option value="1">已申辩</option>
+        </select>
+        <select id="selTrainGrade">
+            <option value="-1">培训级别</option>
+        </select>
+        <select id="isPrinApp">
+            <option value="-1">出勤状态</option>
+            <option value="0">迟到</option>
+            <option value="1">早退</option>
+            @*<option value="2">缺勤</option>*@
+            <option value="3">迟到且早退</option>
+        </select>
+        <select id="isStatus">
+            <option value="-1">审批状态</option>
+            <option value="0">未审批</option>
+            <option value="1">审批通过</option>
+            <option value="2">审批拒绝</option>
+        </select>
+    </div>
+    <table class="tab-List mt10">
+        <thead>
+            <tr>
+                <th class="span4">序号</th>
+                <th class="span8">姓名</th>
+                <th class="span11">部门/分所</th>
+                <th class="span8">培训级别</th>
+                <th>课程名称</th>
+                <th class="span6">学时</th>
+                <th class="span8">扣除学时</th>
+                <th class="span14" jsrendersortfield="b.StartTime" sort="desc">开课时间</th>
+                <th class="span6">申辩状态</th>
+                <th class="span6">出勤状态</th>
+                <th class="span8">审批状态</th>
+                <th class="span4">操作</th>
+            </tr>
+        </thead>
+        <tbody id="prinList"></tbody>
+        <tfoot></tfoot>
+    </table>
+</div>
+<input id="grade" type="hidden" value="@(ViewBag.csgrade)" />
+<!--违纪列表模板-->
+<script id="prinListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td>{{:RealName}}</td>
+        <td><div title="{{:DepartName}}" class="ovh span10 tl">{{:DepartName}}</div></td>
+        <td>{{:TrainGrade}}</td>
+        <td><div title="{{:CourseName}}" class="ovh span18 tl">{{:CourseName}}</div></td>
+        <td>{{:CourseLength}}</td>
+        <td>{{:LessLength}}</td>
+        <td><div class="f11 tl">{{:CourseTimeShow}}</div></td>
+        <td>{{:IsAppShow}}</td>
+        <td>{{:AttStatusShow}}</td>
+        <td>{{:StatusShow}}</td>
+        <td>
+            <a class="icon iview" onclick="DetailPrin({{:ID}});" title="查看详情"></a>
+        </td>
+    </tr>
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //初始化查询条件
+        initSearch();
+        //初始化列表      
+
+
+        //下拉框事件
+        $("#selTrainGrade,#isPrinApp,#isStatus,#selApp").bind("change", function ()
+        {
+            $("#grade").val($("#selTrainGrade").val());
+            InitPrinList(1);
+        });
+
+        //加载培训级别
+        $.getJSON("/MyApproval/GetTrainGrade", function (data)
+        {
+            for (var i = 0; i < data.length; i++)
+            {
+                if ($.trim("@(ViewBag.csgrade)") == data[i].toString())
+                {
+                 
+                    $("#selTrainGrade").append('<option  selected="selected" value="' + data[i] + ' ">' + data[i] + '</option>');
+                }
+                else
+                {
+                    $("#selTrainGrade").append('<option value="' + data[i] + ' ">' + data[i] + '</option>');
+                }
+
+            }
+        });
+
+        $("#txtPrinCoName").val('@(ViewBag.cscourseName)');
+        $("#txtPrinName").val('@(ViewBag.csrealName)');
+        $("#txtDeparName").val('@(ViewBag.csdpname)');
+
+        $("#selApp").val('@(ViewBag.aat)');
+        $("#isStatus").val('@(ViewBag.status)');
+        $("#isPrinApp").val('@(ViewBag.attstatus)');
+
+
+
+        InitPrinList(@(ViewBag.page));
+    });
+    //加载违纪列表
+    function InitPrinList(page)
+    {
+
+        $("#prinList").JsRenderData({
+            sourceUrl: '/MyApproval/GetPrincipleTrainManageList?courseName=' + escape(getSearchWord("txtPrinCoName")) + '&realName=' + escape(getSearchWord("txtPrinName")) + "&status=" + $("#isStatus").val() + "&attstatus=" + $("#isPrinApp").val() + "&grade=" + escape($.trim($("#grade").val())) + '&aat=' + $("#selApp").val() + '&dpname=' + escape(getSearchWord("txtDeparName")) + "&t=" + new Date(),
+            isPage: true,
+            pageSize: 10,
+            jsRenderSortField: "a.AppDateTime",
+            jsRenderASC: "desc",
+            pageIndex: page,
+            templateID: 'prinListTemplate'
+        });
+    }
+    //查询
+    function SearchPrin(page)
+    {
+        InitPrinList(page);
+    }
+
+    //详情
+    function DetailPrin(id)
+    {
+        window.location.href = "/MyApproval/PrincipleTrainInfor?id=" + id;
+    }
+</script>

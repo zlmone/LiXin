@@ -1,0 +1,207 @@
+﻿@{
+    ViewBag.Title = "人工复评";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+.list label{ overflow:hidden}
+</style>
+<script src="@Url.Content("~/Scripts/ckplayer5.8/ckplayer.js")" type="text/javascript"> </script>
+@(Html.Action("SiteMapLink", "Common", new { linkName = "ReEvaluation" }))
+<input type="hidden" id="txt_examUserId" name="name" value="0" />
+<div class="fl" style="width:25%;">
+<fieldset class="chooseList">
+    <div class="search_box">
+        <div class="clb">
+            <input type="button" value="查询" onclick=" searchUser() " class="Btn Btn_blue" />
+            <p><label>部门: </label><input type="text" name="" value="" id="txt_deptName" class="Box Raster_10" /></p>
+            <p><label>姓名: </label><input type="text" name="UserName" id="txt_userName" value="" class="Box Raster_10" /></p>
+        </div>
+    </div>
+    <div id="div_userList" class="list">
+    </div>
+</fieldset></div>
+<div class="fr" style="width:73%;">
+    <div class="TitClass_line">
+        <span>总得分: <strong id="lblTotalScore" class="c_blue f16"></strong></span>
+        <h2><label id="lblExamTitle"></label></h2>
+    </div>
+    <div class="qView">
+        <div id="div_userAnswerCase" class="info c_bold"></div>
+        <div id="div_examQuestionType" class="info"></div>
+    </div>
+    <div id="div_examAnswer" style="height:400px;overflow-y:auto;"></div>
+    <div class="mTop_1 tc">
+        <input type="button" value="保存" id="btnSave" onclick=" SaveReEvaluation() " class="Btn Btn_blue" />
+        <input type="button" name="name" value="返回" onclick=" ReBack() " class="Btn Btn_white" />
+    </div>
+</div>
+<script type="text/x-jsRender" id="examAnswerTemplate">
+{{for #data}}
+<div class="QSingle">
+    <div class="title">{{:QOrder}}. {{:QuestionContent}}</div>
+    <div class="content">{{:UserAnswer}}
+    <div class="ok mTop_1">
+    <p><strong>正确答案: </strong><span>{{:QuestionAnswer}}</span></p>
+    <p><strong>该题得分: </strong><input type="text" id="txtQOrder_{{:QOrder}}" onchange="changeScore({{:QOrder}},{{:UserGetScore}})" value="{{:UserGetScore}}" class="Box Raster_3 tc" /> / <label id="lbl_{{:QOrder}}">{{:QuestionScore}}</label></p></div>
+    </div>
+</div>
+{{/for}}
+</script>
+<script type="text/x-jsRender" id="userTemplate">
+{{for #data}} 
+<label onclick="reEvaluationDetial({{:examUserId}},{{:doExamStatus}},this)" style='height:16px' title='{{:Username}}' >{{:Username.length>7?Username.substring(0,7)+"…":Username}}</label>
+{{/for}}
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        $("#btnSave").hide();
+        InitUserList();
+    });
+
+    function searchUser() {
+        InitUserList();
+    }
+
+    function reEvaluationDetial(examUserId, doExamStatus, obj)
+    {
+        $(".chooseList .list label").removeClass("chooselabel");
+        $(obj).addClass("chooselabel");
+        if (doExamStatus == 2) {
+            $("#btnSave").show();
+            InitEvaluationDetial(examUserId);
+        } else {
+            //art.dialog({ content: "该考生尚未进行考试！",time:3 });
+            art.dialog.tips("该考生尚未进行考试", 3);
+            $("#btnSave").hide();
+        }
+       
+
+    }
+
+    function InitUserList() {
+        var url = "/Examination/GetAllSendStudentByExamId?userName=" + escape($("#txt_userName").val()) + "&deptName=" + escape($("#txt_deptName").val()) + "&Id=@ViewBag.ExamId";
+        $("#div_userList").JsRenderData({
+            sourceUrl: url,
+            isPage: false,
+            templateID: 'userTemplate'
+        });
+    }
+
+    function InitEvaluationDetial(examUserId) {
+        $("#txt_examUserId").val(examUserId);
+        var url = "/Examination/GetReStudentExamAnswerByExamUserId?examUserId=" + examUserId;
+        $("#div_examAnswer").JsRenderData({
+            sourceUrl: url,
+            isPage: false,
+            //            pageSize: 10,
+            //            pageIndex: 1,
+            templateID: 'examAnswerTemplate',
+            funCallback: function (data)
+            {
+                $("#div_examQuestionType").html(data.questionTypeHtml);
+                $("#div_userAnswerCase").html(data.answerCaseHtml);
+                $("#lblExamTitle").html("" + data.examTitle + "");
+                $("#lblTotalScore").html(data.totalScore);
+                player();
+            }
+        });
+    }
+
+    function changeScore(QOrder, getScore) {
+        var inputScore = $("#txtQOrder_" + QOrder).val();
+        var maxscore = $("#lbl_" + QOrder).html();
+        if ($.trim(inputScore)=="") {
+            //art.dialog({ content: "分数不能为空！", time: 3 });
+            art.dialog.tips("分数不能为空", 3);
+            $("#txtQOrder_" + QOrder).val(getScore);
+            return;
+        }
+        if (!isNaN(inputScore)) {
+            var valdateTag = /^[-]{0,1}[0-9]{1,}$/;
+         
+        if (!valdateTag.test(inputScore)) {
+            //art.dialog({ content: "请输0到" + maxscore + "之间的整数！", time: 3 });
+            art.dialog.tips("请输0到" + maxscore + "之间的整数", 3);
+                $("#txtQOrder_" + QOrder).val(getScore);
+                return;
+            }
+            if (parseInt(inputScore) < 0) {
+                //art.dialog({ content: "请输0到" + maxscore + "之间的整数！", time: 3 });
+                art.dialog.tips("请输0到" + maxscore + "之间的整数", 3);
+                $("#txtQOrder_" + QOrder).val(getScore);
+                return;
+            }
+
+            if (parseInt(inputScore) > maxscore) {
+                //art.dialog({ content: "请输0到" + maxscore + "之间的整数！", time: 3 });
+                art.dialog.tips("请输0到" + maxscore + "之间的整数", 3);
+                $("#txtQOrder_" + QOrder).val(getScore);
+                return;
+            }
+        } else {
+            //art.dialog({ content: "请输0到" + maxscore + "之间的整数！", time: 3 });
+            art.dialog.tips("请输0到" + maxscore + "之间的整数", 3);
+            $("#txtQOrder_" + QOrder).val(getScore);
+            return;
+        }
+    }
+
+    function SaveReEvaluation() {
+        var idArray = $("input[id^='txtQOrder_']");
+        var strQOrderScore = "";
+        for (var i = 0; i < idArray.length; i++) {
+            var strOrder = idArray[i].id;
+            var index = strOrder.indexOf("_");
+            var intOrder = strOrder.substring(index + 1);
+            strQOrderScore = strQOrderScore + intOrder + "," + $("#" + strOrder).val() + ";";
+        }
+        $.post("/Examination/SubmitSaveReEvaluation?examUserId=" + $("#txt_examUserId").val() + "&qorderScore=" + strQOrderScore, function(data) {
+            if (data.result == 1) {
+                $("#div_userAnswerCase").html(data.answerCaseHtml);
+                $("#lblTotalScore").html(data.totalScore);
+            }
+            art.dialog({ content: data.content, time: 3 });
+        });
+    }
+
+    function ReBack() {
+        window.location.href = '/Examination/ReEvaluationList';
+    }
+
+    function player()
+    {
+        $("input[name='FlvName']").each(function ()
+        {
+            ckplay($(this).val());
+        });
+    }
+    function ckplay(name)
+    {
+
+        var url = '@Url.Content("~/ClientBin/UploadFile/")' + name;
+        var id = name.substring(0, name.length - 4);
+        var s1 = new swfupload();
+        s1.ckplayer_url = '@Url.Content("~/Scripts/ckplayer5.8/ckplayer.swf")'; //播放器文件名
+        s1.ckplayer_flv = url; //视频地址,这里也可以填写一个网址或xml地址或flash文件,具体的设置请到网站了解
+        s1.ckplayer_pat = '1'; //传递的参数,这里的具体参数设置方式到网站了解
+        s1.ckplayer_style = 0; //传递的方式,0是普通方式，1是网址传送，2是xml传送，3是flash传送
+        s1.ckplayer_default = 0; //读取文本配置，此参数具有非常强大的功能，（比如外站引用视频只需一个参数即可）说来话长，请到网站了解详情
+        s1.ckplayer_xml = ''; //风格配置xml文件，如果为空的话将使用js文件配置
+        s1.ckplayer_loadimg = ''; //初始图片地址
+        s1.ckplayer_pauseflash = ''; //暂停时播放的广告，只支持flash和图片
+        s1.ckplayer_pauseurl = ''; //暂停时播放图片时需要加一个链接
+        s1.ckplayer_loadadv = ''; //视频开始前播放的广告，可以是flash,也可是视频格式
+        s1.ckplayer_loadurl = ''; //视频开始前广告的链接地址，主要针对视频广告，如果是flash可以不填写
+        s1.ckplayer_loadtime = 0; //视频开始前广告播放的秒数,只针对flash或图片有效
+        s1.ckplayer_endstatus = 2; //视频结束后的动作，0停止播放并发送js,1是不发送js且重新循环播放,2停止播放
+        s1.ckplayer_volume = 40; //视频默认音量0-100之间
+        s1.ckplayer_play = 0; //视频默认播放还是暂停，0是暂停，1是播放
+        s1.ckplayer_width = 300; //播放器宽度
+        s1.ckplayer_height = 150; //播放器高度
+        s1.ckplayer_bgcolor = '#000000'; //播放器背景颜色
+        s1.ckplayer_allowFullScreen = true; //是否支持全屏，true支持，false不支持，默认支持
+        s1.swfwrite(id); //div的id
+
+    }
+</script>

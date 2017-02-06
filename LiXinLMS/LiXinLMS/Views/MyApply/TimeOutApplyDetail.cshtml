@@ -1,0 +1,108 @@
+﻿@using LiXinLanguage
+@using LiXinModels.CourseLearn
+@{
+    ViewBag.Title = NavigateMenuLanguage.TimeOutApplyDetail;
+    var course = ViewBag.model as Cl_CourseOrder;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "TimeOutApplyDetail" }))
+    <div>
+        <h3 class="tit-h3">逾时审批信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span8">姓名：</td><td><strong>@course.realname</strong></td>
+                <td class="Tit span8">培训级别：</td><td><strong>@course.TrainGrade</strong></td>
+                <td class="Tit span8">补预订时间：</td><td><strong>@course.TimeOutApplyTime.Value.ToString("yyyy-MM-dd HH:mm")</strong></td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <h3 class="tit-h3 mt20">课程信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span8">课程编号：</td><td><strong>@course.Course_Code</strong></td>
+                <td class="Tit span8">课程名称：</td><td><strong>@course.Course_Name</strong></td>
+                <td class="Tit span8">学时：</td><td><strong>@course.CourseLength</strong></td>
+            </tr>
+            <tr>
+                <td class="Tit">授课讲师：</td><td><strong>@course.TeacherName</strong></td>
+                <td class="Tit">开课时间：</td><td colspan="3"><strong>@course.StartTime.ToString("yyyy-MM-dd HH:mm") - @course.EndTime.ToString("yyyy-MM-dd HH:mm")</strong></td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        @{
+            if (course.IsTimeOut == 1 && course.TimeOutPassFlag > 0)
+            {
+            <h3 class="tit-h3 mt20">审批信息</h3>
+            <table class="tab-Form mt10">
+                <tr>
+                    <td class="Tit span10">审批是否通过：</td><td><strong>@(course.TimeOutPassFlag == 1 ? "是" : "否")</strong></td>
+                    <td class="Tit span10">审批时间：</td><td><strong>@course.TimeOutApprovalDateTime.Value.ToString("yyyy-MM-dd HH:mm")</strong></td>
+                </tr>
+            </table>
+            }
+        }
+    </div>
+    <center class="mt10">
+        
+        @{
+            if (course.IsTimeOut == 0)
+            {
+            <input type="button" class="btn btn-co" onclick="ApplyMemoShow(@course.Id);" value="申请" />
+            }
+        }
+        <a id="btnBack" class="btn btn-cancel" onclick=" window.location.href = '/MyApply/TimeOutApply'; ">
+            返回</a>
+    </center>
+</div>
+<script type="text/javascript">
+    function Apply(ids) {
+        var str = $("#txtApplyMemo").val();
+        if ($.trim(str) == "") {
+            art.dialog.tips("申请理由不能为空！", 3);
+        } else {
+            $.post("/MyApply/SubmitTimeOutApply/", { ids: ids, applymemo: str }, function (da) {
+                if (da.result == 1) {
+                    art.dialog.tips(da.content, 3);
+                    window.location.href = window.location.href;
+                } else {
+                    art.dialog.tips(da.content, 3);
+                }
+            });
+        }
+    }
+
+    function ApplyMemoShow(ids) {
+        if (ids == "" || ids == undefined) {
+            art.dialog.tips("请选择要逾时审核申请的数据！", 3);
+        } else {
+            var div = '<div id="div_Apply">'
+                      + '     <table class="tab-Form mt20">'
+                      + '        <tr>'
+                      + '            <td class="Tit">'
+                      + '                 <span class="must">*</span>申请理由：'
+                      + '            </td>'
+                      + '            <td>'
+                      + '                  <textarea id="txtApplyMemo" cols="20" rows="2"></textarea>'
+                      + '            </td>'
+                      + '        </tr>'
+                      + '     </table>'
+                      + '     <div class="tc mt10">'
+                      + '        <input type="button" class="btn" onclick="Apply(\'' + ids + '\');" value="提交" />'
+                      + '    </div>'
+                      + '</div>';
+            art.dialog({
+                content: div,
+                title: '逾时审核申请',
+                id: 'art_Apply',
+                height: 250,
+                width: 500,
+                init: function () {
+                    $("#txtApplyMemo").textareaCount({ maxCharacterSize: 500 });
+                }
+            });
+        }
+    }
+</script>

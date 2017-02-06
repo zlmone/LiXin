@@ -1,0 +1,36 @@
+﻿@{
+    Layout = null;
+    var emailmodel = ViewBag.model as LiXinModels.Sys_ParamConfig;
+}
+
+<!DOCTYPE html>
+
+<div>
+    <input type="hidden" value="2" id="configType" /><!--区分ID-->
+    <div>服务器IP:<input type="text" id="txtHost" class="Box w160 inpbor" value="@emailmodel.ConfigValue.Split(';')[0]" /></div>
+    <div>端口号:<input type="text" id="txtport" class="Box w160 inpbor" value="@emailmodel.ConfigValue.Split(';')[1]" /></div>
+    <div>账号:<input type="text" id="txtaccountId" class="Box w160 inpbor" value="@emailmodel.ConfigValue.Split(';')[2]"/></div>
+    <div>密码:<input type="password" id="txtPassword" class="Box w160 inpbor" value="@emailmodel.ConfigValue.Split(';')[3]"/></div>
+
+
+    <div><input type="button" value="确定" id="btn_Add" class="btn blue"/></div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btn_Add").click(function () {
+            var tt = $("#txtHost").val() + ";" + $("#txtport").val() + ";" + $("#txtaccountId").val() + ";" + $("#txtPassword").val();
+            $.post("/ParamConfig/fUpdateParamConfig?configType=" + $("#configType").val() + "&configValue=" + tt, function (data) {
+                if (data.result == 1) {
+                    art.dialog({ title: '提示', content: '配置成功', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+                }
+                else {
+                    art.dialog({ title: '提示', content: '配置失败', width: 200, height: 50, fixed: true, lock: true, time: 3, close: function () { } });
+                }
+            
+            })
+
+        })
+
+    })
+
+</script>

@@ -1,0 +1,167 @@
+﻿@using System.Configuration
+@using System.Web.Mvc.Html
+@using LiXinLanguage
+@{
+    ViewBag.Title = "角色人群";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new { linkName = "角色人群" }))
+    <div>
+        <div id="Search" class="so-set">
+            <table class="tab-Form">
+                <tr>
+                    <td class="Tit span3">
+                        姓名：
+                    </td>
+                    <td>
+                        <input type="text" class="span10 Box searchclass" id="realName" value="请输入姓名" info="" />
+                    </td>
+                    <td class="Tit span6">
+                        部门/分所：
+                    </td>
+                    <td>
+                        <input type="text" class="span20 searchclass" id="deptCode" value="请输入部门/分所" info="" />
+                    </td>
+                    <td rowspan="2" class="so-do">
+                        <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Tit">
+                        性别：
+                    </td>
+                    <td>
+                        <div class="sel">
+                            <input id="cbxSex1" type="checkbox" /><label>男</label>
+                            <input id="cbxSex2" type="checkbox" /><label>女</label>
+                        </div>
+                    </td>
+                    <td class="Tit">
+                        培训级别：
+                    </td>
+                    <td>
+                        <div class="sel">
+                            @{
+                                foreach (var item in ViewBag.trainGrade)
+                                {
+                                <input name="cbxTrainGrade" value="@item" type="checkbox" /><label>@item</label>
+                                }      
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="so-seq">
+            <select id="sltStatus" onchange=" InitData(); ">
+                <option value="99">账号状态</option>
+                <option value="0">正常账号</option>
+                <option value="1">冻结账号</option>
+            </select>
+            <select id="sltCPA" onchange=" InitData(); ">
+                <option value="99">是否CPA</option>
+                <option value="1">CPA</option>
+                <option value="0">非CPA</option>
+            </select>
+        </div>
+        <!-- 列表 -->
+        <div class="mt10">
+            <table class="tab-List">
+                <thead>
+                    <tr>
+                        <th class="span4">
+                            序号
+                        </th>
+                        <th class="span5">
+                            姓名
+                        </th>
+                        <th class="span5" jsrendersortfield="Sex" sort="desc">
+                            性别
+                        </th>
+                        <th class="span20">
+                            部门/分所
+                        </th>
+                        <th class="span8" jsrendersortfield="TrainGrade" sort="desc">
+                            培训级别
+                        </th>
+                        <th class="span14">
+                            薪酬级别
+                        </th>
+                        <th class="span8">
+                            是否CPA
+                        </th>
+                        <th class="span8" jsrendersortfield="Status" sort="desc">
+                            账号状态
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="userList">
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <center><a id="btnBack" class="btn btn-cancel" onclick=" window.location.href = '/UserManage/RoleManage'; ">返回</a></center>
+</div>
+<input id="hidChangeUserId" type="hidden" />
+<input id="hidDeptID" type="hidden" value="0" />
+<script id="userListTemplate" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td>{{:Realname}}</td>
+        <td>{{:SexStr}}</td>
+        <td>
+            <div class="tl ovh span19" title="{{:DeptName}}">{{:DeptName}}</div>
+        </td>
+        <td>{{:TrainGrade}}</td>
+        <td>{{:PayGrade}}</td>
+        <td>{{:CPA}}</td>
+        <td>{{:StatusStr}}</td>
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initSearch();
+        //加载列表
+        InitData();
+    });
+
+    //初始化列表
+    function InitData() {
+        var sex = "99";
+        if (!($("#cbxSex1").attr("checked") && $("#cbxSex2").attr("checked"))) {
+            if ($("#cbxSex1").attr("checked")) {
+                sex = 0;
+            }
+            if ($("#cbxSex2").attr("checked")) {
+                sex = 1;
+            }
+        }
+        var trainGrade = "";
+
+        $("input[name=cbxTrainGrade]").each(function () {
+            if ($(this).attr("checked")) {
+                trainGrade += $(this).val();
+            }
+        });
+
+        var v = "flag=1&roleId=@ViewBag.id&jobNum=&email=&realName=" + escape(getSearchWord("realName")) + "&trainGrade="
+            + trainGrade + "&deptName=" + escape(getSearchWord("deptCode")) + "&sex=" + sex + "&deptId=" + $("#hidDeptID").val()
+             + "&status=" + $("#sltStatus").val() + "&cpa=" + $("#sltCPA").val();
+        $("#userList").JsRenderData({
+            sourceUrl: '/UserManage/GetUserInfoList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "UserId",
+            jsRenderASC: "desc",
+            templateID: "userListTemplate",
+            funCallback: function () {
+            }
+        });
+    }
+</script>

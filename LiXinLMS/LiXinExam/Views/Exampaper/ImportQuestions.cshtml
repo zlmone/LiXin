@@ -1,0 +1,171 @@
+﻿@using LiXinLanguage
+@{
+    Layout = null;
+}
+<form id="formQuestion" method="post" enctype="multipart/form-data" action="">
+    <div class="centerbody">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit"><span class="must">*</span>知识点：</td>
+                <td><select id="keylist"></select></td>
+            </tr>
+            <tr>
+                <td class="Tit"><span class="must">*</span>@Question.Question_QuestionManage_Sort：</td>
+                <td>
+                    <input id="selQuestionSort" name="selQuestionSort" type="hidden" />
+                    <input id="sortName" type="text"class="span20" disabled="disabled" readonly="readonly" />
+                    <input type="button" class="btn btn-co" value="选择题库" onclick=" selectQuestionSort(); " />
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit"><span class="must">*</span>@Question.Question_QuestionManage_QuestionTemplete：</td>
+                <td>
+                    <input type="file" id="questionExcel" name="questionExcel" class="span20" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <a id="submitExcel" title="@Exampaper.OK" class="btn">@Exampaper.OK</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<script type="text/javascript">
+    function selectQuestionSort() {
+        var openurl = "/Question/GetAllQuestionSortTree";
+        $.getJSON(openurl + "?t=" + new Date(), function(data) {
+            art.dialog({
+                title: "@Question.Question_QuestionManage_SelectSort",
+                id: "QueSort",
+                lock: true,
+                fixed: true,
+                width: 400,
+                height: 300,
+                time: false,
+                content: "<div class='treeview-box span30'><div class='tree-list'>" + data + "</div></div>",
+                close: function() {
+                    $('#popIframe').hide();
+//                    $(".aui_content").css({ "height": "auto", "width": "auto", "overflow": "auto" });
+                }
+            });
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: false
+            });
+            $("#navigation>li>ul>li>div").each(function () {
+                $(this).click();
+            });
+//            $(".aui_content").css({ "height": "300px", "overflow": "auto" });
+        });
+    }
+
+    function selectSort(sortID, obj) {
+        if (parseInt(sortID) > 0) {
+            $("#selQuestionSort").val(sortID);
+            $("#sortName").val($(obj).text());
+            art.dialog.list["QueSort"].close();
+        } else {
+            art.dialog.tips('@Question.Question_QuestionManage_Tip_SelectSort', 3);
+        }
+    }
+
+    $("#submitExcel").bind("click", function() {
+        if ($("#sortName").val() == "" || $("#sortName").val() == null) {
+            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '请选择题库', fixed: true, lock: true, time: 3 });
+            art.dialog.tips('请选择题库', 3);
+            return;
+        }
+        if ($("#questionExcel").val() == "" || $("#questionExcel").val() == null) {
+            //art.dialog({ title: '@CommonLanguage.Common_Tip', content: '请选择试题模板', fixed: true, lock: true, time: 3 });
+            art.dialog.tips('请选择试题模板', 3);
+            return;
+        }
+        $("#submitExcel").attr("disabled", "disabled");
+        $(this).parent().find("span").remove();
+        $(this).after('<span class="red">正在导入，请稍后……</span>');
+        $("#formQuestion").submitForm({
+            url: '/Question/SubmitImportQuestion?sortID=' + $("#selQuestionSort").val() + '&key=' + $("#keylist").val(),
+            callback: function(data) {
+                $("#submitExcel").removeAttr("disabled");
+                $("#submitExcel").parent().find("span").remove();
+                if (data.result == 1) {
+                    var strhtml = '';
+                    var datelist = data.itemArray;
+                    for (var i = 1; i <= datelist.length; i++) {
+                        var Juid = "QuestionID" + datelist[i - 1].id;
+                        //判断题库是否存在
+                        if (document.getElementById(Juid) == null) {
+                            strhtml += '<div class="QSingle" id="QuestionID' + datelist[i - 1].id + '">';
+                            strhtml += '<input type="hidden" name="' + datelist[i - 1].QuestionType + '" value="' + datelist[i - 1].id + '|' + datelist[i - 1].QuestionType + '"/>';
+                            strhtml += '<div class="title"><div class="info"><input id="Order' + datelist[i - 1].id + '" readonly="readonly" type="text" name="Order' + datelist[i - 1].id + '"  value="' + i + '" maxlength="3" />.';
+                            strhtml += '[ <input id="Score' + datelist[i - 1].id + '"  type="text" name="Score' + datelist[i - 1].id + '" readonly="readonly" value="1" onkeyup="verifyInput(this)" maxlength="3" /> @Exampaper.Fen ]</div>';
+                            strhtml += '<h5>' + datelist[i - 1].QuestionContent + '<div class="do"><a href="#@@" onclick="Delete(' + datelist[i - 1].id + ')" title="@CommonLanguage.Common_Delete" class="icon idel"></a></div></h5></div>';
+                            strhtml += '<div class="content">';
+                            switch (datelist[i - 1].QuestionType) {
+                            case 1:
+                                strhtml += '<textarea class="Boxarea" disabled="disabled" ></textarea>';
+                                break;
+                            case 2:
+                                for (var j = 0; j < datelist[i - 1].QuestionAnswer.length; j++) {
+                                    strhtml += '<div><input type="radio"  disabled="disabled" />' + String.fromCharCode((65 + j)) + '.' + datelist[i - 1].QuestionAnswer[j].Answer + '</div>';
+                                }
+                                break;
+                            case 3:
+                                for (var k = 0; k < datelist[i - 1].QuestionAnswer.length; k++) {
+                                    strhtml += '<div><input type="checkbox" disabled="disabled" />' + String.fromCharCode((65 + k)) + '.' + datelist[i - 1].QuestionAnswer[k].Answer + '</div>';
+                                }
+                                break;
+                            case 4:
+                                strhtml += '<div><input type="radio" disabled="disabled" /><label>@Exampaper.eTrue</label></div>';
+                                strhtml += '<div><input type="radio" disabled="disabled" /><label>@Exampaper.eFalse</label></div>';
+                                break;
+                            case 6:
+                                if (datelist[i - 1].QuestionAnswer[0].AnswerType == 0) {
+                                    strhtml += '<textarea class="Boxarea" disabled="disabled" ></textarea>';
+                                } else if (datelist[i - 1].QuestionAnswer[0].AnswerType == 1) {
+                                    for (var q = 0; q < datelist[i - 1].QuestionAnswer.length; q++) {
+                                        strhtml += '<div><input type="radio" disabled="disabled" />' + String.fromCharCode((65 + q)) + '.' + datelist[i - 1].QuestionAnswer[q].Answer + '</div>';
+                                    }
+                                } else {
+                                    for (var y = 0; y < datelist[i - 1].QuestionAnswer.length; y++) {
+                                        strhtml += '<div><input type="checkbox" disabled="disabled" />' + String.fromCharCode((65 + y)) + '.' + datelist[i - 1].QuestionAnswer[y].Answer + '</div>';
+                                    }
+                                }
+                                break;
+                            }
+                            strhtml += '</div></div>';
+                        }
+                    }
+                    $("#divExamQuestions").append(strhtml);
+                    order();
+                    StatType();
+                    Score();
+                    statID();
+                    qtype();
+                    upScore();
+                    art.dialog.list["NewQue"].close();
+                } else
+                    //art.dialog({ title: '@CommonLanguage.Common_Tip', content: data.content, fixed: true, lock: true, time: 3 });
+                    art.dialog.tips(data.content, 3);
+            }
+        }).submit();
+    });
+
+    $(document).ready(function() {
+        //知识点填充
+        $.getJSON("/KnowledgeKey/GetKnowledgeKey?t=" + new Date(), function(datalist) {
+            var html = "";
+            for (var ii = 0; ii < datalist.length; ii++) {
+                html += '<option value="' + datalist[ii].id + '">' + datalist[ii].name + '</option>';
+            }
+            $("#keylist").append(html);
+            $("#hiddenSelQuestionKey").val($("#keylist").val());
+            $("#keylist").bind("change", function() {
+                $("#hiddenSelQuestionKey").val($("#keylist").val());
+            });
+        });
+    });
+
+</script>

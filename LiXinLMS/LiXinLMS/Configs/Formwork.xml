@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<FormworkList>
+  <Formwork id="0">
+    <Name>总所指定</Name>
+    <Content>
+      {0}，你好！事务所已于 {1} 替你代报了《{2}》，该课程将于 {3} 开课，请及时进入培训管理系统“我的培训—已预订课程”页面查看课程详情！【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  <Formwork id="1">
+    <Name>部门负责人指定</Name>
+    <Content>
+      {0}，你好！{1} 老师已于 {2} 替你代报了《{3}》，该课程将于 {4} 开课，请及时进入培训管理系统“我的培训—已预订课程”页面查看课程详情！【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  <Formwork id="2">
+    <Name>学员收到的信息提醒</Name>
+    <Content>
+      {0}，你好！{1} 讲授的《{2}》课程将于 {3} 开设，请及时进入培训管理系统“我的培训—可预订课程”页面进行报名。【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  <Formwork id="3">
+    <Name>请假审核</Name>
+    <Content>
+      {0}，你好！ {1} 由于 {2} 已于 {3} 对《{4}》提出请假申请。请于 {5} 前通过OA系统进行审批处理！【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  <Formwork id="4">
+    <Name>请假审核结果</Name>
+    <Content>
+      {0}，你好！ 你于 {1} 对《{2}》提出的请假，{3} 已于 {4} {5}，详情请见培训系统“我的培训—我的申请”页面。【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  <Formwork id="5">
+    <Name>集中授课由排队状态更改为正常预定状态</Name>
+    <Content>
+      {0}，你好！你于 {1} 报名的《{2}》已从排队状态变更为报名成功,请详见培训管理系统“我的培训—已预订课程”页面。【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  <Formwork id="6">
+    <Name>集中授课开课前的一个时点，需发送提醒信息至授课人</Name>
+    <Content>
+      {0}，你好！你所讲授的课程《{1}》将于 {2} 在 {3} 开课，详情请见培训管理系统“我的培训—我的授课课程”页面。【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  <Formwork id="7">
+    <Name></Name>
+    <Content>
+      {0}，你好！ {1} 对《{2}》提出补预订申请，等待你的审批！【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  <Formwork id="8">
+    <Name></Name>
+    <Content>
+      {0}，你好！ 你被指定的课程《{1}》已被撤销，你可以不必参与此课程的学习！【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  <Formwork id="9">
+    <Name></Name>
+    <Content>
+      {0}，你好！ 课程《{1}》已于 {2} 被删除，你可以不必参与此课程的学习！【此消息无需回复】-教育培训部
+    </Content>
+  </Formwork>
+  
+</FormworkList>

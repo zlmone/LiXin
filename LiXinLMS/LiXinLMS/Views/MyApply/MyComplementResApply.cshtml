@@ -1,0 +1,286 @@
+﻿@{
+    Layout = null;
+}
+<div class="tab-bk">
+    <ul id="tagComReses">
+         <li class="On" id="tagComRes0">全部</li>
+        <li  id="tagComRes1">待审批</li>
+       
+        <li id="tagComRes2">已审批</li>
+    </ul>
+</div>
+<div class="so-set">
+    <table class="tab-Form">
+        <tr>
+            <td class="Tit span6">
+                课程名称：
+            </td>
+            <td>
+                <input type="text" class="span30 Box searchclass" id="course" value="请输入课程名称" info="" />
+            </td>
+            <td class="so-do">
+                <input class="btn" type="button" value="搜索" id="btnSearch" onclick=" InitData(); " />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="mt10" id="div0">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">
+                    序号
+                </th>
+                <th>
+                    课程名称
+                </th>
+                <th class="span8">
+                    培训形式
+                </th>
+                <th class="span11">
+                    培训类型
+                </th>
+                <th class="span4" jsrendersortfield="Co_Course.CourseLength" sort="desc">
+                    学时
+                </th>
+                <th class="span8" jsrendersortfield="Co_Course.IsMust" sort="desc">
+                    选/必修
+                </th>
+                <th class="span14" jsrendersortfield="Co_Course.StartTime" sort="desc">
+                    开课时间
+                </th>
+                <th class="span6">
+                    讲师
+                </th>
+                <th>
+                    审批人
+                </th>
+                <th jsrendersortfield="Cl_CourseOrder.GetScore" sort="desc">
+                    获得学时
+                </th>
+            </tr>
+        </thead>
+        <tbody id="courseList0">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<div class="mt10" id="div1" style="display: none;">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">
+                    序号
+                </th>
+                <th>
+                    课程名称
+                </th>
+                <th class="span4" jsrendersortfield="Co_Course.CourseLength" sort="desc">
+                    学时
+                </th>
+                <th class="span8" jsrendersortfield="Co_Course.IsMust" sort="desc">
+                    选/必修
+                </th>
+                <th class="span14" jsrendersortfield="Co_Course.StartTime" sort="desc">
+                    开课时间
+                </th>
+                <th class="span6">
+                    讲师
+                </th>
+                <th class="span6">
+                    审批状态
+                </th>
+                <th>
+                    审批人
+                </th>
+                <th class="span14" jsrendersortfield="Cl_MakeUpOrder.ApprovalDateTime" sort="desc">
+                    审批时间
+                </th>
+                <th jsrendersortfield="Cl_CourseOrder.GetScore" sort="desc">
+                    获得学时
+                </th>
+            </tr>
+        </thead>
+        <tbody id="courseList1">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<div class="mt10" id="div2" style="display: none;">
+    <table class="tab-List">
+        <thead>
+            <tr>
+                <th class="span4">
+                    序号
+                </th>
+                <th class="span8">
+                    课程名称
+                </th>
+                <th class="span8">
+                    培训形式
+                </th>
+                <th class="span11">
+                    培训类型
+                </th>
+                <th class="span6" jsrendersortfield="Co_Course.CourseLength" sort="desc">
+                    学时
+                </th>
+                <th class="span8" jsrendersortfield="Co_Course.IsMust" sort="desc">
+                    选/必修
+                </th>
+                <th class="span12" jsrendersortfield="Co_Course.StartTime" sort="desc">
+                    开课时间
+                </th>
+                <th class="span6">
+                    讲师
+                </th>
+                <th class="span4">
+                    审批状态
+                </th>
+                <th class="span6">
+                    审批人
+                </th>
+                <th class="span12" jsrendersortfield="Cl_MakeUpOrder.ApprovalDateTime" sort="desc">
+                    审批时间
+                </th>
+                <th jsrendersortfield="Cl_CourseOrder.GetScore" sort="desc" class="span8">
+                    获得学时
+                </th>
+            </tr>
+        </thead>
+        <tbody id="courseList2">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script id="courseListTemplate0" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh span10 tl" title="{{:Course_Name}}">{{:Course_Name}}</div></td>   
+        <td>{{:CourseWay}}</td> 
+        <td>{{:SortStr}}</td> 
+        <td>{{:CourseLength}}</td> 
+        <td>{{:IsMustStr}}</td> 
+        <td><div class="tl f11">{{:CourseTime}}</div></td> 
+        <td>{{:TeacherName}}</td> 
+        <td>{{:ApprovalRealName}}</td> 
+        <td>
+            {{if GetScoreFlag==0}}
+                0
+            {{/if}}
+            {{if GetScoreFlag==1}}
+                {{:GetScore}}
+            {{/if}}
+            {{if GetScoreFlag==2}}
+                0<br>(超出补<br>预订次<br>数上限)
+            {{/if}}
+        </td>
+    </tr> 
+    {{/for}}
+</script>
+<script id="courseListTemplate1" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh span10 tl" title="{{:Course_Name}}">{{:Course_Name}}</div></td>   
+        <td>{{:CourseLength}}</td> 
+        <td>{{:IsMustStr}}</td> 
+        <td><div class="tl f11">{{:CourseTime}}</div></td> 
+        <td>{{:TeacherName}}</td> 
+        <td>
+            {{if ApprovalFlag == 2}}
+                <a href="javascript:void(0);" title="审批理由：{{:ApprovalMemo}}">{{:ApprovalStatus}}</a>
+            {{else}}
+                {{:ApprovalStatus}}
+            {{/if}}
+        </td> 
+        <td>{{:ApprovalRealName}}</td> 
+        <td>{{:ApprovalDateTime}}</td>
+        <td>
+            {{if GetScoreFlag==0}}
+                0
+            {{/if}}
+            {{if GetScoreFlag==1}}
+                {{:GetScore}}
+            {{/if}}
+            {{if GetScoreFlag==2}}
+                0<br>(超出补<br>预订次<br>数上限)
+            {{/if}}
+        </td>
+    </tr> 
+    {{/for}}
+</script>
+<script id="courseListTemplate2" type="text/x-jsrender">
+    {{for #data}}
+    <tr>
+        <td>{{:#index+1}}</td>
+        <td><div class="ovh span10 tl" title="{{:Course_Name}}">{{:Course_Name}}</div></td>      
+        <td>{{:CourseWay}}</td> 
+        <td>{{:SortStr}}</td> 
+        <td>{{:CourseLength}}</td> 
+        <td>{{:IsMustStr}}</td> 
+        <td><div class="tl f11">{{:CourseTime}}</div></td> 
+        <td>{{:TeacherName}}</td> 
+        <td>
+            {{if ApprovalFlag == 2}}
+                <a href="javascript:void(0);" title="审批理由：{{:ApprovalMemo}}">{{:ApprovalStatus}}</a>
+            {{else}}
+                {{:ApprovalStatus}}
+            {{/if}}
+        </td> 
+        <td>{{:ApprovalRealName}}</td> 
+        <td>{{:ApprovalDateTime}}</td>
+        <td>
+            {{if GetScoreFlag==0}}
+                0
+            {{/if}}
+            {{if GetScoreFlag==1}}
+                {{:GetScore}}
+            {{/if}}
+            {{if GetScoreFlag==2}}
+                0<br>(超出补<br>预订次<br>数上限)
+            {{/if}}
+        </td>
+    </tr> 
+    {{/for}}
+</script>
+<script type="text/javascript">
+    var flag = 0;
+    $(document).ready(function () {
+        initSearch();
+        InitData();
+        $("#tagComReses li").click(function () {
+            $("#tagComReses li").removeClass("On");
+            $(this).addClass("On");
+
+            var index = $(this).index();
+            flag = index;
+
+            $("#div0").hide();
+            $("#div1").hide();
+            $("#div2").hide();
+            $("#div" + flag).show();
+
+            InitData();
+        });
+    });
+
+    function InitData() {
+        var v = "course=" + escape(getSearchWord("course")) + "&Approval=" + flag;
+        $("#courseList" + flag).JsRenderData({
+            sourceUrl: '/MyApply/GetMyComplementResList?' + v,
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            jsRenderSortField: "Co_Course.Id",
+            jsRenderASC: "desc",
+            templateID: "courseListTemplate" + flag,
+            funCallback: function () {
+            }
+        });
+    }
+</script>

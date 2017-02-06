@@ -1,0 +1,75 @@
+﻿@using LiXinModels.PlanManage
+@{
+    ViewBag.Title = "消息编辑";
+    Layout = null;
+}
+<form id="formmessage">
+<div id="ycinfo" style="padding-bottom: 20px;">
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span9">
+                消息主题：
+            </td>
+            <td>
+                <input id="mTitle" name="mTitle" type="text" maxlength="30" class="span30" />
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                消息内容：
+            </td>
+            <td style="vertical-align: top;">
+                <span>
+                    <textarea id="mContent" name="mContent" cols="20" rows="2" class="span30"></textarea>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                发送类型：
+            </td>
+            <td>
+                <span class="sel">
+                    <input type="checkbox" value="1" name="mMust" text="邮件" /><label>邮件</label>
+                    <input type="checkbox" value="2" name="mMust" text="短信" /><label>短信</label>
+                </span>
+            </td>
+        </tr>
+    </table>
+    <div class="mt10 tc">
+        <input type="button" value="发送" class="btn" onclick="$(this).submit();" /></div>
+</div>
+</form>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        $("#mContent").textareaCount({ maxCharacterSize: 500 });
+
+        $("#formmessage").validate({
+            errorPlacement: function (error, element) {
+                var eid = element.attr('name');
+                if (eid == 'mMust' || eid == 'mContent') {
+                    error.appendTo(element.parent().parent());
+                }
+                else {
+                    error.insertAfter(element);
+                }
+
+            },
+            submitHandler: function (form) { Send(); },
+            event: "blur",
+            rules: {
+                mTitle: { required: true },
+                mContent: { required: true, maxlength: 500 },
+                mMust: { required: true }
+            },
+            messages: {
+                mTitle: { required: "消息主题不能为空" },
+                mContent: {
+                    required: "消息内容不能为空",
+                    maxlength: "内容不能超过500个字"
+                },
+                mMust: { required: "请选择发送类型" }
+            }
+        });
+    });
+</script>

@@ -1,0 +1,75 @@
+﻿@{
+    ViewBag.Title = "编辑指纹信息";
+    Layout = null;
+    var userID = Request.QueryString["userID"];
+}
+<form id="formfinger">
+    <div class="centerbody span35">
+        <table class="tab-Form all">
+            <tr>
+                <td class="Tit span6">姓名：
+                </td>
+                <td>
+                    @ViewBag.realname
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                    指纹1：
+                </td>
+                <td>
+                    <textarea id="pop_FingerTemplate1" name="FingerTemplate" class="span26"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="Tit">
+                   指纹2：
+                </td>
+                <td>
+                    <textarea id="pop_FingerTemplate2" name="FingerTemplate" class="span26"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tc">
+                    <input type="button" id="pop_btnSure" class="btn" value="确定" onclick="Save()" />
+                    <input type="button" class="btn btn-cancel" value="取消" onclick="closeDialog('art_Edit')" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="pop_hide1" style="display: none"></div>
+    <div id="pop_hide2" style="display: none"></div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var id=@ViewBag.id;
+        $("#pop_hide1").html($("#one_"+id).html());
+        $("#pop_hide2").html($("#two_"+id).html());
+        $("#pop_FingerTemplate1").val( $("#pop_hide1").text());
+        $("#pop_FingerTemplate2").val( $("#pop_hide2").text());
+
+    });
+    function Save()
+    {
+        $.post("SaveFinger",
+        {
+            finger1:$("#pop_FingerTemplate1").val(),
+            finger2:$("#pop_FingerTemplate2").val(),
+            id:@ViewBag.id,
+            userID:@userID
+            },
+         function (data)
+         {
+             if (data.result == 1)
+             {
+                 closeDialog('art_Edit');
+                 Getdata();
+             }
+             else
+             {
+                 art.dialog.tips(data.content, 3);
+             }
+
+         });
+    }
+</script>

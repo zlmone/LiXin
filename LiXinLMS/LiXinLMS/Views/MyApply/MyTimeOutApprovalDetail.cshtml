@@ -1,0 +1,155 @@
+﻿@using LiXinLanguage
+@using LiXinModels.CourseLearn
+@{
+    ViewBag.Title = "请假申请逾时审批详情";
+    var course = ViewBag.model as Cl_CourseOrder;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main-c">
+    @(Html.Action("SiteMapLink", "Common", new
+{
+    linkName = "请假申请逾时审批详情"
+}))
+    <h3 class="tit-h3">
+        逾时审批信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">
+                姓名：
+            </td>
+            <td class="span10">
+                <strong>@course.realname</strong>
+            </td>
+            <td class="Tit span10">
+                培训级别：
+            </td>
+            <td>
+                <strong>@course.TrainGrade</strong>
+            </td>
+            <td class="Tit span10">
+                请假时间：
+            </td>
+            <td>
+                <strong>@course.LeaveTimeStr</strong>
+            </td>
+        </tr>
+    </table>
+    <h3 class="tit-h3 mt20">
+        课程信息</h3>
+    <table class="tab-Form mt10">
+        <tr>
+            <td class="Tit span10">
+                课程编号：
+            </td>
+            <td class="span10">
+                <strong>@course.Course_Code</strong>
+            </td>
+            <td class="Tit span10">
+                课程名称：
+            </td>
+            <td>
+                <strong>@course.Course_Name</strong>
+            </td>
+            <td class="Tit span10">
+                学时：
+            </td>
+            <td>
+                <strong>@course.CourseLength</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="Tit">
+                授课讲师：
+            </td>
+            <td>
+                <strong>@course.TeacherName</strong>
+            </td>
+            <td class="Tit">
+                开课时间：
+            </td>
+            <td colspan="3" class="c_col">
+                <strong>@course.CourseTime
+            </td>
+        </tr>
+    </table>
+    @{
+        if (course.TrainAppFlag > 0)
+        {
+        <h3 class="tit-h3 mt20">
+            审批信息</h3>
+        <table class="tab-Form mt10">
+            <tr>
+                <td class="Tit span10">
+                    审批是否通过：
+                </td>
+                <td class="span10">
+                    <strong>@(course.TrainAppFlag == 1 ? "是" : "否")</strong>
+                </td>
+                <td class="Tit span10">
+                    审批时间：
+                </td>
+                <td class="c_col">
+                    <strong>@course.TrainAppDatetimeStr</strong>
+                </td>
+            </tr>
+        </table>
+        } 
+    }
+    <center class="mt10">
+        @{
+            if (course.TrainAppFlag == 0)
+            {
+            <input type="button" class="btn btn-co" onclick="ApprovalMemoShow(@course.Id);" value="审批" />
+            }
+        }
+        <a id="btnBack" class="btn btn-cancel" href="/MyApply/TimeOutApproval?type=1">返回</a>
+    </center>
+</div>
+<script type="text/javascript">
+    function Approval(id)
+    {
+        var str = $("#txtApprovalMemo").val();
+        var flag = 1;
+        if ($("#rd1").attr("checked"))
+        {
+            flag = 2;
+        }
+        $.post("/MyApply/SubmitMyTimeOutApproval/", { ids: id, approvalmemo: str, approval: flag }, function (da)
+        {
+            if (da.result == 1)
+            {
+                art.dialog.tips(da.content, 3);
+                window.location.href = window.location.href;
+            } else
+            {
+                art.dialog.tips(da.content, 3);
+            }
+        });
+    }
+
+    function ApprovalMemoShow(id)
+    {
+        $.getJSON("/MyApply/GetSingleTimeOutLeave/ " + id, function (data)
+        {
+            var div =
+                '<table class="tab-Form" id="div_Approval">'
+                + '<tr><td class="span6 Tit">申请理由：</td><td><div class="ovh span15" title="' + data + '">' + data + '</div></td></tr>'
+                    + '<tr><td class="Tit">审批状态：</td><td><div class="sel"><input id="rd0" type="radio" name="rdApproval" checked="checked" /><label>审批通过</label><input id="rd1" type="radio" name="rdApproval" /><label>审批拒绝</label></div><td></tr>'
+                    + '<tr><td class="Tit">审批理由：</td><td><textarea id="txtApprovalMemo" cols="20" rows="2" class="all"></textarea></td></tr>'
+                    + '<tr><td class="Tit"></td><td><input type="button" class="btn btn-co" onclick="Approval(\'' + id + '\');" value="提交" /></td></tr>'
+                    + '</table>';
+            art.dialog({
+                content: div,
+                title: '逾时申请审批',
+                id: 'art_Approval',
+                height: 250,
+                width: 500,
+                init: function ()
+                {
+                    $("#txtApprovalMemo").textareaCount({ maxCharacterSize: 500 });
+                }
+            });
+        });
+    }
+       
+</script>

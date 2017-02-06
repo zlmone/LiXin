@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "讲师详情";
+    Layout = null;
+    
+}
+<div class="centerbody span50">
+<table class="tab-Form">
+    <tr>
+        <td class="Tit span8">
+            讲师姓名：
+        </td>
+        <td class="">
+            @Model.Realname
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            性别：
+        </td>
+        <td>
+            @Model.SexStr
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            讲师薪酬：
+        </td>
+        <td>
+            @Model.PayGradestr
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            联系方式：
+        </td>
+        <td>
+            @Model.Telephonestr
+        </td>
+    </tr>
+    <tr>
+        <td class="Tit">
+            邮箱：
+        </td>
+        <td>
+            @Model.Emailstr
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" class="tc">
+            <input type="button" class="btn btn-cancel"  value="关闭" onclick="closeDialog('art_TeacherDetails')" />
+        </td>
+    </tr>
+</table>
+<input name="UserId" type="hidden" value="@Model.UserId" />
+
+</div>

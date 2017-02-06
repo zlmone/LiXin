@@ -1,0 +1,229 @@
+﻿@using LiXinLanguage;
+@{
+    ViewBag.Title = NavigateMenuLanguage.VideoManage;
+    if (ViewBag.type == 1)
+    {
+        Layout = null;
+    }
+}
+<div class="main-c">
+    @{
+        if (ViewBag.type != 1)
+        {
+            @(Html.Action("SiteMapLink", "Common", new{linkName = NavigateMenuLanguage.VideoManage}))
+        }
+    }
+    <div id="div_Search" class="so-set">
+        <table class="tab-Form">
+            <tr>
+                <td class="Tit span6">
+                    视频名称：
+                </td>
+                <td class="span21">
+                    <input type="text" id="txtVideoName" class="span20 searchclass" value="请输入搜索内容" info="" />
+                </td>
+                <td class="so-do">
+                    <input type="button" value="查询" onclick="fnPopSearch()" class="btn" />
+                    @if (ViewBag.showAddButton == 1)
+                    {
+                        <a onclick="fnEditVideo()" class="btn btn-co">新建视频</a>
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table class="tab-List mt10" id="pop_VideoTb">
+        <thead>
+            <tr>
+                @{
+                    if (ViewBag.showCheckbox == 1)
+                    {
+                        <th>
+                            <input type="checkbox" id="pop_selectall" />
+                        </th> 
+                    }
+                }
+                <th class="span4">
+                    序号
+                </th>
+                <th class="span30">
+                    视频名称
+                </th>
+                <th class="span20">
+                    视频地址
+                </th> 
+                @if (ViewBag.showManage == 1)
+                {
+                    <th class="span8">
+                        操作
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody id="tbVideoList">
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+    @if (ViewBag.showSureButton == 1)
+    {
+        <center class="mt10">
+            <input type="button" value="确认" class="btn btn-co" onclick="fnChooseSelectVideo()" />
+        </center>
+    }
+</div>
+<script id="videoListTemplate" type="text/x-jsrender">
+   {{for #data}}
+        <tr>
+             @if (ViewBag.showCheckbox == 1)
+             {
+             <td><input id="{{:Id}}" type="checkbox" name="popchbVideo" videoName="{{:Name}}" videoAddr="{{:Path}}" value="{{:Id}}" /></td>
+             }
+             else if (ViewBag.showCheckbox == 2)
+             {
+             <td><input type="radio" name="popchbCourse" value="{{:Id}}" /></td>
+             }
+                 <td>{{:#index+1}}</td>
+             <td><div class="ovh tl span30" title="{{:Name}}">{{:Name}}</div></td>
+             <td>Vedio/Vedio?id={{:Id}}</td>
+             @if (ViewBag.showManage == 1)
+             {
+                <td>
+                   <a onclick="fnModifyVideo({{:Id}})" title="修改" class="icon iedit"></a>
+                    <a onclick="fnDeleteVideo({{:Id}})" title="删除" class="icon idel"></a>
+                </td>
+             }
+            
+        </tr>
+   {{/for}}
+</script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        //注册页面加载事件,解决flash的bug
+        addEvent(window, init, "load", "视频管理");   
+        initSearch();
+        fnGetVideoList();
+    });
+
+    function fnGetVideoList()
+    {
+        $("#tbVideoList").JsRenderData({
+            sourceUrl: GetPopParameters(),
+            isPage: true,
+            pageSize: 10,
+            pageIndex: 1,
+            templateID: "videoListTemplate",
+            funCallback: function ()
+            {
+                SetCheckBox("pop_selectall", "tbVideoList");
+                $("#pop_selectall").removeAttr("checked");
+                HiddenSelectVideo();
+            }
+        });
+    }
+
+    function GetPopParameters()
+    {
+        var url = "/CourseManage/GetVideoList?t=" + new Date();
+        url += "&Name=" + escape(getSearchWord("txtVideoName"));
+        return url;
+    }
+    function fnPopSearch()
+    {
+    
+        fnGetVideoList();
+    }
+
+    function fnModifyVideo(Id)
+    {
+        art.dialog.load("/CourseManage/EditVideo?Id=" + Id, {
+            title: "编辑视频",
+            width: 400,
+            height: 200,
+            id: "pop_EditVideo",
+            width: 400,
+            height: 200,
+            close: function ()
+            {
+
+            }
+        }, false);
+    }
+
+    function fnEditVideo()
+    {
+        art.dialog.load("/CourseManage/EditVideo", {
+            title: "编辑视频",
+            id: "pop_EditVideo",
+            width: 400,
+            height: 200,
+            close: function ()
+            {
+                $("#txtFileVideo").uploadify("destroy");
+            }
+        }, false);
+    }
+
+    function fnDeleteVideo(Id)
+    {
+        art.dialog({
+            lock: false,
+            content: "确定要删除该视频吗？",
+            ok: function ()
+            {
+                $.post("/CourseManage/SubmitModify?flag=1&Id=" + Id, function (data)
+                {
+                    //if (data.result==1) {
+                    art.dialog.tips(data.content, 3);
+                    fnGetVideoList();
+                    //}
+                });
+            },
+
+            cancel: function ()
+            {
+                return;
+            }
+        });
+    }
+
+
+    function fnChooseSelectVideo()
+    {
+        var lth = $("input[name=popchbVideo]:checked").length;
+        if (lth == 0)
+        {
+            art.dialog.tips("请选择视频！", 3);
+            return;
+        }
+        var html = "";
+        $("input[name=popchbVideo]:checked").each(function ()
+        {
+            var sval = $(this).val();
+            $("#Allvideo").val($("#Allvideo").val() == "" ? sval : $("#Allvideo").val() + "," + sval);
+            var videoAddr = "Vedio/Vedio?id=" + $(this).val();
+            var videoName = $(this).attr("videoName");
+            html += "<tr name='div_video' id='"+sval+"'><td class='Tit span6'>视频名称：</td><td><input type='text' name='in_video_name' videoId=\'" + sval + "\' value=\'" + videoName + "\' class='span10'/></td>" +
+    "<td class='Tit span11'>视频资源播放地址：</td><td><input type='text' name='in_video_address' disabled='disabled'  value=\'" + videoAddr + "\'  class='span16'/></td>" +
+    "<td><input type='button' value='新增' onclick='fnAddVideo()' class='btn btn-co' /> " +
+    "<input type='button' value='删除' onclick='fnDelVideo(this)' class='btn btn-cancel' /></td></tr>";
+        });
+        $("#div_tb_seled_videoaddress").prepend(html);
+        art.dialog.list["pop_ChooseVideo"].close();
+    }
+
+    function HiddenSelectVideo()
+    {
+        if ($("#Allvideo") != undefined && $("#Allvideo") != null)
+        {
+            $("#pop_VideoTb tbody input[type='checkbox']").each(function ()
+            {
+                if ((',' + $("#Allvideo").val() + ',').indexOf(',' + $(this).attr('id') + ',') >= 0)
+                {
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+        }
+    }
+</script>
